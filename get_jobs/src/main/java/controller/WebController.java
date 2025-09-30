@@ -33,6 +33,7 @@ public class WebController {
     @GetMapping("/")
     public String index(Model model) {
         try {
+            log.info("访问主页面");
             // 加载当前配置
             Map<String, Object> config = loadConfig();
             model.addAttribute("config", config);

@@ -24,6 +24,7 @@
 
 | 功能模块 | 功能描述 | 价值 |
 |---------|---------|------|
+| **🔐 用户认证系统** | 基于Authing的身份认证，支持邮箱注册/登录 | 安全可靠，支持JWT Token认证 |
 | **🎯 AI智能打招呼语** | 基于简历+完整JD深度分析，生成个性化招呼语（隐私保护） | 提升HR回复率30-50%，增加面试机会 |
 | **📄 智能简历解析** | AI自动提取核心优势、技能、经验（支持PDF/DOC/DOCX） | 一键生成结构化简历数据 |
 | **🔒 隐私保护模式** | 打招呼语不含姓名，简历显示匿名化 | 保护个人隐私，更加职业化 |
@@ -50,6 +51,62 @@
 | **逆向工程支持** | 适配各求职平台的网页结构和接口 | 实现真正的自动化操作 |
 | **文件格式支持** | PDF/DOC/DOCX/TXT简历自动解析 | Apache PDFBox + POI技术栈 |
 | **超时控制机制** | AI调用5分钟超时自动降级 | 保证投递流程不中断 |
+
+---
+
+## 🔐 用户认证系统
+
+### 功能特色
+
+**1. 基于Authing的身份认证**
+- ✅ 邮箱注册/登录支持
+- ✅ JWT Token认证机制
+- ✅ 用户会话管理
+- ✅ 安全的密码验证
+
+**2. 认证流程**
+```
+【注册流程】
+1. 用户输入邮箱、密码、用户名
+2. 系统调用Authing API进行用户注册
+3. 返回注册结果和用户ID
+
+【登录流程】
+1. 用户输入邮箱和密码
+2. 系统调用Authing API进行身份验证
+3. 返回JWT Token和用户信息
+4. 前端保存Token用于后续API调用
+```
+
+**3. 技术实现**
+```java
+// 注册接口
+@PostMapping("/api/auth/register")
+public ResponseEntity<?> register(@RequestBody Map<String, String> request)
+
+// 登录接口  
+@PostMapping("/api/auth/login/email")
+public ResponseEntity<?> loginByEmail(@RequestBody Map<String, String> request)
+
+// 健康检查接口
+@GetMapping("/api/auth/health")
+public ResponseEntity<?> health()
+```
+
+**4. 安全特性**
+- 🔒 **密码加密**：Authing平台自动处理密码加密
+- 🎫 **JWT Token**：无状态认证，支持Token过期管理
+- 🛡️ **CORS保护**：跨域请求安全控制
+- 🔍 **输入验证**：邮箱格式、密码长度验证
+
+**5. 配置要求**
+```bash
+# 环境变量配置
+export AUTHING_USER_POOL_ID=your_user_pool_id
+export AUTHING_APP_ID=your_app_id  
+export AUTHING_APP_SECRET=your_app_secret
+export AUTHING_APP_HOST=https://your-domain.authing.cn
+```
 
 ---
 
@@ -266,8 +323,12 @@ cd get_jobs
 # 安装Maven依赖
 mvn clean install
 
-# 配置环境变量（可选）
-cp src/main/resources/.env_template src/main/resources/.env
+# 配置Authing环境变量
+export AUTHING_USER_POOL_ID=your_user_pool_id
+export AUTHING_APP_ID=your_app_id
+export AUTHING_APP_SECRET=your_app_secret
+export AUTHING_APP_HOST=https://your-domain.authing.cn
+export SECURITY_ENABLED=false
 ```
 
 #### 3. 前端环境准备
@@ -288,7 +349,12 @@ npm install
 # 在 get_jobs 目录下
 cd get_jobs
 
-# 方式1：Maven运行
+# 方式1：Maven运行（推荐）
+export AUTHING_USER_POOL_ID=your_user_pool_id
+export AUTHING_APP_ID=your_app_id
+export AUTHING_APP_SECRET=your_app_secret
+export AUTHING_APP_HOST=https://your-domain.authing.cn
+export SECURITY_ENABLED=false
 mvn spring-boot:run
 
 # 方式2：编译后运行
@@ -296,7 +362,9 @@ mvn clean package
 java -jar target/get_jobs-*.jar
 
 # 访问地址
-http://localhost:8080
+http://localhost:8080          # 主页面
+http://localhost:8080/login    # 登录页面
+http://localhost:8080/register # 注册页面
 ```
 
 #### 前端服务启动
@@ -423,7 +491,50 @@ ai:
 
 ### 核心API接口
 
-#### 1. 任务管理接口
+#### 1. 用户认证接口
+
+| 方法 | 路径 | 功能 | 参数 | 返回值 |
+|------|------|------|------|-------|
+| POST | `/api/auth/register` | 用户注册 | `{email, password, username}` | `{success: boolean, message: string, userId: string}` |
+| POST | `/api/auth/login/email` | 邮箱登录 | `{email, password}` | `{success: boolean, token: string, user: object}` |
+| GET | `/api/auth/health` | 认证服务健康检查 | 无 | `{success: boolean, authingConfigured: boolean}` |
+
+**示例请求**：
+```bash
+# 用户注册
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com", "password": "password123", "username": "用户名"}'
+
+# 用户登录
+curl -X POST http://localhost:8080/api/auth/login/email \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com", "password": "password123"}'
+```
+
+**示例响应**：
+```json
+// 注册成功响应
+{
+  "success": true,
+  "message": "注册成功，请登录",
+  "userId": "68dbb116d81243469e2ef505"
+}
+
+// 登录成功响应
+{
+  "success": true,
+  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIs...",
+  "user": {
+    "userId": "68dbb116d81243469e2ef505",
+    "email": "user@example.com",
+    "username": "用户名"
+  },
+  "expiresIn": 1209600
+}
+```
+
+#### 2. 任务管理接口
 
 | 方法 | 路径 | 功能 | 参数 | 返回值 |
 |------|------|------|------|-------|
@@ -448,7 +559,7 @@ curl -X POST http://localhost:8080/start-program \
 }
 ```
 
-#### 2. 状态监控接口
+#### 3. 状态监控接口
 
 | 方法 | 路径 | 功能 | 参数 | 返回值 |
 |------|------|------|------|-------|
@@ -464,7 +575,7 @@ curl -X POST http://localhost:8080/start-program \
 }
 ```
 
-#### 3. AI服务接口（内部）
+#### 4. AI服务接口（内部）
 
 | 方法 | 类名 | 功能 | 参数 | 返回值 |
 |------|------|------|------|-------|
@@ -482,13 +593,22 @@ AiFilter result = parseAiResponse(aiResponse);
 ### 授权与认证方式
 
 **当前认证方式**：
-- **本地访问**：无需认证，仅本机访问
-- **生产环境**：建议添加Basic Auth或API Key认证
+- **Authing身份认证**：基于Authing平台的用户注册/登录
+- **JWT Token认证**：无状态认证，支持Token过期管理
+- **Spring Security**：API接口安全保护
+- **CORS配置**：跨域请求安全控制
+
+**认证流程**：
+1. 用户通过邮箱注册/登录
+2. 系统返回JWT Token
+3. 前端在请求头中携带Token
+4. 后端验证Token有效性
+5. 允许访问受保护的API接口
 
 **未来扩展**：
-- JWT Token认证
 - OAuth 2.0 集成
 - 用户权限管理
+- 多因素认证(MFA)
 
 ---
 
@@ -668,6 +788,15 @@ npm run dev                     # Astro博客启动
 # 项目调试
 curl http://localhost:8080/status    # 检查服务状态
 curl http://localhost:8080/logs      # 查看运行日志
+
+# 认证功能测试
+curl http://localhost:8080/api/auth/health  # 检查认证服务状态
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email": "test@example.com", "password": "test123", "username": "测试用户"}'
+curl -X POST http://localhost:8080/api/auth/login/email \
+  -H "Content-Type: application/json" \
+  -d '{"email": "test@example.com", "password": "test123"}'
 ```
 
 #### 部署运维命令

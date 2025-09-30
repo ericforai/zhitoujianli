@@ -1,4 +1,4 @@
-// 主启动类，无需包声明
+package com.superxiang;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

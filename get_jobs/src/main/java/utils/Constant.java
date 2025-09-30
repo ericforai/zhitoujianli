@@ -1,5 +1,8 @@
 package utils;
 
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
  * @author loks666

@@ -40,17 +40,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain) 
             throws ServletException, IOException {
         
+        String path = request.getRequestURI();
+        log.debug("JWT过滤器处理请求: {}", path);
+        
         try {
             String token = getJwtFromRequest(request);
             
             if (token != null && !token.isEmpty()) {
+                log.debug("找到token，开始验证: {}", token.substring(0, Math.min(20, token.length())) + "...");
                 Map<String, Object> userInfo = validateTokenAndGetUser(token);
                 if (userInfo != null) {
+                    log.debug("Token验证成功，设置认证信息");
                     setAuthentication(request, userInfo);
+                } else {
+                    log.warn("Token验证失败");
                 }
+            } else {
+                log.debug("未找到token，跳过认证");
             }
         } catch (Exception e) {
-            log.debug("JWT认证失败", e);
+            log.error("JWT认证异常: {}", e.getMessage());
         }
         
         filterChain.doFilter(request, response);
@@ -67,6 +76,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private Map<String, Object> validateTokenAndGetUser(String token) {
         try {
             String url = appHost + "/api/v3/get-profile";
+            log.debug("验证token，请求URL: {}", url);
             
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "Bearer " + token);
@@ -74,17 +84,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             
             HttpEntity<String> entity = new HttpEntity<>("{}", headers);
             
-            ResponseEntity<Map> response = restTemplate.exchange(
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
                 url, HttpMethod.GET, entity, Map.class);
             
+            log.debug("Token验证响应状态: {}", response.getStatusCode());
             Map<String, Object> responseBody = response.getBody();
+            log.debug("Token验证响应内容: {}", responseBody);
+            
             if (responseBody != null && responseBody.get("data") != null) {
-                return (Map<String, Object>) responseBody.get("data");
+                log.debug("Token验证成功，返回用户信息");
+                @SuppressWarnings("unchecked")
+                Map<String, Object> userData = (Map<String, Object>) responseBody.get("data");
+                return userData;
             }
             
+            log.warn("Token验证失败：响应数据为空或无效");
             return null;
         } catch (Exception e) {
-            log.debug("Token验证失败: {}", e.getMessage());
+            log.error("Token验证异常: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -112,10 +129,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
         String path = request.getRequestURI();
+        log.debug("检查路径是否需要过滤: {}", path);
         return path.startsWith("/static/") || 
                path.equals("/favicon.ico") ||
                path.startsWith("/api/auth/") ||
-               path.equals("/") ||
                path.equals("/login") ||
                path.equals("/register") ||
                path.equals("/resume-parser") ||

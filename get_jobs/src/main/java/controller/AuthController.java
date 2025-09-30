@@ -125,7 +125,7 @@ public class AuthController {
                     .body(Map.of("success", false, "message", "Authing配置不完整，请检查.env文件"));
             }
             
-            // 构造Authing API请求
+            // 构造Authing API请求 - 使用正确的API端点
             String url = appHost + "/api/v3/signin";
             
             Map<String, Object> body = new HashMap<>();
@@ -160,9 +160,9 @@ public class AuthController {
                 result.put("refreshToken", data.get("refresh_token"));
                 result.put("expiresIn", data.get("expires_in"));
                 result.put("user", Map.of(
-                    "userId", data.get("userId"),
+                    "userId", data.get("sub") != null ? data.get("sub") : "unknown",
                     "email", email,
-                    "username", data.getOrDefault("username", email)
+                    "username", data.getOrDefault("nickname", email)
                 ));
                 
                 log.info("✅ 用户登录成功，邮箱: {}", email);
@@ -171,10 +171,14 @@ public class AuthController {
                 return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "登录失败，请检查邮箱和密码"));
             }
-        } catch (Exception e) {
-            log.error("❌ 邮箱登录失败", e);
-            return ResponseEntity.badRequest()
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            log.error("❌ 登录失败: {}", e.getResponseBodyAsString(), e);
+            return ResponseEntity.status(e.getStatusCode())
                 .body(Map.of("success", false, "message", "登录失败，请检查邮箱和密码"));
+        } catch (Exception e) {
+            log.error("❌ 登录异常", e);
+            return ResponseEntity.internalServerError()
+                .body(Map.of("success", false, "message", "服务器内部错误"));
         }
     }
 

@@ -633,9 +633,11 @@
         function checkAuth() {
             const token = localStorage.getItem('authToken');
             if (!token) {
+                console.log('未找到认证token，重定向到登录页面');
                 window.location.href = '/login';
                 return false;
             }
+            console.log('找到认证token，继续加载页面');
             return true;
         }
 
@@ -647,11 +649,15 @@
 
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('主页面开始加载');
+            
             // 检查登录状态
             if (!checkAuth()) {
+                console.log('认证检查失败，页面将重定向到登录页');
                 return;
             }
 
+            console.log('认证检查通过，开始初始化页面');
             updateStatus();
             refreshLogs();
             
