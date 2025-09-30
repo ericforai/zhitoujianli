@@ -4,16 +4,16 @@ description: "深度解析AI智能打招呼语系统的技术实现，包括两�
 excerpt: "告别千篇一律的求职打招呼语，AI智能生成让你的简历投递更精准。本文详细介绍两阶段AI处理架构、隐私保护优先设计、PDF/DOC简历解析技术，以及真实测试数据：HR回复率从7.2%提升到31.8%，增长342%。"
 pubDate: 2025-09-30
 updatedDate: 2025-09-30
-heroImage: "/blog-placeholder-ai-greeting.jpg"
+heroImage: "/images/blog/ai-greeting-hero.svg"
 category: "技术深度"
 tags: ["AI", "求职", "DeepSeek", "简历优化", "PDF解析", "Spring Boot", "技术方案", "隐私保护", "性能优化"]
 author: "智投简历技术团队"
-authorImage: "/author-avatar.jpg"
+authorImage: "/images/blog/author-avatar.svg"
 featured: true
 readingTime: 15
 keywords: "AI智能打招呼语,求职投递优化,DeepSeek API,简历解析,PDF解析,隐私保护,HR回复率,面试邀请率,Spring Boot,Apache PDFBox,Apache POI,两阶段AI处理,个性化求职,求职自动化"
 metaDescription: "详解AI智能打招呼语系统：两阶段AI处理架构+隐私保护+PDF解析，HR回复率提升342%。DeepSeek API 5秒生成，成本￥0.002/次。完整技术方案、真实数据、开源代码。"
-ogImage: "/og-ai-greeting.jpg"
+ogImage: "/images/blog/og-ai-greeting.svg"
 ---
 
 ## 一、求职痛点：为什么你的简历总是石沉大海？
@@ -131,15 +131,7 @@ if (fileName.endsWith(".pdf")) {
 
 #### 工作流程
 
-```mermaid
-graph LR
-    A[搜索岗位] --> B[抓取完整JD]
-    B --> C[加载简历数据]
-    C --> D[AI深度分析]
-    D --> E[生成打招呼语]
-    E --> F[隐私检查]
-    F --> G[自动投递]
-```
+![AI智能打招呼语系统架构](/images/blog/ai-architecture-diagram.svg)
 
 #### AI Prompt工程（核心竞争力）
 
@@ -385,13 +377,7 @@ AI匹配分析：
 
 ### 测试结果对比
 
-| 指标 | 默认模板 | AI智能生成 | 提升幅度 |
-|------|---------|-----------|---------|
-| **HR查看简历率** | 15.3% | 68.9% | **+350%** 🔥 |
-| **HR回复率** | 7.2% | 31.8% | **+342%** 🔥 |
-| **面试邀请率** | 2.1% | 8.9% | **+324%** 🔥 |
-| **平均回复时间** | 3.8天 | 1.2天 | **提速68%** ⚡ |
-| **获得offer数** | 1个 | 5个 | **+400%** 🎉 |
+![A/B测试结果对比](/images/blog/ab-test-results.svg)
 
 ### 💬 真实案例分析
 
