@@ -1,20 +1,19 @@
 package controller;
 
-import cn.authing.sdk.java.client.AuthenticationClient;
-import cn.authing.sdk.java.dto.*;
 import config.AuthingConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 身份认证控制器
+ * 身份认证控制器 - 使用Authing REST API
  * 
- * @author ZhiTouJianLi Team
+ * @author ZhiTouJianLi Team  
  * @since 2025-09-30
  */
 @RestController
@@ -25,6 +24,8 @@ public class AuthController {
 
     @Autowired
     private AuthingConfig authingConfig;
+
+    private final RestTemplate restTemplate = new RestTemplate();
 
     /**
      * 邮箱密码注册
@@ -46,32 +47,45 @@ public class AuthController {
                     .body(Map.of("success", false, "message", "密码长度至少6位"));
             }
             
-            cn.authing.sdk.java.model.AuthenticationClientOptions options = 
-                new cn.authing.sdk.java.model.AuthenticationClientOptions();
-            options.setAppId(authingConfig.getAppId());
-            options.setAppHost(authingConfig.getAppHost());
+            // 检查Authing配置
+            String appId = authingConfig.getAppId();
+            String appHost = authingConfig.getAppHost();
             
-            AuthenticationClient client = new AuthenticationClient(options);
-            
-            SignUpDto dto = new SignUpDto();
-            dto.setConnection(SignUpDto.Connection.PASSWORD);
-            
-            SignUpDto.PasswordSignUpInput payload = new SignUpDto.PasswordSignUpInput();
-            payload.setEmail(email);
-            payload.setPassword(password);
-            if (username != null && !username.isEmpty()) {
-                payload.setUsername(username);
+            if (appId.isEmpty() || appHost.equals("https://your-domain.authing.cn")) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "Authing配置不完整，请检查.env文件"));
             }
-            dto.setPasswordPayload(payload);
             
-            UserSingleRespDto result = client.signUp(dto);
+            // 构造Authing API请求
+            String url = appHost + "/api/v3/signup";
             
-            if (result != null && result.getData() != null) {
+            Map<String, Object> body = new HashMap<>();
+            body.put("connection", "PASSWORD");
+            body.put("passwordPayload", Map.of(
+                "email", email,
+                "password", password
+            ));
+            if (username != null && !username.isEmpty()) {
+                body.put("profile", Map.of("nickname", username));
+            }
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("x-authing-app-id", appId);
+            
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+            
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+            Map<String, Object> responseBody = response.getBody();
+            
+            if (responseBody != null && responseBody.get("data") != null) {
+                Map<String, Object> userData = (Map<String, Object>) responseBody.get("data");
                 log.info("✅ 用户注册成功，邮箱: {}", email);
+                
                 return ResponseEntity.ok(Map.of(
                     "success", true,
                     "message", "注册成功，请登录",
-                    "userId", result.getData().getUserId()
+                    "userId", userData.get("userId")
                 ));
             } else {
                 return ResponseEntity.badRequest()
@@ -80,7 +94,7 @@ public class AuthController {
         } catch (Exception e) {
             log.error("❌ 注册失败", e);
             String errorMsg = e.getMessage();
-            if (errorMsg != null && errorMsg.contains("already exists")) {
+            if (errorMsg != null && errorMsg.contains("409")) {
                 errorMsg = "该邮箱已被注册";
             }
             return ResponseEntity.badRequest()
@@ -102,43 +116,50 @@ public class AuthController {
                     .body(Map.of("success", false, "message", "邮箱和密码不能为空"));
             }
             
-            cn.authing.sdk.java.model.AuthenticationClientOptions options = 
-                new cn.authing.sdk.java.model.AuthenticationClientOptions();
-            options.setAppId(authingConfig.getAppId());
-            options.setAppHost(authingConfig.getAppHost());
+            // 检查Authing配置
+            String appId = authingConfig.getAppId();
+            String appHost = authingConfig.getAppHost();
             
-            AuthenticationClient client = new AuthenticationClient(options);
+            if (appId.isEmpty() || appHost.equals("https://your-domain.authing.cn")) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "Authing配置不完整，请检查.env文件"));
+            }
             
-            SignInByEmailPasswordDto dto = new SignInByEmailPasswordDto();
-            dto.setConnection(SignInByEmailPasswordDto.Connection.PASSWORD);
+            // 构造Authing API请求
+            String url = appHost + "/api/v3/signin";
             
-            SignInByEmailPasswordDto.PasswordSignInInput payload = 
-                new SignInByEmailPasswordDto.PasswordSignInInput();
-            payload.setEmail(email);
-            payload.setPassword(password);
-            dto.setPasswordPayload(payload);
+            Map<String, Object> body = new HashMap<>();
+            body.put("connection", "PASSWORD");
+            body.put("passwordPayload", Map.of(
+                "email", email,
+                "password", password
+            ));
             
-            LoginTokenRespDto result = client.signInByEmailPassword(dto);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("x-authing-app-id", appId);
             
-            if (result != null && result.getData() != null) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", true);
-                response.put("token", result.getAccessToken());
-                response.put("refreshToken", result.getRefreshToken());
-                response.put("expiresIn", result.getExpiresIn());
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+            
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+            Map<String, Object> responseBody = response.getBody();
+            
+            if (responseBody != null && responseBody.get("data") != null) {
+                Map<String, Object> data = (Map<String, Object>) responseBody.get("data");
                 
-                Map<String, Object> userInfo = new HashMap<>();
-                userInfo.put("userId", result.getData().getUserId());
-                if (result.getData().getEmail() != null) {
-                    userInfo.put("email", result.getData().getEmail());
-                }
-                if (result.getData().getUsername() != null) {
-                    userInfo.put("username", result.getData().getUsername());
-                }
-                response.put("user", userInfo);
+                Map<String, Object> result = new HashMap<>();
+                result.put("success", true);
+                result.put("token", data.get("access_token"));
+                result.put("refreshToken", data.get("refresh_token"));
+                result.put("expiresIn", data.get("expires_in"));
+                result.put("user", Map.of(
+                    "userId", data.get("userId"),
+                    "email", email,
+                    "username", data.getOrDefault("username", email)
+                ));
                 
                 log.info("✅ 用户登录成功，邮箱: {}", email);
-                return ResponseEntity.ok(response);
+                return ResponseEntity.ok(result);
             } else {
                 return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "登录失败，请检查邮箱和密码"));
@@ -146,162 +167,7 @@ public class AuthController {
         } catch (Exception e) {
             log.error("❌ 邮箱登录失败", e);
             return ResponseEntity.badRequest()
-                .body(Map.of("success", false, "message", "登录失败: " + e.getMessage()));
-        }
-    }
-
-    /**
-     * 发送手机验证码
-     */
-    @PostMapping("/send-code")
-    public ResponseEntity<?> sendPhoneCode(@RequestBody Map<String, String> request) {
-        try {
-            String phone = request.get("phone");
-            
-            if (phone == null || phone.isEmpty()) {
-                return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "message", "手机号不能为空"));
-            }
-            
-            if (!phone.matches("^1[3-9]\\d{9}$")) {
-                return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "message", "手机号格式不正确"));
-            }
-            
-            cn.authing.sdk.java.model.AuthenticationClientOptions options = 
-                new cn.authing.sdk.java.model.AuthenticationClientOptions();
-            options.setAppId(authingConfig.getAppId());
-            options.setAppHost(authingConfig.getAppHost());
-            
-            AuthenticationClient client = new AuthenticationClient(options);
-            
-            SendSMSDto dto = new SendSMSDto();
-            dto.setPhoneNumber(phone);
-            dto.setChannel(SendSMSDto.Channel.CHANNEL_LOGIN);
-            
-            SendSMSRespDto result = client.sendSms(dto);
-            
-            log.info("✅ 验证码发送成功，手机号: {}", phone);
-            return ResponseEntity.ok(Map.of("success", true, "message", "验证码已发送"));
-        } catch (Exception e) {
-            log.error("❌ 发送验证码失败", e);
-            return ResponseEntity.badRequest()
-                .body(Map.of("success", false, "message", "发送失败: " + e.getMessage()));
-        }
-    }
-
-    /**
-     * 手机号验证码登录
-     */
-    @PostMapping("/login/phone")
-    public ResponseEntity<?> loginByPhone(@RequestBody Map<String, String> request) {
-        try {
-            String phone = request.get("phone");
-            String code = request.get("code");
-            
-            if (phone == null || code == null) {
-                return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "message", "手机号和验证码不能为空"));
-            }
-            
-            cn.authing.sdk.java.model.AuthenticationClientOptions options = 
-                new cn.authing.sdk.java.model.AuthenticationClientOptions();
-            options.setAppId(authingConfig.getAppId());
-            options.setAppHost(authingConfig.getAppHost());
-            
-            AuthenticationClient client = new AuthenticationClient(options);
-            
-            SignInByPhonePassCodeDto dto = new SignInByPhonePassCodeDto();
-            dto.setConnection(SignInByPhonePassCodeDto.Connection.PASSCODE);
-            
-            SignInByPhonePassCodeDto.PassCodeSignInInput payload = 
-                new SignInByPhonePassCodeDto.PassCodeSignInInput();
-            payload.setPhone(phone);
-            payload.setPassCode(code);
-            dto.setPassCodePayload(payload);
-            
-            LoginTokenRespDto result = client.signInByPhonePassCode(dto);
-            
-            if (result != null && result.getData() != null) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", true);
-                response.put("token", result.getAccessToken());
-                response.put("refreshToken", result.getRefreshToken());
-                response.put("expiresIn", result.getExpiresIn());
-                
-                Map<String, Object> userInfo = new HashMap<>();
-                userInfo.put("userId", result.getData().getUserId());
-                if (result.getData().getPhone() != null) {
-                    userInfo.put("phone", result.getData().getPhone());
-                }
-                if (result.getData().getUsername() != null) {
-                    userInfo.put("username", result.getData().getUsername());
-                }
-                response.put("user", userInfo);
-                
-                log.info("✅ 用户登录成功，手机号: {}", phone);
-                return ResponseEntity.ok(response);
-            } else {
-                return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "message", "登录失败，请检查验证码"));
-            }
-        } catch (Exception e) {
-            log.error("❌ 手机号登录失败", e);
-            return ResponseEntity.badRequest()
-                .body(Map.of("success", false, "message", "登录失败: " + e.getMessage()));
-        }
-    }
-
-    /**
-     * 获取当前登录用户信息
-     */
-    @GetMapping("/user/info")
-    public ResponseEntity<?> getUserInfo(@RequestHeader("Authorization") String token) {
-        try {
-            if (token.startsWith("Bearer ")) {
-                token = token.substring(7);
-            }
-            
-            cn.authing.sdk.java.model.AuthenticationClientOptions options = 
-                new cn.authing.sdk.java.model.AuthenticationClientOptions();
-            options.setAccessToken(token);
-            options.setAppHost(authingConfig.getAppHost());
-            
-            AuthenticationClient client = new AuthenticationClient(options);
-            
-            GetProfileDto dto = new GetProfileDto();
-            UserSingleRespDto user = client.getProfile(dto);
-            
-            if (user != null && user.getData() != null) {
-                return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "user", user.getData()
-                ));
-            } else {
-                return ResponseEntity.status(401)
-                    .body(Map.of("success", false, "message", "未授权"));
-            }
-        } catch (Exception e) {
-            log.error("❌ 获取用户信息失败", e);
-            return ResponseEntity.status(401)
-                .body(Map.of("success", false, "message", "Token无效或已过期"));
-        }
-    }
-
-    /**
-     * 登出
-     */
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader(value = "Authorization", required = false) String token) {
-        try {
-            if (token != null && token.startsWith("Bearer ")) {
-                token = token.substring(7);
-                log.info("✅ 用户登出成功");
-            }
-            return ResponseEntity.ok(Map.of("success", true, "message", "登出成功"));
-        } catch (Exception e) {
-            log.error("❌ 登出失败", e);
-            return ResponseEntity.ok(Map.of("success", true, "message", "登出成功"));
+                .body(Map.of("success", false, "message", "登录失败，请检查邮箱和密码"));
         }
     }
 
@@ -311,12 +177,19 @@ public class AuthController {
     @GetMapping("/health")
     public ResponseEntity<?> health() {
         Map<String, Object> response = new HashMap<>();
+        String appId = authingConfig.getAppId();
+        String userPoolId = authingConfig.getUserPoolId();
+        String appHost = authingConfig.getAppHost();
+        
+        boolean isConfigured = !appId.isEmpty() && !userPoolId.isEmpty() && 
+                              !appHost.equals("https://your-domain.authing.cn");
+        
         response.put("success", true);
-        response.put("authingConfigured", true);
-        response.put("appId", authingConfig.getAppId());
-        response.put("userPoolId", authingConfig.getUserPoolId());
-        response.put("appHost", authingConfig.getAppHost());
-        response.put("message", "Authing配置正常");
+        response.put("authingConfigured", isConfigured);
+        response.put("appId", appId);
+        response.put("userPoolId", userPoolId);
+        response.put("appHost", appHost);
+        response.put("message", isConfigured ? "✅ Authing配置正常" : "⚠️ Authing配置不完整");
         
         return ResponseEntity.ok(response);
     }

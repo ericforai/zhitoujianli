@@ -1,6 +1,5 @@
 package config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,9 +23,6 @@ import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -56,7 +52,9 @@ public class SecurityConfig {
                     "/login",
                     "/register",
                     "/static/**",
-                    "/favicon.ico"
+                    "/favicon.ico",
+                    "/resume-parser",
+                    "/resume-manager"
                 ).permitAll()
                 
                 // 其他所有请求需要认证
@@ -75,10 +73,15 @@ public class SecurityConfig {
             )
             
             // 添加JWT认证过滤器
-            .addFilterBefore(jwtAuthenticationFilter, 
+            .addFilterBefore(jwtAuthenticationFilter(), 
                 UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter();
     }
 
     @Bean

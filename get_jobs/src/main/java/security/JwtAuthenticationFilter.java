@@ -1,26 +1,26 @@
 package security;
 
-import cn.authing.sdk.java.client.AuthenticationClient;
-import cn.authing.sdk.java.dto.GetProfileDto;
-import cn.authing.sdk.java.dto.UserSingleRespDto;
+import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Map;
 
 /**
- * JWT认证过滤器
+ * JWT认证过滤器 - 使用Authing REST API
  * 
  * @author ZhiTouJianLi Team
  * @since 2025-09-30
@@ -29,8 +29,9 @@ import java.util.Collections;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    @Value("${authing.appHost}")
-    private String appHost;
+    private static final Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+    private final String appHost = dotenv.get("AUTHING_APP_HOST", "https://your-domain.authing.cn");
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, 
@@ -42,12 +43,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = getJwtFromRequest(request);
             
             if (token != null && !token.isEmpty()) {
-                if (validateToken(token)) {
-                    setAuthentication(request, token);
+                Map<String, Object> userInfo = validateTokenAndGetUser(token);
+                if (userInfo != null) {
+                    setAuthentication(request, userInfo);
                 }
             }
         } catch (Exception e) {
-            log.error("JWT认证异常", e);
+            log.debug("JWT认证失败", e);
         }
         
         filterChain.doFilter(request, response);
@@ -61,51 +63,46 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return null;
     }
 
-    private boolean validateToken(String token) {
+    private Map<String, Object> validateTokenAndGetUser(String token) {
         try {
-            cn.authing.sdk.java.model.AuthenticationClientOptions options = 
-                new cn.authing.sdk.java.model.AuthenticationClientOptions();
-            options.setAccessToken(token);
-            options.setAppHost(appHost);
+            String url = appHost + "/api/v3/get-profile";
             
-            AuthenticationClient client = new AuthenticationClient(options);
-            GetProfileDto dto = new GetProfileDto();
-            UserSingleRespDto user = client.getProfile(dto);
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + token);
+            headers.setContentType(MediaType.APPLICATION_JSON);
             
-            return user != null && user.getData() != null;
+            HttpEntity<String> entity = new HttpEntity<>("{}", headers);
+            
+            ResponseEntity<Map> response = restTemplate.exchange(
+                url, HttpMethod.GET, entity, Map.class);
+            
+            Map<String, Object> responseBody = response.getBody();
+            if (responseBody != null && responseBody.get("data") != null) {
+                return (Map<String, Object>) responseBody.get("data");
+            }
+            
+            return null;
         } catch (Exception e) {
             log.debug("Token验证失败: {}", e.getMessage());
-            return false;
+            return null;
         }
     }
 
-    private void setAuthentication(HttpServletRequest request, String token) {
+    private void setAuthentication(HttpServletRequest request, Map<String, Object> userInfo) {
         try {
-            cn.authing.sdk.java.model.AuthenticationClientOptions options = 
-                new cn.authing.sdk.java.model.AuthenticationClientOptions();
-            options.setAccessToken(token);
-            options.setAppHost(appHost);
+            UsernamePasswordAuthenticationToken authentication = 
+                new UsernamePasswordAuthenticationToken(
+                    userInfo,
+                    null,
+                    Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+                );
             
-            AuthenticationClient client = new AuthenticationClient(options);
-            GetProfileDto dto = new GetProfileDto();
-            UserSingleRespDto userResp = client.getProfile(dto);
+            authentication.setDetails(
+                new WebAuthenticationDetailsSource().buildDetails(request));
             
-            if (userResp != null && userResp.getData() != null) {
-                var userData = userResp.getData();
-                
-                UsernamePasswordAuthenticationToken authentication = 
-                    new UsernamePasswordAuthenticationToken(
-                        userData,
-                        null,
-                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
-                    );
-                
-                authentication.setDetails(
-                    new WebAuthenticationDetailsSource().buildDetails(request));
-                
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.debug("✅ 用户认证成功: userId={}", userData.getUserId());
-            }
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            
+            log.debug("✅ 用户认证成功: userId={}", userInfo.get("userId"));
         } catch (Exception e) {
             log.error("设置认证信息失败", e);
         }

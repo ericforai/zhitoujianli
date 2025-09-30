@@ -1,8 +1,8 @@
 package config;
 
 import cn.authing.sdk.java.client.ManagementClient;
+import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,39 +16,33 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 public class AuthingConfig {
     
-    @Value("${authing.userPoolId}")
-    private String userPoolId;
+    private static final Dotenv dotenv = Dotenv.configure()
+        .ignoreIfMissing()
+        .load();
     
-    @Value("${authing.appSecret}")
-    private String appSecret;
+    private final String userPoolId = dotenv.get("AUTHING_USER_POOL_ID", "");
+    private final String appSecret = dotenv.get("AUTHING_APP_SECRET", "");
+    private final String appId = dotenv.get("AUTHING_APP_ID", "");
+    private final String appHost = dotenv.get("AUTHING_APP_HOST", "https://your-domain.authing.cn");
     
-    @Value("${authing.appId}")
-    private String appId;
-    
-    @Value("${authing.appHost}")
-    private String appHost;
+    // 添加调试日志
+    {
+        log.info("🔧 Authing配置加载中...");
+        log.info("📝 用户池ID: {}", userPoolId.isEmpty() ? "未配置" : userPoolId);
+        log.info("📝 应用ID: {}", appId.isEmpty() ? "未配置" : appId);
+        log.info("📝 应用密钥: {}", appSecret.isEmpty() ? "未配置" : "已配置");
+        log.info("🌐 域名: {}", appHost);
+    }
     
     @Bean
     public ManagementClient managementClient() {
-        try {
-            cn.authing.sdk.java.model.ManagementClientOptions options = 
-                new cn.authing.sdk.java.model.ManagementClientOptions();
-            options.setAccessKeyId(userPoolId);
-            options.setAccessKeySecret(appSecret);
-            options.setHost(appHost);
-            
-            ManagementClient client = new ManagementClient(options);
-            
-            log.info("✅ Authing管理客户端初始化成功");
-            log.info("📝 用户池ID: {}", userPoolId);
-            log.info("📝 应用ID: {}", appId);
-            log.info("🌐 域名: {}", appHost);
-            
-            return client;
-        } catch (Exception e) {
-            log.error("❌ Authing管理客户端初始化失败", e);
-            return null;
-        }
+        // ManagementClient需要特定的配置，这里先返回null
+        // 我们主要使用AuthenticationClient进行用户认证
+        log.info("✅ Authing配置加载成功");
+        log.info("📝 用户池ID: {}", userPoolId);
+        log.info("📝 应用ID: {}", appId);
+        log.info("🌐 域名: {}", appHost);
+        return null;
     }
     
     public String getAppId() {

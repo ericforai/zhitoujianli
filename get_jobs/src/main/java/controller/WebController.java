@@ -3,8 +3,6 @@ package controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -57,6 +55,11 @@ public class WebController {
     @GetMapping("/resume-manager")
     public String resumeManager() {
         return "resume_manager";
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
     }
 
     @PostMapping("/save-config")
