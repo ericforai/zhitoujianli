@@ -46,3 +46,9 @@ Thumbs.db
 
 # Specific files
 classpath.txt
+
+# React specific
+/.pnp
+.pnp.js
+/coverage
+react.log

@@ -164,8 +164,8 @@ graph TB
 #### 1. 项目克隆
 ```bash
 # 克隆项目到本地
-git clone https://github.com/your-repo/autoresume.git
-cd autoresume
+git clone https://github.com/ericforai/zhitoujianli.git
+cd zhitoujianli
 ```
 
 #### 2. 后端环境准备
@@ -196,7 +196,7 @@ npm install
 #### 后端服务启动
 ```bash
 # 在 get_jobs 目录下
-cd /Users/user/autoresume/get_jobs
+cd get_jobs
 
 # 方式1：Maven运行
 mvn spring-boot:run
@@ -378,8 +378,8 @@ curl -X POST http://localhost:8080/start-program \
 
 | 方法 | 类名 | 功能 | 参数 | 返回值 |
 |------|------|------|------|-------|
-静 态 | `AiService.sendRequest()` | AI对话请求 | `content: String` | `response: String` |
-静 态 | `AiConfig.init()` | 获取AI配置 | 无 | `AiConfig对象` |
+|静 态 | `AiService.sendRequest()` | AI对话请求 | `content: String` | `response: String` |
+|静 态 | `AiConfig.init()` | 获取AI配置 | 无 | `AiConfig对象` |
 
 **示例代码**：
 ```java
@@ -644,6 +644,6 @@ cp cookies.json cookies.json.backup.$(date +%Y%m%d)
 
 ---
 
-*本文档最后更新时间：2025年9月29日*  
+*本文档最后更新时间：2025年9月30日*  
 *版本号：1.0*  
 *如有疑问，请联系项目维护团队*
