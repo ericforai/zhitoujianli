@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: zhitoujianli-backend
+
+# Authing身份认证配置
+authing:
+  userPoolId: ${AUTHING_USER_POOL_ID:}
+  appId: ${AUTHING_APP_ID:}
+  appSecret: ${AUTHING_APP_SECRET:}
+  appHost: ${AUTHING_APP_HOST:https://your-domain.authing.cn}
+
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET:default_secret_change_in_production_at_least_32_characters}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+# 微信支付配置（可选）
+wechat:
+  pay:
+    merchantId: ${WECHAT_PAY_MERCHANT_ID:}
+    apiKey: ${WECHAT_PAY_API_KEY:}
+    certPath: ${WECHAT_PAY_CERT_PATH:src/main/resources/apiclient_cert.p12}
+    notifyUrl: ${WECHAT_PAY_NOTIFY_URL:https://yourdomain.com/api/payment/wechat/notify}
+
+# 支付宝配置（可选）
+alipay:
+  appId: ${ALIPAY_APP_ID:}
+  privateKey: ${ALIPAY_PRIVATE_KEY:}
+  publicKey: ${ALIPAY_PUBLIC_KEY:}
+  notifyUrl: ${ALIPAY_NOTIFY_URL:https://yourdomain.com/api/payment/alipay/notify}
+
+# 服务器配置
+server:
+  port: 8080
+  
+# 日志配置
+logging:
+  level:
+    root: INFO
+    controller: DEBUG
+    security: DEBUG
+    config: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

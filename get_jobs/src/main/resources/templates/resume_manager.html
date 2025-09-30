@@ -220,9 +220,61 @@
         let candidateData = null;
 
         // 页面加载时检查是否已有简历
-        window.onload = function() {
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('页面加载完成，初始化事件监听器');
+            initializeEventListeners();
             checkExistingResume();
-        };
+        });
+
+        // 初始化所有事件监听器
+        function initializeEventListeners() {
+            console.log('初始化事件监听器...');
+            
+            // 文件上传点击事件
+            const uploadArea = document.getElementById('uploadArea');
+            if (uploadArea) {
+                uploadArea.addEventListener('click', function() {
+                    console.log('点击上传区域');
+                    document.getElementById('fileInput').click();
+                });
+            }
+
+            // 文件选择事件
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput) {
+                fileInput.addEventListener('change', function(event) {
+                    console.log('文件选择事件触发');
+                    handleFileUpload(event);
+                });
+            }
+
+            // 拖拽事件
+            if (uploadArea) {
+                uploadArea.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    console.log('拖拽中...');
+                    uploadArea.classList.add('dragover');
+                });
+
+                uploadArea.addEventListener('dragleave', function() {
+                    console.log('拖拽离开');
+                    uploadArea.classList.remove('dragover');
+                });
+
+                uploadArea.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    console.log('文件拖放');
+                    uploadArea.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        console.log('拖放文件:', files[0].name);
+                        handleFileUpload({ target: { files: files } });
+                    }
+                });
+            }
+            
+            console.log('事件监听器初始化完成');
+        }
 
         // 检查是否已有简历
         function checkExistingResume() {
@@ -241,9 +293,11 @@
 
         // 加载已有简历
         function loadExistingResume() {
+            console.log('加载已有简历...');
             fetch('/api/candidate-resume/load')
                 .then(response => response.json())
                 .then(data => {
+                    console.log('简历加载结果:', data);
                     if (data.success) {
                         candidateData = data.data;
                         displayCandidateInfo(candidateData);
@@ -251,41 +305,19 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error('加载简历错误:', error);
                 });
         }
-
-        // 文件上传处理
-        document.getElementById('uploadArea').addEventListener('click', () => {
-            document.getElementById('fileInput').click();
-        });
-
-        document.getElementById('fileInput').addEventListener('change', handleFileUpload);
-
-        // 拖拽上传
-        const uploadArea = document.getElementById('uploadArea');
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFileUpload({ target: { files: files } });
-            }
-        });
 
         // 处理文件上传
         function handleFileUpload(event) {
             const file = event.target.files[0];
-            if (!file) return;
+            if (!file) {
+                console.log('没有选择文件');
+                return;
+            }
+
+            console.log('选择的文件:', file.name, '大小:', file.size, '类型:', file.type);
 
             // 检查文件大小（10MB）
             if (file.size > 10 * 1024 * 1024) {
@@ -293,17 +325,30 @@
                 return;
             }
 
+            // 检查文件类型
+            const fileName = file.name.toLowerCase();
+            if (!fileName.endsWith('.txt') && !fileName.endsWith('.doc') && 
+                !fileName.endsWith('.docx') && !fileName.endsWith('.pdf')) {
+                alert('不支持的文件类型，请上传TXT、DOC、DOCX或PDF文件');
+                return;
+            }
+
             const formData = new FormData();
             formData.append('file', file);
 
+            console.log('开始上传文件...');
             showLoading('正在上传文件并解析简历...');
             
             fetch('/api/candidate-resume/upload', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('收到响应，状态:', response.status);
+                return response.json();
+            })
             .then(data => {
+                console.log('解析响应数据:', data);
                 hideLoading();
                 if (data.success) {
                     candidateData = data.data;
@@ -312,15 +357,20 @@
                     
                     // 生成默认打招呼语
                     generateDefaultGreeting(candidateData);
+                    
+                    alert('简历解析成功！');
                 } else {
                     alert('文件解析失败：' + data.message);
                 }
             })
             .catch(error => {
                 hideLoading();
-                console.error('Error:', error);
+                console.error('上传错误:', error);
                 alert('文件上传失败：' + error.message);
             });
+            
+            // 重置文件输入，允许重新选择相同文件
+            event.target.value = '';
         }
 
         // 解析简历文本
