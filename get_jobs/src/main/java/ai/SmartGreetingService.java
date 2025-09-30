@@ -33,7 +33,7 @@ public class SmartGreetingService {
         
         你的任务：
         深度分析候选人与岗位的匹配点，生成一段打招呼语（200字以内），要求：
-        - 开头礼貌问候
+        - 开头礼貌问候（使用"您好"即可，不要提及候选人姓名）
         - 明确表达对岗位的兴趣
         - 融入2-3个岗位关键词
         - 突出2-3个核心匹配优势
@@ -41,6 +41,7 @@ public class SmartGreetingService {
         - 表达进一步沟通的意愿
         - 语气真诚专业，不套路
         - 不得编造没有证据的量化数字；如无量化信息则使用非具体但可信的表述
+        - 【重要】全文不得出现候选人的真实姓名，保护隐私
         
         输出格式：
         直接返回打招呼语文本，不要任何解释、分析、JSON格式或其他内容。
@@ -100,7 +101,7 @@ public class SmartGreetingService {
             // 构建User Prompt
             String userPrompt = buildUserPrompt(candidate, jobName, fullJobDescription);
             
-            log.info("【智能打招呼】调用AI服务，候选人: {}，岗位: {}", candidate.get("name"), jobName);
+            log.info("【智能打招呼】调用AI服务，岗位: {}", jobName);
             
             // 调用AI服务
             String fullPrompt = GREETING_GENERATION_SYSTEM_PROMPT + "\n\n" + userPrompt;
@@ -134,7 +135,6 @@ public class SmartGreetingService {
         StringBuilder prompt = new StringBuilder();
         
         prompt.append("【候选人简历】\n");
-        prompt.append("姓名：").append(candidate.get("name")).append("\n");
         prompt.append("当前职位：").append(candidate.get("current_title")).append("\n");
         prompt.append("工作年限：").append(candidate.get("years_experience")).append("年\n");
         

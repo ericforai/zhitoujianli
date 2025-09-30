@@ -5,11 +5,18 @@ import ai.AiService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.poi.hwpf.extractor.WordExtractor;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -310,30 +317,79 @@ public class CandidateResumeController {
 
     /**
      * 从文件中提取文本内容
+     * 支持 TXT、PDF、DOC、DOCX 格式
      */
     private String extractTextFromFile(MultipartFile file) {
         try {
             String fileName = file.getOriginalFilename();
-            if (fileName == null) return null;
-            
-            String lowerFileName = fileName.toLowerCase();
-            
-            if (lowerFileName.endsWith(".txt")) {
-                return new String(file.getBytes(), "UTF-8");
-            } else if (lowerFileName.endsWith(".doc") || lowerFileName.endsWith(".docx")) {
-                // TODO: 实现DOC/DOCX文件解析（需要Apache POI库）
-                log.warn("DOC/DOCX文件解析功能待实现，建议使用TXT格式");
-                return "DOC文件解析功能待实现，请使用TXT格式";
-            } else if (lowerFileName.endsWith(".pdf")) {
-                // TODO: 实现PDF文件解析（需要Apache PDFBox库）
-                log.warn("PDF文件解析功能待实现，建议使用TXT格式");
-                return "PDF文件解析功能待实现，请使用TXT格式";
+            if (fileName == null) {
+                log.error("【文件解析】文件名为空");
+                throw new RuntimeException("文件名为空");
             }
             
-            return null;
+            String lowerFileName = fileName.toLowerCase();
+            log.info("【文件解析】开始解析文件: {}, 大小: {} bytes, 类型: {}", 
+                fileName, file.getSize(), file.getContentType());
+            
+            String content = null;
+            
+            // TXT文件
+            if (lowerFileName.endsWith(".txt")) {
+                content = new String(file.getBytes(), "UTF-8");
+                log.info("【文件解析】TXT文件解析成功，长度: {} 字符", content.length());
+                
+            // PDF文件
+            } else if (lowerFileName.endsWith(".pdf")) {
+                try (InputStream inputStream = file.getInputStream();
+                     PDDocument document = PDDocument.load(inputStream)) {
+                    
+                    PDFTextStripper stripper = new PDFTextStripper();
+                    content = stripper.getText(document);
+                    log.info("【文件解析】PDF文件解析成功，页数: {}, 长度: {} 字符", 
+                        document.getNumberOfPages(), content.length());
+                }
+                
+            // DOCX文件（Word 2007+）
+            } else if (lowerFileName.endsWith(".docx")) {
+                try (InputStream inputStream = file.getInputStream();
+                     XWPFDocument document = new XWPFDocument(inputStream);
+                     XWPFWordExtractor extractor = new XWPFWordExtractor(document)) {
+                    
+                    content = extractor.getText();
+                    log.info("【文件解析】DOCX文件解析成功，长度: {} 字符", content.length());
+                }
+                
+            // DOC文件（Word 97-2003）
+            } else if (lowerFileName.endsWith(".doc")) {
+                try (InputStream inputStream = file.getInputStream();
+                     HWPFDocument document = new HWPFDocument(inputStream);
+                     WordExtractor extractor = new WordExtractor(document)) {
+                    
+                    content = extractor.getText();
+                    log.info("【文件解析】DOC文件解析成功，长度: {} 字符", content.length());
+                }
+                
+            } else {
+                log.error("【文件解析】不支持的文件格式: {}", fileName);
+                throw new RuntimeException("不支持的文件格式，请上传 TXT、PDF、DOC 或 DOCX 文件");
+            }
+            
+            // 验证内容
+            if (content == null || content.trim().isEmpty()) {
+                throw new RuntimeException("文件内容为空或无法提取文本");
+            }
+            
+            // 清理内容
+            content = content.trim();
+            log.info("【文件解析】文件解析完成，最终内容长度: {} 字符", content.length());
+            
+            return content;
+            
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
-            log.error("提取文件文本失败", e);
-            return null;
+            log.error("【文件解析】提取文件文本失败", e);
+            throw new RuntimeException("文件解析失败: " + e.getMessage() + "。请确保文件格式正确且未损坏。");
         }
     }
 

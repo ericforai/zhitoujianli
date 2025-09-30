@@ -134,7 +134,7 @@ public class CandidateResumeService {
             @SuppressWarnings("unchecked")
             Map<String, Object> candidate = mapper.readValue(jsonString, Map.class);
             
-            log.info("【简历解析】已加载候选人信息: {}", candidate.get("name"));
+            log.info("【简历解析】已加载候选人信息");
             return candidate;
             
         } catch (Exception e) {

@@ -7,7 +7,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
- * Spring Security 配置 - 禁用所有安全检查
+ * Spring Security 配置 - 简化版
+ * 当前禁用所有安全检查，便于开发测试
  */
 @Configuration
 @EnableWebSecurity
@@ -19,8 +20,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .anyRequest().permitAll()  // 允许所有请求
             )
-            .csrf(csrf -> csrf.disable())  // 禁用CSRF
-            .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()));  // 禁用Frame Options
+            .csrf(csrf -> csrf.disable());  // 禁用CSRF
         
         return http.build();
     }
