@@ -1,0 +1,130 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+
+import Hero from '~/components/widgets/Hero.astro';
+import Note from '~/components/widgets/Note.astro';
+import Features from '~/components/widgets/Features.astro';
+import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
+import CallToAction from '~/components/widgets/CallToAction.astro';
+
+const metadata = {
+  title: '智投简历博客 — 让求职更智能',
+  ignoreTitleTemplate: true,
+};
+---
+
+<Layout metadata={metadata}>
+  <!-- Hero Widget ******************* -->
+
+  <Hero
+    actions={[
+      {
+        variant: 'primary',
+        text: '立即体验',
+        href: 'http://localhost:3000',
+        target: '_blank',
+        icon: 'tabler:rocket',
+      },
+      { text: '了解更多', href: '#features' },
+    ]}
+    image={{ src: '~/assets/images/hero-image.png', alt: '智投简历博客' }}
+  >
+    <Fragment slot="title">
+      智投简历<span class="hidden xl:inline">官方博客</span>
+      <span class="text-accent dark:text-white"> 让求职更智能</span>
+    </Fragment>
+
+    <Fragment slot="subtitle">
+      <span class="hidden sm:inline">
+        分享求职技巧、简历优化、面试经验、职场发展等实用内容，助你更快拿到心仪Offer。
+      </span>
+      <span class="block mb-1 sm:hidden font-bold text-blue-600">智投简历博客：专业求职指导。</span>
+      基于AI技术的智能求职平台，为求职者提供全方位的职业发展支持。
+    </Fragment>
+  </Hero>
+
+  <!-- Note Widget ******************* -->
+
+  <Note title="核心理念:" description="专业、实用、高效 - 让每一次求职都更精准" />
+
+  <!-- Features Widget *************** -->
+
+  <Features
+    id="features"
+    tagline="博客特色"
+    title="智投简历博客为您提供"
+    subtitle="专业的求职指导内容，涵盖简历优化、面试技巧、职场发展等各个方面，助您在求职路上更加顺利。"
+    items={[
+      {
+        title: '专业求职指导',
+        description:
+          '由资深HR和职业规划师撰写，提供最实用的求职技巧和职场建议，帮助您提升求职成功率。',
+        icon: 'tabler:user-check',
+      },
+      {
+        title: '简历优化技巧',
+        description:
+          '详细的简历优化指南，从格式到内容，从关键词到排版，全方位提升简历质量。',
+        icon: 'tabler:file-text',
+      },
+      {
+        title: '面试准备指南',
+        description:
+          '全面的面试准备攻略，包括常见问题回答、面试技巧、心理准备等，让您面试更自信。',
+        icon: 'tabler:message-circle',
+      },
+      {
+        title: '职场发展建议',
+        description:
+          '职业规划和发展建议，帮助您明确职业方向，制定发展计划，实现职业目标。',
+        icon: 'tabler:trending-up',
+      },
+      {
+        title: '行业趋势分析',
+        description:
+          '最新的行业动态和就业趋势分析，帮助您了解市场变化，把握求职机会。',
+        icon: 'tabler:chart-line',
+      },
+      {
+        title: '成功案例分享',
+        description:
+          '真实的求职成功案例分享，学习他人的经验，为自己的求职之路提供参考。',
+        icon: 'tabler:trophy',
+      },
+    ]}
+  />
+
+
+  <!-- HighlightedPosts Widget ******* -->
+
+  <BlogLatestPosts
+    title="最新博客文章"
+    information={`智投简历博客持续更新，为您提供最新的求职指导内容。
+                        每篇文章都经过精心编写，旨在帮助您在求职路上更加顺利。
+                        从简历优化到面试技巧，从职场发展到行业趋势，我们为您提供全方位的专业指导。
+                `}
+  />
+
+  <!-- CallToAction Widget *********** -->
+
+  <CallToAction
+    actions={[
+      {
+        variant: 'primary',
+        text: '立即体验智投简历',
+        href: 'http://localhost:3000',
+        target: '_blank',
+        icon: 'tabler:rocket',
+      },
+    ]}
+  >
+    <Fragment slot="title">
+      智投简历&nbsp;+&nbsp;<br class="block sm:hidden" /><span class="sm:whitespace-nowrap">AI智能匹配</span>
+    </Fragment>
+
+    <Fragment slot="subtitle">
+      让AI为您的求职之路助力，提升投递成功率，更快拿到心仪Offer。 <br class="hidden md:inline" />
+      立即开始您的智能求职之旅！
+    </Fragment>
+  </CallToAction>
+</Layout>

@@ -1,0 +1,84 @@
+// Mock SMS service for development
+// In production, replace with real SMS service like Aliyun, Tencent Cloud, etc.
+
+interface SMSResult {
+  success: boolean
+  message: string
+}
+
+// In-memory storage for verification codes
+const verificationCodes = new Map<string, { code: string; expiresAt: Date }>()
+
+// Rate limiting: track last request time for each phone
+const lastRequestTime = new Map<string, Date>()
+
+export async function sendVerificationCode(phone: string): Promise<SMSResult> {
+  // Check rate limiting (1 minute cooldown)
+  const lastRequest = lastRequestTime.get(phone)
+  if (lastRequest) {
+    const timeDiff = Date.now() - lastRequest.getTime()
+    if (timeDiff < 60000) { // 1 minute
+      return {
+        success: false,
+        message: '请等待1分钟后再试'
+      }
+    }
+  }
+
+  // Generate 6-digit verification code (fixed for testing)
+  const code = "123456" // Math.floor(100000 + Math.random() * 900000).toString()
+  
+  // Set expiration time (5 minutes)
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000)
+  
+  // Store in memory
+  verificationCodes.set(phone, { code, expiresAt })
+  lastRequestTime.set(phone, new Date())
+
+  // Mock SMS sending
+  console.log(`[Mock SMS] 发送验证码到 ${phone}: ${code}`)
+  
+  // In development, you can log the code to console
+  // In production, this would be replaced with actual SMS service
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`验证码: ${code} (5分钟内有效)`)
+  }
+
+  return {
+    success: true,
+    message: '验证码已发送'
+  }
+}
+
+export function verifyCode(phone: string, inputCode: string): boolean {
+  const stored = verificationCodes.get(phone)
+  
+  if (!stored) {
+    return false
+  }
+  
+  // Check if expired
+  if (new Date() > stored.expiresAt) {
+    verificationCodes.delete(phone)
+    return false
+  }
+  
+  // Check if code matches
+  if (stored.code !== inputCode) {
+    return false
+  }
+  
+  // Remove used code
+  verificationCodes.delete(phone)
+  return true
+}
+
+// Cleanup expired codes periodically
+setInterval(() => {
+  const now = new Date()
+  for (const [phone, data] of verificationCodes.entries()) {
+    if (now > data.expiresAt) {
+      verificationCodes.delete(phone)
+    }
+  }
+}, 60000) // Clean up every minute

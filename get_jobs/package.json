@@ -1,0 +1,26 @@
+{
+  "name": "get_jobs",
+  "version": "1.0.0",
+  "description": "<h1 align=\"center\">🍀 Get Jobs【工作无忧】</h1> <div align=\"center\">",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/loks666/get_jobs.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/loks666/get_jobs/issues"
+  },
+  "homepage": "https://github.com/loks666/get_jobs#readme",
+  "dependencies": {
+    "playwright": "^1.55.1"
+  }
+}

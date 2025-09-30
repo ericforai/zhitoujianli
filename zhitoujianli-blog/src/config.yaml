@@ -1,0 +1,72 @@
+site:
+  name: 智投简历博客
+  site: 'http://localhost:4321'
+  base: '/blog/'
+  trailingSlash: true
+
+  googleSiteVerificationId: false
+
+# Default SEO metadata
+metadata:
+  title:
+    default: 智投简历博客
+    template: '%s — 智投简历博客'
+  description: "智投简历官方博客 - 分享求职技巧、简历优化、面试经验、职场发展等实用内容，助你更快拿到心仪Offer"
+  robots:
+    index: true
+    follow: true
+  openGraph:
+    site_name: 智投简历博客
+    images:
+      - url: '~/assets/images/default.png'
+        width: 1200
+        height: 628
+    type: website
+  twitter:
+    handle: '@zhitoujianli'
+    site: '@zhitoujianli'
+    cardType: summary_large_image
+
+i18n:
+  language: zh-CN
+  textDirection: ltr
+
+apps:
+  blog:
+    isEnabled: true
+    postsPerPage: 6
+
+    post:
+      isEnabled: true
+      permalink: '/%slug%' # Variables: %slug%, %year%, %month%, %day%, %hour%, %minute%, %second%, %category%
+      robots:
+        index: true
+
+    list:
+      isEnabled: true
+      pathname: '' # Blog main path, since we're already in /blog/
+      robots:
+        index: true
+
+    category:
+      isEnabled: true
+      pathname: 'category' # Category main path /blog/category/some-category
+      robots:
+        index: true
+
+    tag:
+      isEnabled: true
+      pathname: 'tag' # Tag main path /blog/tag/some-tag
+      robots:
+        index: true
+
+    isRelatedPostsEnabled: true
+    relatedPostsCount: 4
+
+analytics:
+  vendors:
+    googleAnalytics:
+      id: null # or "G-XXXXXXXXXX"
+
+ui:
+  theme: 'light' # Values: "system" | "light" | "dark" | "light:only" | "dark:only"

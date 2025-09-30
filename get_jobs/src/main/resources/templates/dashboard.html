@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智投简历 - 后台管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: #10b981;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .feature-card {
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .feature-title {
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-desc {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .api-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .api-link {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 0.5rem;
+            transition: background-color 0.3s;
+        }
+        
+        .api-link:hover {
+            background: #5a67d8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">智投简历</div>
+        <div class="status">✓ 系统运行中</div>
+        
+        <h2>后台管理系统</h2>
+        <p style="color: #6b7280; margin: 1rem 0;">AI驱动的智能求职助手</p>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-title">智能投递</div>
+                <div class="feature-desc">自动搜索匹配岗位并智能投递简历</div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-title">AI分析</div>
+                <div class="feature-desc">深度分析JD与简历匹配度</div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-title">个性化沟通</div>
+                <div class="feature-desc">生成个性化打招呼语</div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-title">多平台支持</div>
+                <div class="feature-desc">支持Boss直聘、拉勾等平台</div>
+            </div>
+        </div>
+        
+        <div class="api-section">
+            <h3 style="margin-bottom: 1rem;">API 接口</h3>
+            <a href="/api/status" class="api-link" target="_blank">系统状态</a>
+            <a href="#" class="api-link" onclick="alert('功能开发中...')">配置管理</a>
+        </div>
+        
+        <div style="margin-top: 2rem; color: #9ca3af; font-size: 0.8rem;">
+            <p>© 2024 智投简历 - 让求职更智能</p>
+        </div>
+    </div>
+</body>
+</html>
