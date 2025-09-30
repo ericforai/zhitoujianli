@@ -2,6 +2,12 @@ spring:
   application:
     name: zhitoujianli-backend
 
+# 安全认证开关
+# false: 禁用认证（测试用）
+# true: 启用认证（生产环境）
+security:
+  enabled: ${SECURITY_ENABLED:false}
+
 # Authing身份认证配置
 authing:
   userPoolId: ${AUTHING_USER_POOL_ID:}

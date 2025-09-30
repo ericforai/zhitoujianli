@@ -1,5 +1,6 @@
 package config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,6 +25,9 @@ import java.util.List;
  * 3. 无状态会话（使用JWT，不使用Session）
  * 4. 配置哪些接口需要认证，哪些可以公开访问
  * 
+ * ⚠️ 重要：如果你还没有配置Authing，想暂时禁用认证功能
+ * 请在.env文件中设置：SECURITY_ENABLED=false
+ * 
  * @author ZhiTouJianLi Team
  * @since 2025-09-30
  */
@@ -31,17 +35,37 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @Value("${security.enabled:true}")
+    private boolean securityEnabled;
+
     /**
      * 配置安全过滤链
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        // 如果禁用了安全功能，允许所有请求
+        if (!securityEnabled) {
+            http
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+            
+            return http.build();
+        }
+        
+        // 启用了安全功能，配置认证
         http
             // 禁用CSRF保护（API项目不需要）
             .csrf(csrf -> csrf.disable())
             
             // 配置CORS
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            
+            // 禁用默认的表单登录页面
+            .formLogin(form -> form.disable())
+            
+            // 禁用HTTP Basic认证
+            .httpBasic(basic -> basic.disable())
             
             // 无状态会话管理（使用JWT，不使用Session）
             .sessionManagement(session -> 
@@ -85,6 +109,17 @@ public class SecurityConfig {
                 
                 // 其他所有请求都需要认证
                 .anyRequest().authenticated()
+            )
+            
+            // 配置异常处理：返回JSON而不是重定向到登录页
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.setStatus(401);
+                    response.getWriter().write(
+                        "{\"success\":false,\"message\":\"未登录或Token已过期，请先登录\",\"code\":401}"
+                    );
+                })
             )
             
             // 添加JWT认证过滤器
