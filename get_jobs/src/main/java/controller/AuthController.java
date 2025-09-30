@@ -137,6 +137,8 @@ public class AuthController {
             body.put("client_id", appId);
             body.put("client_secret", authingConfig.getAppSecret());
             
+            log.info("🔧 添加认证参数 - client_id: {}, client_secret: {}", appId, authingConfig.getAppSecret().substring(0, Math.min(8, authingConfig.getAppSecret().length())) + "...");
+            
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("x-authing-app-id", appId);

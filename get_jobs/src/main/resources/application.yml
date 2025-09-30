@@ -37,7 +37,7 @@ alipay:
 
 # 服务器配置
 server:
-  port: 8080
+  port: ${SERVER_PORT:8081}
   
 # 日志配置
 logging:

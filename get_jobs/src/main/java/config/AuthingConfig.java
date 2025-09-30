@@ -1,8 +1,9 @@
 package config;
 
 import cn.authing.sdk.java.client.ManagementClient;
+import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,20 +17,22 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 public class AuthingConfig {
     
-    @Value("${AUTHING_USER_POOL_ID:}")
+    @Autowired
+    private Dotenv dotenv;
+    
     private String userPoolId;
-    
-    @Value("${AUTHING_APP_SECRET:}")
     private String appSecret;
-    
-    @Value("${AUTHING_APP_ID:}")
     private String appId;
-    
-    @Value("${AUTHING_APP_HOST:https://your-domain.authing.cn}")
     private String appHost;
     
     @Bean
     public ManagementClient managementClient() {
+        // 从.env文件加载配置
+        userPoolId = dotenv.get("AUTHING_USER_POOL_ID", "");
+        appSecret = dotenv.get("AUTHING_APP_SECRET", "");
+        appId = dotenv.get("AUTHING_APP_ID", "");
+        appHost = dotenv.get("AUTHING_APP_HOST", "https://your-domain.authing.cn");
+        
         // ManagementClient需要特定的配置，这里先返回null
         // 我们主要使用AuthenticationClient进行用户认证
         log.info("✅ Authing配置加载成功");

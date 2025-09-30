@@ -84,7 +84,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             
             HttpEntity<String> entity = new HttpEntity<>("{}", headers);
             
-            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+            ResponseEntity<Map> response = restTemplate.exchange(
                 url, HttpMethod.GET, entity, Map.class);
             
             log.debug("Token验证响应状态: {}", response.getStatusCode());
