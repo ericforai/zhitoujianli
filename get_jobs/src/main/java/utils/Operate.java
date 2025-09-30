@@ -3,7 +3,6 @@ package utils;
 import boss.Locators;
 import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Page;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
@@ -15,7 +14,6 @@ import java.util.Optional;
 import java.util.Random;
 
 import static utils.Constant.ACTIONS;
-import static utils.Constant.CHROME_DRIVER;
 
 /**
  * Boss直聘页面操作工具类

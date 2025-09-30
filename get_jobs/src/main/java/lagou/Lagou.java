@@ -10,17 +10,13 @@ import org.slf4j.LoggerFactory;
 import utils.JobUtils;
 import utils.SeleniumUtil;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static utils.Bot.sendMessageByTime;
 import static utils.Constant.*;
 import static utils.JobUtils.formatDuration;
-import static utils.SeleniumUtil.isCookieValid;
 
 /**
  * @author loks666

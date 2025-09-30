@@ -134,6 +134,8 @@ public class AuthController {
                 "email", email,
                 "password", password
             ));
+            body.put("client_id", appId);
+            body.put("client_secret", authingConfig.getAppSecret());
             
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -141,8 +143,13 @@ public class AuthController {
             
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
             
+            log.info("🔐 尝试登录，邮箱: {}, URL: {}", email, url);
+            log.info("📝 请求体: {}", body);
+            
             ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
             Map<String, Object> responseBody = response.getBody();
+            
+            log.info("📥 登录响应: {}", responseBody);
             
             if (responseBody != null && responseBody.get("data") != null) {
                 Map<String, Object> data = (Map<String, Object>) responseBody.get("data");

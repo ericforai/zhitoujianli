@@ -2,14 +2,11 @@ package liepin;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
-import com.microsoft.playwright.options.LoadState;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 import utils.JobUtils;
 import utils.PlaywrightUtil;
-import utils.SeleniumUtil;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -1,10 +1,11 @@
 package security;
 
-import io.github.cdimascio.dotenv.Dotenv;
+import org.springframework.beans.factory.annotation.Value;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.lang.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,14 +30,14 @@ import java.util.Map;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
-    private final String appHost = dotenv.get("AUTHING_APP_HOST", "https://your-domain.authing.cn");
+    @Value("${AUTHING_APP_HOST:https://your-domain.authing.cn}")
+    private String appHost;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, 
-                                    HttpServletResponse response, 
-                                    FilterChain filterChain) 
+    protected void doFilterInternal(@NonNull HttpServletRequest request, 
+                                    @NonNull HttpServletResponse response, 
+                                    @NonNull FilterChain filterChain) 
             throws ServletException, IOException {
         
         try {
@@ -109,10 +110,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
         String path = request.getRequestURI();
         return path.startsWith("/static/") || 
                path.equals("/favicon.ico") ||
-               path.startsWith("/api/auth/");
+               path.startsWith("/api/auth/") ||
+               path.equals("/") ||
+               path.equals("/login") ||
+               path.equals("/register") ||
+               path.equals("/resume-parser") ||
+               path.equals("/resume-manager");
     }
 }
