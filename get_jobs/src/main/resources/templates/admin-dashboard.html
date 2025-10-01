@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">智投简历 - 管理员控制台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .stat-card {
+            transition: transform 0.2s ease-in-out;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-semibold text-gray-900">智投简历 - 管理员控制台</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div th:if="${adminInfo}" class="text-sm text-gray-600">
+                        <span class="font-medium" th:text="${adminInfo.adminType.displayName}">超级管理员</span>
+                        <span class="ml-2 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
+                            活跃
+                        </span>
+                    </div>
+                    <a href="http://localhost:3001" class="text-gray-500 hover:text-gray-700">返回首页</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- 管理员状态检查 -->
+        <div th:if="${!isAdmin}" class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+            <div class="flex">
+                <div class="text-red-400">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">管理员权限验证失败</h3>
+                    <p class="mt-2 text-sm text-red-700">
+                        用户ID <code th:text="${adminUserId}">68dba0e3d9c27ebb0d93aa42</code> 不具有管理员权限。
+                        请确保已正确初始化超级管理员账户。
+                    </p>
+                    <div class="mt-4">
+                        <button onclick="initializeSuperAdmin()" 
+                                class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">
+                            初始化超级管理员
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 管理员成功状态 -->
+        <div th:if="${isAdmin}" class="bg-green-50 border border-green-200 rounded-md p-4 mb-6">
+            <div class="flex">
+                <div class="text-green-400">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-green-800">管理员权限验证成功</h3>
+                    <p class="mt-2 text-sm text-green-700">
+                        欢迎，<span th:text="${adminInfo?.adminType?.displayName}">超级管理员</span>！
+                        您拥有 <span th:text="${permissionCount}">20</span> 项管理权限。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="stat-card bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">总用户数</p>
+                        <p class="text-2xl font-bold text-gray-900">1,250</p>
+                    </div>
+                    <div class="text-blue-600">
+                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center">
+                    <span class="text-sm font-medium text-green-600">+12%</span>
+                    <span class="text-sm text-gray-500 ml-2">vs上月</span>
+                </div>
+            </div>
+
+            <div class="stat-card bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">活跃用户</p>
+                        <p class="text-2xl font-bold text-gray-900">856</p>
+                    </div>
+                    <div class="text-green-600">
+                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center">
+                    <span class="text-sm font-medium text-green-600">+8%</span>
+                    <span class="text-sm text-gray-500 ml-2">vs上月</span>
+                </div>
+            </div>
+
+            <div class="stat-card bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">今日新增</p>
+                        <p class="text-2xl font-bold text-gray-900">23</p>
+                    </div>
+                    <div class="text-purple-600">
+                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center">
+                    <span class="text-sm font-medium text-green-600">+15%</span>
+                    <span class="text-sm text-gray-500 ml-2">vs昨日</span>
+                </div>
+            </div>
+
+            <div class="stat-card bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">总收入</p>
+                        <p class="text-2xl font-bold text-gray-900">¥12,580</p>
+                    </div>
+                    <div class="text-yellow-600">
+                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center">
+                    <span class="text-sm font-medium text-green-600">+23%</span>
+                    <span class="text-sm text-gray-500 ml-2">vs上月</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 功能区域 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- 系统状态 -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">系统状态</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-600">运行状态</span>
+                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
+                            正常运行
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-600">系统运行时间</span>
+                        <span class="text-sm text-gray-900">99.98%</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-600">平均响应时间</span>
+                        <span class="text-sm text-gray-900">120ms</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-600">管理员权限</span>
+                        <span class="text-sm text-gray-900" th:text="${isAdmin ? '已激活' : '未激活'}">已激活</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API测试 -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">API接口测试</h3>
+                <div class="space-y-3">
+                    <button onclick="testAdminStatus()" 
+                            class="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-900">测试管理员状态</span>
+                            <span class="text-xs text-gray-500">GET /api/admin/test-admin</span>
+                        </div>
+                    </button>
+                    <button onclick="testInitSuperAdmin()" 
+                            class="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-900">初始化超级管理员</span>
+                            <span class="text-xs text-gray-500">POST /api/admin/init-super-admin</span>
+                        </div>
+                    </button>
+                    <button onclick="testDashboard()" 
+                            class="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-900">测试仪表板API</span>
+                            <span class="text-xs text-gray-500">GET /api/admin/dashboard</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 快速操作 -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">快速操作</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="http://localhost:3001/admin" class="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                    <div class="text-blue-600 mx-auto mb-2">
+                        <svg class="h-8 w-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                    <p class="text-sm font-medium text-gray-900">React管理界面</p>
+                    <p class="text-xs text-gray-500">访问现代化管理界面</p>
+                </a>
+                <a href="/admin-page/test" class="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                    <div class="text-green-600 mx-auto mb-2">
+                        <svg class="h-8 w-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <p class="text-sm font-medium text-gray-900">测试页面</p>
+                    <p class="text-xs text-gray-500">功能测试和调试</p>
+                </a>
+                <div class="p-4 border border-gray-200 rounded-lg bg-gray-50 text-center">
+                    <div class="text-gray-400 mx-auto mb-2">
+                        <svg class="h-8 w-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <p class="text-sm font-medium text-gray-500">数据分析</p>
+                    <p class="text-xs text-gray-400">敬请期待</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 结果显示区域 -->
+    <div id="result-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-2xl w-full max-h-96 overflow-y-auto p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">API 测试结果</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <div id="result-content" class="text-sm"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showModal(title, content) {
+            document.getElementById('result-modal').classList.remove('hidden');
+            document.querySelector('#result-modal h3').textContent = title;
+            document.getElementById('result-content').innerHTML = content;
+        }
+
+        function closeModal() {
+            document.getElementById('result-modal').classList.add('hidden');
+        }
+
+        async function testAdminStatus() {
+            try {
+                const response = await fetch('/api/admin/test-admin');
+                const data = await response.json();
+                
+                const content = `
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-medium mb-2">请求结果：</h4>
+                        <pre class="text-xs bg-white p-3 rounded border overflow-x-auto">${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+                showModal('管理员状态测试', content);
+            } catch (error) {
+                showModal('测试失败', `<p class="text-red-600">错误: ${error.message}</p>`);
+            }
+        }
+
+        async function testInitSuperAdmin() {
+            try {
+                const response = await fetch('/api/admin/init-super-admin', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        userId: '68dba0e3d9c27ebb0d93aa42',
+                        remarks: '通过管理页面测试初始化'
+                    })
+                });
+                const data = await response.json();
+                
+                const content = `
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-medium mb-2">初始化结果：</h4>
+                        <pre class="text-xs bg-white p-3 rounded border overflow-x-auto">${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+                showModal('超级管理员初始化', content);
+                
+                if (data.success) {
+                    setTimeout(() => location.reload(), 2000);
+                }
+            } catch (error) {
+                showModal('初始化失败', `<p class="text-red-600">错误: ${error.message}</p>`);
+            }
+        }
+
+        async function testDashboard() {
+            try {
+                const response = await fetch('/api/admin/dashboard');
+                
+                if (response.status === 401 || response.status === 403) {
+                    showModal('仪表板测试', `
+                        <div class="bg-yellow-50 p-4 rounded-lg">
+                            <p class="text-yellow-800">仪表板API需要认证访问，这是正常的安全行为。</p>
+                            <p class="mt-2 text-sm text-yellow-600">状态码: ${response.status}</p>
+                        </div>
+                    `);
+                } else {
+                    const data = await response.json();
+                    const content = `
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-medium mb-2">仪表板数据：</h4>
+                            <pre class="text-xs bg-white p-3 rounded border overflow-x-auto">${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                    showModal('仪表板API测试', content);
+                }
+            } catch (error) {
+                showModal('测试失败', `<p class="text-red-600">错误: ${error.message}</p>`);
+            }
+        }
+
+        async function initializeSuperAdmin() {
+            if (confirm('确定要初始化超级管理员吗？')) {
+                await testInitSuperAdmin();
+            }
+        }
+    </script>
+</body>
+</html>

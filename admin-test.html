@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智投简历 - 管理员功能测试页面</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover { background: #0056b3; }
+        pre {
+            background: #f1f3f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+        .info-box {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 智投简历 - 管理员功能测试</h1>
+    
+    <div class="info-box">
+        <h3>📋 管理员账户信息</h3>
+        <p><strong>超级管理员ID：</strong>68dba0e3d9c27ebb0d93aa42</p>
+        <p><strong>邮箱：</strong>demo@example.com</p>
+        <p><strong>用户名：</strong>demo_user</p>
+        <p><strong>管理员类型：</strong>SUPER_ADMIN</p>
+    </div>
+
+    <div class="test-section">
+        <h3>🔍 第一步：测试管理员状态</h3>
+        <p>检查预设的超级管理员是否正确配置</p>
+        <button onclick="testAdminStatus()">测试管理员状态</button>
+        <div id="admin-status-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🚀 第二步：初始化超级管理员</h3>
+        <p>确保超级管理员账户已正确初始化</p>
+        <button onclick="initSuperAdmin()">初始化超级管理员</button>
+        <div id="init-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>📊 第三步：访问管理员仪表板（需要登录）</h3>
+        <p>此功能需要实际登录后才能访问</p>
+        <button onclick="testDashboard()">测试仪表板（无认证）</button>
+        <div id="dashboard-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🎯 第四步：访问前端管理界面</h3>
+        <p>点击下面的链接访问React管理员界面</p>
+        <a href="http://localhost:3001/admin" target="_blank">
+            <button>打开管理员界面</button>
+        </a>
+        <p><small>如果显示权限不足，可以点击页面上的"初始化超级管理员"按钮</small></p>
+    </div>
+
+    <div class="info-box">
+        <h3>💡 使用说明</h3>
+        <ol>
+            <li>点击上面的测试按钮，验证系统功能</li>
+            <li>如果要完整体验管理功能，需要通过Authing登录</li>
+            <li>登录地址：<a href="http://localhost:3001/login" target="_blank">http://localhost:3001/login</a></li>
+            <li>管理员界面：<a href="http://localhost:3001/admin" target="_blank">http://localhost:3001/admin</a></li>
+        </ol>
+    </div>
+
+    <script>
+        async function testAdminStatus() {
+            const resultDiv = document.getElementById('admin-status-result');
+            resultDiv.innerHTML = '<p>正在测试...</p>';
+            
+            try {
+                const response = await fetch('/api/admin/test-admin');
+                const data = await response.json();
+                
+                if (data.success && data.testIsAdmin) {
+                    resultDiv.innerHTML = `
+                        <div class="test-section success">
+                            <h4>✅ 管理员状态测试成功！</h4>
+                            <p><strong>管理员ID：</strong>${data.testUserId}</p>
+                            <p><strong>是否为管理员：</strong>${data.testIsAdmin ? '是' : '否'}</p>
+                            <p><strong>管理员类型：</strong>${data.testAdminUser?.adminType || 'N/A'}</p>
+                            <p><strong>状态：</strong>${data.testAdminUser?.isActive ? '活跃' : '非活跃'}</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="test-section error">
+                            <h4>❌ 测试失败</h4>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="test-section error">
+                        <h4>❌ 请求失败</h4>
+                        <p>错误：${error.message}</p>
+                        <p>请确保后端服务运行在 http://localhost:8080</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function initSuperAdmin() {
+            const resultDiv = document.getElementById('init-result');
+            resultDiv.innerHTML = '<p>正在初始化...</p>';
+            
+            try {
+                const response = await fetch('/api/admin/init-super-admin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: '68dba0e3d9c27ebb0d93aa42',
+                        remarks: '通过测试页面初始化'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="test-section success">
+                            <h4>✅ 超级管理员初始化成功！</h4>
+                            <p><strong>用户ID：</strong>${data.data.userId}</p>
+                            <p><strong>管理员类型：</strong>${data.data.adminType}</p>
+                            <p><strong>创建时间：</strong>${data.data.createdAt}</p>
+                            <p><strong>权限数量：</strong>${Object.keys(data.data.permissions).length}个</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="test-section error">
+                            <h4>❌ 初始化失败</h4>
+                            <p>${data.message}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="test-section error">
+                        <h4>❌ 请求失败</h4>
+                        <p>错误：${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testDashboard() {
+            const resultDiv = document.getElementById('dashboard-result');
+            resultDiv.innerHTML = '<p>正在测试...</p>';
+            
+            try {
+                const response = await fetch('/api/admin/dashboard');
+                
+                if (response.status === 401 || response.status === 403) {
+                    resultDiv.innerHTML = `
+                        <div class="test-section">
+                            <h4>🔒 需要认证</h4>
+                            <p>仪表板API需要登录认证，这是正常的安全行为。</p>
+                            <p>要完整测试此功能，请：</p>
+                            <ol>
+                                <li>访问 <a href="http://localhost:3001/login" target="_blank">登录页面</a></li>
+                                <li>使用超级管理员账户登录</li>
+                                <li>然后访问 <a href="http://localhost:3001/admin" target="_blank">管理员界面</a></li>
+                            </ol>
+                        </div>
+                    `;
+                } else {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="test-section success">
+                            <h4>✅ 仪表板数据获取成功</h4>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="test-section error">
+                        <h4>❌ 请求失败</h4>
+                        <p>错误：${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 页面加载时自动运行第一个测试
+        window.onload = function() {
+            testAdminStatus();
+        };
+    </script>
+</body>
+</html>
