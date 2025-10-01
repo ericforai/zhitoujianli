@@ -170,8 +170,12 @@ public class WebController {
                 bossExecutionService = new BossExecutionService();
             }
             
-            // 使用Boss执行服务
-            bossExecutionService.executeBossProgram(currentLogFile)
+            // 获取当前用户ID
+            String userId = UserContextUtil.getCurrentUserId();
+            log.info("🔑 启动Boss任务，用户ID: {}", userId);
+            
+            // 使用Boss执行服务（传递用户ID）
+            bossExecutionService.executeBossProgram(currentLogFile, userId)
                 .whenComplete((result, throwable) -> {
                     try {
                         if (throwable != null) {

@@ -25,6 +25,14 @@ public class BossExecutionService {
      * 使用独立的JVM进程避免线程和资源冲突
      */
     public CompletableFuture<Void> executeBossProgram(String logFilePath) {
+        return executeBossProgram(logFilePath, null);
+    }
+
+    /**
+     * 异步执行Boss程序 - 完全隔离模式（支持多用户）
+     * 使用独立的JVM进程避免线程和资源冲突
+     */
+    public CompletableFuture<Void> executeBossProgram(String logFilePath, String userId) {
         return CompletableFuture.runAsync(() -> {
             Process process = null;
             try {
@@ -39,7 +47,7 @@ public class BossExecutionService {
                     writeLogHeader(logWriter);
                     
                     // 创建独立的Boss进程
-                    ProcessBuilder pb = createIsolatedBossProcess();
+                    ProcessBuilder pb = createIsolatedBossProcess(userId);
                     
                     logWriter.write(formatTimestamp() + " - 启动独立Boss进程...\n");
                     logWriter.flush();
@@ -102,7 +110,7 @@ public class BossExecutionService {
     /**
      * 创建完全隔离的Boss进程
      */
-    private ProcessBuilder createIsolatedBossProcess() throws IOException {
+    private ProcessBuilder createIsolatedBossProcess(String userId) throws IOException {
         String javaHome = System.getProperty("java.home");
         String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
         
@@ -111,17 +119,33 @@ public class BossExecutionService {
         String fullClasspath = "target/classes:" + mavenClasspath;
         
         // Boss程序的完全隔离JVM参数
-        String[] command = {
-            javaBin,
-            "-Xms256m", "-Xmx1024m",  // 限制内存使用
-            "-XX:+UseG1GC",           // 使用G1垃圾收集器
-            "-XX:+DisableExplicitGC", // 禁用显式GC
-            "-Djava.awt.headless=true", // 无头模式
-            "-Dfile.encoding=UTF-8",   // 设置文件编码
-            "-Dsun.java.command=boss.IsolatedBossRunner", // 设置主类
-            "-cp", fullClasspath,      // 设置classpath
-            "boss.IsolatedBossRunner"               // Boss隔离运行器
-        };
+        String[] command;
+        if (userId != null && !userId.isEmpty()) {
+            command = new String[]{
+                javaBin,
+                "-Xms256m", "-Xmx1024m",  // 限制内存使用
+                "-XX:+UseG1GC",           // 使用G1垃圾收集器
+                "-XX:+DisableExplicitGC", // 禁用显式GC
+                "-Djava.awt.headless=true", // 无头模式
+                "-Dfile.encoding=UTF-8",   // 设置文件编码
+                "-Dsun.java.command=boss.IsolatedBossRunner", // 设置主类
+                "-cp", fullClasspath,      // 设置classpath
+                "boss.IsolatedBossRunner", // Boss隔离运行器
+                userId                    // 传递用户ID参数
+            };
+        } else {
+            command = new String[]{
+                javaBin,
+                "-Xms256m", "-Xmx1024m",  // 限制内存使用
+                "-XX:+UseG1GC",           // 使用G1垃圾收集器
+                "-XX:+DisableExplicitGC", // 禁用显式GC
+                "-Djava.awt.headless=true", // 无头模式
+                "-Dfile.encoding=UTF-8",   // 设置文件编码
+                "-Dsun.java.command=boss.IsolatedBossRunner", // 设置主类
+                "-cp", fullClasspath,      // 设置classpath
+                "boss.IsolatedBossRunner"  // Boss隔离运行器
+            };
+        }
         
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.directory(new File("/Users/user/autoresume/get_jobs"));

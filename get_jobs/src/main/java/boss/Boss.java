@@ -53,7 +53,7 @@ public class Boss {
     static String dataPath = "src/main/java/boss/data.json";
     static String cookiePath = "src/main/java/boss/cookie.json";
     static Date startDate;
-    static BossConfig config = BossConfig.init();
+    static BossConfig config;
 
     static {
         try {
@@ -90,9 +90,58 @@ public class Boss {
         }
     }
 
+    /**
+     * 初始化配置 - 支持多用户
+     */
+    public static void initConfig(String userId) {
+        log.info("🔧 初始化Boss配置: userId={}", userId);
+        config = BossConfig.init(userId);
+        log.info("✅ Boss配置加载完成: keywords={}", config.getKeywords());
+    }
+
+    /**
+     * 启动Boss程序主逻辑
+     */
+    public static void startBossProgram() {
+        log.info("🚀 启动Boss投递程序...");
+        
+        // 检查配置
+        if (config == null) {
+            log.error("❌ Boss配置未初始化");
+            return;
+        }
+        
+        log.info("📋 当前配置:");
+        log.info("   关键词: {}", config.getKeywords());
+        log.info("   城市: {}", config.getCityCode());
+        log.info("   经验: {}", config.getExperience());
+        log.info("   薪资: {}", config.getSalary());
+        
+        // 执行投递逻辑
+        try {
+            startDate = new Date();
+            
+            // 登录
+            login();
+            
+            // 按城市投递
+            for (String cityCode : config.getCityCode()) {
+                postJobByCity(cityCode);
+            }
+            
+            printResult();
+            
+        } catch (Exception e) {
+            log.error("❌ Boss程序执行失败", e);
+        }
+    }
+
     public static void main(String[] args) {
         log.info("Boss程序启动，环境检查开始...");
         log.info("运行模式: {}", System.getProperty("maven.compiler.fork") != null ? "Web UI调用" : "终端直接运行");
+        
+        // 初始化配置（默认使用系统配置）
+        initConfig(null);
         
         loadData(dataPath);
         // 使用Playwright前检查环境

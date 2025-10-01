@@ -19,7 +19,7 @@ public class IsolatedBossRunner {
     
     /**
      * 在隔离环境中运行Boss程序
-     * @param args 程序参数
+     * @param args 程序参数 [userId]
      */
     public static void main(String[] args) {
         try {
@@ -30,8 +30,18 @@ public class IsolatedBossRunner {
             log.info("执行模式: WebUI隔离环境");
             log.info("线程名称: {}", Thread.currentThread().getName());
             
-            // 直接调用Boss.main方法
-            Boss.main(args);
+            // 获取用户ID参数
+            String userId = null;
+            if (args.length > 0) {
+                userId = args[0];
+                log.info("用户ID: {}", userId);
+            }
+            
+            // 初始化Boss配置（支持多用户）
+            Boss.initConfig(userId);
+            
+            // 调用Boss程序主逻辑
+            Boss.startBossProgram();
             
             log.info("=== Boss程序隔离执行完成 ===");
             
