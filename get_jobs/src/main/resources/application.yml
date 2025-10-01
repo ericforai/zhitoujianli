@@ -6,7 +6,7 @@ spring:
 # false: 禁用认证（测试用）
 # true: 启用认证（生产环境）
 security:
-  enabled: ${SECURITY_ENABLED:false}
+  enabled: ${SECURITY_ENABLED:true}
 
 # Authing身份认证配置
 authing:

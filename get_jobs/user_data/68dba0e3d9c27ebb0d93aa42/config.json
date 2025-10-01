@@ -2,7 +2,7 @@
   "boss" : {
     "debugger" : false,
     "sayHi" : "您好！\n我对这个岗位非常感兴趣。我简单介绍一下：过往18年的职业生涯中，我始终专注于B2B领域的市场增长与品牌构建。在泛微网络（股票代码：603039）担任网络营销总监期间，我成功主导构建了一套融合销售与营销的数字化增长体系，助力公司营收在6年内实现了从7亿到近24亿的跨越，其中市场营销部门直接贡献了超过10亿的销售额 。\n\n我深信，我在全链路营销策略、大规模市场活动策划（年度活动报名超6万人次） 以及高效能团队管理方面的深度实践，能够为贵公司在品牌影响力提升、业务增长方面带来切实的价值。\n\n期待有机会能与您进一步交流，探讨我如何为团队贡献力量。",
-    "keywords" : [ "市场总监" ],
+    "keywords" : [ "市场营销" ],
     "industry" : [ "不限" ],
     "cityCode" : [ "上海" ],
     "experience" : [ "10年以上" ],
@@ -12,8 +12,8 @@
     "scale" : [ "不限" ],
     "stage" : [ "不限" ],
     "expectedSalary" : [ 30, 50 ],
-    "waitTime" : 10,
-    "filterDeadHR" : true,
+    "waitTime" : 60,
+    "filterDeadHR" : false,
     "enableAI" : false,
     "enableSmartGreeting" : true,
     "sendImgResume" : false,
@@ -29,5 +29,5 @@
   "userId" : "68dba0e3d9c27ebb0d93aa42",
   "userEmail" : "demo@example.com",
   "username" : "demo_user",
-  "lastModified" : 1759313918912
+  "lastModified" : 1759317752690
 }

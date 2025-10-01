@@ -2,6 +2,7 @@ package controller;
 
 import ai.ResumeParser;
 import ai.GreetingGenerator;
+import annotation.CheckQuota;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +36,8 @@ public class ResumeController {
      * @return 解析后的候选人信息
      */
     @PostMapping("/parse_resume")
+    @CheckQuota(quotaKey = "ai_resume_optimize_monthly", amount = 1, 
+                message = "AI简历优化配额已用完，请升级套餐或等待下月重置")
     public ResponseEntity<Map<String, Object>> parseResume(@RequestBody Map<String, String> request) {
         try {
             String resumeText = request.get("resume_text");
@@ -74,6 +77,8 @@ public class ResumeController {
      * @return 生成的打招呼语
      */
     @PostMapping("/generate_greetings")
+    @CheckQuota(quotaKey = "ai_greeting_generate_monthly", amount = 1,
+                message = "AI打招呼生成配额已用完，请升级套餐或等待下月重置")
     public ResponseEntity<Map<String, Object>> generateGreetings(@RequestBody Map<String, Object> request) {
         try {
             @SuppressWarnings("unchecked")
@@ -117,6 +122,8 @@ public class ResumeController {
      * @return 解析后的候选人信息
      */
     @PostMapping("/upload_resume")
+    @CheckQuota(quotaKey = "file_upload_size", amount = 1,
+                message = "文件上传配额已用完，请升级套餐获得更大上传空间")
     public ResponseEntity<Map<String, Object>> uploadResume(@RequestParam("file") MultipartFile file) {
         try {
             if (file.isEmpty()) {
