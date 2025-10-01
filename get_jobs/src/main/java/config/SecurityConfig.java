@@ -95,6 +95,7 @@ public class SecurityConfig {
                     "/save-config",
                     "/start-program",
                     "/stop-program",
+                    "/start-boss-task", // 启动Boss投递任务
                     "/status",
                     "/logs"
                 ).authenticated()
