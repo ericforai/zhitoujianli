@@ -40,6 +40,17 @@ public class SecurityConfig {
             // 禁用CSRF，因为使用JWT
             .csrf(csrf -> csrf.disable())
             
+            // 配置CORS，允许前端访问
+            .cors(cors -> cors.configurationSource(request -> {
+                var corsConfig = new org.springframework.web.cors.CorsConfiguration();
+                corsConfig.setAllowedOriginPatterns(java.util.Arrays.asList("http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000"));
+                corsConfig.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                corsConfig.setAllowedHeaders(java.util.Arrays.asList("*"));
+                corsConfig.setAllowCredentials(true);
+                corsConfig.setMaxAge(3600L);
+                return corsConfig;
+            }))
+            
             // 配置会话管理为无状态
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
             
@@ -54,6 +65,7 @@ public class SecurityConfig {
                 // 允许访问的公开端点
                 .requestMatchers(
                     "/api/auth/**",
+                    "/api/status",       // 公开API状态接口
                     "/login",
                     "/register", 
                     "/favicon.ico",

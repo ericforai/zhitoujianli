@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>CORS和API连接测试</h1>
+    
+    <div class="test-section">
+        <h3>测试1: 直接访问后端API</h3>
+        <button onclick="testDirectAPI()">测试直接API访问</button>
+        <div id="directResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>测试2: 模拟React应用的API调用</h3>
+        <button onclick="testReactStyleAPI()">测试React风格API调用</button>
+        <div id="reactResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>测试3: 注册新用户</h3>
+        <button onclick="testRegister()">测试注册功能</button>
+        <div id="registerResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>测试4: 登录测试</h3>
+        <button onclick="testLogin()">测试登录功能</button>
+        <div id="loginResult"></div>
+    </div>
+
+    <script>
+        async function testDirectAPI() {
+            const result = document.getElementById('directResult');
+            result.innerHTML = '<p>正在测试直接API访问...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/health');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.innerHTML = `
+                        <div class="success">
+                            <h4>✅ 直接API访问成功</h4>
+                            <p><strong>状态:</strong> ${data.message}</p>
+                            <p><strong>响应码:</strong> ${response.status}</p>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `<div class="error">❌ API访问失败: ${response.status}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ 连接失败: ${error.message}</div>`;
+            }
+        }
+
+        async function testReactStyleAPI() {
+            const result = document.getElementById('reactResult');
+            result.innerHTML = '<p>正在测试React风格API调用...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.innerHTML = `
+                        <div class="success">
+                            <h4>✅ React风格API调用成功</h4>
+                            <p><strong>状态:</strong> ${data.message}</p>
+                            <p><strong>响应码:</strong> ${response.status}</p>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `<div class="error">❌ API调用失败: ${response.status}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ 调用失败: ${error.message}</div>`;
+            }
+        }
+
+        async function testRegister() {
+            const result = document.getElementById('registerResult');
+            result.innerHTML = '<p>正在测试注册功能...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        password: '123456',
+                        username: '测试用户'
+                    })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.innerHTML = `
+                        <div class="success">
+                            <h4>✅ 注册成功</h4>
+                            <p><strong>消息:</strong> ${data.message}</p>
+                            <p><strong>用户ID:</strong> ${data.userId || '无'}</p>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <div class="error">
+                            <h4>❌ 注册失败</h4>
+                            <p><strong>消息:</strong> ${data.message}</p>
+                            <p><strong>响应码:</strong> ${response.status}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ 注册请求失败: ${error.message}</div>`;
+            }
+        }
+
+        async function testLogin() {
+            const result = document.getElementById('loginResult');
+            result.innerHTML = '<p>正在测试登录功能...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/login/email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        password: '123456'
+                    })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.innerHTML = `
+                        <div class="success">
+                            <h4>✅ 登录成功</h4>
+                            <p><strong>消息:</strong> ${data.message}</p>
+                            <p><strong>Token:</strong> ${data.token ? '已获取' : '未获取'}</p>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <div class="error">
+                            <h4>❌ 登录失败</h4>
+                            <p><strong>消息:</strong> ${data.message}</p>
+                            <p><strong>响应码:</strong> ${response.status}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ 登录请求失败: ${error.message}</div>`;
+            }
+        }
+
+        // 页面加载时自动运行第一个测试
+        window.addEventListener('load', testDirectAPI);
+    </script>
+</body>
+</html>
