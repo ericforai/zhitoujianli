@@ -35,6 +35,46 @@ public class AdminController {
     private QuotaService quotaService;
     
     /**
+     * 测试管理员功能（仅用于调试）
+     */
+    @GetMapping("/test-admin")
+    public ResponseEntity<Map<String, Object>> testAdmin() {
+        try {
+            String userId = UserContextUtil.getCurrentUserId();
+            log.info("🔍 测试管理员状态: userId={}", userId);
+            
+            if (userId == null) {
+                return ResponseEntity.ok(Map.of(
+                    "success", false,
+                    "message", "用户未登录",
+                    "userId", "null"
+                ));
+            }
+            
+            boolean isAdmin = adminService.isAdmin(userId);
+            AdminUser adminUser = adminService.getAdminUser(userId);
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "userId", userId,
+                "isAdmin", isAdmin,
+                "adminUser", adminUser != null ? Map.of(
+                    "adminType", adminUser.getAdminType(),
+                    "isActive", adminUser.getIsActive(),
+                    "permissions", adminUser.getPermissions()
+                ) : null
+            ));
+            
+        } catch (Exception e) {
+            log.error("❌ 测试管理员状态异常", e);
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "message", "测试失败: " + e.getMessage()
+            ));
+        }
+    }
+    
+    /**
      * 获取管理员仪表板数据
      */
     @GetMapping("/dashboard")

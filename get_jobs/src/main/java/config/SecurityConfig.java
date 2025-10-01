@@ -66,6 +66,7 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/api/auth/**",
                     "/api/status",       // 公开API状态接口
+                    "/api/admin/test-admin", // 管理员测试接口（仅调试用）
                     "/login",
                     "/register", 
                     "/favicon.ico",
