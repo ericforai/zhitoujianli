@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试登录跳转</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>登录跳转测试</h1>
+    
+    <div class="test-section">
+        <h3>当前环境信息</h3>
+        <p><strong>当前URL:</strong> <span id="currentUrl"></span></p>
+        <p><strong>主机名:</strong> <span id="hostname"></span></p>
+        <p><strong>端口:</strong> <span id="port"></span></p>
+        <p><strong>路径:</strong> <span id="pathname"></span></p>
+    </div>
+
+    <div class="test-section">
+        <h3>跳转逻辑测试</h3>
+        <button onclick="testLoginRedirect()">测试登录成功跳转</button>
+        <button onclick="testLogoutRedirect()">测试退出登录跳转</button>
+        <button onclick="testAuthCheckRedirect()">测试认证检查跳转</button>
+        <div id="testResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>实际登录测试</h3>
+        <p>请在浏览器中打开以下链接进行实际测试：</p>
+        <ul>
+            <li><a href="http://localhost:3000/login" target="_blank">React前端登录页面</a></li>
+            <li><a href="http://localhost:8080/login" target="_blank">后端登录页面</a></li>
+        </ul>
+    </div>
+
+    <script>
+        // 显示当前环境信息
+        document.getElementById('currentUrl').textContent = window.location.href;
+        document.getElementById('hostname').textContent = window.location.hostname;
+        document.getElementById('port').textContent = window.location.port;
+        document.getElementById('pathname').textContent = window.location.pathname;
+
+        function testLoginRedirect() {
+            const result = document.getElementById('testResult');
+            
+            // 模拟登录成功跳转逻辑
+            if (window.location.hostname === 'localhost' && window.location.port === '3000') {
+                result.innerHTML = '<div class="success">✅ 前端域名检测正确，应该跳转到: http://localhost:8080/</div>';
+                // 实际跳转（注释掉以避免真的跳转）
+                // window.location.href = 'http://localhost:8080/';
+            } else {
+                result.innerHTML = '<div class="error">❌ 不在前端域名，当前跳转逻辑: /</div>';
+            }
+        }
+
+        function testLogoutRedirect() {
+            const result = document.getElementById('testResult');
+            
+            // 模拟退出登录跳转逻辑
+            if (window.location.hostname === 'localhost' && window.location.port === '3000') {
+                result.innerHTML = '<div class="success">✅ 前端域名检测正确，应该跳转到: http://localhost:8080/login</div>';
+                // 实际跳转（注释掉以避免真的跳转）
+                // window.location.href = 'http://localhost:8080/login';
+            } else {
+                result.innerHTML = '<div class="error">❌ 不在前端域名，当前跳转逻辑: /login</div>';
+            }
+        }
+
+        function testAuthCheckRedirect() {
+            const result = document.getElementById('testResult');
+            
+            // 模拟认证检查跳转逻辑
+            const token = localStorage.getItem('token');
+            if (!token) {
+                if (window.location.hostname === 'localhost' && window.location.port === '3000') {
+                    result.innerHTML = '<div class="success">✅ 未登录，前端域名检测正确，应该跳转到: http://localhost:8080/login</div>';
+                } else {
+                    result.innerHTML = '<div class="error">❌ 未登录，不在前端域名，当前跳转逻辑: /login</div>';
+                }
+            } else {
+                result.innerHTML = '<div class="success">✅ 已登录，无需跳转</div>';
+            }
+        }
+    </script>
+</body>
+</html>

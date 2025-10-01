@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试登录API</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+    </style>
+</head>
+<body>
+    <h1>登录API测试</h1>
+    
+    <div class="test-section">
+        <h3>后端API健康检查</h3>
+        <button onclick="checkBackendHealth()">检查后端健康状态</button>
+        <div id="healthResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>登录测试</h3>
+        <div>
+            <input type="email" id="email" placeholder="邮箱地址" value="test@example.com">
+            <input type="password" id="password" placeholder="密码" value="123456">
+            <button onclick="testLogin()">测试登录</button>
+        </div>
+        <div id="loginResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>跳转测试</h3>
+        <button onclick="testRedirect()">测试跳转到后端</button>
+        <div id="redirectResult"></div>
+    </div>
+
+    <script>
+        async function checkBackendHealth() {
+            const result = document.getElementById('healthResult');
+            result.innerHTML = '<p>正在检查后端健康状态...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/health');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.innerHTML = `
+                        <div class="success">
+                            <h4>✅ 后端健康检查成功</h4>
+                            <p><strong>状态:</strong> ${data.message}</p>
+                            <p><strong>应用ID:</strong> ${data.appId}</p>
+                            <p><strong>配置状态:</strong> ${data.authingConfigured ? '已配置' : '未配置'}</p>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `<div class="error">❌ 后端健康检查失败: ${data.message || '未知错误'}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ 连接后端失败: ${error.message}</div>`;
+            }
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const result = document.getElementById('loginResult');
+            
+            if (!email || !password) {
+                result.innerHTML = '<div class="error">❌ 请输入邮箱和密码</div>';
+                return;
+            }
+            
+            result.innerHTML = '<p>正在测试登录...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/login/email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    result.innerHTML = `
+                        <div class="success">
+                            <h4>✅ 登录测试成功</h4>
+                            <p><strong>Token:</strong> ${data.token ? '已获取' : '未获取'}</p>
+                            <p><strong>用户信息:</strong> ${data.user ? JSON.stringify(data.user) : '无'}</p>
+                            <p><strong>过期时间:</strong> ${data.expiresIn || '无'}</p>
+                        </div>
+                    `;
+                    
+                    // 保存token用于后续测试
+                    if (data.token) {
+                        localStorage.setItem('authToken', data.token);
+                    }
+                } else {
+                    result.innerHTML = `<div class="error">❌ 登录失败: ${data.message || '未知错误'}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ 登录请求失败: ${error.message}</div>`;
+            }
+        }
+
+        function testRedirect() {
+            const result = document.getElementById('redirectResult');
+            
+            console.log('🔍 测试跳转逻辑...');
+            console.log('📍 当前域名:', window.location.hostname);
+            console.log('📍 当前端口:', window.location.port);
+            console.log('🎯 目标跳转地址: http://localhost:8080/');
+            
+            if (window.location.hostname === 'localhost' && window.location.port === '3000') {
+                result.innerHTML = `
+                    <div class="success">
+                        <h4>✅ 跳转逻辑正确</h4>
+                        <p>当前在前端域名(localhost:3000)，应该跳转到后端应用</p>
+                        <p><strong>跳转地址:</strong> http://localhost:8080/</p>
+                        <button onclick="executeRedirect()">执行跳转</button>
+                    </div>
+                `;
+            } else {
+                result.innerHTML = `
+                    <div class="error">
+                        <h4>❌ 不在预期域名</h4>
+                        <p>当前域名: ${window.location.hostname}:${window.location.port}</p>
+                        <p>预期域名: localhost:3000</p>
+                    </div>
+                `;
+            }
+        }
+
+        function executeRedirect() {
+            console.log('🚀 执行跳转到: http://localhost:8080/');
+            window.location.href = 'http://localhost:8080/';
+        }
+
+        // 页面加载时自动检查后端健康状态
+        window.addEventListener('load', checkBackendHealth);
+    </script>
+</body>
+</html>

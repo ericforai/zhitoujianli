@@ -55,8 +55,13 @@ const Login: React.FC = () => {
       
       if (result.success) {
         setSuccess('登录成功！正在跳转...');
+        console.log('🔍 邮箱登录成功，准备跳转...');
+        console.log('📍 当前域名:', window.location.hostname);
+        console.log('📍 当前端口:', window.location.port);
+        console.log('🎯 目标跳转地址: http://localhost:8080/');
         setTimeout(() => {
           // 跳转到后端应用程序
+          console.log('🚀 执行跳转到: http://localhost:8080/');
           window.location.href = 'http://localhost:8080/';
         }, 1000);
       } else {
@@ -110,8 +115,13 @@ const Login: React.FC = () => {
       
       if (result.success) {
         setSuccess('登录成功！正在跳转...');
+        console.log('🔍 手机号登录成功，准备跳转...');
+        console.log('📍 当前域名:', window.location.hostname);
+        console.log('📍 当前端口:', window.location.port);
+        console.log('🎯 目标跳转地址: http://localhost:8080/');
         setTimeout(() => {
           // 跳转到后端应用程序
+          console.log('🚀 执行跳转到: http://localhost:8080/');
           window.location.href = 'http://localhost:8080/';
         }, 1000);
       } else {
