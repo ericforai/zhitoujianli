@@ -18,7 +18,7 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   const checkAdminStatus = async () => {
     try {
       // 直接检查预设的超级管理员
-      const response = await fetch('/api/admin/test-admin');
+      const response = await fetch('http://localhost:8080/api/admin/test-admin');
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.testIsAdmin) {
@@ -41,7 +41,7 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
 
   const initializeSuperAdmin = async () => {
     try {
-      const response = await fetch('/api/admin/init-super-admin', {
+      const response = await fetch('http://localhost:8080/api/admin/init-super-admin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -62,11 +62,14 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
           alert('初始化失败: ' + result.message);
         }
       } else {
-        alert('初始化失败，请稍后重试');
+        const errorText = await response.text();
+        console.error('初始化响应错误:', response.status, errorText);
+        alert('初始化失败，状态码: ' + response.status);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('初始化超级管理员错误:', err);
-      alert('初始化过程中发生错误');
+      const errorMessage = err instanceof Error ? err.message : '未知错误';
+      alert('初始化过程中发生错误: ' + errorMessage);
     }
   };
 

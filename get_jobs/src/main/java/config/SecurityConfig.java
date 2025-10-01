@@ -69,6 +69,7 @@ public class SecurityConfig {
                     "/api/admin/test-admin", // 管理员测试接口（仅调试用）
                     "/api/admin/init-super-admin", // 超级管理员初始化接口
                     "/admin-page", // 管理员功能页面
+                    "/admin-page/**", // 管理员功能子页面
                     "/login",
                     "/register",
                     "/favicon.ico",

@@ -36,7 +36,7 @@ const AdminDashboard: React.FC = () => {
 
   const checkAdminStatus = async () => {
     try {
-      const response = await fetch('/api/admin/test-admin');
+      const response = await fetch('http://localhost:8080/api/admin/test-admin');
       
       if (response.ok) {
         const data = await response.json();
@@ -62,7 +62,7 @@ const AdminDashboard: React.FC = () => {
 
   const loadDashboardData = async () => {
     try {
-      const response = await fetch('/api/admin/dashboard');
+      const response = await fetch('http://localhost:8080/api/admin/dashboard');
       
       if (response.ok) {
         const result = await response.json();
@@ -112,7 +112,7 @@ const AdminDashboard: React.FC = () => {
 
   const initializeSuperAdmin = async () => {
     try {
-      const response = await fetch('/api/admin/init-super-admin', {
+      const response = await fetch('http://localhost:8080/api/admin/init-super-admin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
