@@ -86,9 +86,11 @@ public class SmartGreetingService {
             
         } catch (Exception e) {
             log.error("【智能打招呼】生成失败: {}", e.getMessage(), e);
-            // 检查是否是Ollama服务未启动的问题
+            // 检查是否是API服务问题
             if (e.getMessage() != null && e.getMessage().contains("Connection refused")) {
-                log.error("【智能打招呼】Ollama服务未启动，请确保Ollama服务正在运行");
+                log.error("【智能打招呼】AI API服务连接失败，请检查网络连接和API配置");
+            } else if (e.getMessage() != null && e.getMessage().contains("401")) {
+                log.error("【智能打招呼】API密钥无效，请检查.env文件中的API_KEY配置");
             }
             return null;
             

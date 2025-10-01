@@ -85,10 +85,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {
+        // 优先从 Authorization Header 获取
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+            String token = bearerToken.substring(7);
+            log.debug("🔑 从 Header 获取到 Token，长度: {}", token.length());
+            return token;
         }
+        
+        // 如果 Header 中没有，尝试从 Cookie 中获取
+        if (request.getCookies() != null) {
+            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                if ("authToken".equals(cookie.getName())) {
+                    String token = cookie.getValue();
+                    log.debug("🍪 从 Cookie 获取到 Token，长度: {}", token.length());
+                    return token;
+                }
+            }
+        }
+        
+        log.debug("🚫 未找到 Token（既没有 Header 也没有 Cookie）");
         return null;
     }
 

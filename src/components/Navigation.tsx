@@ -1,7 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { authService } from '../services/authService';
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    // 检查登录状态
+    const checkAuthStatus = () => {
+      const loggedIn = authService.isAuthenticated();
+      setIsLoggedIn(loggedIn);
+      if (loggedIn) {
+        const userData = authService.getCachedUser();
+        setUser(userData);
+      }
+    };
+
+    checkAuthStatus();
+    
+    // 监听存储变化
+    const handleStorageChange = () => {
+      checkAuthStatus();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  const handleLogout = () => {
+    authService.logout();
+    setIsLoggedIn(false);
+    setUser(null);
+    // authService.logout() 已经包含了跳转逻辑
+  };
+
+  const handleDashboardClick = () => {
+    if (isLoggedIn) {
+      window.location.href = '/dashboard';
+    } else {
+      window.location.href = '/login';
+    }
+  };
 
   return (
     <nav className="bg-white shadow-sm fixed w-full top-0 z-50">
@@ -50,13 +90,36 @@ const Navigation = () => {
           </div>
 
                  {/* CTA Buttons */}
-                 <div className="hidden md:block flex space-x-3">
-                   <a href="http://localhost:8080" target="_blank" rel="noopener noreferrer" className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                     后台管理
-                   </a>
-                   <a href="#contact" className="bg-gradient-primary text-white px-6 py-2 rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                     立即体验
-                   </a>
+                 <div className="hidden md:flex items-center space-x-3">
+                   {isLoggedIn ? (
+                     <>
+                       <span className="text-gray-700 text-sm">欢迎，{user?.username || user?.email || '用户'}</span>
+                       <button 
+                         onClick={handleDashboardClick}
+                         className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                       >
+                         后台管理
+                       </button>
+                       <button 
+                         onClick={handleLogout}
+                         className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+                       >
+                         退出
+                       </button>
+                     </>
+                   ) : (
+                     <>
+                       <a href="/login" className="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors">
+                         登录
+                       </a>
+                       <a href="/register" className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                         注册
+                       </a>
+                       <a href="#contact" className="bg-gradient-primary text-white px-6 py-2 rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                         立即体验
+                       </a>
+                     </>
+                   )}
                  </div>
 
           {/* Mobile menu button */}
@@ -94,12 +157,36 @@ const Navigation = () => {
               <a href="#contact" className="text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium">
                 联系我们
               </a>
-                     <a href="http://localhost:8080" target="_blank" rel="noopener noreferrer" className="w-full bg-gray-600 text-white px-6 py-2 rounded-lg mt-2 text-center block">
-                       后台管理
-                     </a>
-                     <a href="#contact" className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-lg mt-2 text-center block">
-                       立即体验
-                     </a>
+              
+              {/* 移动端登录按钮 */}
+              {isLoggedIn ? (
+                <>
+                  <div className="px-3 py-2 text-sm text-gray-600">
+                    欢迎，{user?.username || user?.email || '用户'}
+                  </div>
+                  <button 
+                    onClick={handleDashboardClick}
+                    className="w-full bg-indigo-600 text-white px-6 py-2 rounded-lg mt-2 text-center block hover:bg-indigo-700"
+                  >
+                    后台管理
+                  </button>
+                  <button 
+                    onClick={handleLogout}
+                    className="w-full bg-gray-600 text-white px-6 py-2 rounded-lg mt-2 text-center block hover:bg-gray-700"
+                  >
+                    退出
+                  </button>
+                </>
+              ) : (
+                <>
+                  <a href="/login" className="w-full bg-indigo-600 text-white px-6 py-2 rounded-lg mt-2 text-center block hover:bg-indigo-700">
+                    登录
+                  </a>
+                  <a href="/register" className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-lg mt-2 text-center block">
+                    注册
+                  </a>
+                </>
+              )}
             </div>
           </div>
         )}

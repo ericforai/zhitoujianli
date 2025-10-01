@@ -24,87 +24,45 @@ import java.util.concurrent.*;
 public class AiService {
 
     private static final Dotenv dotenv = Dotenv.load();
-    private static final String BASE_URL = dotenv.get("BASE_URL");
-    private static final String API_KEY = dotenv.get("API_KEY");
-    private static final String MODEL = dotenv.get("MODEL");
-    
-    // 检测是否为DeepSeek API
-    private static final boolean IS_DEEPSEEK = dotenv.get("BASE_URL", "").contains("deepseek.com");
-    
-    // 检测是否为Ollama本地API
-    private static final boolean IS_OLLAMA = dotenv.get("BASE_URL", "").contains("localhost:11434") || 
-                                            dotenv.get("BASE_URL", "").contains("127.0.0.1:11434");
+    private static final String BASE_URL = dotenv.get("BASE_URL", "https://api.deepseek.com");
+    private static final String API_KEY = dotenv.get("API_KEY", "your_deepseek_api_key_here");
+    private static final String MODEL = dotenv.get("MODEL", "deepseek-chat");
 
     public static String sendRequest(String content) {
-        // 设置超时时间，单位：秒
-        // Ollama本地API需要更长的处理时间
-        int timeoutInSeconds = IS_OLLAMA ? 120 : 60;  // Ollama设置为120秒，其他API保持60秒
+        // 设置超时时间，单位：秒 - 统一使用60秒
+        int timeoutInSeconds = 60;
 
         // 创建 HttpClient 实例并设置超时
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(timeoutInSeconds))  // 设置连接超时
                 .build();
 
-        // 构建 JSON 请求体
+        // 构建 JSON 请求体 - 统一使用DeepSeek API格式
         JSONObject requestData = new JSONObject();
         requestData.put("model", MODEL);
+        requestData.put("temperature", 0.5);
+        requestData.put("stream", false);
         
-        // DeepSeek API 特殊配置
-        if (IS_DEEPSEEK) {
-            requestData.put("temperature", 0.5);
-            requestData.put("stream", false);  // DeepSeek 需要明确指定 stream 参数
-            log.info("使用DeepSeek API，模型: {}", MODEL);
-        }
+        // 添加消息内容
+        JSONArray messages = new JSONArray();
+        JSONObject message = new JSONObject();
+        message.put("role", "user");
+        message.put("content", content);
+        messages.put(message);
+        requestData.put("messages", messages);
         
-        // Ollama API 特殊配置 - 使用不同的JSON结构
-        if (IS_OLLAMA) {
-            requestData.put("prompt", content);  // Ollama使用prompt字段而不是messages
-            requestData.put("stream", false);
-            requestData.put("options", new JSONObject().put("temperature", 0.5));
-            log.info("使用Ollama本地API，模型: {}", MODEL);
-        }
+        log.info("使用DeepSeek API，模型: {}", MODEL);
 
-        // 其他API使用标准格式
-        if (!IS_DEEPSEEK && !IS_OLLAMA) {
-            requestData.put("temperature", 0.5);
-        }
-
-        // 添加消息内容（非Ollama API使用）
-        if (!IS_OLLAMA) {
-            JSONArray messages = new JSONArray();
-            JSONObject message = new JSONObject();
-            message.put("role", "user");
-            message.put("content", content);
-            messages.put(message);
-            requestData.put("messages", messages);
-        }
-
-        // 构建正确的API端点
-        String apiEndpoint;
-        if (IS_OLLAMA) {
-            apiEndpoint = BASE_URL + "/api/generate";  // Ollama使用/api/generate
-        } else {
-            apiEndpoint = BASE_URL + "/v1/chat/completions";  // 其他API使用标准端点
-        }
+        // 构建API端点
+        String apiEndpoint = BASE_URL + "/v1/chat/completions";
         
         // 构建 HTTP 请求
         HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                 .uri(URI.create(apiEndpoint))
                 .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .header("Authorization", "Bearer " + API_KEY)
                 .POST(HttpRequest.BodyPublishers.ofString(requestData.toString()));
-        
-        // DeepSeek API 需要额外的请求头
-        if (IS_DEEPSEEK) {
-            requestBuilder.header("Accept", "application/json");
-        }
-        
-        // Ollama API 不需要Authorization头，使用默认配置
-        if (IS_OLLAMA) {
-            requestBuilder.header("Accept", "application/json");
-            // Ollama 本地API不需要API_KEY，移除Authorization头
-        } else {
-            requestBuilder.header("Authorization", "Bearer " + API_KEY);
-        }
         
         HttpRequest request = requestBuilder.build();
 
@@ -128,21 +86,15 @@ public class AiService {
                 long created = responseObject.optLong("created", System.currentTimeMillis() / 1000);
                 String model = responseObject.optString("model", MODEL);
 
-                // 解析返回的内容 - 支持不同API格式
+                // 解析返回的内容 - 使用标准DeepSeek API格式
                 String responseContent;
-                if (IS_OLLAMA) {
-                    // Ollama格式：直接获取response字段
-                    responseContent = responseObject.getString("response");
+                JSONArray choices = responseObject.getJSONArray("choices");
+                if (choices.length() > 0) {
+                    JSONObject messageObject = choices.getJSONObject(0).getJSONObject("message");
+                    responseContent = messageObject.getString("content");
                 } else {
-                    // 标准格式：从choices中获取
-                    JSONArray choices = responseObject.getJSONArray("choices");
-                    if (choices.length() > 0) {
-                        JSONObject messageObject = choices.getJSONObject(0).getJSONObject("message");
-                        responseContent = messageObject.getString("content");
-                    } else {
-                        log.error("AI响应中没有choices数据");
-                        return "";
-                    }
+                    log.error("AI响应中没有choices数据");
+                    return "";
                 }
 
                 // 解析 usage 部分（如果存在）
@@ -161,10 +113,8 @@ public class AiService {
 
                     log.info("请求ID: {}, 创建时间: {}, 模型名: {}, 提示词: {}, 补全: {}, 总用量: {}", 
                             requestId, formattedTime, model, promptTokens, completionTokens, totalTokens);
-        } else if (IS_OLLAMA) {
-                    log.info("Ollama本地API响应成功，模型: {}", model);
-        } else {
-                    log.info("AI API响应成功，模型: {}", model);
+                } else {
+                    log.info("DeepSeek API响应成功，模型: {}", model);
                 }
                 
                 return responseContent;

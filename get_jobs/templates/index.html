@@ -404,6 +404,41 @@
         </div>
     </div>
 
+    <script>
+        // Token同步脚本 - 将Cookie中的token同步到localStorage
+        function syncTokenFromCookie() {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.split('=').map(c => c.trim());
+                if (name === 'authToken' && value) {
+                    localStorage.setItem('token', value);
+                    console.log('✅ Token已从Cookie同步到localStorage');
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        // 页面加载时检查token
+        document.addEventListener('DOMContentLoaded', function() {
+            const hasToken = syncTokenFromCookie();
+            if (!hasToken) {
+                // 如果没有token，跳转到首页登录
+                console.log('⚠️ 未找到认证token，将跳转到首页登录');
+                setTimeout(() => {
+                    window.location.href = 'http://localhost:3000/login';
+                }, 2000);
+                document.body.innerHTML = `
+                    <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+                        <h2>需要登录认证</h2>
+                        <p>正在跳转到登录页面...</p>
+                        <p><a href="http://localhost:3000/login">点击这里立即跳转</a></p>
+                    </div>
+                `;
+            }
+        });
+    </script>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let autoRefreshInterval;

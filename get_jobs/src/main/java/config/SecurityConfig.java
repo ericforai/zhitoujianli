@@ -1,6 +1,7 @@
 package config;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -52,7 +53,6 @@ public class SecurityConfig {
             http.authorizeHttpRequests(authz -> authz
                 // 允许访问的公开端点
                 .requestMatchers(
-                    "/",              // 首页公开访问
                     "/api/auth/**",
                     "/login",
                     "/register", 
@@ -67,17 +67,45 @@ public class SecurityConfig {
                     "/help"           // 帮助页面
                 ).permitAll()
                 
-                // 需要认证的API端点
+                // 需要认证的API端点和后台管理页面
                 .requestMatchers(
+                    "/",              // 后台管理首页需要认证
                     "/api/jobs/**",
                     "/api/user/**",
                     "/api/resume/**",
                     "/dashboard/**",
-                    "/profile/**"
+                    "/profile/**",
+                    "/save-config",
+                    "/start-program",
+                    "/stop-program",
+                    "/status",
+                    "/logs"
                 ).authenticated()
                 
-                // 其他请求默认允许访问
-                .anyRequest().permitAll()
+                // 其他请求默认需要认证
+                .anyRequest().authenticated()
+            )
+            
+            // 配置未授权时的处理
+            .exceptionHandling(exceptions -> exceptions
+                .authenticationEntryPoint((request, response, authException) -> {
+                    // 检查请求是否为AJAX请求
+                    String requestedWith = request.getHeader("X-Requested-With");
+                    String acceptHeader = request.getHeader("Accept");
+                    
+                    if ("XMLHttpRequest".equals(requestedWith) || 
+                        (acceptHeader != null && acceptHeader.contains("application/json"))) {
+                        // AJAX请求返回JSON错误
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.setContentType("application/json;charset=UTF-8");
+                        response.getWriter().write(
+                            "{\"success\":false,\"message\":\"需要登录认证\",\"redirectTo\":\"http://localhost:3000/login\"}"
+                        );
+                    } else {
+                        // 浏览器请求重定向到首页登录
+                        response.sendRedirect("http://localhost:3000/login");
+                    }
+                })
             )
             
             // 添加JWT过滤器
