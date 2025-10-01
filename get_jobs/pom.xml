@@ -35,6 +35,21 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
 
@@ -177,11 +192,11 @@
 
         <!-- ========== 身份认证和安全相关依赖 ========== -->
         
-        <!-- Authing Java SDK - 国内专业的身份认证服务 -->
+        <!-- Authing Java SDK V3 - 国内专业的身份认证服务 -->
         <dependency>
             <groupId>cn.authing</groupId>
             <artifactId>authing-java-sdk</artifactId>
-            <version>3.0.0</version>
+            <version>3.1.19</version>
         </dependency>
 
         <!-- Spring Security - Spring安全框架 -->

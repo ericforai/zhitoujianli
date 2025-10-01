@@ -1,10 +1,13 @@
 package controller;
 
+import com.superxiang.dto.ErrorResponse;
 import config.AuthingConfig;
+import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -24,8 +27,25 @@ public class AuthController {
 
     @Autowired
     private AuthingConfig authingConfig;
+    
+    @Autowired
+    private Dotenv dotenv;
 
     private final RestTemplate restTemplate = new RestTemplate();
+
+    /**
+     * 获取安全认证状态
+     */
+    @GetMapping("/security-status")
+    public ResponseEntity<Map<String, Object>> getSecurityStatus() {
+        Map<String, Object> response = new HashMap<>();
+        boolean securityEnabled = Boolean.parseBoolean(dotenv.get("SECURITY_ENABLED", "true"));
+        
+        response.put("enabled", securityEnabled);
+        response.put("message", securityEnabled ? "安全认证已启用" : "安全认证已禁用");
+        
+        return ResponseEntity.ok(response);
+    }
 
     /**
      * 邮箱密码注册
@@ -137,8 +157,6 @@ public class AuthController {
             body.put("client_id", appId);
             body.put("client_secret", authingConfig.getAppSecret());
             
-            log.info("🔧 添加认证参数 - client_id: {}, client_secret: {}", appId, authingConfig.getAppSecret().substring(0, Math.min(8, authingConfig.getAppSecret().length())) + "...");
-            
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("x-authing-app-id", appId);
@@ -175,8 +193,7 @@ public class AuthController {
             }
         } catch (org.springframework.web.client.HttpClientErrorException e) {
             log.error("❌ 登录失败: {}", e.getResponseBodyAsString(), e);
-            return ResponseEntity.status(e.getStatusCode())
-                .body(Map.of("success", false, "message", "登录失败，请检查邮箱和密码"));
+            return handleHttpClientError(e, "该邮箱已被注册", "登录失败，请检查邮箱和密码");
         } catch (Exception e) {
             log.error("❌ 登录异常", e);
             return ResponseEntity.internalServerError()
@@ -205,5 +222,25 @@ public class AuthController {
         response.put("message", isConfigured ? "✅ Authing配置正常" : "⚠️ Authing配置不完整");
         
         return ResponseEntity.ok(response);
+    }
+
+    private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String message) {
+        return ResponseEntity.status(status)
+                .body(ErrorResponse.builder().success(false).message(message).build());
+    }
+    
+    private ResponseEntity<ErrorResponse> buildConfigErrorResponse() {
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "认证服务配置不完整，请联系管理员");
+    }
+
+    private ResponseEntity<ErrorResponse> handleHttpClientError(HttpClientErrorException e, String conflictMessage, String defaultMessage) {
+        HttpStatusCode statusCode = e.getStatusCode();
+        if (statusCode.value() == 409) { // 409
+            return buildErrorResponse(HttpStatus.CONFLICT, conflictMessage);
+        }
+        if (statusCode.value() == 401 || statusCode.value() == 400) { // 401, 400
+             return buildErrorResponse(HttpStatus.UNAUTHORIZED, defaultMessage);
+        }
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "认证服务通信失败");
     }
 }

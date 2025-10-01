@@ -1,4 +1,4 @@
-package dto;
+package com.superxiang.dto;
 
 import lombok.Builder;
 import lombok.Data;

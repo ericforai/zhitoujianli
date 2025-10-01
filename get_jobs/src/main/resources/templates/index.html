@@ -385,6 +385,7 @@
                     debugger: false,
                     sayHi: document.getElementById('bossSayHi').value,
                     keywords: document.getElementById('bossKeywords').textContent.split(',').map(k => k.trim()).filter(k => k),
+                    industry: ["不限"],  // 添加行业字段
                     cityCode: Array.from(document.getElementById('bossCityCode').selectedOptions).map(o => o.value),
                     experience: Array.from(document.getElementById('bossExperience').selectedOptions).map(o => o.value),
                     jobType: "不限",
@@ -630,7 +631,20 @@
         });
 
         // 检查登录状态
-        function checkAuth() {
+        async function checkAuth() {
+            // 首先检查是否启用了安全认证
+            try {
+                const response = await fetch('/api/auth/security-status');
+                const securityStatus = await response.json();
+                
+                if (!securityStatus.enabled) {
+                    console.log('安全认证已禁用，跳过token检查');
+                    return true;
+                }
+            } catch (error) {
+                console.log('无法获取安全状态，默认进行认证检查');
+            }
+            
             const token = localStorage.getItem('authToken');
             if (!token) {
                 console.log('未找到认证token，重定向到登录页面');
@@ -648,11 +662,12 @@
         }
 
         // 页面加载完成后初始化
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             console.log('主页面开始加载');
             
             // 检查登录状态
-            if (!checkAuth()) {
+            const authResult = await checkAuth();
+            if (!authResult) {
                 console.log('认证检查失败，页面将重定向到登录页');
                 return;
             }

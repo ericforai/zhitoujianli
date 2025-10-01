@@ -17,9 +17,9 @@ import java.util.concurrent.*;
 public class SmartGreetingService {
 
     /**
-     * AI超时时间：5分钟（300秒）
+     * AI超时时间：2分钟（120秒）- 减少超时时间，提高响应速度
      */
-    private static final int AI_TIMEOUT_SECONDS = 300;
+    private static final int AI_TIMEOUT_SECONDS = 120;
     
     /**
      * Stage B - JD匹配与打招呼语生成Prompt（System）
@@ -86,6 +86,10 @@ public class SmartGreetingService {
             
         } catch (Exception e) {
             log.error("【智能打招呼】生成失败: {}", e.getMessage(), e);
+            // 检查是否是Ollama服务未启动的问题
+            if (e.getMessage() != null && e.getMessage().contains("Connection refused")) {
+                log.error("【智能打招呼】Ollama服务未启动，请确保Ollama服务正在运行");
+            }
             return null;
             
         } finally {

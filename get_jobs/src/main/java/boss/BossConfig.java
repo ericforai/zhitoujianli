@@ -118,28 +118,44 @@ public class BossConfig {
         // 转换薪资范围
         config.setSalary(BossEnum.Salary.forValue(config.getSalary()).getCode());
         // 转换城市编码
-//        config.setCityCode(config.getCityCode().stream().map(value -> BossEnum.CityCode.forValue(value).getCode()).collect(Collectors.toList()));
-        List<String> convertedCityCodes = config.getCityCode().stream()
-                .map(city -> {
-                    // 优先从自定义映射中获取
-                    if (config.getCustomCityCode() != null && config.getCustomCityCode().containsKey(city)) {
-                        return config.getCustomCityCode().get(city);
-                    }
-                    // 否则从枚举中获取
-                    return BossEnum.CityCode.forValue(city).getCode();
-                })
-                .collect(Collectors.toList());
-        config.setCityCode(convertedCityCodes);
+        if (config.getCityCode() != null) {
+            List<String> convertedCityCodes = config.getCityCode().stream()
+                    .map(city -> {
+                        // 优先从自定义映射中获取
+                        if (config.getCustomCityCode() != null && config.getCustomCityCode().containsKey(city)) {
+                            return config.getCustomCityCode().get(city);
+                        }
+                        // 否则从枚举中获取
+                        return BossEnum.CityCode.forValue(city).getCode();
+                    })
+                    .collect(Collectors.toList());
+            config.setCityCode(convertedCityCodes);
+        }
+        
         // 转换工作经验要求
-        config.setExperience(config.getExperience().stream().map(value -> BossEnum.Experience.forValue(value).getCode()).collect(Collectors.toList()));
+        if (config.getExperience() != null) {
+            config.setExperience(config.getExperience().stream().map(value -> BossEnum.Experience.forValue(value).getCode()).collect(Collectors.toList()));
+        }
+        
         // 转换学历要求
-        config.setDegree(config.getDegree().stream().map(value -> BossEnum.Degree.forValue(value).getCode()).collect(Collectors.toList()));
+        if (config.getDegree() != null) {
+            config.setDegree(config.getDegree().stream().map(value -> BossEnum.Degree.forValue(value).getCode()).collect(Collectors.toList()));
+        }
+        
         // 转换公司规模
-        config.setScale(config.getScale().stream().map(value -> BossEnum.Scale.forValue(value).getCode()).collect(Collectors.toList()));
+        if (config.getScale() != null) {
+            config.setScale(config.getScale().stream().map(value -> BossEnum.Scale.forValue(value).getCode()).collect(Collectors.toList()));
+        }
+        
         // 转换公司融资阶段
-        config.setStage(config.getStage().stream().map(value -> BossEnum.Financing.forValue(value).getCode()).collect(Collectors.toList()));
+        if (config.getStage() != null) {
+            config.setStage(config.getStage().stream().map(value -> BossEnum.Financing.forValue(value).getCode()).collect(Collectors.toList()));
+        }
+        
         // 转换行业
-        config.setIndustry(config.getIndustry().stream().map(value -> BossEnum.Industry.forValue(value).getCode()).collect(Collectors.toList()));
+        if (config.getIndustry() != null) {
+            config.setIndustry(config.getIndustry().stream().map(value -> BossEnum.Industry.forValue(value).getCode()).collect(Collectors.toList()));
+        }
 
         return config;
     }

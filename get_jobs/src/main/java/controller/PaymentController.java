@@ -59,8 +59,11 @@ public class PaymentController {
             @RequestBody Map<String, Object> request) {
         
         try {
+            log.info("💰 开始处理微信支付订单创建请求");
+            
             // 检查配置
             if (wechatMerchantId == null || wechatMerchantId.isEmpty()) {
+                log.warn("❌ 微信支付未配置");
                 return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
                     "message", "微信支付未配置，请在.env文件中设置 WECHAT_PAY_MERCHANT_ID 和 WECHAT_PAY_API_KEY",
@@ -72,12 +75,20 @@ public class PaymentController {
             Integer amount = (Integer) request.get("amount");
             
             if (amount == null || amount <= 0) {
+                log.warn("❌ 支付金额无效: {}", amount);
                 return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "金额必须大于0"));
             }
             
+            if (productId == null || productId.isEmpty()) {
+                log.warn("❌ 产品ID为空");
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "产品ID不能为空"));
+            }
+            
             // 生成订单号
             String orderNo = generateOrderNo("WX");
+            log.info("🔧 生成订单号: {}, 产品ID: {}, 金额: {}分", orderNo, productId, amount);
             
             // TODO: 这里需要集成微信支付SDK
             // 由于需要商户号和证书，这里提供示例代码框架
@@ -114,17 +125,19 @@ public class PaymentController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("orderNo", orderNo);
+            response.put("amount", amount);
+            response.put("productId", productId);
             response.put("message", "请先配置微信支付商户号和证书");
             // response.put("codeUrl", response.getCodeUrl()); // 实际的二维码URL
             
-            log.info("创建微信支付订单: orderNo={}, amount={}", orderNo, amount);
+            log.info("✅ 微信支付订单创建成功: orderNo={}, amount={}", orderNo, amount);
             
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            log.error("创建微信支付订单失败", e);
+            log.error("❌ 创建微信支付订单失败", e);
             return ResponseEntity.badRequest()
-                .body(Map.of("success", false, "message", e.getMessage()));
+                .body(Map.of("success", false, "message", "创建微信支付订单失败: " + e.getMessage()));
         }
     }
 
@@ -170,8 +183,11 @@ public class PaymentController {
             @RequestBody Map<String, Object> request) {
         
         try {
+            log.info("💰 开始处理支付宝订单创建请求");
+            
             // 检查配置
             if (alipayAppId == null || alipayAppId.isEmpty()) {
+                log.warn("❌ 支付宝支付未配置");
                 return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
                     "message", "支付宝支付未配置，请在.env文件中设置 ALIPAY_APP_ID 和 ALIPAY_PRIVATE_KEY",
@@ -183,12 +199,20 @@ public class PaymentController {
             Object amountObj = request.get("amount");
             
             if (amountObj == null) {
+                log.warn("❌ 支付金额为空");
                 return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "金额不能为空"));
             }
             
+            if (productId == null || productId.isEmpty()) {
+                log.warn("❌ 产品ID为空");
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "产品ID不能为空"));
+            }
+            
             // 生成订单号
             String orderNo = generateOrderNo("ALI");
+            log.info("🔧 生成订单号: {}, 产品ID: {}, 金额: {}", orderNo, productId, amountObj);
             
             // TODO: 这里需要集成支付宝SDK
             // 由于需要APPID和密钥，这里提供示例代码框架
@@ -221,17 +245,19 @@ public class PaymentController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("orderNo", orderNo);
+            response.put("amount", amountObj);
+            response.put("productId", productId);
             response.put("message", "请先配置支付宝APPID和密钥");
             // response.put("qrCode", response.getQrCode()); // 实际的二维码内容
             
-            log.info("创建支付宝订单: orderNo={}, amount={}", orderNo, amountObj);
+            log.info("✅ 支付宝订单创建成功: orderNo={}, amount={}", orderNo, amountObj);
             
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            log.error("创建支付宝订单失败", e);
+            log.error("❌ 创建支付宝订单失败", e);
             return ResponseEntity.badRequest()
-                .body(Map.of("success", false, "message", e.getMessage()));
+                .body(Map.of("success", false, "message", "创建支付宝订单失败: " + e.getMessage()));
         }
     }
 

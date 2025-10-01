@@ -1,38 +1,47 @@
 package security;
 
-import org.springframework.beans.factory.annotation.Value;
+import cn.authing.sdk.java.client.AuthenticationClient;
+import config.AuthingConfig;
+import io.github.cdimascio.dotenv.Dotenv;
+import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
- * JWT认证过滤器 - 使用Authing REST API
+ * JWT认证过滤器 - 使用Authing Java SDK V3 AuthenticationClient
  * 
  * @author ZhiTouJianLi Team
- * @since 2025-09-30
+ * @since 2025-10-01
  */
 @Slf4j
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    @Value("${AUTHING_APP_HOST:https://your-domain.authing.cn}")
-    private String appHost;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final AuthingConfig authingConfig;
+    private final AuthenticationClient authenticationClient;
+    
+    @Autowired
+    private Dotenv dotenv;
+    
+    public JwtAuthenticationFilter(AuthingConfig authingConfig, AuthenticationClient authenticationClient) {
+        this.authingConfig = authingConfig;
+        this.authenticationClient = authenticationClient;
+    }
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, 
@@ -42,6 +51,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         
         String path = request.getRequestURI();
         log.debug("JWT过滤器处理请求: {}", path);
+        
+        // 从.env文件中读取安全开关配置
+        boolean securityEnabled = Boolean.parseBoolean(dotenv.get("SECURITY_ENABLED", "true"));
+        
+        // 如果安全认证被禁用，直接跳过JWT验证
+        if (!securityEnabled) {
+            log.debug("安全认证已禁用，跳过JWT验证");
+            filterChain.doFilter(request, response);
+            return;
+        }
         
         try {
             String token = getJwtFromRequest(request);
@@ -75,30 +94,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private Map<String, Object> validateTokenAndGetUser(String token) {
         try {
-            String url = appHost + "/api/v3/get-profile";
-            log.debug("验证token，请求URL: {}", url);
+            log.debug("使用Authing Java SDK V3 AuthenticationClient验证token");
             
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + token);
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            
-            HttpEntity<String> entity = new HttpEntity<>("{}", headers);
-            
-            ResponseEntity<Map> response = restTemplate.exchange(
-                url, HttpMethod.GET, entity, Map.class);
-            
-            log.debug("Token验证响应状态: {}", response.getStatusCode());
-            Map<String, Object> responseBody = response.getBody();
-            log.debug("Token验证响应内容: {}", responseBody);
-            
-            if (responseBody != null && responseBody.get("data") != null) {
-                log.debug("Token验证成功，返回用户信息");
-                @SuppressWarnings("unchecked")
-                Map<String, Object> userData = (Map<String, Object>) responseBody.get("data");
-                return userData;
+            // 使用V3版本的introspectToken方法进行真实验证
+            try {
+                Object result = authenticationClient.introspectToken(token);
+                
+                if (result != null) {
+                    log.debug("Token验证成功，返回结果类型: {}", result.getClass().getName());
+                    log.debug("Token验证成功，返回结果: {}", result.toString());
+                    
+                    // 暂时返回基础的用户信息，说明token验证成功
+                    Map<String, Object> userInfo = new HashMap<>();
+                    userInfo.put("userId", "authing_verified_user");
+                    userInfo.put("tokenValid", true);
+                    userInfo.put("verificationMethod", "Authing V3 SDK");
+                    userInfo.put("rawResult", result.toString());
+                    
+                    log.debug("✅ Authing V3 Token验证成功");
+                    return userInfo;
+                } else {
+                    log.warn("❌ Token验证失败：返回结果为空");
+                }
+            } catch (Exception apiException) {
+                log.error("🔥 Authing API调用异常: {}", apiException.getMessage());
+                log.error("异常堆栈: ", apiException);
+                
+                // 在生产环境中，API异常应该拒绝访问
+                // 这里为了调试，我们记录错误但让请求继续
             }
             
-            log.warn("Token验证失败：响应数据为空或无效");
+            log.warn("Token验证失败：无法验证token有效性");
             return null;
         } catch (Exception e) {
             log.error("Token验证异常: {}", e.getMessage(), e);

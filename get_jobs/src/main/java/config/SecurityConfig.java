@@ -1,5 +1,8 @@
 package config;
 
+import io.github.cdimascio.dotenv.Dotenv;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -7,15 +10,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import security.JwtAuthenticationFilter;
 
-import java.util.Arrays;
-
 /**
- * Spring Security安全配置
+ * Spring Security配置类
  * 
  * @author ZhiTouJianLi Team
  * @since 2025-09-30
@@ -24,81 +22,68 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    
+    @Autowired
+    private Dotenv dotenv;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // 从.env文件中读取安全开关配置
+        boolean securityEnabled = Boolean.parseBoolean(dotenv.get("SECURITY_ENABLED", "true"));
         http
-            // 禁用CSRF（API项目）
+            // 禁用CSRF，因为使用JWT
             .csrf(csrf -> csrf.disable())
             
-            // 配置CORS
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            // 配置会话管理为无状态
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
             
-            // 禁用默认表单登录
-            .formLogin(form -> form.disable())
-            
-            // 禁用HTTP Basic认证
-            .httpBasic(basic -> basic.disable())
-            
-            // 无状态会话
-            .sessionManagement(session -> 
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            
-            // 配置URL访问权限
-            .authorizeHttpRequests(auth -> auth
-                // 公开访问的接口
+        if (!securityEnabled) {
+            // 如果安全认证被禁用，允许所有请求
+            http.authorizeHttpRequests(authz -> authz
+                .anyRequest().permitAll()
+            );
+        } else {
+            // 配置授权规则（启用安全认证时）
+            http.authorizeHttpRequests(authz -> authz
+                // 允许访问的公开端点
                 .requestMatchers(
+                    "/",              // 首页公开访问
                     "/api/auth/**",
-                    "/",
                     "/login",
-                    "/register",
-                    "/static/**",
+                    "/register", 
                     "/favicon.ico",
-                    "/resume-parser",
-                    "/resume-manager"
+                    "/static/**",
+                    "/css/**",
+                    "/js/**",
+                    "/images/**",
+                    "/.well-known/**",
+                    "/about",         // 关于页面
+                    "/contact",       // 联系页面
+                    "/help"           // 帮助页面
                 ).permitAll()
                 
-                // 其他所有请求需要认证
-                .anyRequest().authenticated()
+                // 需要认证的API端点
+                .requestMatchers(
+                    "/api/jobs/**",
+                    "/api/user/**",
+                    "/api/resume/**",
+                    "/dashboard/**",
+                    "/profile/**"
+                ).authenticated()
+                
+                // 其他请求默认允许访问
+                .anyRequest().permitAll()
             )
             
-            // 配置异常处理（返回JSON）
-            .exceptionHandling(exception -> exception
-                .authenticationEntryPoint((request, response, authException) -> {
-                    response.setContentType("application/json;charset=UTF-8");
-                    response.setStatus(401);
-                    response.getWriter().write(
-                        "{\"success\":false,\"message\":\"未登录或Token已过期，请先登录\",\"code\":401}"
-                    );
-                })
-            )
-            
-            // 添加JWT认证过滤器
-            .addFilterBefore(jwtAuthenticationFilter(), 
-                UsernamePasswordAuthenticationFilter.class);
-        
+            // 添加JWT过滤器
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        }
+
         return http.build();
-    }
-
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:3000",
-            "http://localhost:8080",
-            "http://localhost:4321"
-        ));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
-        
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 }
