@@ -56,7 +56,8 @@ const Login: React.FC = () => {
       if (result.success) {
         setSuccess('登录成功！正在跳转...');
         setTimeout(() => {
-          window.location.href = '/';
+          // 跳转到后端应用程序
+          window.location.href = 'http://localhost:8080/';
         }, 1000);
       } else {
         setError(result.message || '登录失败，请检查邮箱和密码');
@@ -110,7 +111,8 @@ const Login: React.FC = () => {
       if (result.success) {
         setSuccess('登录成功！正在跳转...');
         setTimeout(() => {
-          window.location.href = '/';
+          // 跳转到后端应用程序
+          window.location.href = 'http://localhost:8080/';
         }, 1000);
       } else {
         setError(result.message || '登录失败，请检查验证码');

@@ -43,7 +43,12 @@ const DashboardEntry: React.FC = () => {
       window.location.href = '/';
     } else {
       // 未登录，跳转到登录页
-      window.location.href = '/login';
+      // 检查当前是否在前端域名，如果是则跳转到后端登录页面
+      if (window.location.hostname === 'localhost' && window.location.port === '3000') {
+        window.location.href = 'http://localhost:8080/login';
+      } else {
+        window.location.href = '/login';
+      }
     }
   }, []);
 
