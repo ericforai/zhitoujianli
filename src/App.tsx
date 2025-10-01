@@ -12,6 +12,8 @@ import Navigation from './components/Navigation';
 import Login from './components/Login';
 import Register from './components/Register';
 import PrivateRoute from './components/PrivateRoute';
+import AdminRoute from './components/admin/AdminRoute';
+import AdminDashboard from './components/admin/AdminDashboard';
 
 // 主页组件
 const HomePage: React.FC = () => {
@@ -70,6 +72,11 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<DashboardEntry />} />
+        <Route path="/admin" element={
+          <AdminRoute>
+            <AdminDashboard />
+          </AdminRoute>
+        } />
       </Routes>
     </Router>
   );

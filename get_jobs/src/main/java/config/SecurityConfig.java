@@ -43,7 +43,7 @@ public class SecurityConfig {
             // 配置CORS，允许前端访问
             .cors(cors -> cors.configurationSource(request -> {
                 var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                corsConfig.setAllowedOriginPatterns(java.util.Arrays.asList("http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000"));
+                corsConfig.setAllowedOriginPatterns(java.util.Arrays.asList("http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000", "http://127.0.0.1:3001"));
                 corsConfig.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 corsConfig.setAllowedHeaders(java.util.Arrays.asList("*"));
                 corsConfig.setAllowCredentials(true);
