@@ -76,21 +76,28 @@ cors.allowed.origins=http://localhost:3000,http://localhost:4321
 
 ## 🛠️ 常用命令
 
-### 开发调试
+### 常用命令
+
+#### 开发调试
 ```bash
 # 查看服务状态
 curl http://localhost:8080/actuator/health
 curl http://localhost:3000
+curl http://localhost:4321/blog/
 
 # 查看服务日志
 tail -f logs/backend.log
 tail -f logs/frontend.log
+tail -f logs/blog.log
 
 # 重启后端服务
 cd get_jobs && mvn spring-boot:run
 
 # 重启前端服务
 npm start
+
+# 重启博客服务
+cd zhitoujianli-blog && npm run dev
 ```
 
 ### 测试API
@@ -122,6 +129,7 @@ curl -H "Authorization: Bearer YOUR_TOKEN" \
 # 查看端口占用
 lsof -i :3000
 lsof -i :8080
+lsof -i :4321
 
 # 强制停止
 ./stop_dev.sh
@@ -136,13 +144,17 @@ curl http://localhost:8080/actuator/health
 
 # 前端可访问性检查
 curl http://localhost:3000
+
+# 博客可访问性检查
+curl http://localhost:4321/blog/
 ```
 
 ### 性能指标
 - 登录响应时间: ~1.5s
 - Token验证时间: ~50ms  
 - API响应时间: ~200ms
-- 页面加载时间: ~2s
+- 网站页面加载时间: ~2s
+- 博客页面加载时间: ~1s
 
 ## 📚 相关文档
 

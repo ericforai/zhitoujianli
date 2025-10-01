@@ -48,6 +48,7 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       // Token过期或无效，清除本地存储
       localStorage.removeItem('token');
+      localStorage.removeItem('authToken'); // 清除后端使用的key
       localStorage.removeItem('user');
       
       // 如果不在登录页，跳转到登录页
@@ -104,6 +105,7 @@ export const authService = {
     if (response.data.success && response.data.token) {
       // 保存Token和用户信息到本地
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('authToken', response.data.token); // 兼容后端使用的key
       if (response.data.user) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
       }
@@ -131,6 +133,7 @@ export const authService = {
     
     if (response.data.success && response.data.token) {
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('authToken', response.data.token); // 兼容后端使用的key
       if (response.data.user) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
       }
@@ -166,6 +169,7 @@ export const authService = {
     } finally {
       // 清除本地存储
       localStorage.removeItem('token');
+      localStorage.removeItem('authToken'); // 清除后端使用的key
       localStorage.removeItem('user');
       
       // 跳转到登录页

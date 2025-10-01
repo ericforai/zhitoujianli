@@ -55,11 +55,19 @@ done
 # 返回根目录
 cd ..
 
-# 启动前端服务
+# 返回根目录启动前端服务
 echo "🚀 启动前端服务 (React)..."
 nohup npm start > logs/frontend.log 2>&1 &
 FRONTEND_PID=$!
 echo "前端服务 PID: $FRONTEND_PID"
+
+# 启动博客服务
+echo "🚀 启动博客服务 (Astro)..."
+cd zhitoujianli-blog
+nohup npm run dev > ../logs/blog.log 2>&1 &
+BLOG_PID=$!
+echo "博客服务 PID: $BLOG_PID"
+cd ..
 
 # 等待前端服务启动
 echo "⏳ 等待前端服务启动..."
@@ -77,16 +85,35 @@ for i in {1..30}; do
     sleep 2
 done
 
+# 等待博客服务启动
+echo "⏳ 等待博客服务启动..."
+for i in {1..30}; do
+    if curl -s http://localhost:4321/blog/ > /dev/null 2>&1; then
+        echo "✅ 博客服务启动成功 (http://localhost:4321/blog/)"
+        break
+    fi
+    if [ $i -eq 30 ]; then
+        echo "❌ 博客服务启动超时"
+        kill $BLOG_PID 2>/dev/null
+        kill $FRONTEND_PID 2>/dev/null
+        kill $BACKEND_PID 2>/dev/null
+        exit 1
+    fi
+    sleep 2
+done
+
 # 保存PID到文件
 echo $BACKEND_PID > logs/backend.pid
 echo $FRONTEND_PID > logs/frontend.pid
+echo $BLOG_PID > logs/blog.pid
 
 echo ""
 echo "=========================================="
-echo "🎉 系统启动完成！"
+echo "✨ 系统启动完成！"
 echo "=========================================="
 echo "前端地址: http://localhost:3000"
 echo "后端地址: http://localhost:8080"
+echo "博客地址: http://localhost:4321/blog/"
 echo ""
 echo "访问层级："
 echo "1. 首页 (公开): http://localhost:3000/"
@@ -96,11 +123,12 @@ echo ""
 echo "日志文件："
 echo "- 前端日志: logs/frontend.log"
 echo "- 后端日志: logs/backend.log"
+echo "- 博客日志: logs/blog.log"
 echo ""
 echo "停止服务: ./stop_dev.sh"
 echo "=========================================="
 
 # 等待用户输入以保持脚本运行
 echo "按 Ctrl+C 停止所有服务"
-trap 'echo "停止服务..."; kill $FRONTEND_PID $BACKEND_PID 2>/dev/null; exit' INT
+trap 'echo "停止服务..."; kill $FRONTEND_PID $BACKEND_PID $BLOG_PID 2>/dev/null; exit' INT
 wait

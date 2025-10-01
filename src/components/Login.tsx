@@ -51,23 +51,32 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
+      console.log('🔍 开始邮箱登录请求...');
       const result = await authService.loginByEmail(email, password);
+      console.log('📥 登录响应结果:', result);
       
       if (result.success) {
         setSuccess('登录成功！正在跳转...');
         console.log('🔍 邮箱登录成功，准备跳转...');
         console.log('📍 当前域名:', window.location.hostname);
         console.log('📍 当前端口:', window.location.port);
+        console.log('📍 当前完整URL:', window.location.href);
         console.log('🎯 目标跳转地址: http://localhost:8080/');
+        console.log('⏰ 1秒后执行跳转...');
+        
         setTimeout(() => {
           // 跳转到后端应用程序
           console.log('🚀 执行跳转到: http://localhost:8080/');
+          console.log('🔧 跳转前最后检查 - 当前URL:', window.location.href);
           window.location.href = 'http://localhost:8080/';
         }, 1000);
       } else {
+        console.log('❌ 登录失败:', result.message);
         setError(result.message || '登录失败，请检查邮箱和密码');
       }
     } catch (err: any) {
+      console.log('❌ 登录请求异常:', err);
+      console.log('❌ 错误详情:', err.response?.data);
       setError(err.response?.data?.message || '登录失败，请稍后重试');
     } finally {
       setLoading(false);

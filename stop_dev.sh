@@ -26,6 +26,15 @@ if [ -f "logs/backend.pid" ]; then
     rm -f logs/backend.pid
 fi
 
+if [ -f "logs/blog.pid" ]; then
+    BLOG_PID=$(cat logs/blog.pid)
+    if kill -0 $BLOG_PID 2>/dev/null; then
+        echo "🛑 停止博客服务 (PID: $BLOG_PID)"
+        kill $BLOG_PID
+    fi
+    rm -f logs/blog.pid
+fi
+
 # 强制停止占用端口的进程
 echo "🔍 检查并停止占用端口的进程..."
 
@@ -43,6 +52,13 @@ if [ ! -z "$BACKEND_PIDS" ]; then
     echo $BACKEND_PIDS | xargs kill -9 2>/dev/null
 fi
 
+# 停止占用4321端口的进程
+BLOG_PIDS=$(lsof -ti:4321 2>/dev/null)
+if [ ! -z "$BLOG_PIDS" ]; then
+    echo "停止占用4321端口的进程: $BLOG_PIDS"
+    echo $BLOG_PIDS | xargs kill -9 2>/dev/null
+fi
+
 # 等待进程完全停止
 sleep 2
 
@@ -57,6 +73,12 @@ if ! lsof -ti:8080 >/dev/null 2>&1; then
     echo "✅ 端口8080已释放"
 else
     echo "⚠️  端口8080仍被占用"
+fi
+
+if ! lsof -ti:4321 >/dev/null 2>&1; then
+    echo "✅ 端口4321已释放"
+else
+    echo "⚠️  端口4321仍被占用"
 fi
 
 echo ""
