@@ -228,11 +228,11 @@ public class BossConfig {
     private static void convertConfig(BossConfig config) {
         // 转换工作类型
         if (config.getJobType() != null) {
-            config.setJobType(BossEnum.JobType.forValue(config.getJobType()).getCode());
+        config.setJobType(BossEnum.JobType.forValue(config.getJobType()).getCode());
         }
         // 转换薪资范围
         if (config.getSalary() != null) {
-            config.setSalary(BossEnum.Salary.forValue(config.getSalary()).getCode());
+        config.setSalary(BossEnum.Salary.forValue(config.getSalary()).getCode());
         }
         // 转换城市编码
         if (config.getCityCode() != null) {

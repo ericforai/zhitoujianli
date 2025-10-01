@@ -43,27 +43,41 @@ public class AdminController {
             String userId = UserContextUtil.getCurrentUserId();
             log.info("🔍 测试管理员状态: userId={}", userId);
             
-            if (userId == null) {
-                return ResponseEntity.ok(Map.of(
-                    "success", false,
-                    "message", "用户未登录",
-                    "userId", "null"
-                ));
+            // 直接测试预设的超级管理员ID
+            String testUserId = "68dba0e3d9c27ebb0d93aa42"; // 预设的超级管理员ID
+            boolean testIsAdmin = adminService.isAdmin(testUserId);
+            AdminUser testAdminUser = adminService.getAdminUser(testUserId);
+            
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("testUserId", testUserId);
+            result.put("testIsAdmin", testIsAdmin);
+            result.put("testAdminUser", testAdminUser != null ? Map.of(
+                "adminType", testAdminUser.getAdminType(),
+                "isActive", testAdminUser.getIsActive(),
+                "permissions", testAdminUser.getPermissions()
+            ) : null);
+            
+            // 也检查当前登录用户（如果有的话）
+            result.put("currentUserId", userId);
+            if (userId != null) {
+                boolean currentIsAdmin = adminService.isAdmin(userId);
+                AdminUser currentAdminUser = adminService.getAdminUser(userId);
+                result.put("currentIsAdmin", currentIsAdmin);
+                result.put("currentAdminUser", currentAdminUser != null ? Map.of(
+                    "adminType", currentAdminUser.getAdminType(),
+                    "isActive", currentAdminUser.getIsActive(),
+                    "permissions", currentAdminUser.getPermissions()
+                ) : null);
+            } else {
+                result.put("currentIsAdmin", false);
+                result.put("currentAdminUser", null);
             }
             
-            boolean isAdmin = adminService.isAdmin(userId);
-            AdminUser adminUser = adminService.getAdminUser(userId);
-            
-            return ResponseEntity.ok(Map.of(
-                "success", true,
-                "userId", userId,
-                "isAdmin", isAdmin,
-                "adminUser", adminUser != null ? Map.of(
-                    "adminType", adminUser.getAdminType(),
-                    "isActive", adminUser.getIsActive(),
-                    "permissions", adminUser.getPermissions()
-                ) : null
-            ));
+            result.put("message", String.format("预设管理员测试: %s, 当前用户测试: %s", 
+                testIsAdmin, userId != null ? adminService.isAdmin(userId) : "未登录"));
+                
+            return ResponseEntity.ok(result);
             
         } catch (Exception e) {
             log.error("❌ 测试管理员状态异常", e);

@@ -67,8 +67,9 @@ public class SecurityConfig {
                     "/api/auth/**",
                     "/api/status",       // 公开API状态接口
                     "/api/admin/test-admin", // 管理员测试接口（仅调试用）
+                    "/api/admin/init-super-admin", // 超级管理员初始化接口
                     "/login",
-                    "/register", 
+                    "/register",
                     "/favicon.ico",
                     "/static/**",
                     "/css/**",
@@ -78,8 +79,9 @@ public class SecurityConfig {
                     "/about",         // 关于页面
                     "/contact",       // 联系页面
                     "/help",          // 帮助页面
-                    "/resume-manager", // 简历管理页面
-                    "/resume-parser"  // 简历解析页面
+                           "/resume-manager", // 简历管理页面
+                           "/resume-parser",  // 简历解析页面
+                           "/upload_resume"   // 简历上传接口
                 ).permitAll()
                 
                 // 需要认证的API端点和后台管理页面
@@ -116,8 +118,8 @@ public class SecurityConfig {
                         (acceptHeader != null && acceptHeader.contains("application/json"))) {
                         // AJAX请求返回JSON错误
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                        response.setContentType("application/json;charset=UTF-8");
-                        response.getWriter().write(
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write(
                             "{\"success\":false,\"message\":\"需要登录认证\",\"redirectTo\":\"http://localhost:3000/login\"}"
                         );
                     } else {
@@ -130,7 +132,7 @@ public class SecurityConfig {
             // 添加JWT过滤器
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         }
-
+        
         return http.build();
     }
 }

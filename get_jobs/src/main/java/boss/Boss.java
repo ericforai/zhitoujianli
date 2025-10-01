@@ -121,6 +121,11 @@ public class Boss {
         try {
             startDate = new Date();
             
+            // 初始化Playwright环境
+            log.info("初始化Playwright环境...");
+            PlaywrightUtil.init();
+            log.info("Playwright初始化成功");
+            
             // 登录
             login();
             

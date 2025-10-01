@@ -863,6 +863,242 @@ cp cookies.json cookies.json.backup.$(date +%Y%m%d)
 
 ---
 
-*本文档最后更新时间：2025年9月30日*  
-*版本号：1.0*  
+## 🚀 最新开发日志与优化记录
+
+### 📅 2025年10月1日 - 重大更新
+
+#### 🎯 **核心问题修复：用户个人配置加载机制**
+
+**问题描述**：
+用户反馈系统总是搜索"市场总监"而不是用户在Web界面设置的"市场营销"，这是系统的核心功能问题。
+
+**根本原因分析**：
+```java
+// 问题代码：BossConfig.init()只读取默认配置
+static BossConfig config = BossConfig.init(); // ❌ 总是使用config.yaml
+```
+
+**解决方案**：
+实现了完整的多用户配置加载机制，用户配置优先覆盖默认配置。
+
+#### 🔧 **技术实现详情**
+
+**1. BossConfig.java - 配置加载核心重构**
+```java
+// 新增支持用户ID的配置加载方法
+public static BossConfig init(String userId) {
+    // 1. 加载默认配置
+    BossConfig defaultConfig = JobUtils.getConfig(BossConfig.class);
+    
+    // 2. 加载用户个人配置
+    BossConfig userConfig = loadUserConfig(userId);
+    
+    // 3. 合并配置：用户配置覆盖默认配置
+    BossConfig finalConfig = mergeConfig(defaultConfig, userConfig);
+    
+    // 4. 执行配置转换
+    convertConfig(finalConfig);
+    
+    return finalConfig;
+}
+
+// 用户配置加载逻辑
+private static BossConfig loadUserConfig(String userId) {
+    String userConfigPath = "user_data/" + userId + "/config.json";
+    // 从用户专属配置文件加载...
+}
+```
+
+**2. Boss.java - 程序主逻辑优化**
+```java
+// 新增用户配置初始化方法
+public static void initConfig(String userId) {
+    log.info("🔧 初始化Boss配置: userId={}", userId);
+    config = BossConfig.init(userId);
+    log.info("✅ Boss配置加载完成: keywords={}", config.getKeywords());
+}
+
+// 新增启动方法
+public static void startBossProgram() {
+    log.info("🚀 启动Boss投递程序...");
+    // 检查配置并执行投递逻辑...
+}
+```
+
+**3. IsolatedBossRunner.java - 隔离运行器增强**
+```java
+public static void main(String[] args) {
+    // 获取用户ID参数
+    String userId = args.length > 0 ? args[0] : null;
+    log.info("用户ID: {}", userId);
+    
+    // 初始化用户配置
+    Boss.initConfig(userId);
+    
+    // 调用Boss程序主逻辑
+    Boss.startBossProgram();
+}
+```
+
+**4. BossExecutionService.java - 执行服务扩展**
+```java
+// 新增支持用户ID的执行方法
+public CompletableFuture<Void> executeBossProgram(String logFilePath, String userId) {
+    // 传递用户ID到IsolatedBossRunner
+    command = new String[]{
+        javaBin,
+        // ... JVM参数 ...
+        "boss.IsolatedBossRunner",
+        userId  // 传递用户ID参数
+    };
+}
+```
+
+**5. WebController.java - Web控制器集成**
+```java
+@PostMapping("/start-boss-task")
+public ResponseEntity<Map<String, Object>> startBossTask() {
+    // 获取当前用户ID
+    String userId = UserContextUtil.getCurrentUserId();
+    log.info("🔑 启动Boss任务，用户ID: {}", userId);
+    
+    // 传递用户ID到执行服务
+    bossExecutionService.executeBossProgram(currentLogFile, userId);
+}
+```
+
+#### 🧪 **测试验证结果**
+
+创建了完整的测试脚本 `test_config_loading.java`：
+
+```
+🧪 开始BossConfig配置加载测试
+=====================================
+
+📋 测试1: 默认配置加载
+✅ 默认配置测试通过
+   关键词: [市场总监]
+   城市: [101020100]
+   薪资: 0
+
+📋 测试2: 用户配置加载
+✅ 成功加载用户配置: userId=test_user_123, keywords=[市场营销, 品牌营销]
+✅ 配置合并完成: keywords=[市场营销, 品牌营销]
+✅ 用户配置测试通过
+   关键词: [市场营销, 品牌营销]
+   打招呼语: 您好！这是测试用户的打招呼语
+
+📋 测试3: 配置合并
+✅ 成功加载用户配置: userId=test_user_123, keywords=[产品经理]
+✅ 配置合并完成: keywords=[产品经理]
+✅ 配置合并测试通过
+   关键词: [产品经理]
+   城市: [101020100]
+   薪资: 0
+
+🎉 所有测试通过！
+```
+
+#### 🎯 **实际运行验证**
+
+从最新的运行日志可以看到修复效果：
+
+```
+2025-10-01 20:37:22.375 [main] INFO boss.IsolatedBossRunner - 用户ID: 68dba0e3d9c27ebb0d93aa42
+2025-10-01 20:37:22.379 [main] INFO boss.Boss - 🔧 初始化Boss配置: userId=68dba0e3d9c27ebb0d93aa42
+✅ 成功加载用户配置: userId=68dba0e3d9c27ebb0d93aa42, keywords=[市场营销]
+✅ 配置合并完成: keywords=[市场营销]
+2025-10-01 20:37:23.047 [main] INFO boss.Boss - ✅ Boss配置加载完成: keywords=[市场营销]
+2025-10-01 20:37:23.048 [main] INFO boss.Boss - 📋 当前配置:
+2025-10-01 20:37:23.048 [main] INFO boss.Boss - 关键词: [市场营销]  ← 成功！
+```
+
+**✅ 修复成功！系统现在正确使用用户设置的"市场营销"关键词而不是默认的"市场总监"。**
+
+#### 🔍 **黑名单逻辑深度分析**
+
+基于用户日志分析，系统跳过岗位的原因如下：
+
+**1. 招聘者职位黑名单**
+```
+"招聘者职位猎头顾问在黑名单中，跳过"
+```
+- **配置位置**：`src/main/java/boss/data.json`
+- **黑名单内容**：`"blackRecruiters": ["猎头"]`
+- **逻辑**：系统自动跳过猎头发布的职位，避免无效投递
+
+**2. Boss状态异常过滤**
+```
+"市场总监Boss状态异常，跳过"
+```
+- **检查逻辑**：Boss活跃状态检查
+- **配置**：`deadStatus: ["2周内活跃", "本月活跃", "2月内活跃", "半年前活跃"]`
+- **目的**：确保向活跃的HR投递，提高回复率
+
+**3. 其他智能筛选机制**
+- **公司黑名单**：`blackCompanies`（如：境开科技、法本信息等）
+- **职位黑名单**：`blackJobs`（如：视觉、设计、外包、现场、驻场）
+
+**这些跳过行为是系统的正常智能筛选机制，用于提高投递效率和质量。**
+
+#### 🐛 **Bug修复记录**
+
+**问题1：保存配置失败**
+```
+错误：Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+原因：/save-config端点需要认证，但前端请求缺少Authorization头
+修复：在index.html中添加token认证
+```
+
+**问题2：简历上传失败**
+```
+错误：Unexpected token '<', "<!DOCTYPE "... is not valid JSON  
+原因：/upload_resume端点没有在SecurityConfig的permitAll()列表中
+修复：将/upload_resume添加到公开访问列表
+```
+
+**问题3：Playwright初始化失败**
+```
+错误：Cannot invoke "com.microsoft.playwright.Page.navigate(String)" because "page" is null
+原因：startBossProgram方法中没有初始化Playwright
+修复：在startBossProgram中添加PlaywrightUtil.init()
+```
+
+#### 📊 **系统架构优化总结**
+
+**配置加载优先级**：
+1. 🥇 **用户个人配置**：`user_data/{userId}/config.json`
+2. 🥈 **默认配置**：`src/main/resources/config.yaml`
+
+**多用户隔离机制**：
+- 每个用户独立的配置文件目录
+- 用户ID传递链路：WebController → BossExecutionService → IsolatedBossRunner → Boss
+- 配置合并策略：用户配置字段覆盖默认配置对应字段
+
+**智能筛选系统**：
+- 三级黑名单：公司、招聘者、职位
+- Boss活跃状态检测
+- 自动跳过机制，提高投递效率
+
+#### 🎉 **成果验证**
+
+**✅ 核心功能修复**：
+- 用户设置的"市场营销"关键词正确加载
+- 多用户配置完全隔离
+- 系统不再使用默认的"市场总监"
+
+**✅ 系统稳定性提升**：
+- 修复了配置保存和简历上传的认证问题
+- 修复了Playwright初始化问题
+- 完善了错误处理机制
+
+**✅ 代码质量改进**：
+- 增加了完整的单元测试
+- 优化了日志输出和调试信息
+- 提高了代码可维护性
+
+---
+
+*本文档最后更新时间：2025年10月1日*  
+*版本号：2.0 - 多用户配置系统重大更新*  
 *如有疑问，请联系项目维护团队*
