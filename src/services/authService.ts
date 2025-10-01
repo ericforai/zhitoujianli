@@ -106,6 +106,11 @@ export const authService = {
       // 保存Token和用户信息到本地
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('authToken', response.data.token); // 兼容后端使用的key
+      
+      // 设置跨域Cookie以便后台管理能够读取Token
+      document.cookie = `authToken=${response.data.token}; path=/; domain=localhost; secure=false; SameSite=Lax`;
+      console.log('🍪 authService: 已设置authToken Cookie为跨域访问');
+      
       if (response.data.user) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
       }
@@ -134,6 +139,11 @@ export const authService = {
     if (response.data.success && response.data.token) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('authToken', response.data.token); // 兼容后端使用的key
+      
+      // 设置跨域Cookie以便后台管理能够读取Token
+      document.cookie = `authToken=${response.data.token}; path=/; domain=localhost; secure=false; SameSite=Lax`;
+      console.log('🍪 authService: 已设置authToken Cookie为跨域访问');
+      
       if (response.data.user) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
       }

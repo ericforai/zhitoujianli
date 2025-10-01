@@ -64,6 +64,13 @@ const Login: React.FC = () => {
         console.log('🎯 目标跳转地址: http://localhost:8080/');
         console.log('⏰ 1秒后执行跳转...');
         
+        // 设置跨域Cookie以便后台管理能够读取Token
+        if (result.token) {
+          // 设置Cookie到当前域（localhost）
+          document.cookie = `authToken=${result.token}; path=/; domain=localhost; secure=false; SameSite=Lax`;
+          console.log('🍪 已设置authToken Cookie:', result.token.substring(0, 20) + '...');
+        }
+        
         setTimeout(() => {
           // 跳转到后端应用程序
           console.log('🚀 执行跳转到: http://localhost:8080/');
@@ -128,6 +135,14 @@ const Login: React.FC = () => {
         console.log('📍 当前域名:', window.location.hostname);
         console.log('📍 当前端口:', window.location.port);
         console.log('🎯 目标跳转地址: http://localhost:8080/');
+        
+        // 设置跨域Cookie以便后台管理能够读取Token
+        if (result.token) {
+          // 设置Cookie到当前域（localhost）
+          document.cookie = `authToken=${result.token}; path=/; domain=localhost; secure=false; SameSite=Lax`;
+          console.log('🍪 已设置authToken Cookie:', result.token.substring(0, 20) + '...');
+        }
+        
         setTimeout(() => {
           // 跳转到后端应用程序
           console.log('🚀 执行跳转到: http://localhost:8080/');

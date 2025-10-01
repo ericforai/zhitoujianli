@@ -101,6 +101,22 @@ public class UserContextUtil {
     public static boolean hasCurrentUser() {
         return getCurrentUserId() != null;
     }
+    
+    /**
+     * 检查当前用户是否已认证
+     */
+    public static boolean isAuthenticated() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            return authentication != null && 
+                   authentication.isAuthenticated() && 
+                   authentication.getPrincipal() instanceof Map &&
+                   getCurrentUserId() != null;
+        } catch (Exception e) {
+            log.warn("检查认证状态失败: {}", e.getMessage());
+            return false;
+        }
+    }
 
     /**
      * 获取用户数据存储路径

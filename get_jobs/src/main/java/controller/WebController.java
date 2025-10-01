@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import service.UserDataService;
 import util.UserContextUtil;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -37,14 +39,48 @@ public class WebController {
     private String currentLogFile;
 
     @GetMapping("/")
-    public String index(Model model) {
+    public String index(Model model, HttpServletRequest request, HttpServletResponse response) {
         try {
-            log.info("访问主页面");
+            // 检查用户是否已登录
+            if (!UserContextUtil.isAuthenticated()) {
+                log.warn("未登录用户试图访问后台管理页面，重定向到登录页面");
+                
+                // 检查是否为AJAX请求
+                String requestedWith = request.getHeader("X-Requested-With");
+                String acceptHeader = request.getHeader("Accept");
+                
+                if ("XMLHttpRequest".equals(requestedWith) || 
+                    (acceptHeader != null && acceptHeader.contains("application/json"))) {
+                    // AJAX请求返回JSON错误
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json;charset=UTF-8");
+                    try {
+                        response.getWriter().write(
+                            "{\"success\":false,\"message\":\"需要登录认证\",\"redirectTo\":\"http://localhost:3000/login\"}"
+                        );
+                        return null;
+                    } catch (IOException e) {
+                        log.error("返回JSON错误响应失败", e);
+                    }
+                } else {
+                    // 浏览器请求重定向到首页登录
+                    return "redirect:http://localhost:3000/login";
+                }
+            }
+            
+            // 已登录用户，显示后台管理页面
+            String userId = UserContextUtil.getCurrentUserId();
+            String userEmail = UserContextUtil.getCurrentUserEmail();
+            log.info("已登录用户访问后台管理: userId={}, email={}", userId, userEmail);
+            
             // 加载当前配置
             Map<String, Object> config = loadConfig();
             model.addAttribute("config", config);
             model.addAttribute("isRunning", isRunning);
             model.addAttribute("currentLogFile", currentLogFile);
+            model.addAttribute("userId", userId);
+            model.addAttribute("userEmail", userEmail);
+            
             return "index";
         } catch (Exception e) {
             log.error("加载配置失败", e);

@@ -76,7 +76,9 @@ public class SecurityConfig {
                     "/.well-known/**",
                     "/about",         // 关于页面
                     "/contact",       // 联系页面
-                    "/help"           // 帮助页面
+                    "/help",          // 帮助页面
+                    "/resume-manager", // 简历管理页面
+                    "/resume-parser"  // 简历解析页面
                 ).permitAll()
                 
                 // 需要认证的API端点和后台管理页面

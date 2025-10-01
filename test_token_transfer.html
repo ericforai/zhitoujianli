@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token传递测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .button { padding: 10px 20px; margin: 5px; background: #007cba; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        .button:hover { background: #005a84; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>三层访问权限控制系统 - Token传递测试</h1>
+    
+    <div class="section">
+        <h2>测试步骤</h2>
+        <p>1. 首页 (http://localhost:3000/) - 公开访问</p>
+        <p>2. 博客 (http://localhost:4321/blog/) - 公开访问</p>
+        <p>3. 后台管理 (http://localhost:8080/) - 需要登录后访问</p>
+        
+        <button class="button" onclick="testHomePage()">测试首页访问</button>
+        <button class="button" onclick="testBlogPage()">测试博客访问</button>
+        <button class="button" onclick="testBackendUnauth()">测试未登录访问后台</button>
+        <button class="button" onclick="simulateLogin()">模拟登录并测试</button>
+    </div>
+    
+    <div class="section">
+        <h2>当前Cookie状态</h2>
+        <button class="button" onclick="checkCookies()">检查Cookie</button>
+        <button class="button" onclick="clearCookies()">清除Cookie</button>
+        <div id="cookieInfo"></div>
+    </div>
+    
+    <div class="section">
+        <h2>测试结果</h2>
+        <div id="testResults"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('testResults');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            results.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        function clearResults() {
+            document.getElementById('testResults').innerHTML = '';
+        }
+
+        async function testHomePage() {
+            clearResults();
+            log('🏠 测试首页访问 (http://localhost:3000/)');
+            try {
+                const response = await fetch('http://localhost:3000/', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    log('✅ 首页访问成功', 'success');
+                } else {
+                    log(`❌ 首页访问失败: ${response.status} ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ 首页访问异常: ${error.message}`, 'error');
+            }
+        }
+
+        async function testBlogPage() {
+            clearResults();
+            log('📖 测试博客访问 (http://localhost:4321/blog/)');
+            try {
+                const response = await fetch('http://localhost:4321/blog/', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    log('✅ 博客访问成功', 'success');
+                } else {
+                    log(`❌ 博客访问失败: ${response.status} ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ 博客访问异常: ${error.message}`, 'error');
+            }
+        }
+
+        async function testBackendUnauth() {
+            clearResults();
+            log('🔒 测试未登录访问后台管理 (http://localhost:8080/)');
+            try {
+                const response = await fetch('http://localhost:8080/', {
+                    method: 'GET',
+                    credentials: 'include',
+                    redirect: 'manual'
+                });
+                
+                if (response.status === 302 || response.status === 0) {
+                    const location = response.headers.get('Location');
+                    log(`✅ 未登录访问后台管理被正确重定向: ${location || '重定向到登录页面'}`, 'success');
+                } else if (response.ok) {
+                    log('❌ 未登录却能访问后台管理，权限控制失效', 'error');
+                } else {
+                    log(`⚠️ 未登录访问后台管理返回状态: ${response.status}`, 'info');
+                }
+            } catch (error) {
+                log(`❌ 测试异常: ${error.message}`, 'error');
+            }
+        }
+
+        function simulateLogin() {
+            clearResults();
+            log('🔐 模拟登录流程...');
+            
+            // 模拟Token
+            const mockToken = 'mock_jwt_token_' + Date.now();
+            
+            // 设置localStorage（模拟前端登录成功）
+            localStorage.setItem('token', mockToken);
+            localStorage.setItem('authToken', mockToken);
+            
+            // 设置Cookie（关键：跨域Token传递）
+            document.cookie = `authToken=${mockToken}; path=/; domain=localhost; secure=false; SameSite=Lax`;
+            
+            log('✅ 模拟登录成功，已设置Token到localStorage和Cookie', 'success');
+            log(`📝 Token: ${mockToken}`, 'info');
+            
+            // 等待1秒后测试后台访问
+            setTimeout(testBackendWithAuth, 1000);
+        }
+
+        async function testBackendWithAuth() {
+            log('🔐 测试登录后访问后台管理...');
+            try {
+                const response = await fetch('http://localhost:8080/', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                if (response.ok) {
+                    log('✅ 登录后成功访问后台管理', 'success');
+                    const html = await response.text();
+                    if (html.includes('智投简历') || html.includes('后台管理')) {
+                        log('✅ 后台管理页面内容正确', 'success');
+                    } else {
+                        log('⚠️ 后台管理页面内容可能不正确', 'info');
+                    }
+                } else if (response.status === 302) {
+                    log('❌ 登录后仍被重定向，Token传递可能有问题', 'error');
+                } else {
+                    log(`❌ 登录后访问失败: ${response.status} ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ 测试异常: ${error.message}`, 'error');
+            }
+        }
+
+        function checkCookies() {
+            const cookieInfo = document.getElementById('cookieInfo');
+            const cookies = document.cookie;
+            const authToken = getCookie('authToken');
+            
+            cookieInfo.innerHTML = `
+                <h3>Cookie信息:</h3>
+                <pre>所有Cookie: ${cookies || '无Cookie'}</pre>
+                <pre>authToken: ${authToken || '未设置'}</pre>
+                <pre>localStorage token: ${localStorage.getItem('token') || '未设置'}</pre>
+                <pre>localStorage authToken: ${localStorage.getItem('authToken') || '未设置'}</pre>
+            `;
+        }
+
+        function clearCookies() {
+            // 清除Cookie
+            document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=localhost;';
+            
+            // 清除localStorage
+            localStorage.removeItem('token');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('user');
+            
+            log('🧹 已清除所有认证信息', 'info');
+            checkCookies();
+        }
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
+        // 页面加载时检查Cookie状态
+        window.onload = function() {
+            checkCookies();
+        };
+    </script>
+</body>
+</html>
