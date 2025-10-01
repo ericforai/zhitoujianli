@@ -205,6 +205,12 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
+        <!-- Spring AOP - AspectJ支持 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
         <!-- JWT处理库 - 用于Token生成和验证 -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
