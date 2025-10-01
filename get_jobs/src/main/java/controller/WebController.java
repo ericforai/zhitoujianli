@@ -3,10 +3,13 @@ package controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import service.UserDataService;
+import util.UserContextUtil;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -21,6 +24,9 @@ public class WebController {
 
     private final String CONFIG_PATH = "src/main/resources/config.yaml";
     private final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+    
+    @Autowired
+    private UserDataService userDataService;
     
     // Boss执行服务实例
     private BossExecutionService bossExecutionService;
@@ -67,13 +73,25 @@ public class WebController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> saveConfig(@RequestBody Map<String, Object> config) {
         try {
-            // 保存配置到YAML文件
-            yamlMapper.writeValue(new File(CONFIG_PATH), config);
+            // 使用用户数据服务保存配置
+            boolean success = userDataService.saveUserConfig(config);
             
             Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "配置保存成功");
-            return ResponseEntity.ok(response);
+            if (success) {
+                response.put("success", true);
+                response.put("message", "配置保存成功");
+                
+                // 记录用户信息
+                String userId = UserContextUtil.getCurrentUserId();
+                String userEmail = UserContextUtil.getCurrentUserEmail();
+                log.info("✅ 用户配置保存成功: userId={}, email={}", userId, userEmail);
+                
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("success", false);
+                response.put("message", "保存配置失败：用户未登录或权限不足");
+                return ResponseEntity.status(403).body(response);
+            }
         } catch (Exception e) {
             log.error("保存配置失败", e);
             Map<String, Object> response = new HashMap<>();
@@ -380,5 +398,185 @@ public class WebController {
         config.put("bot", bot);
 
         return config;
+    }
+    
+    /**
+     * 获取用户配置 - RESTful API
+     */
+    @GetMapping("/api/config")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getUserConfig() {
+        try {
+            Map<String, Object> config = userDataService.loadUserConfig();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("config", config);
+            
+            String userId = UserContextUtil.getCurrentUserId();
+            log.info("✅ 用户配置加载成功: userId={}", userId);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("加载用户配置失败", e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "加载配置失败: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+    
+    /**
+     * 保存用户配置 - RESTful API
+     */
+    @PostMapping("/api/config")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> saveUserConfig(@RequestBody Map<String, Object> config) {
+        try {
+            boolean success = userDataService.saveUserConfig(config);
+            
+            Map<String, Object> response = new HashMap<>();
+            if (success) {
+                response.put("success", true);
+                response.put("message", "用户配置保存成功");
+                
+                String userId = UserContextUtil.getCurrentUserId();
+                String userEmail = UserContextUtil.getCurrentUserEmail();
+                log.info("✅ 用户配置保存成功: userId={}, email={}", userId, userEmail);
+                
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("success", false);
+                response.put("message", "保存失败：用户未登录");
+                return ResponseEntity.status(403).body(response);
+            }
+        } catch (Exception e) {
+            log.error("保存用户配置失败", e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "保存失败: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+    
+    /**
+     * 获取用户AI配置 - RESTful API
+     */
+    @GetMapping("/api/ai-config")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getUserAiConfig() {
+        try {
+            Map<String, Object> aiConfig = userDataService.loadUserAiConfig();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("config", aiConfig);
+            
+            String userId = UserContextUtil.getCurrentUserId();
+            log.info("✅ 用户AI配置加载成功: userId={}", userId);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("加载用户AI配置失败", e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "加载AI配置失败: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+    
+    /**
+     * 保存用户AI配置 - RESTful API
+     */
+    @PostMapping("/api/ai-config")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> saveUserAiConfig(@RequestBody Map<String, Object> aiConfig) {
+        try {
+            boolean success = userDataService.saveUserAiConfig(aiConfig);
+            
+            Map<String, Object> response = new HashMap<>();
+            if (success) {
+                response.put("success", true);
+                response.put("message", "用户AI配置保存成功");
+                
+                String userId = UserContextUtil.getCurrentUserId();
+                log.info("✅ 用户AI配置保存成功: userId={}", userId);
+                
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("success", false);
+                response.put("message", "保存失败：用户未登录");
+                return ResponseEntity.status(403).body(response);
+            }
+        } catch (Exception e) {
+            log.error("保存用户AI配置失败", e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "保存AI配置失败: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+    
+    /**
+     * 获取用户简历
+     */
+    @GetMapping("/api/resume")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getUserResume() {
+        try {
+            String resumeContent = userDataService.loadUserResume();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("content", resumeContent);
+            
+            String userId = UserContextUtil.getCurrentUserId();
+            log.info("✅ 用户简历加载成功: userId={}, length={}", userId, resumeContent.length());
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("加载用户简历失败", e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "加载简历失败: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+    
+    /**
+     * 保存用户简历
+     */
+    @PostMapping("/api/resume")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> saveUserResume(@RequestBody Map<String, String> request) {
+        try {
+            String resumeContent = request.get("content");
+            if (resumeContent == null) {
+                resumeContent = "";
+            }
+            
+            boolean success = userDataService.saveUserResume(resumeContent);
+            
+            Map<String, Object> response = new HashMap<>();
+            if (success) {
+                response.put("success", true);
+                response.put("message", "用户简历保存成功");
+                
+                String userId = UserContextUtil.getCurrentUserId();
+                log.info("✅ 用户简历保存成功: userId={}, length={}", userId, resumeContent.length());
+                
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("success", false);
+                response.put("message", "保存失败：用户未登录");
+                return ResponseEntity.status(403).body(response);
+            }
+        } catch (Exception e) {
+            log.error("保存用户简历失败", e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "保存简历失败: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
     }
 }

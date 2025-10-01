@@ -155,7 +155,8 @@
                 })
                 .then(response => {
                     if (response.ok) {
-                        window.location.href = '/';
+                        // 跳转到后端应用程序
+                        window.location.href = 'http://localhost:8080/';
                     }
                 })
                 .catch(() => {
@@ -199,8 +200,8 @@
                     localStorage.setItem('authToken', data.token);
                     showAlert('登录成功！正在跳转...', 'success');
                     
-                    // 立即跳转，不需要延迟
-                    window.location.href = '/';
+                    // 跳转到后端应用程序
+                    window.location.href = 'http://localhost:8080/';
                 } else {
                     showAlert(data.message || '登录失败', 'danger');
                 }

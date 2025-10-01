@@ -202,6 +202,32 @@ public class AuthController {
     }
 
     /**
+     * 获取当前用户信息
+     */
+    @GetMapping("/user/info")
+    public ResponseEntity<Map<String, Object>> getCurrentUserInfo() {
+        try {
+            Map<String, Object> userInfo = util.UserContextUtil.getCurrentUserInfo();
+            
+            if (userInfo != null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", true);
+                response.put("user", userInfo);
+                
+                log.info("✅ 获取用户信息成功: userId={}", userInfo.get("userId"));
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.status(401)
+                    .body(Map.of("success", false, "message", "用户未登录"));
+            }
+        } catch (Exception e) {
+            log.error("获取用户信息失败", e);
+            return ResponseEntity.status(500)
+                .body(Map.of("success", false, "message", "服务器错误"));
+        }
+    }
+
+    /**
      * 健康检查接口
      */
     @GetMapping("/health")

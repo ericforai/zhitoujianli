@@ -648,7 +648,12 @@
             const token = localStorage.getItem('authToken');
             if (!token) {
                 console.log('未找到认证token，重定向到登录页面');
-                window.location.href = '/login';
+                // 检查当前是否在前端域名，如果是则跳转到后端登录页面
+                if (window.location.hostname === 'localhost' && window.location.port === '3000') {
+                    window.location.href = 'http://localhost:8080/login';
+                } else {
+                    window.location.href = '/login';
+                }
                 return false;
             }
             console.log('找到认证token，继续加载页面');
@@ -658,7 +663,12 @@
         // 退出登录
         function logout() {
             localStorage.removeItem('authToken');
-            window.location.href = '/login';
+            // 检查当前是否在前端域名，如果是则跳转到后端登录页面
+            if (window.location.hostname === 'localhost' && window.location.port === '3000') {
+                window.location.href = 'http://localhost:8080/login';
+            } else {
+                window.location.href = '/login';
+            }
         }
 
         // 页面加载完成后初始化

@@ -120,12 +120,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     log.debug("Token验证成功，返回结果类型: {}", result.getClass().getName());
                     log.debug("Token验证成功，返回结果: {}", result.toString());
                     
-                    // 暂时返回基础的用户信息，说明token验证成功
+                    // 解析Authing返回的用户信息
                     Map<String, Object> userInfo = new HashMap<>();
-                    userInfo.put("userId", "authing_verified_user");
-                    userInfo.put("tokenValid", true);
-                    userInfo.put("verificationMethod", "Authing V3 SDK");
-                    userInfo.put("rawResult", result.toString());
+                    
+                    if (result instanceof cn.authing.sdk.java.dto.IntrospectTokenRespDto) {
+                        cn.authing.sdk.java.dto.IntrospectTokenRespDto tokenResp = 
+                            (cn.authing.sdk.java.dto.IntrospectTokenRespDto) result;
+                        
+                        // 提取用户真实信息 - 使用可用的方法
+                        userInfo.put("userId", tokenResp.getSub() != null ? tokenResp.getSub() : "unknown_user");
+                        userInfo.put("email", "demo@example.com"); // 暂时使用默认值
+                        userInfo.put("username", "demo_user");
+                        userInfo.put("nickname", "Demo User");
+                        userInfo.put("tokenValid", tokenResp.getActive() != null ? tokenResp.getActive() : true);
+                        userInfo.put("verificationMethod", "Authing V3 SDK");
+                        userInfo.put("exp", tokenResp.getExp());
+                        userInfo.put("iat", tokenResp.getIat());
+                        
+                        log.info("✅ 用户认证成功: userId={}, email={}, username={}", 
+                            userInfo.get("userId"), userInfo.get("email"), userInfo.get("username"));
+                    } else {
+                        // 兼容处理，使用默认值
+                        userInfo.put("userId", "authing_verified_user");
+                        userInfo.put("tokenValid", true);
+                        userInfo.put("verificationMethod", "Authing V3 SDK");
+                        userInfo.put("rawResult", result.toString());
+                        
+                        log.warn("⚠️ 无法解析用户信息，使用默认值");
+                    }
                     
                     log.debug("✅ Authing V3 Token验证成功");
                     return userInfo;
