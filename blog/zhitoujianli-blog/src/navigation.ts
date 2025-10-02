@@ -42,9 +42,9 @@ export const footerData = {
       links: [
         { text: 'AI智能匹配', href: (import.meta.env.SITE_URL || 'https://zhitoujianli.com') + '#features' },
         { text: '简历优化', href: (import.meta.env.SITE_URL || 'https://zhitoujianli.com') + '#features' },
-        { text: '精准投递', href: 'http://localhost:3000#features' },
-        { text: '数据分析', href: 'http://localhost:3000#features' },
-        { text: '价格方案', href: 'http://localhost:3000#pricing' },
+        { text: '精准投递', href: (import.meta.env.SITE_URL || 'https://zhitoujianli.com') + '#features' },
+        { text: '数据分析', href: (import.meta.env.SITE_URL || 'https://zhitoujianli.com') + '#features' },
+        { text: '价格方案', href: (import.meta.env.SITE_URL || 'https://zhitoujianli.com') + '#pricing' },
       ],
     },
     {
@@ -59,25 +59,25 @@ export const footerData = {
     {
       title: '帮助支持',
       links: [
-        { text: '使用指南', href: 'http://localhost:3000#demo' },
-        { text: '常见问题', href: 'http://localhost:3000#contact' },
-        { text: '联系我们', href: 'http://localhost:3000#contact' },
-        { text: '意见反馈', href: 'http://localhost:3000#contact' },
+        { text: '使用指南', href: (import.meta.env.SITE_URL || 'https://zhitoujianli.com') + '#demo' },
+        { text: '常见问题', href: (import.meta.env.SITE_URL || 'https://zhitoujianli.com') + '#contact' },
+        { text: '联系我们', href: (import.meta.env.SITE_URL || 'https://zhitoujianli.com') + '#contact' },
+        { text: '意见反馈', href: (import.meta.env.SITE_URL || 'https://zhitoujianli.com') + '#contact' },
       ],
     },
     {
       title: '关于我们',
       links: [
-        { text: '公司介绍', href: 'http://localhost:3000#about' },
-        { text: '团队介绍', href: 'http://localhost:3000#about' },
-        { text: '加入我们', href: 'http://localhost:3000#contact' },
-        { text: '合作伙伴', href: 'http://localhost:3000#contact' },
+        { text: '公司介绍', href: (import.meta.env.SITE_URL || 'https://zhitoujianli.com') + '#about' },
+        { text: '团队介绍', href: (import.meta.env.SITE_URL || 'https://zhitoujianli.com') + '#about' },
+        { text: '加入我们', href: (import.meta.env.SITE_URL || 'https://zhitoujianli.com') + '#contact' },
+        { text: '合作伙伴', href: (import.meta.env.SITE_URL || 'https://zhitoujianli.com') + '#contact' },
       ],
     },
   ],
   secondaryLinks: [
-    { text: '服务条款', href: 'http://localhost:3000/terms' },
-    { text: '隐私政策', href: 'http://localhost:3000/privacy' },
+    { text: '服务条款', href: (import.meta.env.SITE_URL || 'https://zhitoujianli.com') + '/terms' },
+    { text: '隐私政策', href: (import.meta.env.SITE_URL || 'https://zhitoujianli.com') + '/privacy' },
   ],
   socialLinks: [
     { ariaLabel: '微信', icon: 'tabler:brand-wechat', href: '#' },
@@ -87,6 +87,6 @@ export const footerData = {
     { ariaLabel: 'GitHub', icon: 'tabler:brand-github', href: 'https://github.com/zhitoujianli' },
   ],
   footNote: `
-    智投简历 © 2024 · 让求职更智能 · <a class="text-blue-600 underline dark:text-muted" href="http://localhost:3000"> 返回首页</a>
+    智投简历 © 2024 · 让求职更智能 · <a class="text-blue-600 underline dark:text-muted" href="${import.meta.env.SITE_URL || 'https://zhitoujianli.com'}"> 返回首页</a>
   `,
 };
