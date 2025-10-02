@@ -43,11 +43,11 @@ const DashboardEntry: React.FC = () => {
       window.location.href = '/';
     } else {
       // 未登录，跳转到登录页
-      // 检查当前是否在前端域名，如果是则跳转到后端登录页面
-      if (window.location.hostname === 'localhost' && window.location.port === '3000') {
-        window.location.href = 'https://zhitoujianli.com/login';
+      // 动态检测环境并跳转
+      if (window.location.hostname === 'localhost') {
+        window.location.href = '/login';
       } else {
-        window.location.href = 'https://zhitoujianli.com/login';
+        window.location.href = '/login';
       }
     }
   }, []);
