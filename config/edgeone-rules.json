@@ -1,0 +1,96 @@
+{
+  "name": "zhitoujianli-domain-rules",
+  "description": "EdgeOne域名重定向和路由规则",
+  "rules": [
+    {
+      "name": "primary-domain-redirect",
+      "description": "将edgeone.app域名重定向到主域名",
+      "conditions": [
+        {
+          "type": "host",
+          "operator": "equals",
+          "value": "zhitoujianli.edgeone.app"
+        }
+      ],
+      "actions": [
+        {
+          "type": "redirect",
+          "status": 301,
+          "url": "https://zhitoujianli.com${uri}",
+          "permanent": true
+        }
+      ]
+    },
+    {
+      "name": "api-proxy",
+      "description": "API请求代理到后端服务",
+      "conditions": [
+        {
+          "type": "path",
+          "operator": "starts_with",
+          "value": "/api/"
+        }
+      ],
+      "actions": [
+        {
+          "type": "proxy",
+          "target": "https://zhitoujianli.com/api",
+          "preserve_host": false,
+          "preserve_path": true
+        }
+      ]
+    },
+    {
+      "name": "spa-routing",
+      "description": "单页应用路由支持",
+      "conditions": [
+        {
+          "type": "path",
+          "operator": "not_equals",
+          "value": "/api/"
+        },
+        {
+          "type": "file_extension",
+          "operator": "not_exists"
+        }
+      ],
+      "actions": [
+        {
+          "type": "rewrite",
+          "url": "/index.html"
+        }
+      ]
+    },
+    {
+      "name": "security-headers",
+      "description": "添加安全头",
+      "conditions": [
+        {
+          "type": "always"
+        }
+      ],
+      "actions": [
+        {
+          "type": "set_header",
+          "name": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "type": "set_header",
+          "name": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "type": "set_header",
+          "name": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "type": "set_header",
+          "name": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        }
+      ]
+    }
+  ]
+}
