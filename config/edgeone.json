@@ -13,7 +13,7 @@
   "routes": [
     {
       "path": "/api/*",
-      "target": "https://zhitoujianli.com/api"
+      "target": "http://localhost:8080/api"
     },
     {
       "path": "/*",
