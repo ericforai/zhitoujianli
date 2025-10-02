@@ -3,7 +3,6 @@ package config;
 import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -36,7 +35,11 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // 从.env文件中读取安全开关配置
         boolean securityEnabled = Boolean.parseBoolean(dotenv.get("SECURITY_ENABLED", "true"));
+<<<<<<< HEAD:backend/get_jobs/src/main/java/config/SecurityConfig.java
         System.out.println("SecurityConfig - 安全认证状态: " + securityEnabled + ", SECURITY_ENABLED值: " + dotenv.get("SECURITY_ENABLED", "true"));
+=======
+        
+>>>>>>> 0373401 (完善博客内容和SEO优化):backend/get_jobs/src/main/java/config/SecurityConfig.java.bak
         http
             // 禁用CSRF，因为使用JWT
             .csrf(csrf -> csrf.disable())
@@ -54,9 +57,17 @@ public class SecurityConfig {
                     "http://115.190.182.95:3001",
                     "https://zhitoujianli.com",
                     "https://www.zhitoujianli.com",
+<<<<<<< HEAD:backend/get_jobs/src/main/java/config/SecurityConfig.java
                     "https://*.zhitoujianli.com"
                 ));
                 corsConfig.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+=======
+                    "https://*.zhitoujianli.com",
+                    "https://*.edgeone.app",
+                    "https://api.zhitoujianli.com"
+                ));
+                corsConfig.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+>>>>>>> 0373401 (完善博客内容和SEO优化):backend/get_jobs/src/main/java/config/SecurityConfig.java.bak
                 corsConfig.setAllowedHeaders(java.util.Arrays.asList("*"));
                 corsConfig.setAllowCredentials(true);
                 corsConfig.setMaxAge(3600L);
@@ -78,7 +89,7 @@ public class SecurityConfig {
                 // 允许访问的公开端点
                 .requestMatchers(
                     "/api/auth/**",
-                    "/api/status",       // 公开API状态接口
+                    "/api/status",
                     "/login",
                     "/register",
                     "/favicon.ico",
@@ -87,29 +98,34 @@ public class SecurityConfig {
                     "/js/**",
                     "/images/**",
                     "/.well-known/**",
-                    "/about",         // 关于页面
-                    "/contact",       // 联系页面
-                    "/help",          // 帮助页面
-                    "/resume-manager", // 简历管理页面
-                    "/resume-parser"  // 简历解析页面
+                    "/about",
+                    "/contact",
+                    "/help",
+                    "/resume-manager",
+                    "/resume-parser"
                 ).permitAll()
 
                 // 需要认证的API端点和后台管理页面
                 .requestMatchers(
-                    "/",              // 后台管理首页需要认证
+                    "/",
                     "/api/jobs/**",
                     "/api/user/**",
                     "/api/resume/**",
+<<<<<<< HEAD:backend/get_jobs/src/main/java/config/SecurityConfig.java
                     "/api/candidate-resume/**", // 候选人简历API需要认证
                     "/api/config",      // 用户配置API
                     "/api/ai-config",   // 用户AI配置API
                     "/api/resume",      // 用户简历API
+=======
+                    "/api/config",
+                    "/api/ai-config",
+>>>>>>> 0373401 (完善博客内容和SEO优化):backend/get_jobs/src/main/java/config/SecurityConfig.java.bak
                     "/dashboard/**",
                     "/profile/**",
                     "/save-config",
                     "/start-program",
                     "/stop-program",
-                    "/start-boss-task", // 启动Boss投递任务
+                    "/start-boss-task",
                     "/status",
                     "/logs"
                 ).authenticated()
@@ -121,24 +137,26 @@ public class SecurityConfig {
             // 配置未授权时的处理
             .exceptionHandling(exceptions -> exceptions
                 .authenticationEntryPoint((request, response, authException) -> {
-                    // 检查请求是否为AJAX请求
                     String requestedWith = request.getHeader("X-Requested-With");
                     String acceptHeader = request.getHeader("Accept");
 
                     if ("XMLHttpRequest".equals(requestedWith) ||
                         (acceptHeader != null && acceptHeader.contains("application/json"))) {
-                        // AJAX请求返回JSON错误
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                         response.setContentType("application/json;charset=UTF-8");
                         response.getWriter().write(
                             "{\"success\":false,\"message\":\"需要登录认证\"}"
                         );
                     } else {
+<<<<<<< HEAD:backend/get_jobs/src/main/java/config/SecurityConfig.java
                         // 浏览器请求重定向到当前域的登录页面
                         String loginUrl = request.getScheme() + "://" + request.getServerName() +
                                         (request.getServerPort() == 80 || request.getServerPort() == 443 ? "" : ":" + request.getServerPort()) +
                                         "/login";
                         response.sendRedirect(loginUrl);
+=======
+                        response.sendRedirect("https://zhitoujianli.com/login");
+>>>>>>> 0373401 (完善博客内容和SEO优化):backend/get_jobs/src/main/java/config/SecurityConfig.java.bak
                     }
                 })
             )

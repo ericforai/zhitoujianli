@@ -4,8 +4,8 @@ description: 全面的面试准备指南，包括面试前准备、面试技巧�
 excerpt: 面试是求职过程中的关键环节。本指南从面试前准备、面试技巧、常见问题回答到后续跟进，为你提供完整的面试成功攻略，助你顺利通过面试关。
 pubDate: 2024-01-25
 author: 智投简历团队
-image: ~/assets/images/hero-image.png
-tags: ["面试技巧", "求职指南", "职场发展"]
+image: ~/assets/images/interview-preparation-hero.svg
+tags: ["面试技巧", "求职指南", "职场发展", "面试准备", "STAR方法", "面试问题", "面试成功", "求职面试", "面试攻略"]
 category: "求职指南"
 keywords: "面试准备,面试技巧,求职指南,面试问题,面试成功,面试经验,面试流程,求职面试,面试攻略,职场面试"
 structuredData: |
