@@ -5,19 +5,19 @@
   "private": true,
   "workspaces": [
     "frontend",
-    "zhitoujianli-blog",
+    "blog/zhitoujianli-blog",
     "backend/get_jobs"
   ],
   "scripts": {
     "build": "npm run build:frontend && npm run copy:build",
     "build:frontend": "cd frontend && npm install && npm run build",
     "copy:build": "node scripts/copy-build.js",
-    "build:blog": "cd zhitoujianli-blog && npm install && npm run build",
+    "build:blog": "cd blog/zhitoujianli-blog && npm install && npm run build",
     "build:backend": "cd backend/get_jobs && mvn clean package -DskipTests",
-    "install:all": "npm install && cd frontend && npm install && cd ../zhitoujianli-blog && npm install",
+    "install:all": "npm install && cd frontend && npm install && cd ../blog/zhitoujianli-blog && npm install",
     "dev": "npm run dev:frontend",
     "dev:frontend": "cd frontend && npm run start",
-    "dev:blog": "cd zhitoujianli-blog && npm run dev",
+    "dev:blog": "cd blog/zhitoujianli-blog && npm run dev",
     "test": "npm run test:frontend",
     "test:frontend": "cd frontend && npm test"
   },
