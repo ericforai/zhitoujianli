@@ -25,9 +25,16 @@ public class CorsConfig {
         // 允许的源
         configuration.setAllowedOriginPatterns(Arrays.asList(
             "http://localhost:3000",
+            "http://localhost:3001",
+            "http://localhost:4321", 
             "http://127.0.0.1:3000",
             "http://localhost:8080",
-            "http://127.0.0.1:8080"
+            "http://127.0.0.1:8080",
+            "https://zhitoujianli.com",
+            "https://www.zhitoujianli.com",
+            "https://*.zhitoujianli.com",
+            "https://*.edgeone.app",
+            "https://zhitoujianli-*.edgeone.app"
         ));
         
         // 允许的HTTP方法

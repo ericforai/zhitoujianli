@@ -40,9 +40,6 @@ public class SecurityConfig {
             // 禁用CSRF，因为使用JWT
             .csrf(csrf -> csrf.disable())
             
-            // 配置CORS，允许前端访问
-            .cors(cors -> cors.configurationSource(request -> {
-                var corsConfig = new org.springframework.web.cors.CorsConfiguration();
                 corsConfig.setAllowedOriginPatterns(java.util.Arrays.asList(
                     "http://localhost:3000", 
                     "http://localhost:3001", 
@@ -54,6 +51,9 @@ public class SecurityConfig {
                     "https://*.edgeone.app"
                 ));
 >>>>>>> e851d76 (🌐 域名部署配置：生产环境完整适配)
+            // 配置CORS，允许前端访问
+            .cors(cors -> cors.configurationSource(request -> {
+                var corsConfig = new org.springframework.web.cors.CorsConfiguration();
                 corsConfig.setAllowedOriginPatterns(java.util.Arrays.asList(
                     "http://localhost:3000", 
                     "http://localhost:3001", 
@@ -62,7 +62,8 @@ public class SecurityConfig {
                     "https://zhitoujianli.com",
                     "https://www.zhitoujianli.com",
                     "https://*.zhitoujianli.com",
-                    "https://*.edgeone.app"
+                    "https://*.edgeone.app",
+                    "https://zhitoujianli-*.edgeone.app"
                 ));
 =======
                 corsConfig.setAllowedOriginPatterns(java.util.Arrays.asList(
