@@ -1,0 +1,71 @@
+# EdgeOne Pages 配置文件
+# 智投简历项目部署配置
+
+# 构建配置
+build:
+  # 安装命令
+  installCommand: "npm install"
+  
+  # 构建命令
+  buildCommand: "npm run build"
+  
+  # 输出目录
+  outputDirectory: "frontend/build"
+  
+  # 根目录
+  rootDirectory: "."
+  
+  # Node.js 版本
+  nodeVersion: "18"
+
+# 环境变量
+env:
+  production:
+    REACT_APP_API_URL: "https://zhitoujianli.com/api"
+    REACT_APP_AUTHING_DOMAIN: "https://zhitoujianli.authing.cn"
+    REACT_APP_AUTHING_APP_ID: "68db6e4e85de9cb8daf2b3d2"
+    REACT_APP_AUTHING_USER_POOL_ID: "68db6e4c4f248dd866413bc2"
+    SITE_URL: "https://zhitoujianli.com"
+
+# 域名配置
+domains:
+  - zhitoujianli.com
+  - www.zhitoujianli.com
+
+# 路由配置
+routes:
+  # API 代理
+  - source: "/api/(.*)"
+    destination: "https://zhitoujianli.com/api/$1"
+    
+  # SPA 路由支持
+  - source: "/(.*)"
+    destination: "/index.html"
+
+# 静态文件缓存
+headers:
+  - source: "/(.*)"
+    headers:
+      - key: "X-Frame-Options"
+        value: "DENY"
+      - key: "X-Content-Type-Options"
+        value: "nosniff"
+      - key: "X-XSS-Protection"
+        value: "1; mode=block"
+      - key: "Strict-Transport-Security"
+        value: "max-age=31536000; includeSubDomains"
+        
+  - source: "/static/(.*)"
+    headers:
+      - key: "Cache-Control"
+        value: "public, max-age=31536000, immutable"
+
+# 重定向配置
+redirects:
+  - source: "/admin"
+    destination: "https://zhitoujianli.com/admin"
+    permanent: false
+    
+  - source: "/blog"
+    destination: "https://blog.zhitoujianli.com"
+    permanent: false

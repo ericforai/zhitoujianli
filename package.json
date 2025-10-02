@@ -1,0 +1,44 @@
+{
+  "name": "zhitoujianli",
+  "version": "1.0.0",
+  "description": "智投简历 - AI智能求职助手",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "zhitoujianli-blog",
+    "backend/get_jobs"
+  ],
+  "scripts": {
+    "build": "npm run build:frontend",
+    "build:frontend": "cd frontend && npm install && npm run build",
+    "build:blog": "cd zhitoujianli-blog && npm install && npm run build",
+    "build:backend": "cd backend/get_jobs && mvn clean package -DskipTests",
+    "install:all": "npm install && cd frontend && npm install && cd ../zhitoujianli-blog && npm install",
+    "dev": "npm run dev:frontend",
+    "dev:frontend": "cd frontend && npm run start",
+    "dev:blog": "cd zhitoujianli-blog && npm run dev",
+    "test": "npm run test:frontend",
+    "test:frontend": "cd frontend && npm test"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ericforai/zhitoujianli.git"
+  },
+  "keywords": [
+    "resume",
+    "ai",
+    "job",
+    "react",
+    "typescript"
+  ],
+  "author": "ZhiTouJianLi Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ericforai/zhitoujianli/issues"
+  },
+  "homepage": "https://zhitoujianli.com"
+}
