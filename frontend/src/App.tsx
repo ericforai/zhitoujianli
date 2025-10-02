@@ -47,7 +47,7 @@ const DashboardEntry: React.FC = () => {
       if (window.location.hostname === 'localhost' && window.location.port === '3000') {
         window.location.href = 'https://zhitoujianli.com/login';
       } else {
-        window.location.href = '/login';
+        window.location.href = 'https://zhitoujianli.com/login';
       }
     }
   }, []);
