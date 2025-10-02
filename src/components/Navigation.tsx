@@ -80,7 +80,7 @@ const Navigation = () => {
               <a href="#pricing" className="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors">
                 价格
               </a>
-              <a href="http://localhost:4321/blog/" className="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors" target="_blank" rel="noopener noreferrer">
+              <a href="https://zhitoujianli.com/blog/" className="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors" target="_blank" rel="noopener noreferrer">
                 博客
               </a>
               <a href="#contact" className="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors">
@@ -151,7 +151,7 @@ const Navigation = () => {
               <a href="#pricing" className="text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium">
                 价格
               </a>
-              <a href="http://localhost:4321/blog/" className="text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium" target="_blank" rel="noopener noreferrer">
+              <a href="https://zhitoujianli.com/blog/" className="text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium" target="_blank" rel="noopener noreferrer">
                 博客
               </a>
               <a href="#contact" className="text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium">

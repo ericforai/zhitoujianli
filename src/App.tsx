@@ -37,7 +37,7 @@ const DashboardEntry: React.FC = () => {
     const token = localStorage.getItem('token');
     if (token) {
       // 在新窗口打开后台管理，并通过URL传递token
-      const url = `http://localhost:8080?token=${encodeURIComponent(token)}`;
+      const url = `https://zhitoujianli.com?token=${encodeURIComponent(token)}`;
       window.open(url, '_blank');
       // 跳转回首页
       window.location.href = '/';
@@ -45,7 +45,7 @@ const DashboardEntry: React.FC = () => {
       // 未登录，跳转到登录页
       // 检查当前是否在前端域名，如果是则跳转到后端登录页面
       if (window.location.hostname === 'localhost' && window.location.port === '3000') {
-        window.location.href = 'http://localhost:8080/login';
+        window.location.href = 'https://zhitoujianli.com/login';
       } else {
         window.location.href = '/login';
       }

@@ -35,8 +35,106 @@ public class AdminController {
     private QuotaService quotaService;
     
     /**
+     * 检查博客管理权限
+     */
+    @GetMapping("/check-blog-access")
+    public ResponseEntity<Map<String, Object>> checkBlogAccess() {
+        try {
+            String userId = UserContextUtil.getCurrentUserId();
+            log.info("📝 检查博客管理权限: userId={}", userId);
+            
+            // 检查是否是管理员
+            boolean isAdmin = adminService.isAdmin(userId);
+            AdminUser adminUser = adminService.getAdminUser(userId);
+            
+            if (!isAdmin) {
+                return ResponseEntity.ok(Map.of(
+                    "success", false,
+                    "message", "需要管理员权限才能访问博客管理后台",
+                    "hasAccess", false,
+                    "userRole", "user"
+                ));
+            }
+            
+            // 检查博客管理权限（超级管理员和平台管理员可以管理博客）
+            boolean hasBlogAccess = adminUser.getAdminType() == AdminType.SUPER_ADMIN || 
+                                   adminUser.getAdminType() == AdminType.PLATFORM_ADMIN;
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "hasAccess", hasBlogAccess,
+                "userRole", adminUser.getAdminType().toString(),
+                "userId", userId,
+                "permissions", adminUser.getPermissions(),
+                "message", hasBlogAccess ? "有权限访问博客管理" : "权限不足，仅限超级管理员和平台管理员"
+            ));
+            
+        } catch (Exception e) {
+            log.error("❌ 检查博客管理权限异常", e);
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "message", "权限检查失败",
+                "hasAccess", false
+            ));
+        }
+    }
+
+    /**
      * 获取管理员仪表板数据
      */
+    @GetMapping("/dashboard")
+    public ResponseEntity<Map<String, Object>> getDashboard() {
+        try {
+            String userId = UserContextUtil.getCurrentUserId();
+            log.info("🎯 获取管理员仪表板: userId={}", userId);
+            
+            // 检查管理员权限
+            if (!adminService.isAdmin(userId)) {
+                return ResponseEntity.status(403).body(Map.of(
+                    "success", false,
+                    "message", "需要管理员权限"
+                ));
+            }
+            
+            Map<String, Object> dashboard = new HashMap<>();
+            
+            // 基础统计数据
+            dashboard.put("totalUsers", 1250); // TODO: 从实际数据库获取
+            dashboard.put("activeUsers", 856);
+            dashboard.put("newUsersToday", 23);
+            dashboard.put("totalRevenue", 12580.50);
+            
+            // 套餐分布
+            Map<String, Integer> planDistribution = new HashMap<>();
+            planDistribution.put("FREE", 800);
+            planDistribution.put("BASIC", 300);
+            planDistribution.put("PROFESSIONAL", 120);
+            planDistribution.put("ENTERPRISE", 30);
+            dashboard.put("planDistribution", planDistribution);
+            
+            // 配额使用趋势
+            dashboard.put("quotaUsageTrend", generateMockTrend());
+            
+            // 系统状态
+            Map<String, Object> systemStatus = new HashMap<>();
+            systemStatus.put("status", "healthy");
+            systemStatus.put("uptime", "99.98%");
+            systemStatus.put("responseTime", "120ms");
+            dashboard.put("systemStatus", systemStatus);
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "data", dashboard
+            ));
+            
+        } catch (Exception e) {
+            log.error("❌ 获取管理员仪表板异常", e);
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "message", "获取仪表板数据失败"
+            ));
+        }
+    }
     @GetMapping("/dashboard")
     public ResponseEntity<Map<String, Object>> getDashboard() {
         try {

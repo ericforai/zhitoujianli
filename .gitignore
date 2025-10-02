@@ -52,3 +52,7 @@ classpath.txt
 .pnp.js
 /coverage
 react.log
+
+# Certificate and private key files
+*.pem
+*.p12
