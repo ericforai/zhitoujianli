@@ -10,8 +10,10 @@
   ],
   "scripts": {
     "build": "npm run build:frontend && npm run copy:build",
+    "build:full": "npm run build:frontend && npm run build:blog && npm run copy:build && npm run deploy:blog",
     "build:frontend": "cd frontend && npm install && npm run build",
     "copy:build": "node scripts/copy-build.js",
+    "deploy:blog": "node scripts/deploy-blog.js",
     "build:blog": "cd blog/zhitoujianli-blog && npm install && npm run build",
     "build:backend": "cd backend/get_jobs && mvn clean package -DskipTests",
     "install:all": "npm install && cd frontend && npm install && cd ../blog/zhitoujianli-blog && npm install",
