@@ -1,0 +1,49 @@
+{
+  "name": "zhitoujianli",
+  "version": "1.0.0",
+  "description": "智投简历 - AI智能求职助手",
+  "build": {
+    "command": "npm run build",
+    "output": "build"
+  },
+  "domains": {
+    "primary": "zhitoujianli.com",
+    "secondary": "zhitoujianli.edgeone.app"
+  },
+  "routes": [
+    {
+      "path": "/api/*",
+      "target": "https://zhitoujianli.com/api"
+    },
+    {
+      "path": "/*",
+      "target": "index.html"
+    }
+  ],
+  "headers": {
+    "/*": {
+      "X-Frame-Options": "DENY",
+      "X-Content-Type-Options": "nosniff",
+      "X-XSS-Protection": "1; mode=block",
+      "Strict-Transport-Security": "max-age=31536000; includeSubDomains"
+    }
+  },
+  "redirects": [
+    {
+      "from": "https://zhitoujianli.edgeone.app/*",
+      "to": "https://zhitoujianli.com$1",
+      "status": 301,
+      "permanent": true
+    },
+    {
+      "from": "/admin",
+      "to": "https://zhitoujianli.com/admin"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

@@ -1,868 +1,271 @@
-# 智投简历项目技术手册
+# 智投简历 - AI智能求职助手
 
 ## 项目简介
 
-### 项目名称
-**智投简历** (ZhiTouJianLi) - 智能化求职投递平台
+智投简历是一个基于AI技术的智能求职助手平台，帮助求职者自动化投递简历、生成个性化打招呼语，并提供完整的求职管理解决方案。
 
-### 项目定位与目标
-智投简历是一个基于AI技术的智能求职投递平台，旨在通过人工智能技术解决求职者在简历投递过程中的效率和个性化问题。项目整合了多平台求职功能、AI智能分析和自动化投递能力，为用户提供一站式的求职解决方案。
+## 项目结构
 
-### 使用场景和主要用户群体
-- **主要用户**：求职者、应届毕业生、职场新人、有跳槽需求的在职人员
-- **核心场景**：
-  - Boss直聘等求职平台的自动化投递
-  - 简历与岗位JD的智能匹配分析
-  - 个性化打招呼语的AI生成
-  - 求职过程的全程数据跟踪和优化
-
----
-
-## 功能清单
-
-### 用户端功能模块
-
-| 功能模块 | 功能描述 | 价值 |
-|---------|---------|------|
-| **🔐 用户认证系统** | 基于Authing的身份认证，支持邮箱注册/登录 | 安全可靠，支持JWT Token认证 |
-| **🎯 AI智能打招呼语** | 基于简历+完整JD深度分析，生成个性化招呼语（隐私保护） | 提升HR回复率30-50%，增加面试机会 |
-| **📄 智能简历解析** | AI自动提取核心优势、技能、经验（支持PDF/DOC/DOCX） | 一键生成结构化简历数据 |
-| **🔒 隐私保护模式** | 打招呼语不含姓名，简历显示匿名化 | 保护个人隐私，更加职业化 |
-| **⚡ 多AI服务支持** | DeepSeek/OpenAI/Ollama灵活切换 | 5-7秒快速生成，成本可控 |
-| **📊 简历优化跟踪** | 实时分析简历投递状态和效果 | 帮助用户优化投递策略 |
-| **🎲 职位智能推荐** | 基于简历内容的岗位智能匹配 | 提高岗位匹配精准度 |
-| **📈 投递进度管理** | 多平台投递状态统一管理 | 避免重复投递，提升效率 |
-
-### 后端管理功能模块
-
-| 功能模块 | 功能描述 | 价值 |
-|---------|---------|------|
-| **任务调度管理** | Boss直聘、拉勾等平台自动化投递任务 | 解放用户双手，实现批量投递 |
-| **AI服务配置** | 支持OpenAI、DeepSeek、Ollama等多种AI服务 | 灵活切换AI服务，成本可控 |
-| **日志监控** | 实时查看任务执行状态和错误日志 | 快速定位问题，保证服务稳定 |
-| **用户数据统计** | 投递成功率、回复率等关键指标统计 | 为用户提供数据化决策支持 |
-
-### 核心技术功能
-
-| 功能模块 | 功能描述 | 价值 |
-|---------|---------|------|
-| **多AI服务集成** | 统一API接口，支持OpenAI/DeepSeek/Ollama | 降低依赖风险，提升服务稳定性 |
-| **智能内容生成** | 两阶段AI处理：简历解析→打招呼语生成 | 确保每个投递都有针对性 |
-| **逆向工程支持** | 适配各求职平台的网页结构和接口 | 实现真正的自动化操作 |
-| **文件格式支持** | PDF/DOC/DOCX/TXT简历自动解析 | Apache PDFBox + POI技术栈 |
-| **超时控制机制** | AI调用5分钟超时自动降级 | 保证投递流程不中断 |
-
----
-
-## 🔐 用户认证系统
-
-### 功能特色
-
-**1. 基于Authing的身份认证**
-- ✅ 邮箱注册/登录支持
-- ✅ JWT Token认证机制
-- ✅ 用户会话管理
-- ✅ 安全的密码验证
-
-**2. 认证流程**
 ```
-【注册流程】
-1. 用户输入邮箱、密码、用户名
-2. 系统调用Authing API进行用户注册
-3. 返回注册结果和用户ID
-
-【登录流程】
-1. 用户输入邮箱和密码
-2. 系统调用Authing API进行身份验证
-3. 返回JWT Token和用户信息
-4. 前端保存Token用于后续API调用
+zhitoujianli/
+├── README.md                          # 项目主文档
+├── .gitignore                         # Git 忽略文件
+├── 
+├── docs/                              # 文档目录
+│   ├── deployment/                    # 部署相关文档
+│   ├── technical/                     # 技术文档
+│   ├── user-guides/                   # 用户指南
+│   └── security/                      # 安全相关文档
+│
+├── frontend/                          # 前端项目 (React)
+│   ├── src/                          # React 前端源码
+│   ├── public/                       # 静态资源
+│   └── package.json                  # 前端依赖
+│
+├── backend/                          # 后端项目 (Spring Boot)
+│   ├── get_jobs/                     # Spring Boot 后端
+│   └── simple-backend/               # 简单后端服务
+│
+├── blog/                             # 博客项目 (Astro)
+│   └── zhitoujianli-blog/            # Astro 博客
+│
+├── mvp/                              # MVP 项目 (Next.js)
+│   └── zhitoujianli-mvp/             # Next.js MVP
+│
+├── website/                          # 网站项目 (React)
+│   └── zhitoujianli-website/         # React 网站
+│
+├── astro/                            # Astro 项目
+│   └── astrowind/                    # Astro 模板
+│
+├── scripts/                          # 脚本文件
+├── tests/                            # 测试文件
+├── config/                           # 配置文件
+└── tools/                            # 工具文件
 ```
 
-**3. 技术实现**
-```java
-// 注册接口
-@PostMapping("/api/auth/register")
-public ResponseEntity<?> register(@RequestBody Map<String, String> request)
+## 核心功能
 
-// 登录接口  
-@PostMapping("/api/auth/login/email")
-public ResponseEntity<?> loginByEmail(@RequestBody Map<String, String> request)
+### 🤖 AI智能打招呼语
+- 基于岗位要求生成个性化打招呼语
+- 支持多种AI模型 (DeepSeek, OpenAI, Ollama)
+- 智能匹配求职者经历与岗位需求
 
-// 健康检查接口
-@GetMapping("/api/auth/health")
-public ResponseEntity<?> health()
-```
+### 📄 简历解析与优化
+- 支持PDF、Word格式简历解析
+- 自动提取关键信息
+- 简历内容优化建议
 
-**4. 安全特性**
-- 🔒 **密码加密**：Authing平台自动处理密码加密
-- 🎫 **JWT Token**：无状态认证，支持Token过期管理
-- 🛡️ **CORS保护**：跨域请求安全控制
-- 🔍 **输入验证**：邮箱格式、密码长度验证
+### 🎯 智能投递系统
+- 支持Boss直聘、智联招聘等平台
+- 自动化投递流程
+- 投递状态跟踪
 
-**5. 配置要求**
-```bash
-# 环境变量配置
-export AUTHING_USER_POOL_ID=your_user_pool_id
-export AUTHING_APP_ID=your_app_id  
-export AUTHING_APP_SECRET=your_app_secret
-export AUTHING_APP_HOST=https://your-domain.authing.cn
-```
+### 👥 用户管理系统
+- 基于Authing的身份认证
+- 用户配额管理
+- 多层级权限控制
 
----
+### 📊 数据统计与分析
+- 投递成功率统计
+- 面试邀请率分析
+- 用户行为数据追踪
 
-## 🌟 核心亮点：AI智能打招呼语系统
+## 技术栈
 
-### 功能特色
+### 前端技术
+- **React 18** - 用户界面框架
+- **TypeScript** - 类型安全
+- **Tailwind CSS** - 样式框架
+- **Axios** - HTTP客户端
 
-**1. 两阶段AI处理架构**
-- **Stage A - 简历解析**：上传后一次性AI解析，提取核心优势和技能
-- **Stage B - 打招呼语生成**：每个岗位基于简历+完整JD生成个性化内容
+### 后端技术
+- **Spring Boot 3** - Java后端框架
+- **Spring Security** - 安全框架
+- **JWT** - 身份认证
+- **Maven** - 依赖管理
 
-**2. 隐私保护优先**
-- ✅ 打招呼语不包含候选人真实姓名
-- ✅ WebUI简历展示匿名化处理
-- ✅ 日志记录脱敏处理
-- ✅ 100% 隐私保护测试通过
+### AI技术
+- **DeepSeek API** - 主要AI服务
+- **OpenAI API** - 备用AI服务
+- **Ollama** - 本地AI部署
 
-**3. 智能匹配与生成**
-```
-【输入】
-- 候选人：18年经验营销总监，擅长数字化营销、AIGC应用
-- 岗位：市场总监，要求销售营销一体化、大型活动策划
+### 数据库
+- **MySQL** - 主数据库
+- **Redis** - 缓存数据库
 
-【AI处理】
-1. 提取岗位关键词：数字化营销、销售营销一体化
-2. 匹配简历优势：18年经验、从0到1、AIGC、6万人活动
-3. 生成个性化内容：融入关键词 + 突出优势 + 即时贡献
+### 部署技术
+- **EdgeOne Pages** - 前端部署
+- **Docker** - 容器化部署
+- **Nginx** - 反向代理
 
-【输出】
-您好，我对贵司市场总监的职位深感兴趣。岗位职责中的"数字化营销工具应用"
-和"销售营销一体化"与我的核心优势高度契合。我拥有18年市场营销经验，曾从
-0到1搭建营销体系，并成功将AIGC应用于品牌推广...
-```
+## 快速开始
 
-**4. 性能与成本**
-- ⚡ **响应速度**：平均5-7秒生成完成
-- 💰 **API成本**：DeepSeek约500 tokens/次，成本极低
-- 🔄 **智能缓存**：简历解析一次，重复使用
-- ⏱️ **超时保护**：5分钟自动降级到默认招呼语
-
-**5. 质量保证**
-- 📏 **字数控制**：自动控制在200字以内
-- 🎯 **关键词融入**：2-3个岗位关键词
-- ✨ **优势突出**：2-3个核心匹配优势
-- 💼 **职业化语气**：真诚专业，无套路
-
-### 使用流程
-
-```mermaid
-graph LR
-    A[上传简历] --> B[AI解析简历]
-    B --> C[保存候选人信息]
-    C --> D[开启智能打招呼]
-    D --> E[搜索岗位]
-    E --> F[抓取完整JD]
-    F --> G[AI生成打招呼语]
-    G --> H[自动投递]
-    H --> I[记录日志]
-```
-
-### 技术实现
-
-**AI服务层**
-```java
-// 简历解析服务
-CandidateResumeService.parseResume(resumeText)
-  → 提取：姓名、职位、年限、技能、核心优势
-  → 保存：candidate_resume.json
-
-// 智能打招呼语生成
-SmartGreetingService.generateSmartGreeting(candidate, jobName, fullJD)
-  → AI分析：候选人 + 岗位匹配度
-  → 生成：个性化打招呼语（无姓名）
-  → 超时控制：5分钟自动降级
-```
-
-**文件解析支持**
-```java
-// PDF解析：Apache PDFBox
-PDFTextStripper.getText(PDDocument)
-
-// DOC/DOCX解析：Apache POI
-XWPFWordExtractor.getText() // DOCX
-WordExtractor.getText()     // DOC
-```
-
----
-
-## 技术架构说明
-
-### 前端架构
-
-**技术选型**：
-- **框架**：React 18 + TypeScript
-- **UI库**：Tailwind CSS
-- **状态管理**：React Hooks + Context
-- **构建工具**：Vite
-- **包管理**：npm/yarn
-
-**技术特点**：
-- 组件化开发，代码复用性高
-- TypeScript保证类型安全
-- Tailwind CSS快速响应式设计
-- 无状态函数组件，性能优化
-
-### 后端架构
-
-**技术选型**：
-- **框架**：Spring Boot 2.x
-- **项目管理**：Maven
-- **JSON处理**：Jackson
-- **日志框架**：SLF4J + Logback
-- **HTTP客户端**：Java HttpClient
-
-**技术特点**：
-- 微服务架构，模块解耦
-- RESTful API设计
-- 配置外化管理
-- 异步任务处理
-
-### 数据存储
-
-**文件存储**：
-- **配置存储**：YAML配置文件
-- **会话数据**：内存存储 + 文件持久化
-- **日志存储**：本地文件系统
-
-**特点**：
-- 无数据库依赖，部署简单
-- 配置文件易于修改和维护
-- 日志文件便于问题排查
-
-### 第三方服务
-
-| 服务类型 | 具体服务 | 用途 |
-|---------|---------|------|
-| **AI服务** | OpenAI API、DeepSeek API、Ollama本地 | 智能内容生成 |
-| **求职平台** | Boss直聘、拉勾网、智联招聘 | 目标平台对接 |
-| **HTTP库** | org.json、Java HttpClient | 接口调用和数据处理 |
-
-### 架构图
-
-```mermaid
-graph TB
-    subgraph "前端层"
-        A[React应用] --> B[用户界面]
-        B --> C[智能打招呼语]
-        B --> D[简历上传]
-        B --> E[设置配置]
-    end
-    
-    subgraph "API层"
-        F[Spring Boot] --> G[RESTful API]
-        G --> H[用户管理]
-        G --> I[AI服务]
-        G --> J[任务管理]
-    end
-    
-    subgraph "业务层"
-        K[Boss投递服务] --> L[网页自动化]
-        M[AI分析服务] --> N[多AI提供商]
-        O[日志服务] --> P[本地文件存储]
-    end
-    
-    subgraph "数据层"
-        Q[YAML配置] --> R[任务配置]
-        S[文件存储] --> T[会话数据]
-        U[日志文件] --> V[运行记录]
-    end
-    
-    A --> F
-    F --> K
-    F --> M
-    F --> O
-    K --> Q
-    M --> Q
-    O --> U
-```
-
----
-
-## 项目启动说明
-
-### 环境依赖
-
-**必要软件版本要求**：
-
-| 软件名称 | 版本要求 | 用途 |
-|---------|---------|------|
-| Java | JDK 17+ | 后端服务运行环境 |
-| Node.js | 16.x+ | 前端项目构建和运行 |
-| npm | 8.x+ | 前端依赖管理 |
-| Maven | 3.6+ | Java项目构建 |
-
-**可选依赖**：
-- Git（代码版本管理）
-- IntelliJ IDEA / Eclipse（开发IDE）
-- Chrome浏览器（测试自动化）
+### 环境要求
+- Node.js 18+
+- Java 21+
+- Maven 3.8+
+- MySQL 8.0+
 
 ### 安装步骤
 
-#### 1. 项目克隆
+1. **克隆项目**
 ```bash
-# 克隆项目到本地
-git clone https://github.com/ericforai/zhitoujianli.git
+git clone https://github.com/your-username/zhitoujianli.git
 cd zhitoujianli
 ```
 
-#### 2. 后端环境准备
+2. **安装前端依赖**
 ```bash
-# 进入后端项目目录
-cd get_jobs
+cd frontend
+npm install
+```
 
-# 安装Maven依赖
+3. **安装后端依赖**
+```bash
+cd backend/get_jobs
 mvn clean install
-
-# 配置Authing环境变量
-export AUTHING_USER_POOL_ID=your_user_pool_id
-export AUTHING_APP_ID=your_app_id
-export AUTHING_APP_SECRET=your_app_secret
-export AUTHING_APP_HOST=https://your-domain.authing.cn
-export SECURITY_ENABLED=false
 ```
 
-#### 3. 前端环境准备
+4. **配置环境变量**
 ```bash
-# 前端主站（可选）
-cd zhitoujianli-website
-npm install
+# 复制配置文件
+cp config/env.example .env
 
-# 博客系统（可选）
-cd zhitoujianli-blog
-npm install
+# 编辑配置文件
+vim .env
 ```
 
-### 本地运行方式
-
-#### 后端服务启动
+5. **启动服务**
 ```bash
-# 在 get_jobs 目录下
-cd get_jobs
+# 启动后端服务
+cd backend/get_jobs
+./start_with_auth.sh
 
-# 方式1：Maven运行（推荐）
-export AUTHING_USER_POOL_ID=your_user_pool_id
-export AUTHING_APP_ID=your_app_id
-export AUTHING_APP_SECRET=your_app_secret
-export AUTHING_APP_HOST=https://your-domain.authing.cn
-export SECURITY_ENABLED=false
-mvn spring-boot:run
-
-# 方式2：编译后运行
-mvn clean package
-java -jar target/get_jobs-*.jar
-
-# 访问地址
-http://localhost:8080          # 主页面
-http://localhost:8080/login    # 登录页面
-http://localhost:8080/register # 注册页面
-```
-
-#### 前端服务启动
-```bash
-# 主站（可选）
-cd zhitoujianli-website
+# 启动前端服务
+cd frontend
 npm start
-# 访问地址：http://localhost:3000
-
-# 博客系统（可选）
-cd zhitoujianli-blog
-npm run dev
-# 访问地址：http://localhost:4321/blog/
 ```
 
-### 生产环境部署步骤
+## 配置说明
 
-#### Docker部署（推荐）
+### 环境变量配置
+```bash
+# API配置
+REACT_APP_API_URL=http://localhost:8080/api
+REACT_APP_ENV=development
 
-**1. 后端Docker配置**
-```dockerfile
-# get_jobs/Dockerfile
-FROM openjdk:17-jre-slim
-WORKDIR /app
-COPY target/get_jobs-*.jar app.jar
-EXPOSE 8080
-CMD ["java", "-jar", "app.jar"]
+# Authing配置
+AUTHING_USER_POOL_ID=your_user_pool_id
+AUTHING_APP_ID=your_app_id
+AUTHING_APP_SECRET=your_app_secret
+
+# AI配置
+BASE_URL=https://api.deepseek.com
+API_KEY=your_api_key
+MODEL=deepseek-chat
 ```
 
-**2. Docker Compose配置**
+### 数据库配置
 ```yaml
-version: '3.8'
-services:
-  backend:
-    build: ./get_jobs
-    ports:
-      - "8080:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      
-  frontend:
-    build: ./zhitoujianli-website
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/zhitoujianli
+    username: your_username
+    password: your_password
 ```
 
-**3. 部署命令**
+## 部署指南
+
+### 生产环境部署
+详细的部署指南请参考：
+- [EdgeOne部署配置](docs/deployment/EDGEONE_DEPLOYMENT_CONFIG.md)
+- [部署指南](docs/deployment/DEPLOYMENT_GUIDE.md)
+
+### 安全配置
+安全相关配置请参考：
+- [安全审计报告](docs/security/SECURITY_AUDIT_REPORT.md)
+- [安全系统文档](docs/security/BLOG_SECURITY_SYSTEM_DOCUMENTATION.md)
+
+## 文档目录
+
+### 技术文档
+- [API文档](docs/technical/API_DOCUMENTATION.md)
+- [系统技术文档](docs/technical/ADMIN_SYSTEM_TECHNICAL_DOCUMENTATION.md)
+- [博客服务文档](docs/technical/BLOG_SERVICE_DOCUMENTATION.md)
+
+### 用户指南
+- [快速开始指南](docs/user-guides/QUICK_START_GUIDE.md)
+- [配额管理系统用户指南](docs/user-guides/QUOTA_MANAGEMENT_SYSTEM_USER_GUIDE.md)
+- [管理员登录指南](docs/user-guides/ADMIN_LOGIN_GUIDE.md)
+
+### 安全文档
+- [安全审计报告](docs/security/SECURITY_AUDIT_REPORT.md)
+- [三层访问控制系统](docs/security/THREE_TIER_ACCESS_CONTROL_SYSTEM.md)
+
+## 开发指南
+
+### 代码规范
+- 使用ESLint进行代码检查
+- 遵循TypeScript严格模式
+- 使用Prettier进行代码格式化
+
+### 提交规范
 ```bash
-# 构建并启动
-docker-compose up -d
+# 功能开发
+git commit -m "feat: 添加新功能"
 
-# 查看服务状态
-docker-compose ps
+# 问题修复
+git commit -m "fix: 修复问题"
 
-# 查看日志
-docker-compose logs -f backend
+# 文档更新
+git commit -m "docs: 更新文档"
 ```
+
+### 测试
+```bash
+# 前端测试
+cd frontend
+npm test
+
+# 后端测试
+cd backend/get_jobs
+mvn test
+```
+
+## 贡献指南
+
+1. Fork 项目
+2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 打开 Pull Request
+
+## 许可证
+
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
+
+## 联系我们
+
+- 项目主页: https://zhitoujianli.com
+- 问题反馈: https://github.com/your-username/zhitoujianli/issues
+- 邮箱: support@zhitoujianli.com
+
+## 更新日志
+
+### v2.0.1 (2025-10-02)
+- ✅ 完成项目结构重组
+- ✅ 实现EdgeOne部署配置
+- ✅ 添加安全审计功能
+- ✅ 优化CORS配置
+- ✅ 完善文档体系
+
+### v2.0.0 (2025-09-30)
+- 🎉 发布AI智能打招呼语功能
+- 🎉 集成Authing身份认证
+- 🎉 实现用户配额管理
+- 🎉 添加博客系统
 
 ---
 
-## 数据库设计
-
-### 数据库类型
-本项目采用**无数据库架构**，使用**文件系统存储**，具体包括：
-
-| 存储类型 | 用途 | 格式 |
-|---------|------|------|
-| **YAML配置文件** | 任务配置、AI服务配置 | `.yaml` |
-| **JSON文件** | 会话数据、黑名单数据 | `.json` |
-| **日志文件** | 运行日志、错误记录 | `.log` |
-| **Cookie文件** | Web自动化会话保持 | `.json` |
-
-### 核心数据文件结构
-
-#### 1. 配置文件 (`config.yaml`)
-```yaml
-boss:
-  debugger: false                    # 调试模式
-  enableAI: true                     # AI功能开关
-  cityCode: ["上海"]                  # 目标城市
-  keywords: ["市场总监"]              # 搜索关键词
-  industry: ["不限"]                  # 行业要求
-  experience: ["10年以上"]           # 经验要求
-  
-ai:
-  introduce: "# 自我介绍内容"         # AI自我介绍模板
-  prompt: "# AI提示词模板"           # AI对话模板
-  greetingStyle: "professional"      # 打招呼语风格
-```
-
-#### 2. 数据文件 (`data.json`)
-```json
-{
-  "blackCompanies": ["公司A", "公司B"],
-  "blackRecruiters": ["HR1", "HR2"], 
-  "blackJobs": ["职位1", "职位2"]
-}
-```
-
-#### 3. 会话文件 (`cookies.json`)
-```json
-[
-  {
-    "name": "session_id",
-    "value": "abc123",
-    "domain": ".zhipin.com",
-    "path": "/"
-  }
-]
-```
-
-### 数据关系说明
-
-**配置层次关系**：
-- BossConfig ← AiConfig ← 全局配置
-- 任务执行 → 日志记录 → 文件存储
-- AI分析 → 生成结果 → 自动化投递
-
----
-
-## 接口/API说明
-
-### 核心API接口
-
-#### 1. 用户认证接口
-
-| 方法 | 路径 | 功能 | 参数 | 返回值 |
-|------|------|------|------|-------|
-| POST | `/api/auth/register` | 用户注册 | `{email, password, username}` | `{success: boolean, message: string, userId: string}` |
-| POST | `/api/auth/login/email` | 邮箱登录 | `{email, password}` | `{success: boolean, token: string, user: object}` |
-| GET | `/api/auth/health` | 认证服务健康检查 | 无 | `{success: boolean, authingConfigured: boolean}` |
-
-**示例请求**：
-```bash
-# 用户注册
-curl -X POST http://localhost:8080/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email": "user@example.com", "password": "password123", "username": "用户名"}'
-
-# 用户登录
-curl -X POST http://localhost:8080/api/auth/login/email \
-  -H "Content-Type: application/json" \
-  -d '{"email": "user@example.com", "password": "password123"}'
-```
-
-**示例响应**：
-```json
-// 注册成功响应
-{
-  "success": true,
-  "message": "注册成功，请登录",
-  "userId": "68dbb116d81243469e2ef505"
-}
-
-// 登录成功响应
-{
-  "success": true,
-  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIs...",
-  "user": {
-    "userId": "68dbb116d81243469e2ef505",
-    "email": "user@example.com",
-    "username": "用户名"
-  },
-  "expiresIn": 1209600
-}
-```
-
-#### 2. 任务管理接口
-
-| 方法 | 路径 | 功能 | 参数 | 返回值 |
-|------|------|------|------|-------|
-| POST | `/save-config` | 保存任务配置 | `config: Object` | `{success: boolean, message: string}` |
-| POST | `/start-program` | 启动投递任务 | `platform: string` | `{success: boolean, message: string, logFile: string}` |
-| POST | `/stop-program` | 停止投递任务 | 无 | `{success: boolean, message: string}` |
-
-**示例请求**：
-```bash
-# 启动Boss投递任务
-curl -X POST http://localhost:8080/start-program \
-  -H "Content-Type: application/json" \
-  -d '{"platform": "boss"}'
-```
-
-**示例响应**：
-```json
-{
-  "success": true,
-  "message": "程序启动成功",
-  "logFile": "logs/boss_20250128_103012.log"
-}
-```
-
-#### 3. 状态监控接口
-
-| 方法 | 路径 | 功能 | 参数 | 返回值 |
-|------|------|------|------|-------|
-| GET | `/status` | 获取服务状态 | 无 | `{isRunning: boolean}` |
-| GET | `/logs` | 获取运行日志 | `lines: number` | `log_content: string` |
-
-**示例响应**：
-```json
-{
-  "isRunning": true,
-  "currentLogFile": "logs/boss_20250128_103012.log",
-  "startTime": "2025-01-28T10:30:12"
-}
-```
-
-#### 4. AI服务接口（内部）
-
-| 方法 | 类名 | 功能 | 参数 | 返回值 |
-|------|------|------|------|-------|
-|静 态 | `AiService.sendRequest()` | AI对话请求 | `content: String` | `response: String` |
-|静 态 | `AiConfig.init()` | 获取AI配置 | 无 | `AiConfig对象` |
-
-**示例代码**：
-```java
-// AI服务调用示例
-String prompt = "分析这个岗位: " + jobDescription;
-String aiResponse = AiService.sendRequest(prompt);
-AiFilter result = parseAiResponse(aiResponse);
-```
-
-### 授权与认证方式
-
-**当前认证方式**：
-- **Authing身份认证**：基于Authing平台的用户注册/登录
-- **JWT Token认证**：无状态认证，支持Token过期管理
-- **Spring Security**：API接口安全保护
-- **CORS配置**：跨域请求安全控制
-
-**认证流程**：
-1. 用户通过邮箱注册/登录
-2. 系统返回JWT Token
-3. 前端在请求头中携带Token
-4. 后端验证Token有效性
-5. 允许访问受保护的API接口
-
-**未来扩展**：
-- OAuth 2.0 集成
-- 用户权限管理
-- 多因素认证(MFA)
-
----
-
-## 项目运维与扩展
-
-### 日志与监控
-
-#### 日志系统
-```yaml
-# 日志配置 (logback-spring.xml)
-logging:
-  level:
-    root: INFO
-    com.superxiang: DEBUG
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-  file:
-    name: logs/get_jobs.log
-    max-size: 100MB
-    max-history: 30
-```
-
-**日志分类**：
-- **应用日志**：业务逻辑执行记录
-- **访问日志**：API请求响应记录
-- **错误日志**：异常和错误详细信息
-- **任务日志**：自动化任务执行过程
-
-#### 监控指标
-
-| 监控项目 | 监控方式 | 告警阈值 |
-|---------|---------|---------|
-| **服务状态** | GET /status | 响应时间 > 2s |
-| **内存使用** | JVM监控 | 内存使用 > 80% |
-| **任务成功率** | 日志分析 | 成功率 < 90% |
-| **AI调用延迟** | API计时 | 响应时间 > 30s |
-
-### 常见问题与解决方案
-
-#### 1. 端口占用问题
-
-**问题描述**：
-```
-Port 8080 is already in use: Address already in use
-```
-
-**解决方案**：
-```bash
-# 查看端口占用
-lsof -i :8080
-
-# 终止占用进程
-kill -9 <PID>
-
-# 或使用其他端口
-java -jar app.jar --server.port=8081
-```
-
-#### 2. AI服务连接失败
-
-**问题描述**：
-```
-AI请求异常！Connection refused
-```
-
-**解决方案**：
-```bash
-# 检查AI服务配置
-curl http://localhost:11434/api/tags  # Ollama
-curl https://api.deepseek.com/v1/models  # DeepSeek
-
-# 更新配置文件
-vi src/main/resources/.env
-```
-
-#### 3. Selenium驱动问题
-
-**问题描述**：
-```
-chrome driver not found
-```
-
-**解决方案**：
-```bash
-# 安装Chrome驱动
-brew install chromedriver  # macOS
-apt install chromium-driver # Ubuntu
-
-# 或禁用自动化功能
-# 在config.yaml中设置 enableAutomation: false
-```
-
-### 扩展方向
-
-#### 短期扩展（1-3个月）
-
-1. **多平台支持**：
-   - 拉勾网自动化集成
-   - 智联招聘API对接
-   - 前程无忧平台支持
-
-2. **AI功能增强**：
-   - 更多通话语风格选择
-   - 行业专业化模板
-   - 简历A/B测试功能
-
-3. **用户体验优化**：
-   - 移动端适配
-   - 批量操作界面
-   - 数据可视化dashboard
-
-#### 中期扩展（3-6个月）
-
-1. **智能分析升级**：
-   - 行业内薪资分析
-   - 竞争对手分析
-   - 求职趋势预测
-
-2. **社交化功能**：
-   - 求职经验分享
-   - 行业交流社区
-   - 导师匹配系统
-
-3. **企业版功能**：
-   - HR招聘工具
-   - 候选人管理
-   - 面试安排系统
-
-#### 长期愿景（6-12个月）
-
-1. **平台化转型**：
-   - 开放API接口
-   - 第三方集成
-   - 生态合作伙伴
-
-2. **大数据分析**：
-   - 求职市场洞察
-   - 个性化推荐引擎
-   - 职业发展路径规划
-
----
-
-## 附录
-
-### 相关资料与链接
-
-#### 技术文档
-- [Spring Boot官方文档](https://spring.io/projects/spring-boot)
-- [React官网](https://reactjs.org/)
-- [Tailwind CSS文档](https://tailwindcss.com/)
-- [Astro框架文档](https://astro.build/)
-
-#### AI服务文档
-- [OpenAI API文档](https://platform.openai.com/docs)
-- [DeepSeek API文档](https://platform.deepseek.com/api-docs/)
-- [Ollama本地部署](https://ollama.ai/docs)
-
-#### 求职平台API
-- [Boss直聘开发者文档](https://open.bosszhipin.com/)
-- [拉勾网API文档](https://lagou.com/api)
-
-### 常用命令汇总
-
-#### 开发调试命令
-```bash
-# 后端开发
-mvn spring-boot:run              # 启动开发服务器
-mvn clean package               # 编译打包
-java -jar target/app.jar        # 运行编译后的jar
-
-# 前端开发  
-npm start                       # React应用启动
-npm run build                   # 生产环境构建
-npm run dev                     # Astro博客启动
-
-# 项目调试
-curl http://localhost:8080/status    # 检查服务状态
-curl http://localhost:8080/logs      # 查看运行日志
-
-# 认证功能测试
-curl http://localhost:8080/api/auth/health  # 检查认证服务状态
-curl -X POST http://localhost:8080/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email": "test@example.com", "password": "test123", "username": "测试用户"}'
-curl -X POST http://localhost:8080/api/auth/login/email \
-  -H "Content-Type: application/json" \
-  -d '{"email": "test@example.com", "password": "test123"}'
-```
-
-#### 部署运维命令
-```bash
-# Docker部署
-docker-compose up -d            # 启动所有服务
-docker-compose logs -f backend  # 查看后端日志
-docker-compose restart backend  # 重启后端服务
-
-# 日志管理
-tail -f logs/get_jobs.log       # 实时查看日志
-grep "ERROR" logs/*.log         # 查找错误日志
-find logs -name "*.log" -mtime +30 | xargs rm  # 清理30天前日志
-```
-
-#### AI服务测试命令
-```bash
-# 测试OpenAI连接
-curl -H "Authorization: Bearer $OPENAI_API_KEY" \
-     -H "Content-Type: application/json" \
-     https://api.deepseek.com/v1/models
-
-# 测试Ollama连接  
-curl http://localhost:11434/api/tags
-curl http://localhost:11434/api/generate -d '{"model": "qwen2", "prompt": "测试"}'
-```
-
-### 术语解释（面向非技术人员）
-
-| 术语 | 通俗解释 | 在项目中的作用 |
-|------|---------|---------------|
-| **Frontend（前端）** | 用户看到的网页界面 | 用户通过浏览器访问的求职平台界面 |
-| **Backend（后端）** | 服务器端的业务逻辑 | 处理AI分析、自动化投递等核心功能 |
-| **API** | 不同系统间通信的接口 | 前端调用后端功能的桥梁 |
-| **AI（人工智能）** | 模拟人类智能的计算机技术 | 自动分析简历和岗位要求，生成个性化内容 |
-| **自动化** | 无需人工干预的计算机任务 | 自动在求职平台投递简历，无需手工操作 |
-| **配置管理** | 管理程序运行参数的方法 | 用户可以通过修改配置文件调整求职策略 |
-| **日志** | 程序运行过程的详细记录 | 帮助开发者了解程序运行状态，排查问题 |
-| **部署** | 将程序放到服务器上运行的过程 | 项目从开发环境发布到用户可访问的环境 |
-
-### 项目维护建议
-
-#### 日常维护
-1. **每周检查**：服务状态、错误日志、AI服务可用性
-2. **每月优化**：更新依赖版本、优化配置文件、清理无用文件
-3. **季度升级**：功能更新、安全补丁、性能优化
-
-#### 数据备份
-```bash
-# 配置文件备份
-cp config.yaml config.yaml.backup.$(date +%Y%m%d)
-
-# 日志文件备份
-tar -czf logs_backup_$(date +%Y%m%d).tar.gz logs/
-
-# Cookie文件备份
-cp cookies.json cookies.json.backup.$(date +%Y%m%d)
-```
-
-#### 性能优化建议
-1. **AI调用优化**：添加请求缓存、批量处理、异步调用
-2. **自动化优化**：智能重试机制、并发控制、任务调度优化
-3. **存储优化**：日志轮转、配置文件压缩、数据清理策略
-
----
-
-*本文档最后更新时间：2025年9月30日*  
-*版本号：1.0*  
-*如有疑问，请联系项目维护团队*
+**智投简历团队** © 2025
