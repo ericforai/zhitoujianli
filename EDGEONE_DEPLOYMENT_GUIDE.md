@@ -2,42 +2,51 @@
 
 ## 📋 问题诊断与解决方案
 
-### 🚨 原始问题
-EdgeOne部署失败，错误信息：
+### 🚨 问题历史记录
+
+#### 问题1: package.json缺失 (已解决)
+**错误信息**: `npm error enoent could not read package.json`
+**解决方案**: 创建根目录package.json文件，定义monorepo结构
+
+#### 问题2: 输出目录路径不匹配 (最新问题)
+**错误信息**: 
 ```
-npm error path /tmp/repo/zhitoujianli-a4ap17cfwo/package.json
-npm error enoent could not read package.json: error: enoent: no such file or directory
+[cli][✘] [StaticAssetsBuilder]: ENOENT: no such file or directory, lstat
+'/tmp/repo/zhitoujianli-nhloozx1ms/build'
 ```
 
-**根本原因**: 项目采用monorepo架构，根目录缺少package.json文件，EdgeOne无法识别项目类型和构建方式。
+**根本原因**: EdgeOne期望在根目录找到 `build` 文件夹，但React构建输出在 `frontend/build` 目录。
 
-## ✅ 解决方案实施
+**解决方案**: 修改构建流程，将frontend/build复制到根目录build文件夹。
 
-### 1. 项目结构配置
+## ✅ 最新解决方案实施
 
-#### 1.1 创建根目录package.json
+### 1. 根目录构建流程优化
+
+#### 1.1 修改package.json构建脚本
 ```json
 {
-  "name": "zhitoujianli",
-  "version": "1.0.0",
-  "description": "智投简历 - AI智能求职助手",
-  "private": true,
-  "workspaces": [
-    "frontend",
-    "zhitoujianli-blog",
-    "backend/get_jobs"
-  ],
   "scripts": {
-    "build": "npm run build:frontend",
-    "build:frontend": "cd frontend && npm install && npm run build"
+    "build": "npm run build:frontend && npm run copy:build",
+    "build:frontend": "cd frontend && npm install && npm run build",
+    "copy:build": "node scripts/copy-build.js"
   }
 }
 ```
 
 **功能说明**:
-- 定义项目为monorepo工作空间
-- 指定默认构建为前端React应用
-- 确保EdgeOne能正确识别项目类型
+- `build:frontend`: 构建React应用到frontend/build
+- `copy:build`: 将frontend/build复制到根目录build
+- `build`: 组合执行上述两个命令
+
+#### 1.2 创建跨平台复制脚本
+```javascript
+// scripts/copy-build.js
+function copyDir(src, dest) {
+  // 递归复制文件夹逻辑
+  // 兼容Windows/Linux/macOS
+}
+```
 
 #### 1.2 EdgeOne专用配置 (.edgeonerc)
 ```json

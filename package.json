@@ -9,8 +9,9 @@
     "backend/get_jobs"
   ],
   "scripts": {
-    "build": "npm run build:frontend",
+    "build": "npm run build:frontend && npm run copy:build",
     "build:frontend": "cd frontend && npm install && npm run build",
+    "copy:build": "node scripts/copy-build.js",
     "build:blog": "cd zhitoujianli-blog && npm install && npm run build",
     "build:backend": "cd backend/get_jobs && mvn clean package -DskipTests",
     "install:all": "npm install && cd frontend && npm install && cd ../zhitoujianli-blog && npm install",
