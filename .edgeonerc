@@ -1,0 +1,39 @@
+{
+  "version": "1.0.0",
+  "type": "spa",
+  "framework": "react",
+  "build": {
+    "command": "npm run build",
+    "outputDirectory": "frontend/build",
+    "rootDirectory": ".",
+    "installCommand": "npm install"
+  },
+  "env": {
+    "REACT_APP_API_URL": "https://zhitoujianli.com/api",
+    "REACT_APP_AUTHING_DOMAIN": "https://zhitoujianli.authing.cn",
+    "REACT_APP_AUTHING_APP_ID": "68db6e4e85de9cb8daf2b3d2",
+    "REACT_APP_AUTHING_USER_POOL_ID": "68db6e4c4f248dd866413bc2",
+    "SITE_URL": "https://zhitoujianli.com"
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "src": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
+    }
+  ]
+}
