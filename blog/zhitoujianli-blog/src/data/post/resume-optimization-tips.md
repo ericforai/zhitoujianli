@@ -4,8 +4,8 @@ description: 分享实用的简历优化技巧，帮助求职者提高简历通�
 excerpt: 一份优秀的简历是求职成功的第一步。本文分享简历优化的核心技巧，从格式排版到内容撰写，从关键词优化到成果量化，助你打造一份让HR眼前一亮的简历。
 pubDate: 2024-01-20
 author: 智投简历团队
-image: ~/assets/images/hero-image.png
-tags: ["简历优化", "求职技巧", "职场建议"]
+image: ~/assets/images/resume-optimization-hero.svg
+tags: ["简历优化", "求职技巧", "职场建议", "简历写作", "HR筛选", "简历模板", "求职成功", "职位匹配"]
 category: "求职指南"
 keywords: "简历优化,求职技巧,简历制作,求职指导,简历模板,简历格式,简历内容,简历关键词,简历排版,求职简历"
 structuredData: |
