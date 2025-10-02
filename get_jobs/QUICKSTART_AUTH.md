@@ -47,9 +47,9 @@
 创建完成后，在应用详情页面记录以下信息：
 
 ```
-App ID: 6xxxxxxxxxxxxxxx
-App Secret: 6xxxxxxxxxxxxxxx
-用户池ID: 6xxxxxxxxxxxxxxx
+App ID: <Your-App-ID-From-Authing>
+App Secret: <Your-App-Secret-From-Authing>
+用户池ID: <Your-User-Pool-ID-From-Authing>
 用户池域名: zhitoujianli.authing.cn
 ```
 
@@ -148,9 +148,9 @@ App Secret: 6xxxxxxxxxxxxxxx
 
 ```bash
 # ========== Authing配置 ==========
-AUTHING_USER_POOL_ID=6xxxxxxxxxxxxxxx
-AUTHING_APP_ID=6xxxxxxxxxxxxxxx
-AUTHING_APP_SECRET=6xxxxxxxxxxxxxxx
+AUTHING_USER_POOL_ID=<Your-User-Pool-ID-From-Authing>
+AUTHING_APP_ID=<Your-App-ID-From-Authing>
+AUTHING_APP_SECRET=<Your-App-Secret-From-Authing>
 AUTHING_APP_HOST=https://zhitoujianli.authing.cn
 
 # ========== JWT配置 ==========

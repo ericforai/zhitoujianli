@@ -61,7 +61,7 @@ const Login: React.FC = () => {
         console.log('📍 当前域名:', window.location.hostname);
         console.log('📍 当前端口:', window.location.port);
         console.log('📍 当前完整URL:', window.location.href);
-        console.log('🎯 目标跳转地址: http://localhost:8080/');
+        console.log('🎯 目标跳转地址: https://zhitoujianli.com/');
         console.log('⏰ 1秒后执行跳转...');
         
         // 设置跨域Cookie以便后台管理能够读取Token
@@ -73,9 +73,9 @@ const Login: React.FC = () => {
         
         setTimeout(() => {
           // 跳转到后端应用程序
-          console.log('🚀 执行跳转到: http://localhost:8080/');
+          console.log('🚀 执行跳转到: https://zhitoujianli.com/');
           console.log('🔧 跳转前最后检查 - 当前URL:', window.location.href);
-          window.location.href = 'http://localhost:8080/';
+          window.location.href = 'https://zhitoujianli.com/';
         }, 1000);
       } else {
         console.log('❌ 登录失败:', result.message);
@@ -134,7 +134,7 @@ const Login: React.FC = () => {
         console.log('🔍 手机号登录成功，准备跳转...');
         console.log('📍 当前域名:', window.location.hostname);
         console.log('📍 当前端口:', window.location.port);
-        console.log('🎯 目标跳转地址: http://localhost:8080/');
+        console.log('🎯 目标跳转地址: https://zhitoujianli.com/');
         
         // 设置跨域Cookie以便后台管理能够读取Token
         if (result.token) {
@@ -145,8 +145,8 @@ const Login: React.FC = () => {
         
         setTimeout(() => {
           // 跳转到后端应用程序
-          console.log('🚀 执行跳转到: http://localhost:8080/');
-          window.location.href = 'http://localhost:8080/';
+          console.log('🚀 执行跳转到: https://zhitoujianli.com/');
+          window.location.href = 'https://zhitoujianli.com/';
         }, 1000);
       } else {
         setError(result.message || '登录失败，请检查验证码');

@@ -13,7 +13,7 @@
     "stage" : [ "不限" ],
     "expectedSalary" : [ 30, 50 ],
     "waitTime" : 60,
-    "filterDeadHR" : false,
+    "filterDeadHR" : true,
     "enableAI" : false,
     "enableSmartGreeting" : true,
     "sendImgResume" : false,
@@ -29,5 +29,5 @@
   "userId" : "68dba0e3d9c27ebb0d93aa42",
   "userEmail" : "demo@example.com",
   "username" : "demo_user",
-  "lastModified" : 1759318097903
+  "lastModified" : 1759375371514
 }
