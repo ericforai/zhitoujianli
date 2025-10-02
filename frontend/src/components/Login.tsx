@@ -75,7 +75,7 @@ const Login: React.FC = () => {
           // 动态检测环境并跳转
           const redirectUrl = window.location.hostname === 'localhost' ? 
             'http://localhost:8080/' : 
-            `https://${window.location.hostname}/`;
+            'https://zhitoujianli.com/';
           
           console.log('🚀 执行跳转到:', redirectUrl);
           console.log('🔧 跳转前最后检查 - 当前URL:', window.location.href);
@@ -151,7 +151,7 @@ const Login: React.FC = () => {
           // 动态检测环境并跳转
           const redirectUrl = window.location.hostname === 'localhost' ? 
             'http://localhost:8080/' : 
-            `https://${window.location.hostname}/`;
+            'https://zhitoujianli.com/';
           
           console.log('🚀 执行跳转到:', redirectUrl);
           console.log('🔧 跳转前最后检查 - 当前URL:', window.location.href);

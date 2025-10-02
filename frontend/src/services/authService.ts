@@ -63,7 +63,7 @@ apiClient.interceptors.response.use(
           }
         } else {
           // 生产环境
-          window.location.href = '/login';
+          window.location.href = 'https://zhitoujianli.com/login';
         }
       }
     }
@@ -203,7 +203,7 @@ export const authService = {
         }
       } else {
         // 生产环境
-        window.location.href = '/login';
+        window.location.href = 'https://zhitoujianli.com/login';
       }
     }
   },
