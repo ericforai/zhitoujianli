@@ -1,0 +1,88 @@
+# 火山云部署配置文件
+# 智投简历项目 - 火山云部署方案
+
+version: '3.8'
+
+services:
+  # 前端服务 - React应用
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+      - REACT_APP_API_URL=https://zhitoujianli.com/api
+      - REACT_APP_AUTHING_DOMAIN=https://zhitoujianli.authing.cn
+      - REACT_APP_AUTHING_APP_ID=68db6e4e85de9cb8daf2b3d2
+      - REACT_APP_AUTHING_USER_POOL_ID=68db6e4c4f248dd866413bc2
+      - SITE_URL=https://zhitoujianli.com
+    depends_on:
+      - backend
+    networks:
+      - zhitoujianli-network
+    restart: unless-stopped
+
+  # 后端服务 - Spring Boot应用
+  backend:
+    build:
+      context: ./backend/get_jobs
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=production
+      - SERVER_PORT=8080
+      - AUTHING_USER_POOL_ID=68db6e4c4f248dd866413bc2
+      - AUTHING_APP_ID=68db6e4e85de9cb8daf2b3d2
+      - AUTHING_APP_SECRET=${AUTHING_APP_SECRET}
+      - BASE_URL=https://api.deepseek.com
+      - API_KEY=${DEEPSEEK_API_KEY}
+      - MODEL=deepseek-chat
+    volumes:
+      - ./user_data:/app/user_data
+    networks:
+      - zhitoujianli-network
+    restart: unless-stopped
+
+  # 博客服务 - Astro应用
+  blog:
+    build:
+      context: ./blog/zhitoujianli-blog
+      dockerfile: Dockerfile
+    ports:
+      - "4321:4321"
+    environment:
+      - NODE_ENV=production
+      - SITE_URL=https://zhitoujianli.com
+    networks:
+      - zhitoujianli-network
+    restart: unless-stopped
+
+  # Nginx反向代理
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./frontend/build:/usr/share/nginx/html:ro
+      - ./blog/zhitoujianli-blog/dist:/usr/share/nginx/html/blog:ro
+    depends_on:
+      - frontend
+      - backend
+      - blog
+    networks:
+      - zhitoujianli-network
+    restart: unless-stopped
+
+networks:
+  zhitoujianli-network:
+    driver: bridge
+
+volumes:
+  user_data:
+    driver: local
+
