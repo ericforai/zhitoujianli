@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API连接测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success {
+            border-color: #28a745;
+            background-color: #d4edda;
+        }
+        .error {
+            border-color: #dc3545;
+            background-color: #f8d7da;
+        }
+        .warning {
+            border-color: #ffc107;
+            background-color: #fff3cd;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 5px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 API连接测试</h1>
+        
+        <div class="test-section">
+            <h3>🎯 测试目标</h3>
+            <p>验证前端能否正确连接到后端API，特别是登录接口</p>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 测试步骤</h3>
+            <ol>
+                <li>点击"测试后端API连接"按钮</li>
+                <li>点击"测试登录接口"按钮</li>
+                <li>观察返回结果和日志信息</li>
+                <li>如果测试成功，可以尝试实际登录</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 测试结果</h3>
+            <div id="results"></div>
+            <div id="log" class="log"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🚀 快速操作</h3>
+            <button onclick="testBackendConnection()" class="button">测试后端API连接</button>
+            <button onclick="testLoginAPI()" class="button">测试登录接口</button>
+            <button onclick="testFrontendLogin()" class="button">测试前端登录页面</button>
+            <button onclick="clearLog()" class="button">清空日志</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📖 配置信息</h3>
+            <ul>
+                <li><strong>前端地址：</strong> http://localhost:3000</li>
+                <li><strong>后端地址：</strong> http://localhost:8080</li>
+                <li><strong>API地址：</strong> http://localhost:8080/api</li>
+                <li><strong>登录接口：</strong> http://localhost:8080/api/auth/login/email</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            logEntry.style.color = type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#333';
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function testBackendConnection() {
+            log('🔍 开始测试后端API连接...');
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    log('✅ 后端API连接成功', 'success');
+                    document.getElementById('results').innerHTML = '<div class="test-section success"><h4>✅ 后端API连接正常</h4><p>后端服务运行正常，可以接收请求</p></div>';
+                } else {
+                    log(`❌ 后端API响应异常: ${response.status} ${response.statusText}`, 'error');
+                    document.getElementById('results').innerHTML = '<div class="test-section error"><h4>❌ 后端API响应异常</h4><p>请检查后端服务是否正常运行</p></div>';
+                }
+            } catch (error) {
+                log(`❌ 后端API连接失败: ${error.message}`, 'error');
+                document.getElementById('results').innerHTML = '<div class="test-section error"><h4>❌ 后端API连接失败</h4><p>请确保后端服务运行在 http://localhost:8080</p></div>';
+            }
+        }
+
+        async function testLoginAPI() {
+            log('🔍 开始测试登录接口...');
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/login/email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: '1@1.com',
+                        password: '123456'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    log('✅ 登录接口测试成功', 'success');
+                    log(`📝 返回Token: ${data.token.substring(0, 20)}...`);
+                    log(`👤 用户信息: ${data.user.email}`);
+                    document.getElementById('results').innerHTML = '<div class="test-section success"><h4>✅ 登录接口测试成功</h4><p>接口正常，返回了有效的Token和用户信息</p></div>';
+                } else {
+                    log(`❌ 登录接口测试失败: ${data.message || '未知错误'}`, 'error');
+                    document.getElementById('results').innerHTML = '<div class="test-section error"><h4>❌ 登录接口测试失败</h4><p>请检查登录凭据或后端配置</p></div>';
+                }
+            } catch (error) {
+                log(`❌ 登录接口请求失败: ${error.message}`, 'error');
+                document.getElementById('results').innerHTML = '<div class="test-section error"><h4>❌ 登录接口请求失败</h4><p>网络请求异常，请检查连接</p></div>';
+            }
+        }
+
+        function testFrontendLogin() {
+            log('🔍 打开前端登录页面...');
+            window.open('http://localhost:3000/login', '_blank');
+        }
+
+        // 页面加载时自动测试
+        window.addEventListener('load', () => {
+            log('🚀 API连接测试页面已加载');
+            log('💡 点击上方按钮开始测试');
+        });
+    </script>
+</body>
+</html>
