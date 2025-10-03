@@ -3,7 +3,7 @@
  * 用于验证登录后的跳转逻辑
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 
@@ -17,10 +17,10 @@ const TestLogin: React.FC = () => {
   const handleLogin = async () => {
     setLoading(true);
     setMessage('正在登录...');
-    
+
     try {
       const result = await authService.loginByEmail(email, password);
-      
+
       if (result.success) {
         setMessage('登录成功！正在跳转到简历投递页面...');
         setTimeout(() => {
@@ -46,7 +46,7 @@ const TestLogin: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold text-center mb-6">测试登录跳转</h1>
-        
+
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -59,7 +59,7 @@ const TestLogin: React.FC = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               密码
@@ -71,7 +71,7 @@ const TestLogin: React.FC = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          
+
           <button
             onClick={handleLogin}
             disabled={loading}
@@ -79,14 +79,14 @@ const TestLogin: React.FC = () => {
           >
             {loading ? '登录中...' : '测试登录'}
           </button>
-          
+
           <button
             onClick={checkAuth}
             className="w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700"
           >
             检查登录状态
           </button>
-          
+
           {message && (
             <div className="p-3 bg-gray-100 rounded-md text-sm">
               {message}
