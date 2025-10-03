@@ -1,11 +1,40 @@
 ---
 title: "2025年就业市场趋势分析：AI时代的职业新机遇"
 description: "深度分析2025年就业市场趋势，探讨AI技术发展对各行各业的影响，为求职者提供前瞻性的职业规划建议。"
+excerpt: "2025年，AI技术正在重塑就业市场格局。本文深入分析新兴职业机会、技能需求变化、薪资趋势等关键数据，为求职者提供前瞻性的职业规划建议。"
 pubDate: 2025-10-03
 author: "智投简历市场研究团队"
 heroImage: "/_astro/default.CZ816Hke_Z2gd2WR.jpg"
 tags: ["行业趋势", "就业市场", "AI影响", "职业规划"]
 category: "行业分析"
+keywords: "2025就业趋势,AI时代职业,就业市场分析,职业新机遇,AI影响,就业前景,职业规划,行业分析,求职趋势,职场变化"
+structuredData: |
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "2025年就业市场趋势分析：AI时代的职业新机遇",
+    "author": {
+      "@type": "Organization",
+      "name": "智投简历市场研究团队"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "智投简历",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "http://115.190.182.95/logo.png"
+      }
+    },
+    "datePublished": "2025-10-03",
+    "dateModified": "2025-10-03",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "http://115.190.182.95/blog/industry-trends-analysis/"
+    },
+    "description": "深度分析2025年就业市场趋势，探讨AI技术发展对各行各业的影响，为求职者提供前瞻性的职业规划建议。",
+    "image": "http://115.190.182.95/blog/_astro/default.CZ816Hke_Z2gd2WR.jpg",
+    "keywords": "2025就业趋势,AI时代职业,就业市场分析,职业新机遇,AI影响,就业前景,职业规划,行业分析,求职趋势,职场变化"
+  }
 ---
 
 # 2025年就业市场趋势分析：AI时代的职业新机遇

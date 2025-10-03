@@ -1,16 +1,47 @@
 ---
 title: 简历优化技巧 - 让你的简历脱颖而出
 description: 分享实用的简历优化技巧，帮助求职者提高简历通过率，获得更多面试机会。
+excerpt: 一份优秀的简历是求职成功的第一步。本文分享简历优化的核心技巧，从格式排版到内容撰写，从关键词优化到成果量化，助你打造一份让HR眼前一亮的简历。
 pubDate: 2024-01-20
 author: 智投简历团队
 image: ~/assets/images/hero-image.png
 tags: ["简历优化", "求职技巧", "职场建议"]
 category: "求职指南"
+keywords: "简历优化,求职技巧,简历制作,求职指导,简历模板,简历格式,简历内容,简历关键词,简历排版,求职简历"
+structuredData: |
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "简历优化技巧 - 让你的简历脱颖而出",
+    "author": {
+      "@type": "Organization",
+      "name": "智投简历团队"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "智投简历",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "http://115.190.182.95/logo.png"
+      }
+    },
+    "datePublished": "2024-01-20",
+    "dateModified": "2024-01-20",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "http://115.190.182.95/blog/resume-optimization-tips/"
+    },
+    "description": "分享实用的简历优化技巧，帮助求职者提高简历通过率，获得更多面试机会。",
+    "image": "http://115.190.182.95/blog/_astro/default.CZ816Hke_Z2gd2WR.jpg",
+    "keywords": "简历优化,求职技巧,简历制作,求职指导,简历模板,简历格式,简历内容,简历关键词,简历排版,求职简历"
+  }
 ---
 
 # 简历优化技巧 - 让你的简历脱颖而出
 
 在竞争激烈的求职市场中，一份优秀的简历是获得面试机会的关键。本文将分享一些实用的简历优化技巧，帮助你的简历在众多求职者中脱颖而出。
+
+> 💡 **相关推荐：** 简历优化完成后，学习如何[面试准备](/blog/interview-preparation-guide/)也很重要！
 
 ## 1. 简历格式优化
 

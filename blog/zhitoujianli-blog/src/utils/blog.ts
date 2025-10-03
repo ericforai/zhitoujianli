@@ -1,9 +1,9 @@
 import type { PaginateFunction } from 'astro';
-import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
-import type { Post } from '~/types';
+import { getCollection, render } from 'astro:content';
 import { APP_BLOG } from 'astrowind:config';
-import { cleanSlug, trimSlash, BLOG_BASE, POST_PERMALINK_PATTERN, CATEGORY_BASE, TAG_BASE } from './permalinks';
+import type { Post } from '~/types';
+import { BLOG_BASE, CATEGORY_BASE, cleanSlug, POST_PERMALINK_PATTERN, TAG_BASE, trimSlash } from './permalinks';
 
 const generatePermalink = async ({
   id,
@@ -55,6 +55,8 @@ const getNormalizedPost = async (post: CollectionEntry<'post'>): Promise<Post> =
     author,
     draft = false,
     metadata = {},
+    keywords,
+    structuredData,
   } = data;
 
   const slug = cleanSlug(id); // cleanSlug(rawSlug.split('/').pop());
@@ -88,6 +90,9 @@ const getNormalizedPost = async (post: CollectionEntry<'post'>): Promise<Post> =
     category: category,
     tags: tags,
     author: author,
+
+    keywords: keywords,
+    structuredData: structuredData,
 
     draft: draft,
 

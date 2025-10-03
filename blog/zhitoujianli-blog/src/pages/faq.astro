@@ -1,0 +1,449 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import { Icon } from 'astro-icon/components';
+import Breadcrumb from '~/components/common/Breadcrumb.astro';
+
+const metadata = {
+  title: '智投简历常见问题 - FAQ',
+  description: '智投简历常见问题解答，包括账户注册、简历上传、AI匹配、投递功能等各个方面的问题解答。',
+};
+---
+
+<Layout metadata={metadata}>
+  <section class="px-4 py-16 sm:px-6 mx-auto lg:px-8 lg:py-20 max-w-4xl">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6">
+      <Breadcrumb
+        items={[
+          { text: '常见问题', current: true }
+        ]}
+      />
+    </div>
+
+    <div class="text-center mb-16">
+      <h1 class="font-bold font-heading text-4xl md:text-5xl leading-tighter tracking-tighter mb-6">
+        常见<span class="text-accent dark:text-white">问题</span>解答
+      </h1>
+      <p class="text-xl text-muted dark:text-slate-400 max-w-3xl mx-auto">
+        快速找到您关心的问题答案，让求职过程更加顺畅
+      </p>
+    </div>
+
+    <!-- 搜索框 -->
+    <div class="mb-12">
+      <div class="relative max-w-md mx-auto">
+        <input
+          type="text"
+          placeholder="搜索问题..."
+          class="w-full px-4 py-3 pl-10 pr-4 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-800 dark:text-white"
+          id="faq-search"
+        />
+        <Icon name="tabler:search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+      </div>
+    </div>
+
+    <!-- 分类导航 -->
+    <div class="mb-12">
+      <div class="flex flex-wrap justify-center gap-2">
+        <button class="faq-category px-4 py-2 rounded-full border border-gray-300 dark:border-gray-600 hover:bg-primary hover:text-white transition-colors" data-category="all">
+          全部问题
+        </button>
+        <button class="faq-category px-4 py-2 rounded-full border border-gray-300 dark:border-gray-600 hover:bg-primary hover:text-white transition-colors" data-category="account">
+          账户相关
+        </button>
+        <button class="faq-category px-4 py-2 rounded-full border border-gray-300 dark:border-gray-600 hover:bg-primary hover:text-white transition-colors" data-category="resume">
+          简历功能
+        </button>
+        <button class="faq-category px-4 py-2 rounded-full border border-gray-300 dark:border-gray-600 hover:bg-primary hover:text-white transition-colors" data-category="ai">
+          AI匹配
+        </button>
+        <button class="faq-category px-4 py-2 rounded-full border border-gray-300 dark:border-gray-600 hover:bg-primary hover:text-white transition-colors" data-category="payment">
+          付费功能
+        </button>
+      </div>
+    </div>
+
+    <!-- FAQ列表 -->
+    <div class="space-y-6">
+      <!-- 账户相关 -->
+      <div class="faq-item" data-category="account">
+        <details class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+          <summary class="font-semibold cursor-pointer flex items-center text-lg">
+            <Icon name="tabler:chevron-right" class="w-5 h-5 mr-3 transition-transform duration-200" />
+            如何注册智投简历账户？
+          </summary>
+          <div class="mt-4 text-muted dark:text-slate-400 pl-8">
+            <p>注册非常简单：</p>
+            <ol class="list-decimal list-inside mt-2 space-y-1">
+              <li>访问智投简历官网，点击"立即注册"</li>
+              <li>输入邮箱地址或手机号码</li>
+              <li>设置登录密码</li>
+              <li>完成邮箱或短信验证</li>
+              <li>填写基本个人信息</li>
+            </ol>
+            <p class="mt-3">注册完成后即可开始使用所有基础功能。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-item" data-category="account">
+        <details class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+          <summary class="font-semibold cursor-pointer flex items-center text-lg">
+            <Icon name="tabler:chevron-right" class="w-5 h-5 mr-3 transition-transform duration-200" />
+            忘记密码怎么办？
+          </summary>
+          <div class="mt-4 text-muted dark:text-slate-400 pl-8">
+            <p>如果您忘记了密码，可以按以下步骤重置：</p>
+            <ol class="list-decimal list-inside mt-2 space-y-1">
+              <li>在登录页面点击"忘记密码"</li>
+              <li>输入注册时使用的邮箱或手机号</li>
+              <li>查收验证码并输入</li>
+              <li>设置新密码</li>
+            </ol>
+            <p class="mt-3">如果仍有问题，请联系客服：contact@zhitoujianli.com</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-item" data-category="account">
+        <details class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+          <summary class="font-semibold cursor-pointer flex items-center text-lg">
+            <Icon name="tabler:chevron-right" class="w-5 h-5 mr-3 transition-transform duration-200" />
+            如何注销账户？
+          </summary>
+          <div class="mt-4 text-muted dark:text-slate-400 pl-8">
+            <p>如果您需要注销账户，请按以下步骤操作：</p>
+            <ol class="list-decimal list-inside mt-2 space-y-1">
+              <li>登录账户，进入"账户设置"</li>
+              <li>找到"账户管理"选项</li>
+              <li>点击"注销账户"</li>
+              <li>确认注销操作</li>
+            </ol>
+            <p class="mt-3 text-red-600 dark:text-red-400">注意：注销后所有数据将被永久删除，无法恢复。</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- 简历功能 -->
+      <div class="faq-item" data-category="resume">
+        <details class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+          <summary class="font-semibold cursor-pointer flex items-center text-lg">
+            <Icon name="tabler:chevron-right" class="w-5 h-5 mr-3 transition-transform duration-200" />
+            支持哪些简历格式？
+          </summary>
+          <div class="mt-4 text-muted dark:text-slate-400 pl-8">
+            <p>我们支持多种主流简历格式：</p>
+            <ul class="list-disc list-inside mt-2 space-y-1">
+              <li><strong>PDF格式</strong>：.pdf（推荐）</li>
+              <li><strong>Word文档</strong>：.doc, .docx</li>
+              <li><strong>纯文本</strong>：.txt</li>
+            </ul>
+            <p class="mt-3">建议使用PDF格式，解析准确率最高，格式保持最好。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-item" data-category="resume">
+        <details class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+          <summary class="font-semibold cursor-pointer flex items-center text-lg">
+            <Icon name="tabler:chevron-right" class="w-5 h-5 mr-3 transition-transform duration-200" />
+            简历解析不准确怎么办？
+          </summary>
+          <div class="mt-4 text-muted dark:text-slate-400 pl-8">
+            <p>如果AI解析的简历信息不准确，您可以：</p>
+            <ul class="list-disc list-inside mt-2 space-y-1">
+              <li>手动编辑简历信息</li>
+              <li>重新上传格式更清晰的简历</li>
+              <li>使用我们的在线简历编辑器</li>
+              <li>联系客服获取帮助</li>
+            </ul>
+            <p class="mt-3">我们会持续优化AI解析算法，提高准确率。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-item" data-category="resume">
+        <details class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+          <summary class="font-semibold cursor-pointer flex items-center text-lg">
+            <Icon name="tabler:chevron-right" class="w-5 h-5 mr-3 transition-transform duration-200" />
+            如何优化简历内容？
+          </summary>
+          <div class="mt-4 text-muted dark:text-slate-400 pl-8">
+            <p>我们的AI优化功能可以帮您：</p>
+            <ul class="list-disc list-inside mt-2 space-y-1">
+              <li>根据目标职位调整关键词</li>
+              <li>优化工作经历描述</li>
+              <li>改进格式和排版</li>
+              <li>提升整体专业度</li>
+            </ul>
+            <p class="mt-3">您也可以在"简历管理"中查看优化建议。</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- AI匹配 -->
+      <div class="faq-item" data-category="ai">
+        <details class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+          <summary class="font-semibold cursor-pointer flex items-center text-lg">
+            <Icon name="tabler:chevron-right" class="w-5 h-5 mr-3 transition-transform duration-200" />
+            AI匹配的原理是什么？
+          </summary>
+          <div class="mt-4 text-muted dark:text-slate-400 pl-8">
+            <p>我们的AI匹配算法基于以下技术：</p>
+            <ul class="list-disc list-inside mt-2 space-y-1">
+              <li><strong>自然语言处理</strong>：分析职位描述和简历内容</li>
+              <li><strong>机器学习</strong>：学习成功案例的匹配模式</li>
+              <li><strong>语义理解</strong>：理解技能和经验的深层含义</li>
+              <li><strong>行业知识</strong>：结合行业特点和趋势</li>
+            </ul>
+            <p class="mt-3">通过多维度分析，提供精准的匹配度评分。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-item" data-category="ai">
+        <details class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+          <summary class="font-semibold cursor-pointer flex items-center text-lg">
+            <Icon name="tabler:chevron-right" class="w-5 h-5 mr-3 transition-transform duration-200" />
+            如何提高匹配度？
+          </summary>
+          <div class="mt-4 text-muted dark:text-slate-400 pl-8">
+            <p>提高匹配度的建议：</p>
+            <ul class="list-disc list-inside mt-2 space-y-1">
+              <li>完善简历信息，特别是工作经历和技能</li>
+              <li>使用与目标职位相关的关键词</li>
+              <li>定期更新简历内容</li>
+              <li>设置准确的求职偏好</li>
+              <li>关注行业发展趋势</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-item" data-category="ai">
+        <details class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+          <summary class="font-semibold cursor-pointer flex items-center text-lg">
+            <Icon name="tabler:chevron-right" class="w-5 h-5 mr-3 transition-transform duration-200" />
+            匹配度评分如何计算？
+          </summary>
+          <div class="mt-4 text-muted dark:text-slate-400 pl-8">
+            <p>匹配度评分综合考虑以下因素：</p>
+            <ul class="list-disc list-inside mt-2 space-y-1">
+              <li><strong>技能匹配</strong>：技能要求与简历技能的重合度</li>
+              <li><strong>经验匹配</strong>：工作经验年限和类型匹配</li>
+              <li><strong>教育背景</strong>：学历和专业背景匹配</li>
+              <li><strong>地理位置</strong>：工作地点偏好匹配</li>
+              <li><strong>薪资期望</strong>：薪资范围匹配程度</li>
+            </ul>
+            <p class="mt-3">最终评分范围为0-100分，80分以上为高匹配度。</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- 付费功能 -->
+      <div class="faq-item" data-category="payment">
+        <details class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+          <summary class="font-semibold cursor-pointer flex items-center text-lg">
+            <Icon name="tabler:chevron-right" class="w-5 h-5 mr-3 transition-transform duration-200" />
+            免费版和付费版有什么区别？
+          </summary>
+          <div class="mt-4 text-muted dark:text-slate-400 pl-8">
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <h4 class="font-semibold text-green-600 dark:text-green-400 mb-2">免费版</h4>
+                <ul class="list-disc list-inside space-y-1 text-sm">
+                  <li>基础简历上传和解析</li>
+                  <li>每日5次AI匹配</li>
+                  <li>基础简历优化建议</li>
+                  <li>投递状态跟踪</li>
+                </ul>
+              </div>
+              <div>
+                <h4 class="font-semibold text-blue-600 dark:text-blue-400 mb-2">付费版</h4>
+                <ul class="list-disc list-inside space-y-1 text-sm">
+                  <li>无限次AI匹配</li>
+                  <li>高级简历优化</li>
+                  <li>智能打招呼语生成</li>
+                  <li>详细数据分析报告</li>
+                  <li>优先客服支持</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-item" data-category="payment">
+        <details class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+          <summary class="font-semibold cursor-pointer flex items-center text-lg">
+            <Icon name="tabler:chevron-right" class="w-5 h-5 mr-3 transition-transform duration-200" />
+            如何升级到付费版？
+          </summary>
+          <div class="mt-4 text-muted dark:text-slate-400 pl-8">
+            <p>升级付费版非常简单：</p>
+            <ol class="list-decimal list-inside mt-2 space-y-1">
+              <li>登录账户，进入"会员中心"</li>
+              <li>选择合适的付费套餐</li>
+              <li>选择支付方式（微信、支付宝、银行卡）</li>
+              <li>完成支付即可立即生效</li>
+            </ol>
+            <p class="mt-3">付费版支持月付、季付、年付等多种方式，年付享受更多优惠。</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- 其他问题 -->
+      <div class="faq-item" data-category="other">
+        <details class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+          <summary class="font-semibold cursor-pointer flex items-center text-lg">
+            <Icon name="tabler:chevron-right" class="w-5 h-5 mr-3 transition-transform duration-200" />
+            如何联系客服？
+          </summary>
+          <div class="mt-4 text-muted dark:text-slate-400 pl-8">
+            <p>我们提供多种联系方式：</p>
+            <ul class="list-disc list-inside mt-2 space-y-1">
+              <li><strong>在线客服</strong>：工作日9:00-18:00在线</li>
+              <li><strong>邮箱支持</strong>：contact@zhitoujianli.com</li>
+              <li><strong>微信客服</strong>：zhitoujianli</li>
+              <li><strong>QQ群</strong>：123456789</li>
+            </ul>
+            <p class="mt-3">付费用户享受优先客服支持。</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-item" data-category="other">
+        <details class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+          <summary class="font-semibold cursor-pointer flex items-center text-lg">
+            <Icon name="tabler:chevron-right" class="w-5 h-5 mr-3 transition-transform duration-200" />
+            数据安全如何保障？
+          </summary>
+          <div class="mt-4 text-muted dark:text-slate-400 pl-8">
+            <p>我们采用多重安全措施保护您的数据：</p>
+            <ul class="list-disc list-inside mt-2 space-y-1">
+              <li><strong>数据加密</strong>：使用SSL/TLS加密传输</li>
+              <li><strong>访问控制</strong>：严格的权限管理</li>
+              <li><strong>定期备份</strong>：多重备份保障</li>
+              <li><strong>隐私保护</strong>：严格遵循隐私政策</li>
+              <li><strong>合规认证</strong>：符合相关法规要求</li>
+            </ul>
+            <p class="mt-3">您的个人信息安全是我们的首要任务。</p>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- 未找到结果提示 -->
+    <div id="no-results" class="text-center py-12 hidden">
+      <Icon name="tabler:search-off" class="w-16 h-16 text-gray-400 mx-auto mb-4" />
+      <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">未找到相关问题</h3>
+      <p class="text-muted dark:text-slate-400 mb-4">试试其他关键词或联系我们的客服</p>
+      <a href="http://115.190.182.95#contact" class="btn btn-primary">
+        联系客服
+      </a>
+    </div>
+
+    <!-- 联系支持 -->
+    <div class="mt-16 text-center bg-gray-50 dark:bg-slate-800 rounded-lg p-8">
+      <h3 class="text-2xl font-semibold mb-4">还有其他问题？</h3>
+      <p class="text-muted dark:text-slate-400 mb-6">
+        我们的专业团队随时为您提供帮助
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a
+          href="http://115.190.182.95#contact"
+          class="btn btn-primary inline-flex items-center"
+        >
+          <Icon name="tabler:headphones" class="w-4 h-4 mr-2" />
+          联系客服
+        </a>
+        <a
+          href="/user-guide"
+          class="btn btn-secondary inline-flex items-center"
+        >
+          <Icon name="tabler:book" class="w-4 h-4 mr-2" />
+          查看使用指南
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  // FAQ搜索和分类功能
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('faq-search');
+    const faqItems = document.querySelectorAll('.faq-item');
+    const categoryButtons = document.querySelectorAll('.faq-category');
+    const noResults = document.getElementById('no-results');
+
+    let currentCategory = 'all';
+    let currentSearch = '';
+
+    // 搜索功能
+    searchInput.addEventListener('input', function(e) {
+      currentSearch = e.target.value.toLowerCase();
+      filterFAQs();
+    });
+
+    // 分类功能
+    categoryButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        currentCategory = this.dataset.category;
+
+        // 更新按钮状态
+        categoryButtons.forEach(btn => {
+          btn.classList.remove('bg-primary', 'text-white');
+          btn.classList.add('hover:bg-primary', 'hover:text-white');
+        });
+        this.classList.add('bg-primary', 'text-white');
+        this.classList.remove('hover:bg-primary', 'hover:text-white');
+
+        filterFAQs();
+      });
+    });
+
+    function filterFAQs() {
+      let visibleCount = 0;
+
+      faqItems.forEach(item => {
+        const category = item.dataset.category;
+        const text = item.textContent.toLowerCase();
+
+        const matchesCategory = currentCategory === 'all' || category === currentCategory;
+        const matchesSearch = currentSearch === '' || text.includes(currentSearch);
+
+        if (matchesCategory && matchesSearch) {
+          item.style.display = 'block';
+          visibleCount++;
+        } else {
+          item.style.display = 'none';
+        }
+      });
+
+      // 显示/隐藏无结果提示
+      if (visibleCount === 0) {
+        noResults.classList.remove('hidden');
+      } else {
+        noResults.classList.add('hidden');
+      }
+    }
+
+    // 默认激活"全部问题"按钮
+    categoryButtons[0].classList.add('bg-primary', 'text-white');
+    categoryButtons[0].classList.remove('hover:bg-primary', 'hover:text-white');
+  });
+</script>
+
+<style>
+details[open] summary .tabler-chevron-right {
+  transform: rotate(90deg);
+}
+
+.faq-category {
+  transition: all 0.2s ease;
+}
+
+.faq-item {
+  transition: all 0.3s ease;
+}
+</style>

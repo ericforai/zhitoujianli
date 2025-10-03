@@ -1,4 +1,3 @@
-import React from 'react';
 
 const HeroSection = () => {
   return (
@@ -11,11 +10,11 @@ const HeroSection = () => {
               智能投递 · 精准匹配
             </span>
           </h1>
-          
+
           <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
             用AI帮你更快拿到心仪Offer
           </p>
-          
+
                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
                    <a href="#contact" className="bg-gradient-primary text-white px-8 py-4 rounded-lg text-lg font-semibold hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg text-center">
                      立即体验
@@ -24,7 +23,7 @@ const HeroSection = () => {
                      免费开始
                    </a>
                  </div>
-          
+
           <div className="mt-12">
             <p className="text-sm text-gray-500 mb-4">已有 10,000+ 用户选择智投简历</p>
             <div className="flex justify-center space-x-8 opacity-60">

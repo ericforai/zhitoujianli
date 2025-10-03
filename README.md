@@ -10,7 +10,7 @@
 zhitoujianli/
 ├── README.md                          # 项目主文档
 ├── .gitignore                         # Git 忽略文件
-├── 
+├──
 ├── docs/                              # 文档目录
 │   ├── deployment/                    # 部署相关文档
 │   ├── technical/                     # 技术文档
@@ -88,7 +88,7 @@ zhitoujianli/
 ### AI技术
 - **DeepSeek API** - 主要AI服务
 - **OpenAI API** - 备用AI服务
-- **Ollama** - 本地AI部署
+
 
 ### 数据库
 - **MySQL** - 主数据库

@@ -1,18 +1,17 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import HeroSection from './components/HeroSection';
-import Features from './components/Features';
-import Demo from './components/Demo';
-import SmartGreeting from './components/SmartGreeting';
-import Pricing from './components/Pricing';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import BlogSection from './components/BlogSection';
 import Contact from './components/Contact';
+import Demo from './components/Demo';
+import Features from './components/Features';
 import Footer from './components/Footer';
-import Navigation from './components/Navigation';
+import HeroSection from './components/HeroSection';
 import Login from './components/Login';
+import Navigation from './components/Navigation';
+import Pricing from './components/Pricing';
 import Register from './components/Register';
 import ResumeDelivery from './components/ResumeDelivery';
-import PrivateRoute from './components/PrivateRoute';
+import SmartGreeting from './components/SmartGreeting';
 
 // 主页组件
 const HomePage: React.FC = () => {

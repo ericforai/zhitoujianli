@@ -1,0 +1,42 @@
+---
+import { Icon } from 'astro-icon/components';
+---
+
+<div id="network-status" class="fixed top-4 right-4 z-50 hidden">
+  <div class="bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2">
+    <Icon name="tabler:wifi-off" class="w-4 h-4" />
+    <span class="text-sm font-medium">网络连接已断开</span>
+  </div>
+</div>
+
+<script>
+  // 网络状态检测
+  function updateNetworkStatus() {
+    const statusEl = document.getElementById('network-status');
+    if (!statusEl) return;
+
+    if (!navigator.onLine) {
+      statusEl.classList.remove('hidden');
+    } else {
+      statusEl.classList.add('hidden');
+    }
+  }
+
+  // 监听网络状态变化
+  window.addEventListener('online', () => {
+    const statusEl = document.getElementById('network-status');
+    if (statusEl) {
+      statusEl.classList.add('hidden');
+    }
+  });
+
+  window.addEventListener('offline', () => {
+    const statusEl = document.getElementById('network-status');
+    if (statusEl) {
+      statusEl.classList.remove('hidden');
+    }
+  });
+
+  // 初始化检查
+  updateNetworkStatus();
+</script>

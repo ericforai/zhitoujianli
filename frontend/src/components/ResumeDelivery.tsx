@@ -1,17 +1,17 @@
 /**
  * 投递简历页面组件
- * 
+ *
  * 用户登录后的主要功能页面，包含：
  * 1. 简历管理
  * 2. 职位搜索和投递
  * 3. 投递记录
  * 4. 智能匹配
- * 
+ *
  * @author ZhiTouJianLi Team
  * @since 2025-10-03
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { authService } from '../services/authService';
 
 const ResumeDelivery: React.FC = () => {
@@ -67,7 +67,7 @@ const ResumeDelivery: React.FC = () => {
             {/* 用户信息 */}
             <div className="flex items-center space-x-4">
               <span className="text-gray-700">欢迎，{user.username || user.email}</span>
-              <button 
+              <button
                 onClick={handleLogout}
                 className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
               >
@@ -134,13 +134,13 @@ const ResumeDelivery: React.FC = () => {
               <div className="mt-8">
                 <p className="text-gray-600">开始使用智投简历，让AI帮你找到心仪的工作！</p>
                 <div className="mt-4 flex space-x-4">
-                  <button 
+                  <button
                     onClick={() => setActiveTab('resume')}
                     className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
                   >
                     上传简历
                   </button>
-                  <button 
+                  <button
                     onClick={() => setActiveTab('jobs')}
                     className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors"
                   >

@@ -1,5 +1,5 @@
-import { z, defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { defineCollection, z } from 'astro:content';
 
 const metadataDefinition = () =>
   z
@@ -60,6 +60,9 @@ const postCollection = defineCollection({
     category: z.string().optional(),
     tags: z.array(z.string()).optional(),
     author: z.string().optional(),
+
+    keywords: z.string().optional(),
+    structuredData: z.string().optional(),
 
     metadata: metadataDefinition(),
   }),

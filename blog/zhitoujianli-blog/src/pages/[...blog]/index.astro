@@ -30,6 +30,7 @@ const metadata = merge(
   {
     title: post.title,
     description: post.excerpt,
+    keywords: post.keywords || '',
     robots: {
       index: blogPostRobots?.index,
       follow: blogPostRobots?.follow,
@@ -46,6 +47,9 @@ const metadata = merge(
 ---
 
 <Layout metadata={metadata}>
+  {post.structuredData && (
+    <script type="application/ld+json" set:html={post.structuredData} />
+  )}
   <SinglePost post={{ ...post, image: image }} url={url}>
     {post.Content ? <post.Content /> : <Fragment set:html={post.content || ''} />}
   </SinglePost>
