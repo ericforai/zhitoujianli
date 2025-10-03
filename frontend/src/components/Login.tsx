@@ -87,12 +87,8 @@ const Login: React.FC = () => {
         }
 
         setTimeout(() => {
-          // 跳转到BOSS直聘投递简历页面
-          const redirectUrl = 'https://www.zhipin.com/web/geek/job?ka=header_job';
-
-          console.log('🚀 执行跳转到BOSS直聘:', redirectUrl);
-          console.log('🔧 跳转前最后检查 - 当前URL:', window.location.href);
-          window.open(redirectUrl, '_blank');
+          // 跳转到项目内的简历投递页面
+          window.location.href = '/resume-delivery';
         }, 1000);
       } else {
         console.log('❌ 登录失败:', result.message);
@@ -161,12 +157,8 @@ const Login: React.FC = () => {
         }
 
         setTimeout(() => {
-          // 跳转到BOSS直聘投递简历页面
-          const redirectUrl = 'https://www.zhipin.com/web/geek/job?ka=header_job';
-
-          console.log('🚀 执行跳转到BOSS直聘:', redirectUrl);
-          console.log('🔧 跳转前最后检查 - 当前URL:', window.location.href);
-          window.open(redirectUrl, '_blank');
+          // 跳转到项目内的简历投递页面
+          window.location.href = '/resume-delivery';
         }, 1000);
       } else {
         setError(result.message || '登录失败，请检查验证码');

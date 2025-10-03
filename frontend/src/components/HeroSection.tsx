@@ -16,7 +16,7 @@ const HeroSection = () => {
           </p>
 
                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                   <a href="#contact" className="bg-gradient-primary text-white px-8 py-4 rounded-lg text-lg font-semibold hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg text-center">
+                   <a href="/resume-delivery" className="bg-gradient-primary text-white px-8 py-4 rounded-lg text-lg font-semibold hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg text-center">
                      立即体验
                    </a>
                    <a href="#pricing" className="border-2 border-primary-500 text-primary-500 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-primary-500 hover:text-white transition-all duration-300 text-center">

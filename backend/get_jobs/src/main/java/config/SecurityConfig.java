@@ -15,7 +15,7 @@ import security.JwtAuthenticationFilter;
 
 /**
  * Spring Security配置类
- * 
+ *
  * @author ZhiTouJianLi Team
  * @since 2025-09-30
  */
@@ -24,7 +24,7 @@ import security.JwtAuthenticationFilter;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    
+
     @Autowired
     private Dotenv dotenv;
 
@@ -39,15 +39,16 @@ public class SecurityConfig {
         http
             // 禁用CSRF，因为使用JWT
             .csrf(csrf -> csrf.disable())
-            
+
             // 配置CORS，允许前端访问
             .cors(cors -> cors.configurationSource(request -> {
                 var corsConfig = new org.springframework.web.cors.CorsConfiguration();
                 corsConfig.setAllowedOriginPatterns(java.util.Arrays.asList(
-                    "http://localhost:3000", 
-                    "http://localhost:3001", 
-                    "http://localhost:4321", 
+                    "http://localhost:3000",
+                    "http://localhost:3001",
+                    "http://localhost:4321",
                     "http://127.0.0.1:3000",
+                    "http://115.190.182.95",
                     "https://zhitoujianli.com",
                     "https://www.zhitoujianli.com",
                     "https://*.zhitoujianli.com"
@@ -58,10 +59,10 @@ public class SecurityConfig {
                 corsConfig.setMaxAge(3600L);
                 return corsConfig;
             }))
-            
+
             // 配置会话管理为无状态
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-            
+
         if (!securityEnabled) {
             // 如果安全认证被禁用，允许所有请求
             http.authorizeHttpRequests(authz -> authz
@@ -75,7 +76,7 @@ public class SecurityConfig {
                     "/api/auth/**",
                     "/api/status",       // 公开API状态接口
                     "/login",
-                    "/register", 
+                    "/register",
                     "/favicon.ico",
                     "/static/**",
                     "/css/**",
@@ -88,7 +89,7 @@ public class SecurityConfig {
                     "/resume-manager", // 简历管理页面
                     "/resume-parser"  // 简历解析页面
                 ).permitAll()
-                
+
                 // 需要认证的API端点和后台管理页面
                 .requestMatchers(
                     "/",              // 后台管理首页需要认证
@@ -107,19 +108,19 @@ public class SecurityConfig {
                     "/status",
                     "/logs"
                 ).authenticated()
-                
+
                 // 其他请求默认需要认证
                 .anyRequest().authenticated()
             )
-            
+
             // 配置未授权时的处理
             .exceptionHandling(exceptions -> exceptions
                 .authenticationEntryPoint((request, response, authException) -> {
                     // 检查请求是否为AJAX请求
                     String requestedWith = request.getHeader("X-Requested-With");
                     String acceptHeader = request.getHeader("Accept");
-                    
-                    if ("XMLHttpRequest".equals(requestedWith) || 
+
+                    if ("XMLHttpRequest".equals(requestedWith) ||
                         (acceptHeader != null && acceptHeader.contains("application/json"))) {
                         // AJAX请求返回JSON错误
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -133,7 +134,7 @@ public class SecurityConfig {
                     }
                 })
             )
-            
+
             // 添加JWT过滤器
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         }

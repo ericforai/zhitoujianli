@@ -26,6 +26,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Random;
 
 /**
  * 身份认证控制器 - 使用Authing REST API
@@ -47,6 +49,15 @@ public class AuthController {
 
     @Autowired
     private ManagementClient managementClient;
+
+    // 验证码存储 - 邮箱 -> {验证码, 过期时间}
+    private final Map<String, Map<String, Object>> verificationCodes = new ConcurrentHashMap<>();
+
+    // 验证码有效时间（5分钟）
+    private static final long CODE_EXPIRE_TIME = 5 * 60 * 1000;
+
+    // 验证码长度
+    private static final int CODE_LENGTH = 6;
 
     @Autowired
     private AuthenticationClient authenticationClient;
@@ -78,6 +89,7 @@ public class AuthController {
             email = request.get("email");
             String password = request.get("password");
             String username = request.get("username");
+            String verificationCode = request.get("verificationCode");
 
             if (email == null || password == null) {
                 return ResponseEntity.badRequest()
@@ -87,6 +99,19 @@ public class AuthController {
             if (password.length() < 6) {
                 return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "密码长度至少6位"));
+            }
+
+            // 验证邮箱验证码
+            if (verificationCode == null || verificationCode.isEmpty()) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "请输入邮箱验证码"));
+            }
+
+            // 检查邮箱是否已验证
+            Map<String, Object> codeInfo = verificationCodes.get(email);
+            if (codeInfo == null || !Boolean.TRUE.equals(codeInfo.get("verified"))) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "请先验证邮箱"));
             }
 
             // 检查Authing配置
@@ -110,6 +135,9 @@ public class AuthController {
 
             if (userResp != null && userResp.getData() != null && userResp.getData().getUserId() != null) {
                 log.info("✅ 用户注册成功，邮箱: {}, 用户ID: {}", email, userResp.getData().getUserId());
+
+                // 注册成功后清理验证码
+                verificationCodes.remove(email);
 
                 return ResponseEntity.ok(Map.of(
                     "success", true,
@@ -228,6 +256,162 @@ public class AuthController {
             log.error("❌ 登录异常", e);
             return ResponseEntity.internalServerError()
                 .body(Map.of("success", false, "message", "服务器内部错误"));
+        }
+    }
+
+    /**
+     * 发送邮箱验证码
+     */
+    @PostMapping("/send-verification-code")
+    public ResponseEntity<?> sendVerificationCode(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+
+            if (email == null || email.isEmpty()) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "邮箱不能为空"));
+            }
+
+            // 简单的邮箱格式验证
+            if (!email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "邮箱格式不正确"));
+            }
+
+            // 生成6位数字验证码
+            String verificationCode = generateVerificationCode();
+
+            // 存储验证码和过期时间
+            Map<String, Object> codeInfo = new HashMap<>();
+            codeInfo.put("code", verificationCode);
+            codeInfo.put("expiresAt", System.currentTimeMillis() + CODE_EXPIRE_TIME);
+            codeInfo.put("attempts", 0); // 验证尝试次数
+            verificationCodes.put(email, codeInfo);
+
+            // 发送验证码到邮箱（这里模拟发送，实际应该调用邮件服务）
+            log.info("📧 发送验证码到邮箱: {}, 验证码: {}", email, verificationCode);
+
+            // TODO: 实际环境中应该调用真实的邮件服务，如阿里云邮件推送、腾讯云SES等
+            // 这里为了演示，直接在日志中输出验证码
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "验证码已发送到邮箱",
+                "code", verificationCode, // 仅用于演示，生产环境应移除
+                "expiresIn", CODE_EXPIRE_TIME / 1000 // 过期时间（秒）
+            ));
+
+        } catch (Exception e) {
+            log.error("❌ 发送验证码失败", e);
+            return ResponseEntity.internalServerError()
+                .body(Map.of("success", false, "message", "发送验证码失败"));
+        }
+    }
+
+    /**
+     * 验证邮箱验证码
+     */
+    @PostMapping("/verify-code")
+    public ResponseEntity<?> verifyCode(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            String code = request.get("code");
+
+            if (email == null || code == null) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "邮箱和验证码不能为空"));
+            }
+
+            Map<String, Object> codeInfo = verificationCodes.get(email);
+            if (codeInfo == null) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "请先发送验证码"));
+            }
+
+            // 检查验证码是否过期
+            long expiresAt = (Long) codeInfo.get("expiresAt");
+            if (System.currentTimeMillis() > expiresAt) {
+                verificationCodes.remove(email); // 清理过期验证码
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "验证码已过期，请重新发送"));
+            }
+
+            // 检查验证次数
+            int attempts = (Integer) codeInfo.get("attempts");
+            if (attempts >= 3) {
+                verificationCodes.remove(email); // 超过最大尝试次数，清理验证码
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "验证码验证失败次数过多，请重新发送"));
+            }
+
+            // 验证验证码
+            String storedCode = (String) codeInfo.get("code");
+            if (!storedCode.equals(code)) {
+                codeInfo.put("attempts", attempts + 1);
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "验证码错误"));
+            }
+
+            // 验证成功，标记为已验证
+            codeInfo.put("verified", true);
+
+            log.info("✅ 邮箱验证码验证成功: {}", email);
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "验证码验证成功"
+            ));
+
+        } catch (Exception e) {
+            log.error("❌ 验证码验证失败", e);
+            return ResponseEntity.internalServerError()
+                .body(Map.of("success", false, "message", "验证码验证失败"));
+        }
+    }
+
+    /**
+     * 生成6位数字验证码
+     */
+    private String generateVerificationCode() {
+        Random random = new Random();
+        StringBuilder code = new StringBuilder();
+        for (int i = 0; i < CODE_LENGTH; i++) {
+            code.append(random.nextInt(10));
+        }
+        return code.toString();
+    }
+
+    /**
+     * 获取用户列表 - 用于验证Authing用户创建
+     */
+    @GetMapping("/users")
+    public ResponseEntity<?> getUsers() {
+        try {
+            log.info("📋 获取Authing用户列表...");
+
+            // 使用ManagementClient获取用户列表
+            ListUsersRequestDto listRequest = new ListUsersRequestDto();
+            var users = managementClient.listUsers(listRequest);
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("total", users.getData().getTotalCount());
+            result.put("users", users.getData().getList().stream()
+                .map(user -> Map.of(
+                    "userId", user.getUserId(),
+                    "email", user.getEmail() != null ? user.getEmail() : "",
+                    "username", user.getNickname() != null ? user.getNickname() : "",
+                    "phone", user.getPhone() != null ? user.getPhone() : "",
+                    "createdAt", user.getCreatedAt() != null ? user.getCreatedAt().toString() : ""
+                ))
+                .toList());
+
+            log.info("✅ 获取用户列表成功，共 {} 个用户", users.getData().getTotalCount());
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            log.error("❌ 获取用户列表失败", e);
+            return ResponseEntity.internalServerError()
+                .body(Map.of("success", false, "message", "获取用户列表失败: " + e.getMessage()));
         }
     }
 

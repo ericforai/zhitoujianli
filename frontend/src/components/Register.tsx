@@ -1,13 +1,13 @@
 /**
  * 注册页面组件
- * 
+ *
  * 支持邮箱密码注册
- * 
+ *
  * @author ZhiTouJianLi Team
  * @since 2025-09-30
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { authService } from '../services/authService';
 
 const Register: React.FC = () => {
@@ -15,10 +15,67 @@ const Register: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [username, setUsername] = useState('');
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // 邮箱验证码状态
+  const [verificationCode, setVerificationCode] = useState('');
+  const [codeCountdown, setCodeCountdown] = useState(0);
+  const [codeSent, setCodeSent] = useState(false);
+
+  // 验证码倒计时效果
+  useEffect(() => {
+    if (codeCountdown > 0) {
+      const timer = setTimeout(() => setCodeCountdown(codeCountdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [codeCountdown]);
+
+  /**
+   * 发送邮箱验证码
+   */
+  const handleSendVerificationCode = async () => {
+    if (!email) {
+      setError('请先输入邮箱地址');
+      return;
+    }
+
+    if (!email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)) {
+      setError('邮箱格式不正确');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError('');
+
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080/api'}/auth/send-verification-code`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSuccess('验证码已发送到邮箱');
+        setCodeSent(true);
+        setCodeCountdown(60); // 60秒倒计时
+        console.log('验证码:', result.code); // 仅用于演示
+      } else {
+        setError(result.message || '发送验证码失败');
+      }
+    } catch (err: any) {
+      console.error('发送验证码失败:', err);
+      setError('网络错误，请稍后重试');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   /**
    * 处理注册
@@ -39,14 +96,24 @@ const Register: React.FC = () => {
       return;
     }
 
+    if (!verificationCode) {
+      setError('请输入邮箱验证码');
+      return;
+    }
+
+    if (!codeSent) {
+      setError('请先发送邮箱验证码');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const result = await authService.register(email, password, username);
-      
+      const result = await authService.register(email, password, username, verificationCode);
+
       if (result.success) {
         setSuccess('注册成功！3秒后跳转到登录页...');
-        
+
         // 3秒后跳转到登录页
         setTimeout(() => {
           window.location.href = '/login';
@@ -111,16 +178,47 @@ const Register: React.FC = () => {
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 邮箱地址 <span className="text-red-500">*</span>
               </label>
-              <input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="your@email.com"
-              />
+              <div className="flex space-x-2">
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="your@email.com"
+                />
+                <button
+                  type="button"
+                  onClick={handleSendVerificationCode}
+                  disabled={loading || codeCountdown > 0}
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {codeCountdown > 0 ? `${codeCountdown}s` : '发送验证码'}
+                </button>
+              </div>
             </div>
+
+            {codeSent && (
+              <div>
+                <label htmlFor="verificationCode" className="block text-sm font-medium text-gray-700 mb-1">
+                  邮箱验证码 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="verificationCode"
+                  type="text"
+                  required
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="请输入6位验证码"
+                  maxLength={6}
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  验证码已发送到 {email}，请在5分钟内输入
+                </p>
+              </div>
+            )}
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">

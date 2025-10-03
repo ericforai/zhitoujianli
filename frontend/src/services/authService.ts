@@ -168,12 +168,14 @@ export const authService = {
   register: async (
     email: string,
     password: string,
-    username?: string
+    username?: string,
+    verificationCode?: string
   ): Promise<{ success: boolean; message: string; userId?: string }> => {
     const response = await apiClient.post('/auth/register', {
       email,
       password,
       username,
+      verificationCode,
     });
     return response.data;
   },
