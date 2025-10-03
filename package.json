@@ -21,7 +21,12 @@
     "dev:frontend": "cd frontend && npm run start",
     "dev:blog": "cd blog/zhitoujianli-blog && npm run dev",
     "test": "npm run test:frontend",
-    "test:frontend": "cd frontend && npm test"
+    "test:frontend": "cd frontend && npm test",
+    "deploy:volcano": "./scripts/deploy-to-volcano.sh",
+    "docker:build": "docker-compose -f volcano-deployment.yml build",
+    "docker:up": "docker-compose -f volcano-deployment.yml up -d",
+    "docker:down": "docker-compose -f volcano-deployment.yml down",
+    "docker:logs": "docker-compose -f volcano-deployment.yml logs -f"
   },
   "engines": {
     "node": ">=18.0.0",

@@ -95,9 +95,10 @@ zhitoujianli/
 - **Redis** - 缓存数据库
 
 ### 部署技术
-- **EdgeOne Pages** - 前端部署
+- **火山云** - 云服务器部署
 - **Docker** - 容器化部署
 - **Nginx** - 反向代理
+- **SSL/TLS** - HTTPS加密
 
 ## 快速开始
 
@@ -179,7 +180,7 @@ spring:
 
 ### 生产环境部署
 详细的部署指南请参考：
-- [EdgeOne部署配置](docs/deployment/EDGEONE_DEPLOYMENT_CONFIG.md)
+- [火山云部署指南](VOLCANO_DEPLOYMENT_GUIDE.md)
 - [部署指南](docs/deployment/DEPLOYMENT_GUIDE.md)
 
 ### 安全配置
@@ -253,12 +254,13 @@ mvn test
 
 ## 更新日志
 
-### v2.0.1 (2025-10-02)
-- ✅ 完成项目结构重组
-- ✅ 实现EdgeOne部署配置
-- ✅ 添加安全审计功能
-- ✅ 优化CORS配置
-- ✅ 完善文档体系
+### v2.0.2 (2025-01-27)
+- ✅ 迁移到火山云部署
+- ✅ 清理EdgeOne相关配置
+- ✅ 添加Docker容器化部署
+- ✅ 配置Nginx反向代理
+- ✅ 添加SSL/TLS支持
+- ✅ 完善火山云部署文档
 
 ### v2.0.0 (2025-09-30)
 - 🎉 发布AI智能打招呼语功能

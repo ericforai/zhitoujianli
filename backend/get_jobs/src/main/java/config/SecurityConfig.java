@@ -50,32 +50,8 @@ public class SecurityConfig {
                     "http://127.0.0.1:3000",
                     "https://zhitoujianli.com",
                     "https://www.zhitoujianli.com",
-                    "https://*.zhitoujianli.com",
-                    "https://*.edgeone.app"
+                    "https://*.zhitoujianli.com"
                 ));
->>>>>>> e851d76 (🌐 域名部署配置：生产环境完整适配)
-                corsConfig.setAllowedOriginPatterns(java.util.Arrays.asList(
-                    "http://localhost:3000", 
-                    "http://localhost:3001", 
-                    "http://localhost:4321", 
-                    "http://127.0.0.1:3000",
-                    "https://zhitoujianli.com",
-                    "https://www.zhitoujianli.com",
-                    "https://*.zhitoujianli.com",
-                    "https://*.edgeone.app"
-                ));
-=======
-                corsConfig.setAllowedOriginPatterns(java.util.Arrays.asList(
-                    "http://localhost:3000", 
-                    "http://localhost:3001", 
-                    "http://localhost:4321", 
-                    "http://127.0.0.1:3000",
-                    "https://zhitoujianli.com",
-                    "https://www.zhitoujianli.com",
-                    "https://*.zhitoujianli.com",
-                    "https://*.edgeone.app"
-                ));
->>>>>>> e851d76 (🌐 域名部署配置：生产环境完整适配)
                 corsConfig.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 corsConfig.setAllowedHeaders(java.util.Arrays.asList("*"));
                 corsConfig.setAllowCredentials(true);
