@@ -3,7 +3,7 @@ title: "职场发展指南：从新手到专家的成长路径"
 description: "全面的职场发展指南，帮助你制定职业规划，提升职业技能，实现从职场新手到行业专家的转变。"
 pubDate: 2025-10-03
 author: "智投简历团队"
-heroImage: "/images/career-development-guide.jpg"
+heroImage: "/_astro/default.CZ816Hke_Z2gd2WR.jpg"
 tags: ["职场发展", "职业规划", "技能提升", "成长路径"]
 category: "职场建议"
 ---

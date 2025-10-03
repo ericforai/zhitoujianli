@@ -1,17 +1,17 @@
 /**
  * 登录页面组件
- * 
+ *
  * 支持多种登录方式：
  * 1. 邮箱密码登录
  * 2. 手机号验证码登录
  * 3. 微信扫码登录（通过Authing）
  * 4. 支付宝登录（通过Authing）
- * 
+ *
  * @author ZhiTouJianLi Team
  * @since 2025-09-30
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { authService } from '../services/authService';
 import './Login.css';
 
@@ -19,16 +19,16 @@ type LoginMode = 'email' | 'phone';
 
 const Login: React.FC = () => {
   const [mode, setMode] = useState<LoginMode>('email');
-  
+
   // 邮箱登录状态
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
+
   // 手机号登录状态
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
   const [countdown, setCountdown] = useState(0);
-  
+
   // 通用状态
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -54,7 +54,7 @@ const Login: React.FC = () => {
       console.log('🔍 开始邮箱登录请求...');
       const result = await authService.loginByEmail(email, password);
       console.log('📥 登录响应结果:', result);
-      
+
       if (result.success) {
         setSuccess('登录成功！正在跳转...');
         console.log('🔍 邮箱登录成功，准备跳转...');
@@ -63,20 +63,20 @@ const Login: React.FC = () => {
         console.log('📍 当前完整URL:', window.location.href);
         console.log('🎯 目标跳转地址: /');
         console.log('⏰ 1秒后执行跳转...');
-        
+
         // 设置跨域Cookie以便后台管理能够读取Token
         if (result.token) {
           // 设置Cookie到当前域
           document.cookie = `authToken=${result.token}; path=/; domain=115.190.182.95; secure=false; SameSite=Lax`;
           console.log('🍪 已设置authToken Cookie:', result.token.substring(0, 20) + '...');
         }
-        
+
         setTimeout(() => {
           // 动态检测环境并跳转
-          const redirectUrl = window.location.hostname === 'localhost' ? 
-            'http://115.190.182.95:8080/' : 
+          const redirectUrl = window.location.hostname === 'localhost' ?
+            'http://115.190.182.95:8080/' :
             '/';
-          
+
           console.log('🚀 执行跳转到:', redirectUrl);
           console.log('🔧 跳转前最后检查 - 当前URL:', window.location.href);
           window.location.href = redirectUrl;
@@ -108,7 +108,7 @@ const Login: React.FC = () => {
 
     try {
       const result = await authService.sendPhoneCode(phone);
-      
+
       if (result.success) {
         setSuccess('验证码已发送，请注意查收');
         setCountdown(60); // 60秒倒计时
@@ -132,27 +132,27 @@ const Login: React.FC = () => {
 
     try {
       const result = await authService.loginByPhone(phone, code);
-      
+
       if (result.success) {
         setSuccess('登录成功！正在跳转...');
         console.log('🔍 手机号登录成功，准备跳转...');
         console.log('📍 当前域名:', window.location.hostname);
         console.log('📍 当前端口:', window.location.port);
         console.log('🎯 目标跳转地址: /');
-        
+
         // 设置跨域Cookie以便后台管理能够读取Token
         if (result.token) {
           // 设置Cookie到当前域
           document.cookie = `authToken=${result.token}; path=/; domain=115.190.182.95; secure=false; SameSite=Lax`;
           console.log('🍪 已设置authToken Cookie:', result.token.substring(0, 20) + '...');
         }
-        
+
         setTimeout(() => {
           // 动态检测环境并跳转
-          const redirectUrl = window.location.hostname === 'localhost' ? 
-            'http://115.190.182.95:8080/' : 
+          const redirectUrl = window.location.hostname === 'localhost' ?
+            'http://115.190.182.95:8080/' :
             '/';
-          
+
           console.log('🚀 执行跳转到:', redirectUrl);
           console.log('🔧 跳转前最后检查 - 当前URL:', window.location.href);
           window.location.href = redirectUrl;

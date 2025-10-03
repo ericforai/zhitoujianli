@@ -3,7 +3,7 @@ title: "2025年就业市场趋势分析：AI时代的职业新机遇"
 description: "深度分析2025年就业市场趋势，探讨AI技术发展对各行各业的影响，为求职者提供前瞻性的职业规划建议。"
 pubDate: 2025-10-03
 author: "智投简历市场研究团队"
-heroImage: "/images/industry-trends.jpg"
+heroImage: "/_astro/default.CZ816Hke_Z2gd2WR.jpg"
 tags: ["行业趋势", "就业市场", "AI影响", "职业规划"]
 category: "行业分析"
 ---

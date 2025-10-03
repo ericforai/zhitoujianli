@@ -31,7 +31,7 @@ const Contact = () => {
             有任何疑问或建议，欢迎联系我们
           </p>
         </div>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Contact Form */}
           <div className="bg-white p-8 rounded-xl shadow-sm">
@@ -51,7 +51,7 @@ const Contact = () => {
                   required
                 />
               </div>
-              
+
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                   邮箱
@@ -67,7 +67,7 @@ const Contact = () => {
                   required
                 />
               </div>
-              
+
               <div>
                 <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
                   消息
@@ -83,7 +83,7 @@ const Contact = () => {
                   required
                 />
               </div>
-              
+
               <button
                 type="submit"
                 className="w-full bg-gradient-primary text-white py-3 px-6 rounded-lg font-semibold hover:opacity-90 transition-all duration-300 transform hover:scale-105"
@@ -92,12 +92,12 @@ const Contact = () => {
               </button>
             </form>
           </div>
-          
+
           {/* Contact Info */}
           <div className="space-y-8">
             <div className="bg-white p-8 rounded-xl shadow-sm">
               <h3 className="text-xl font-semibold text-gray-900 mb-6">联系方式</h3>
-              
+
               <div className="space-y-4">
                 <div className="flex items-center">
                   <svg className="w-6 h-6 text-primary-500 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -105,14 +105,14 @@ const Contact = () => {
                   </svg>
                   <span className="text-gray-700">contact@115.190.182.95</span>
                 </div>
-                
+
                 <div className="flex items-center">
                   <svg className="w-6 h-6 text-primary-500 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
                   <span className="text-gray-700">400-888-8888</span>
                 </div>
-                
+
                 <div className="flex items-center">
                   <svg className="w-6 h-6 text-primary-500 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -122,7 +122,7 @@ const Contact = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* QR Code Placeholder */}
             <div className="bg-white p-8 rounded-xl shadow-sm text-center">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">扫码咨询</h3>
