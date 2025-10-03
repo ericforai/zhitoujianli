@@ -12,6 +12,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { authingService } from '../services/authingService';
 import './Login.css';
@@ -19,6 +20,7 @@ import './Login.css';
 type LoginMode = 'email' | 'phone';
 
 const Login: React.FC = () => {
+  const navigate = useNavigate();
   const [mode, setMode] = useState<LoginMode>('email');
 
   // 邮箱登录状态
@@ -88,7 +90,7 @@ const Login: React.FC = () => {
 
         setTimeout(() => {
           // 跳转到项目内的简历投递页面
-          window.location.href = '/resume-delivery';
+          navigate('/resume-delivery');
         }, 1000);
       } else {
         console.log('❌ 登录失败:', result.message);
@@ -158,7 +160,7 @@ const Login: React.FC = () => {
 
         setTimeout(() => {
           // 跳转到项目内的简历投递页面
-          window.location.href = '/resume-delivery';
+          navigate('/resume-delivery');
         }, 1000);
       } else {
         setError(result.message || '登录失败，请检查验证码');

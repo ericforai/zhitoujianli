@@ -12,6 +12,7 @@ import Pricing from './components/Pricing';
 import Register from './components/Register';
 import ResumeDelivery from './components/ResumeDelivery';
 import SmartGreeting from './components/SmartGreeting';
+import TestLogin from './components/TestLogin';
 
 // 主页组件
 const HomePage: React.FC = () => {
@@ -71,6 +72,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/resume-delivery" element={<ResumeDelivery />} />
         <Route path="/dashboard" element={<DashboardEntry />} />
+        <Route path="/test-login" element={<TestLogin />} />
       </Routes>
     </Router>
   );
