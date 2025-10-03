@@ -115,9 +115,6 @@ const Navigation = () => {
                        <a href="/register" className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
                          注册
                        </a>
-                       <a href="#contact" className="bg-gradient-primary text-white px-6 py-2 rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                         立即体验
-                       </a>
                      </>
                    )}
                  </div>

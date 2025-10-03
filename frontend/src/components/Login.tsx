@@ -72,10 +72,8 @@ const Login: React.FC = () => {
         }
 
         setTimeout(() => {
-          // 动态检测环境并跳转
-          const redirectUrl = window.location.hostname === 'localhost' ?
-            'http://115.190.182.95:8080/' :
-            '/';
+          // 跳转到投递简历页面
+          const redirectUrl = '/resume-delivery';
 
           console.log('🚀 执行跳转到:', redirectUrl);
           console.log('🔧 跳转前最后检查 - 当前URL:', window.location.href);
@@ -148,10 +146,8 @@ const Login: React.FC = () => {
         }
 
         setTimeout(() => {
-          // 动态检测环境并跳转
-          const redirectUrl = window.location.hostname === 'localhost' ?
-            'http://115.190.182.95:8080/' :
-            '/';
+          // 跳转到投递简历页面
+          const redirectUrl = '/resume-delivery';
 
           console.log('🚀 执行跳转到:', redirectUrl);
           console.log('🔧 跳转前最后检查 - 当前URL:', window.location.href);

@@ -5,6 +5,34 @@ pubDate: 2025-01-28
 heroImage: "/src/assets/images/hero-image.png"
 tags: ["AI", "求职", "智能化", "简历", "招聘"]
 author: "智投简历团队"
+keywords: "AI求职,智能打招呼语,简历投递,个性化投递,Boss直聘,求职优化,AI招聘,智能简历,求职技巧,HR回复率"
+structuredData: |
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "智能化打招呼语：AI驱动的简历投递个性化方案",
+    "author": {
+      "@type": "Organization",
+      "name": "智投简历团队"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "智投简历",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "http://115.190.182.95/logo.png"
+      }
+    },
+    "datePublished": "2025-01-28",
+    "dateModified": "2025-01-28",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "http://115.190.182.95/blog/intelligent-greeting-feature/"
+    },
+    "description": "基于AI技术的简历投递优化功能，通过分析求职者简历和目标岗位描述，生成个性化、高匹配度的打招呼语，提升投递成功率。",
+    "image": "http://115.190.182.95/blog/_astro/hero-image.DwIC_L_T.png",
+    "keywords": "AI求职,智能打招呼语,简历投递,个性化投递,Boss直聘,求职优化,AI招聘,智能简历,求职技巧,HR回复率"
+  }
 ---
 
 ## 概述

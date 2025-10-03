@@ -11,6 +11,7 @@ import Footer from './components/Footer';
 import Navigation from './components/Navigation';
 import Login from './components/Login';
 import Register from './components/Register';
+import ResumeDelivery from './components/ResumeDelivery';
 import PrivateRoute from './components/PrivateRoute';
 
 // 主页组件
@@ -69,6 +70,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/resume-delivery" element={<ResumeDelivery />} />
         <Route path="/dashboard" element={<DashboardEntry />} />
       </Routes>
     </Router>
