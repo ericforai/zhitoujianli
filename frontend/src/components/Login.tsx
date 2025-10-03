@@ -61,21 +61,21 @@ const Login: React.FC = () => {
         console.log('📍 当前域名:', window.location.hostname);
         console.log('📍 当前端口:', window.location.port);
         console.log('📍 当前完整URL:', window.location.href);
-        console.log('🎯 目标跳转地址: https://zhitoujianli.com/');
+        console.log('🎯 目标跳转地址: /');
         console.log('⏰ 1秒后执行跳转...');
         
         // 设置跨域Cookie以便后台管理能够读取Token
         if (result.token) {
-          // 设置Cookie到当前域（localhost）
-          document.cookie = `authToken=${result.token}; path=/; domain=localhost; secure=false; SameSite=Lax`;
+          // 设置Cookie到当前域
+          document.cookie = `authToken=${result.token}; path=/; domain=115.190.182.95; secure=false; SameSite=Lax`;
           console.log('🍪 已设置authToken Cookie:', result.token.substring(0, 20) + '...');
         }
         
         setTimeout(() => {
           // 动态检测环境并跳转
           const redirectUrl = window.location.hostname === 'localhost' ? 
-            'http://localhost:8080/' : 
-            'https://zhitoujianli.com/';
+            'http://115.190.182.95:8080/' : 
+            '/';
           
           console.log('🚀 执行跳转到:', redirectUrl);
           console.log('🔧 跳转前最后检查 - 当前URL:', window.location.href);
@@ -138,20 +138,20 @@ const Login: React.FC = () => {
         console.log('🔍 手机号登录成功，准备跳转...');
         console.log('📍 当前域名:', window.location.hostname);
         console.log('📍 当前端口:', window.location.port);
-        console.log('🎯 目标跳转地址: https://zhitoujianli.com/');
+        console.log('🎯 目标跳转地址: /');
         
         // 设置跨域Cookie以便后台管理能够读取Token
         if (result.token) {
-          // 设置Cookie到当前域（localhost）
-          document.cookie = `authToken=${result.token}; path=/; domain=localhost; secure=false; SameSite=Lax`;
+          // 设置Cookie到当前域
+          document.cookie = `authToken=${result.token}; path=/; domain=115.190.182.95; secure=false; SameSite=Lax`;
           console.log('🍪 已设置authToken Cookie:', result.token.substring(0, 20) + '...');
         }
         
         setTimeout(() => {
           // 动态检测环境并跳转
           const redirectUrl = window.location.hostname === 'localhost' ? 
-            'http://localhost:8080/' : 
-            'https://zhitoujianli.com/';
+            'http://115.190.182.95:8080/' : 
+            '/';
           
           console.log('🚀 执行跳转到:', redirectUrl);
           console.log('🔧 跳转前最后检查 - 当前URL:', window.location.href);

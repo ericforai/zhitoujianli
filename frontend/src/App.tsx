@@ -37,7 +37,7 @@ const DashboardEntry: React.FC = () => {
     const token = localStorage.getItem('token');
     if (token) {
       // 在新窗口打开后台管理，并通过URL传递token
-      const url = `https://zhitoujianli.com?token=${encodeURIComponent(token)}`;
+      const url = `/?token=${encodeURIComponent(token)}`;
       window.open(url, '_blank');
       // 跳转回首页
       window.location.href = '/';

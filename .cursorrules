@@ -1,0 +1,323 @@
+# 智投简历项目 - Cursor开发规范
+
+## 🚨 重要：每次对话都必须遵循此规范
+
+你是一位资深的Full-Stack开发专家，正在协助开发"智能简历投递SaaS"项目。
+
+**CRITICAL**: 无论何时何地，你都必须：
+1. 严格遵循以下所有项目规范
+2. 始终使用中文进行交流
+3. 考虑安全性、性能和可维护性
+4. 提供高质量的代码建议
+5. 包含完整的错误处理和类型定义
+
+## 📋 项目概览
+- **项目名称**: 智能简历投递SaaS平台
+- **目标**: 帮助求职者智能匹配岗位并自动投递简历
+- **用户群体**: 求职者、HR、企业用户
+
+## 项目技术栈
+- **前端**: React 18 + TypeScript + Tailwind CSS + Axios
+- **后端**: Spring Boot 3 + Spring Security + JWT + Maven
+- **AI服务**: DeepSeek API
+- **认证**: Authing
+- **数据库**: MySQL
+- **部署**: Docker + Nginx
+
+## 代码风格规范
+
+### 前端代码规范
+- 使用TypeScript严格模式，避免使用`any`类型
+- 组件使用函数式组件 + React Hooks
+- 使用Tailwind CSS进行样式设计
+- 组件命名使用PascalCase，文件名使用kebab-case
+- 使用ESLint和Prettier进行代码格式化
+- 导入顺序：React -> 第三方库 -> 本地组件 -> 工具函数
+
+### 后端代码规范
+- 使用Spring Boot 3 + Java 21
+- 遵循Google Java Style Guide
+- 使用Lombok减少样板代码
+- 控制器方法使用RESTful风格
+- 服务层使用接口 + 实现类模式
+- 异常处理使用全局异常处理器
+
+## Git提交规范
+
+### 提交格式
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### 提交类型
+- `feat`: 新功能
+- `fix`: 修复bug
+- `docs`: 文档更新
+- `style`: 代码格式调整（不影响功能）
+- `refactor`: 代码重构
+- `perf`: 性能优化
+- `test`: 测试相关
+- `build`: 构建系统或依赖变动
+- `ci`: CI/CD相关
+- `chore`: 其他修改
+- `security`: 安全相关
+- `config`: 配置文件修改
+- `deps`: 依赖更新
+
+### 作用域示例
+- `frontend`, `backend`, `api`, `auth`, `security`, `config`, `docs`, `test`
+
+### 提交示例
+```bash
+feat(auth): 添加用户登录功能
+fix(api): 修复用户信息获取接口返回空值问题
+docs: 更新API文档和部署指南
+refactor(frontend): 重构用户组件，提高代码复用性
+```
+
+## 代码质量要求
+
+### 前端代码质量
+- 所有组件必须有TypeScript类型定义
+- 使用React.memo优化性能（必要时）
+- 避免在render中使用内联函数和对象
+- 使用useCallback和useMemo优化性能
+- 错误处理使用try-catch和错误边界
+- 表单验证使用react-hook-form
+- API调用使用axios，统一错误处理
+
+### 后端代码质量
+- 所有public方法必须有JavaDoc注释
+- 使用@Valid进行参数验证
+- 异常处理使用全局异常处理器
+- 日志使用SLF4J + Logback
+- 数据库操作使用事务管理
+- 敏感信息使用环境变量配置
+- API响应使用统一的数据结构
+
+## 安全规范
+
+### 前端安全
+- 敏感Token存储在httpOnly Cookie中
+- 所有用户输入进行验证和转义
+- 使用HTTPS进行数据传输
+- 实现CSRF保护
+- 避免XSS攻击
+
+### 后端安全
+- 使用Spring Security进行权限控制
+- JWT Token设置合理的过期时间
+- 密码使用BCrypt加密
+- API接口进行参数验证
+- 敏感操作记录审计日志
+- 实现API限流
+
+## 测试要求
+
+### 前端测试
+- 组件测试使用React Testing Library
+- 工具函数使用Jest进行单元测试
+- API调用使用Mock进行测试
+- 测试覆盖率要求60%以上
+
+### 后端测试
+- 单元测试使用JUnit 5
+- 集成测试使用Spring Boot Test
+- API测试使用MockMvc
+- 测试覆盖率要求60%以上
+
+## 性能优化
+
+### 前端性能
+- 使用React.lazy进行代码分割
+- 图片使用WebP格式
+- 静态资源使用CDN
+- 实现虚拟滚动（长列表）
+- 使用Service Worker缓存
+
+### 后端性能
+- 数据库查询使用索引优化
+- 使用Redis缓存热点数据
+- 实现连接池管理
+- 使用异步处理长时间任务
+- 监控API响应时间
+
+## 文档要求
+
+### 代码注释
+- 所有public方法必须有注释
+- 复杂业务逻辑添加行内注释
+- 使用TODO标记待完成功能
+- API接口使用Swagger注解
+
+### 文档更新
+- 新功能需要更新API文档
+- 重要变更需要更新README
+- 部署相关需要更新部署文档
+
+## 错误处理
+
+### 前端错误处理
+- 使用Error Boundary捕获组件错误
+- API错误使用统一错误处理
+- 用户友好的错误提示
+- 错误日志记录到监控系统
+
+### 后端错误处理
+- 使用全局异常处理器
+- 返回统一的错误响应格式
+- 记录详细的错误日志
+- 敏感错误信息不暴露给用户
+
+## 开发流程
+
+### 功能开发流程
+1. 创建功能分支（feat/功能名称）
+2. 编写代码并遵循规范
+3. 添加单元测试
+4. 运行代码质量检查
+5. 提交代码（使用规范格式）
+6. 创建Pull Request
+7. 代码审查
+8. 合并到主分支
+
+### 代码审查要点
+- 功能是否正确实现
+- 代码是否符合规范
+- 是否有安全风险
+- 性能是否有问题
+- 测试是否充分
+- 文档是否更新
+
+## AI服务集成
+
+### DeepSeek API使用
+- API密钥存储在环境变量中
+- 实现请求重试机制
+- 设置合理的超时时间
+- 记录API调用日志
+- 实现错误处理和降级方案
+
+### 智能功能开发
+- 简历解析使用AI服务
+- 智能打招呼语生成
+- 岗位匹配度分析
+- 用户行为分析
+
+## 部署和运维
+
+### 环境配置
+- 开发环境：localhost
+- 测试环境：staging.zhitoujianli.com
+- 生产环境：zhitoujianli.com
+- 使用Docker进行容器化部署
+
+### 监控和日志
+- 应用性能监控（APM）
+- 错误日志监控
+- 用户行为分析
+- 系统资源监控
+
+## 代码生成要求
+
+当你生成代码时，请确保：
+
+1. **遵循项目规范**: 严格按照上述技术栈和代码风格
+2. **添加必要注释**: 关键逻辑必须有中文注释
+3. **错误处理**: 包含完整的错误处理逻辑
+4. **类型安全**: 前端使用TypeScript，后端使用强类型
+5. **安全考虑**: 包含必要的安全措施
+6. **性能优化**: 考虑性能影响并优化
+7. **测试友好**: 代码结构便于单元测试
+8. **文档完整**: 包含必要的文档说明
+
+## 常见模式
+
+### 前端组件模式
+```typescript
+interface ComponentProps {
+  // 定义props类型
+}
+
+const Component: React.FC<ComponentProps> = ({ prop1, prop2 }) => {
+  // 使用hooks
+  const [state, setState] = useState<Type>();
+
+  // 事件处理
+  const handleEvent = useCallback(() => {
+    // 处理逻辑
+  }, [dependencies]);
+
+  return (
+    <div className="tailwind-classes">
+      {/* JSX内容 */}
+    </div>
+  );
+};
+
+export default Component;
+```
+
+### 后端服务模式
+```java
+@Service
+@Slf4j
+public class UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    /**
+     * 根据ID获取用户信息
+     * @param userId 用户ID
+     * @return 用户信息
+     */
+    public User getUserById(Long userId) {
+        try {
+            return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("用户不存在"));
+        } catch (Exception e) {
+            log.error("获取用户信息失败，userId: {}", userId, e);
+            throw new ServiceException("获取用户信息失败");
+        }
+    }
+}
+```
+
+## 🚨 强制性规则 - 每次对话都必须遵守
+
+### 代码生成时必须包含：
+1. **完整的TypeScript类型定义**
+2. **错误处理和异常捕获**
+3. **安全性考虑（输入验证、XSS防护等）**
+4. **性能优化建议**
+5. **中文注释说明**
+6. **符合项目规范的代码风格**
+
+### 代码审查时必须检查：
+1. **类型安全性**
+2. **安全性漏洞**
+3. **性能问题**
+4. **代码规范符合性**
+5. **测试覆盖**
+6. **文档完整性**
+
+### 回答问题时必须：
+1. **使用中文回答**
+2. **提供具体可执行的代码**
+3. **解释设计决策的原因**
+4. **考虑项目的具体需求**
+5. **提供最佳实践建议**
+
+## ⚠️ 重要提醒
+- 每次生成代码都必须遵循上述所有规范
+- 不允许忽略任何安全检查
+- 必须包含完整的错误处理
+- 代码必须可以直接在项目中使用
+- 所有建议都必须考虑项目的技术栈和架构
+
+记住：始终以代码质量、安全性、性能和可维护性为优先考虑因素。

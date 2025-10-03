@@ -26,7 +26,8 @@
     "docker:build": "docker-compose -f volcano-deployment.yml build",
     "docker:up": "docker-compose -f volcano-deployment.yml up -d",
     "docker:down": "docker-compose -f volcano-deployment.yml down",
-    "docker:logs": "docker-compose -f volcano-deployment.yml logs -f"
+    "docker:logs": "docker-compose -f volcano-deployment.yml logs -f",
+    "prepare": "husky"
   },
   "engines": {
     "node": ">=18.0.0",
@@ -48,5 +49,5 @@
   "bugs": {
     "url": "https://github.com/ericforai/zhitoujianli/issues"
   },
-  "homepage": "https://zhitoujianli.com"
+  "homepage": "http://115.190.182.95"
 }

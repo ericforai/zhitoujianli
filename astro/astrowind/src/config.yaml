@@ -1,6 +1,6 @@
 site:
   name: AstroWind
-  site: 'https://astrowind.vercel.app'
+  site: 'http://115.190.182.95'
   base: '/'
   trailingSlash: false
 

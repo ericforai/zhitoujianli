@@ -1,0 +1,175 @@
+name: 代码质量检查
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # 前端代码质量检查
+  frontend-quality:
+    name: 前端代码质量检查
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+
+    - name: 设置Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: 安装前端依赖
+      run: |
+        cd frontend
+        npm ci
+
+    - name: TypeScript类型检查
+      run: |
+        cd frontend
+        npm run type-check
+
+    - name: ESLint检查
+      run: |
+        cd frontend
+        npm run lint:check
+
+    - name: Prettier格式检查
+      run: |
+        cd frontend
+        npm run format:check
+
+    - name: 运行测试
+      run: |
+        cd frontend
+        npm test -- --watchAll=false --coverage
+
+    - name: 上传覆盖率报告
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./frontend/coverage/lcov.info
+        flags: frontend
+        name: frontend-coverage
+
+  # 后端代码质量检查
+  backend-quality:
+    name: 后端代码质量检查
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+
+    - name: 设置Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - name: 缓存Maven依赖
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('backend/get_jobs/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+
+    - name: Checkstyle检查
+      run: |
+        cd backend/get_jobs
+        mvn checkstyle:check
+
+    - name: SpotBugs检查
+      run: |
+        cd backend/get_jobs
+        mvn spotbugs:check
+
+    - name: PMD检查
+      run: |
+        cd backend/get_jobs
+        mvn pmd:check
+
+    - name: 运行测试
+      run: |
+        cd backend/get_jobs
+        mvn test
+
+    - name: 生成测试报告
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: Maven Tests
+        path: backend/get_jobs/target/surefire-reports/*.xml
+        reporter: java-junit
+
+  # 安全扫描
+  security-scan:
+    name: 安全扫描
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+
+    - name: 设置Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: 前端安全扫描
+      run: |
+        cd frontend
+        npm audit --audit-level=high
+
+    - name: 设置Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - name: 后端安全扫描
+      run: |
+        cd backend/get_jobs
+        mvn org.owasp:dependency-check-maven:check
+
+  # 构建检查
+  build-check:
+    name: 构建检查
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+
+    - name: 设置Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: 构建前端
+      run: |
+        cd frontend
+        npm ci
+        npm run build
+
+    - name: 设置Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - name: 构建后端
+      run: |
+        cd backend/get_jobs
+        mvn clean compile package -DskipTests
+
+    - name: 上传构建产物
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: |
+          frontend/build/
+          backend/get_jobs/target/*.jar

@@ -10,7 +10,7 @@
 
 import axios, { AxiosInstance } from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://zhitoujianli.com/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://115.190.182.95/api';
 
 /**
  * 创建axios实例
@@ -114,7 +114,7 @@ export const authService = {
       localStorage.setItem('authToken', response.data.token); // 兼容后端使用的key
       
       // 设置跨域Cookie以便后台管理能够读取Token
-      const domain = window.location.hostname === 'localhost' ? 'localhost' : '.zhitoujianli.com';
+      const domain = window.location.hostname === 'localhost' ? 'localhost' : '.115.190.182.95';
       const secure = window.location.protocol === 'https:';
       document.cookie = `authToken=${response.data.token}; path=/; domain=${domain}; secure=${secure}; SameSite=Lax`;
       console.log('🍪 authService: 已设置authToken Cookie为跨域访问, domain:', domain);
@@ -149,7 +149,7 @@ export const authService = {
       localStorage.setItem('authToken', response.data.token); // 兼容后端使用的key
       
       // 设置跨域Cookie以便后台管理能够读取Token
-      const domain = window.location.hostname === 'localhost' ? 'localhost' : '.zhitoujianli.com';
+      const domain = window.location.hostname === 'localhost' ? 'localhost' : '.115.190.182.95';
       const secure = window.location.protocol === 'https:';
       document.cookie = `authToken=${response.data.token}; path=/; domain=${domain}; secure=${secure}; SameSite=Lax`;
       console.log('🍪 authService: 已设置authToken Cookie为跨域访问, domain:', domain);

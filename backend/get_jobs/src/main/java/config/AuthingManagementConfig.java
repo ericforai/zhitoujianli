@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Authing管理客户端配置
  * 用于用户验证和用户池管理
- * 
+ *
  * @author ZhiTouJianLi Team
  * @since 2025-10-01
  */
@@ -31,17 +31,17 @@ public class AuthingManagementConfig {
         try {
             String userPoolId = dotenv.get("AUTHING_USER_POOL_ID", "");
             String appSecret = dotenv.get("AUTHING_APP_SECRET", "");
-            
+
             log.info("初始化Authing ManagementClient V3");
             log.debug("用户池ID: {}", userPoolId);
             log.debug("应用密钥: {}***", appSecret != null ? appSecret.substring(0, 8) : "null");
-            
+
             // 按照V3文档正确的方式创建 ManagementClient
             ManagementClientOptions clientOptions = new ManagementClientOptions();
-            clientOptions.setAccessKeyId(userPoolId);  // 用户池ID
-            clientOptions.setAccessKeySecret(appSecret);  // 应用密钥
+            clientOptions.setAccessKeyId(userPoolId);  // 使用用户池ID作为AccessKeyId
+            clientOptions.setAccessKeySecret(appSecret);  // 使用用户池密钥作为AccessKeySecret
             ManagementClient client = new ManagementClient(clientOptions);
-            
+
             log.info("✅ Authing ManagementClient V3初始化成功");
             return client;
         } catch (Exception e) {

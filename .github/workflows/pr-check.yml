@@ -1,0 +1,113 @@
+name: Pull Request检查
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  # PR基础检查
+  pr-checks:
+    name: PR基础检查
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: 检查PR标题格式
+      uses: amannn/action-semantic-pull-request@v5
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        types: |
+          feat
+          fix
+          docs
+          style
+          refactor
+          perf
+          test
+          build
+          ci
+          chore
+          revert
+          security
+          config
+          deps
+          release
+        requireScope: false
+
+    - name: 检查提交信息格式
+      uses: wagoid/commitlint-github-action@v5
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: 检查PR大小
+      run: |
+        CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | wc -l)
+        echo "变更文件数量: $CHANGED_FILES"
+
+        if [ $CHANGED_FILES -gt 50 ]; then
+          echo "⚠️ PR包含过多文件变更($CHANGED_FILES)，建议拆分为多个小的PR"
+          exit 1
+        fi
+
+        if [ $CHANGED_FILES -gt 20 ]; then
+          echo "⚠️ PR包含较多文件变更($CHANGED_FILES)，请确保所有变更都是必要的"
+        fi
+
+    - name: 检查是否有合并提交
+      run: |
+        MERGE_COMMITS=$(git log --merges ${{ github.event.pull_request.base.sha }}..${{ github.sha }} | wc -l)
+        if [ $MERGE_COMMITS -gt 0 ]; then
+          echo "❌ PR包含合并提交，请使用rebase而不是merge"
+          exit 1
+        fi
+
+    - name: 检查分支命名
+      run: |
+        BRANCH_NAME="${{ github.head_ref }}"
+        echo "分支名称: $BRANCH_NAME"
+
+        # 检查分支命名规范
+        if [[ ! $BRANCH_NAME =~ ^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|security|config|deps|release)/.+ ]]; then
+          echo "❌ 分支命名不符合规范，应使用: type/description 格式"
+          echo "例如: feat/user-authentication, fix/login-bug"
+          exit 1
+        fi
+
+  # 代码质量检查（引用主工作流）
+  code-quality:
+    name: 代码质量检查
+    needs: pr-checks
+    uses: ./.github/workflows/code-quality.yml
+
+  # 部署预览（如果适用）
+  deploy-preview:
+    name: 部署预览
+    needs: [pr-checks, code-quality]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+
+    - name: 设置Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: 构建前端
+      run: |
+        cd frontend
+        npm ci
+        npm run build
+
+    - name: 部署到预览环境
+      run: |
+        echo "🚀 部署到预览环境..."
+        echo "预览URL: https://pr-${{ github.event.number }}.zhitoujianli.com"
+        # 这里可以添加实际的部署逻辑

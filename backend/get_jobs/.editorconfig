@@ -1,0 +1,28 @@
+# EditorConfig配置文件
+# 确保不同编辑器和IDE中的代码格式一致
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{java,xml,yml,yaml}]
+indent_style = space
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{json,js,ts,jsx,tsx}]
+indent_style = space
+indent_size = 2
+
+[*.{sql}]
+indent_style = space
+indent_size = 4
+
+[Makefile]
+indent_style = tab

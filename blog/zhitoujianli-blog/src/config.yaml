@@ -1,6 +1,6 @@
 site:
   name: 智投简历博客
-  site: 'http://localhost:4321'
+  site: 'http://115.190.182.95'
   base: '/blog/'
   trailingSlash: true
 

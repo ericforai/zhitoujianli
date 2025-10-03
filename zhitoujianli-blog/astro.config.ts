@@ -23,7 +23,7 @@ const whenExternalScripts = (items: (() => AstroIntegration) | (() => AstroInteg
 
 export default defineConfig({
   output: 'static',
-  site: process.env.NODE_ENV === 'production' ? 'https://zhitoujianli.com' : 'http://localhost:4321',
+  site: process.env.NODE_ENV === 'production' ? 'http://115.190.182.95' : 'http://localhost:4321',
   base: '/blog/',
 
   integrations: [
