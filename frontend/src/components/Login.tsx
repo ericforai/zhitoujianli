@@ -13,6 +13,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { authService } from '../services/authService';
+import { authingService } from '../services/authingService';
 import './Login.css';
 
 type LoginMode = 'email' | 'phone';
@@ -33,6 +34,7 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [useAuthing, setUseAuthing] = useState(false); // 是否使用Authing认证
 
   // 倒计时效果
   useEffect(() => {
@@ -44,6 +46,7 @@ const Login: React.FC = () => {
 
   /**
    * 邮箱密码登录
+   * 支持两种认证方式：后端API和Authing SDK
    */
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +55,18 @@ const Login: React.FC = () => {
 
     try {
       console.log('🔍 开始邮箱登录请求...');
-      const result = await authService.loginByEmail(email, password);
+      console.log('🔧 使用认证方式:', useAuthing ? 'Authing SDK' : '后端API');
+
+      let result;
+
+      if (useAuthing) {
+        // 使用Authing SDK进行登录
+        result = await authingService.loginByEmail(email, password);
+      } else {
+        // 使用后端API进行登录
+        result = await authService.loginByEmail(email, password);
+      }
+
       console.log('📥 登录响应结果:', result);
 
       if (result.success) {
@@ -66,18 +80,19 @@ const Login: React.FC = () => {
 
         // 设置跨域Cookie以便后台管理能够读取Token
         if (result.token) {
+          const tokenKey = useAuthing ? 'authingToken' : 'authToken';
           // 设置Cookie到当前域
-          document.cookie = `authToken=${result.token}; path=/; domain=115.190.182.95; secure=false; SameSite=Lax`;
-          console.log('🍪 已设置authToken Cookie:', result.token.substring(0, 20) + '...');
+          document.cookie = `${tokenKey}=${result.token}; path=/; domain=115.190.182.95; secure=false; SameSite=Lax`;
+          console.log('🍪 已设置Token Cookie:', result.token.substring(0, 20) + '...');
         }
 
         setTimeout(() => {
-          // 跳转到投递简历页面
-          const redirectUrl = '/resume-delivery';
+          // 跳转到BOSS直聘投递简历页面
+          const redirectUrl = 'https://www.zhipin.com/web/geek/job?ka=header_job';
 
-          console.log('🚀 执行跳转到:', redirectUrl);
+          console.log('🚀 执行跳转到BOSS直聘:', redirectUrl);
           console.log('🔧 跳转前最后检查 - 当前URL:', window.location.href);
-          window.location.href = redirectUrl;
+          window.open(redirectUrl, '_blank');
         }, 1000);
       } else {
         console.log('❌ 登录失败:', result.message);
@@ -146,12 +161,12 @@ const Login: React.FC = () => {
         }
 
         setTimeout(() => {
-          // 跳转到投递简历页面
-          const redirectUrl = '/resume-delivery';
+          // 跳转到BOSS直聘投递简历页面
+          const redirectUrl = 'https://www.zhipin.com/web/geek/job?ka=header_job';
 
-          console.log('🚀 执行跳转到:', redirectUrl);
+          console.log('🚀 执行跳转到BOSS直聘:', redirectUrl);
           console.log('🔧 跳转前最后检查 - 当前URL:', window.location.href);
-          window.location.href = redirectUrl;
+          window.open(redirectUrl, '_blank');
         }, 1000);
       } else {
         setError(result.message || '登录失败，请检查验证码');
@@ -176,6 +191,30 @@ const Login: React.FC = () => {
 
         {/* 登录卡片 */}
         <div className="bg-white rounded-lg shadow-lg p-8">
+          {/* 认证方式切换 */}
+          <div className="flex border-b mb-4">
+            <button
+              className={`flex-1 py-2 text-center text-sm ${
+                !useAuthing
+                  ? 'border-b-2 border-indigo-600 text-indigo-600 font-semibold'
+                  : 'text-gray-500'
+              }`}
+              onClick={() => setUseAuthing(false)}
+            >
+              后端API认证
+            </button>
+            <button
+              className={`flex-1 py-2 text-center text-sm ${
+                useAuthing
+                  ? 'border-b-2 border-indigo-600 text-indigo-600 font-semibold'
+                  : 'text-gray-500'
+              }`}
+              onClick={() => setUseAuthing(true)}
+            >
+              Authing SDK认证
+            </button>
+          </div>
+
           {/* 登录方式切换 */}
           <div className="flex border-b mb-6">
             <button

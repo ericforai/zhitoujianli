@@ -1,8 +1,9 @@
 ---
 title: "智能化打招呼语：AI驱动的简历投递个性化方案"
 description: "基于AI技术的简历投递优化功能，通过分析求职者简历和目标岗位描述，生成个性化、高匹配度的打招呼语，提升投递成功率。"
+excerpt: "告别千篇一律的求职打招呼语！智投简历的AI智能打招呼语功能，通过深度分析简历和岗位要求，生成个性化、高匹配度的开场白，显著提升HR回复率。"
 pubDate: 2025-01-28
-heroImage: "/src/assets/images/hero-image.png"
+heroImage: "/_astro/default.CZ816Hke_Z2gd2WR.jpg"
 tags: ["AI", "求职", "智能化", "简历", "招聘"]
 author: "智投简历团队"
 keywords: "AI求职,智能打招呼语,简历投递,个性化投递,Boss直聘,求职优化,AI招聘,智能简历,求职技巧,HR回复率"
@@ -217,7 +218,7 @@ public class AiService {
     public static String sendRequest(String content)){
         // 支持多AI服务提供商
         // - OpenAI API
-        // - DeepSeek API  
+        // - DeepSeek API
         // - Ollama本地AI
         // - 其他兼容OpenAI格式的API
     }
@@ -241,16 +242,16 @@ public class AiService {
 const calculateMatchScore = (resumeData: ResumeData, jdText: string) => {
   // 技能匹配度 (40%)
   const skillScore = calculateSkillMatch(resumeData.skills, extractSkillsFromJD(jdText));
-  
+
   // 经验匹配度 (30%)
   const experienceScore = calculateExperienceMatch(resumeData.experience, extractExperienceFromJD(jdText));
-  
+
   // 背景匹配度 (20%)
   const backgroundScore = calculateBackgroundMatch(resumeData.education, extractBackgroundFromJD(jdText));
-  
+
   // 项目匹配度 (10%)
   const projectScore = calculateProjectMatch(resumeData.projects, extractProjectFromJD(jdText));
-  
+
   return Math.floor((skillScore * 0.4 + experienceScore * 0.3 + backgroundScore * 0.2 + projectScore * 0.1));
 };
 ```

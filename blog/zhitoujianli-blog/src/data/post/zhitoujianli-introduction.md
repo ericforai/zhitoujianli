@@ -1,11 +1,40 @@
 ---
 title: 智投简历 - 让求职更智能
 description: 智投简历是一款基于AI技术的智能简历投递平台，帮助求职者更高效地找到心仪工作。
+excerpt: 智投简历是一款革命性的AI求职平台，通过智能匹配、简历优化、个性化投递等功能，帮助求职者更精准、更高效地找到心仪工作。让AI为你的求职之路助力！
 pubDate: 2024-01-15
 author: 智投简历团队
 image: ~/assets/images/hero-image.png
 tags: ["产品介绍", "AI技术", "求职工具"]
 category: "产品动态"
+keywords: "智投简历,AI求职平台,智能简历投递,求职工具,AI求职,智能匹配,简历优化,求职助手,职业发展,求职技巧"
+structuredData: |
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "智投简历 - 让求职更智能",
+    "author": {
+      "@type": "Organization",
+      "name": "智投简历团队"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "智投简历",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "http://115.190.182.95/logo.png"
+      }
+    },
+    "datePublished": "2024-01-15",
+    "dateModified": "2024-01-15",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "http://115.190.182.95/blog/zhitoujianli-introduction/"
+    },
+    "description": "智投简历是一款基于AI技术的智能简历投递平台，帮助求职者更高效地找到心仪工作。",
+    "image": "http://115.190.182.95/blog/_astro/default.CZ816Hke_Z2gd2WR.jpg",
+    "keywords": "智投简历,AI求职平台,智能简历投递,求职工具,AI求职,智能匹配,简历优化,求职助手,职业发展,求职技巧"
+  }
 ---
 
 # 智投简历 - 让求职更智能

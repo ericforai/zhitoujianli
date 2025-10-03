@@ -1,120 +1,103 @@
 ---
-title: 'Terms and Conditions'
+title: '智投简历服务条款'
 layout: '~/layouts/MarkdownLayout.astro'
 ---
 
-_Last updated_: January 06, 2023
+_最后更新时间_: 2024年12月19日
 
-Please read these terms and conditions carefully before using Our Service.
+在使用智投简历服务之前，请仔细阅读本服务条款。
 
-## Interpretation and Definitions
+## 服务概述
 
-### Interpretation
+智投简历（以下简称"我们"或"智投简历"）是一款基于人工智能技术的智能简历投递平台，旨在帮助求职者更高效、更精准地找到理想工作。
 
-The words of which the initial letter is capitalized have meanings defined under the following conditions. The following definitions shall have the same meaning regardless of whether they appear in singular or in plural.
+## 服务条款接受
 
-### Definitions
+通过访问或使用智投简历服务，您同意受本服务条款的约束。如果您不同意本服务条款的任何部分，则不得访问或使用我们的服务。
 
-For the purposes of these Terms and Conditions:
+## 服务内容
 
-- **Affiliate** means an entity that controls, is controlled by or is under common control with a party, where "control" means ownership of 50% or more of the shares, equity interest or other securities entitled to vote for election of directors or other managing authority.
+智投简历提供以下核心服务：
 
-- **Country** refers to: California, United States
+- **AI智能匹配**：基于人工智能算法分析职位要求与简历匹配度
+- **简历优化**：智能优化简历内容，提高通过率
+- **精准投递**：一键批量投递，实时跟踪投递状态
+- **数据分析**：提供投递成功率统计和行业趋势分析
 
-- **Company** (referred to as either "the Company", "We", "Us" or "Our" in this Agreement) refers to AstroWind LLC, 1 Cupertino, CA 95014.
+## 用户责任
 
-- **Device** means any device that can access the Service such as a computer, a cellphone or a digital tablet.
+### 账户注册
+- 您必须年满18周岁才能使用我们的服务
+- 您需要提供真实、准确、完整的信息进行注册
+- 您有责任维护账户信息的安全性和准确性
 
-- **Service** refers to the Website.
+### 使用规范
+- 不得使用服务进行任何违法或有害活动
+- 不得上传虚假、误导性或不当的简历内容
+- 不得恶意攻击、破坏或干扰服务正常运行
+- 不得侵犯他人知识产权或其他合法权益
 
-- **Terms and Conditions** (also referred as "Terms") mean these Terms and Conditions that form the entire agreement between You and the Company regarding the use of the Service. This Terms and Conditions agreement is a Demo.
+### 简历内容
+- 您上传的简历内容必须真实、准确
+- 不得包含虚假信息或误导性内容
+- 您对上传的简历内容承担全部责任
 
-- **Third-party Social Media Service** means any services or content (including data, information, products or services) provided by a third-party that may be displayed, included or made available by the Service.
+## 隐私保护
 
-- **Website** refers to AstroWind, accessible from [https://astrowind.vercel.app](https://astrowind.vercel.app)
+我们重视您的隐私保护，详细内容请参阅我们的[隐私政策](/privacy)。
 
-- **You** means the individual accessing or using the Service, or the company, or other legal entity on behalf of which such individual is accessing or using the Service, as applicable.
+## 服务费用
 
-## Acknowledgment
+- 基础功能免费使用
+- 高级功能可能需要付费订阅
+- 具体收费标准请查看价格页面
+- 我们保留调整价格的权利，调整前会提前通知
 
-These are the Terms and Conditions governing the use of this Service and the agreement that operates between You and the Company. These Terms and Conditions set out the rights and obligations of all users regarding the use of the Service.
+## 服务可用性
 
-Your access to and use of the Service is conditioned on Your acceptance of and compliance with these Terms and Conditions. These Terms and Conditions apply to all visitors, users and others who access or use the Service.
+- 我们努力确保服务的稳定运行，但不保证服务不会中断
+- 我们可能因维护、升级等原因暂停服务
+- 我们不对因服务中断造成的损失承担责任
 
-By accessing or using the Service You agree to be bound by these Terms and Conditions. If You disagree with any part of these Terms and Conditions then You may not access the Service.
+## 知识产权
 
-You represent that you are over the age of 18\. The Company does not permit those under 18 to use the Service.
+- 智投简历的所有内容、功能和技术均受知识产权法保护
+- 您不得复制、修改、分发或商业化使用我们的服务内容
+- 您保留对上传简历内容的所有权
 
-Your access to and use of the Service is also conditioned on Your acceptance of and compliance with the Privacy Policy of the Company. Our Privacy Policy describes Our policies and procedures on the collection, use and disclosure of Your personal information when You use the Application or the Website and tells You about Your privacy rights and how the law protects You. Please read Our Privacy Policy carefully before using Our Service.
+## 免责声明
 
-## Links to Other Websites
+- 我们不对求职结果做出任何保证
+- 我们不对因使用服务而造成的任何损失承担责任
+- 我们不对第三方网站的内容或服务承担责任
 
-Our Service may contain links to third-party web sites or services that are not owned or controlled by the Company.
+## 服务变更和终止
 
-The Company has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third party web sites or services. You further acknowledge and agree that the Company shall not be responsible or liable, directly or indirectly, for any damage or loss caused or alleged to be caused by or in connection with the use of or reliance on any such content, goods or services available on or through any such web sites or services.
+- 我们保留随时修改、暂停或终止服务的权利
+- 我们可能因违反服务条款而终止您的账户
+- 服务终止后，您的数据将被删除或匿名化处理
 
-We strongly advise You to read the terms and conditions and privacy policies of any third-party web sites or services that You visit.
+## 争议解决
 
-## Termination
+如发生争议，双方应首先通过友好协商解决。协商不成的，可向有管辖权的人民法院提起诉讼。
 
-We may terminate or suspend Your access immediately, without prior notice or liability, for any reason whatsoever, including without limitation if You breach these Terms and Conditions.
+## 适用法律
 
-Upon termination, Your right to use the Service will cease immediately.
+本服务条款受中华人民共和国法律管辖。
 
-## Limitation of Liability
+## 条款修改
 
-Notwithstanding any damages that You might incur, the entire liability of the Company and any of its suppliers under any provision of this Terms and Your exclusive remedy for all of the foregoing shall be limited to the amount actually paid by You through the Service or 100 USD if You haven't purchased anything through the Service.
+我们保留随时修改本服务条款的权利。修改后的条款将在网站上公布，继续使用服务即表示您接受修改后的条款。
 
-To the maximum extent permitted by applicable law, in no event shall the Company or its suppliers be liable for any special, incidental, indirect, or consequential damages whatsoever (including, but not limited to, damages for loss of profits, loss of data or other information, for business interruption, for personal injury, loss of privacy arising out of or in any way related to the use of or inability to use the Service, third-party software and/or third-party hardware used with the Service, or otherwise in connection with any provision of this Terms), even if the Company or any supplier has been advised of the possibility of such damages and even if the remedy fails of its essential purpose.
+## 联系我们
 
-Some states do not allow the exclusion of implied warranties or limitation of liability for incidental or consequential damages, which means that some of the above limitations may not apply. In these states, each party's liability will be limited to the greatest extent permitted by law.
+如果您对本服务条款有任何疑问，请通过以下方式联系我们：
 
-## "AS IS" and "AS AVAILABLE" Disclaimer
+- 邮箱：contact@zhitoujianli.com
+- 官网：http://115.190.182.95
+- 微信：zhitoujianli
 
-The Service is provided to You "AS IS" and "AS AVAILABLE" and with all faults and defects without warranty of any kind. To the maximum extent permitted under applicable law, the Company, on its own behalf and on behalf of its Affiliates and its and their respective licensors and service providers, expressly disclaims all warranties, whether express, implied, statutory or otherwise, with respect to the Service, including all implied warranties of merchantability, fitness for a particular purpose, title and non-infringement, and warranties that may arise out of course of dealing, course of performance, usage or trade practice. Without limitation to the foregoing, the Company provides no warranty or undertaking, and makes no representation of any kind that the Service will meet Your requirements, achieve any intended results, be compatible or work with any other software, applications, systems or services, operate without interruption, meet any performance or reliability standards or be error free or that any errors or defects can or will be corrected.
+---
 
-Without limiting the foregoing, neither the Company nor any of the company's provider makes any representation or warranty of any kind, express or implied: (i) as to the operation or availability of the Service, or the information, content, and materials or products included thereon; (ii) that the Service will be uninterrupted or error-free; (iii) as to the accuracy, reliability, or currency of any information or content provided through the Service; or (iv) that the Service, its servers, the content, or e-mails sent from or on behalf of the Company are free of viruses, scripts, trojan horses, worms, malware, timebombs or other harmful components.
-
-Some jurisdictions do not allow the exclusion of certain types of warranties or limitations on applicable statutory rights of a consumer, so some or all of the above exclusions and limitations may not apply to You. But in such a case the exclusions and limitations set forth in this section shall be applied to the greatest extent enforceable under applicable law.
-
-## Governing Law
-
-The laws of the Country, excluding its conflicts of law rules, shall govern this Terms and Your use of the Service. Your use of the Application may also be subject to other local, state, national, or international laws.
-
-## Disputes Resolution
-
-If You have any concern or dispute about the Service, You agree to first try to resolve the dispute informally by contacting the Company.
-
-## For European Union (EU) Users
-
-If You are a European Union consumer, you will benefit from any mandatory provisions of the law of the country in which you are resident in.
-
-## United States Legal Compliance
-
-You represent and warrant that (i) You are not located in a country that is subject to the United States government embargo, or that has been designated by the United States government as a "terrorist supporting" country, and (ii) You are not listed on any United States government list of prohibited or restricted parties.
-
-## Severability and Waiver
-
-### Severability
-
-If any provision of these Terms is held to be unenforceable or invalid, such provision will be changed and interpreted to accomplish the objectives of such provision to the greatest extent possible under applicable law and the remaining provisions will continue in full force and effect.
-
-### Waiver
-
-Except as provided herein, the failure to exercise a right or to require performance of an obligation under these Terms shall not effect a party's ability to exercise such right or require such performance at any time thereafter nor shall the waiver of a breach constitute a waiver of any subsequent breach.
-
-## Translation Interpretation
-
-These Terms and Conditions may have been translated if We have made them available to You on our Service. You agree that the original English text shall prevail in the case of a dispute.
-
-## Changes to These Terms and Conditions
-
-We reserve the right, at Our sole discretion, to modify or replace these Terms at any time. If a revision is material We will make reasonable efforts to provide at least 30 days' notice prior to any new terms taking effect. What constitutes a material change will be determined at Our sole discretion.
-
-By continuing to access or use Our Service after those revisions become effective, You agree to be bound by the revised terms. If You do not agree to the new terms, in whole or in part, please stop using the website and the Service.
-
-## Contact Us
-
-If you have any questions about these Terms and Conditions, You can contact us:
-
-- By email: somecoolemail@domain.com
+智投简历团队
+2024年12月19日

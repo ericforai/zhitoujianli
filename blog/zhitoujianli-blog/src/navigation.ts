@@ -1,4 +1,4 @@
-import { getPermalink, getBlogPermalink, getAsset } from './utils/permalinks';
+import { getAsset, getBlogPermalink, getPermalink } from './utils/permalinks';
 
 export const headerData = {
   links: [
@@ -59,25 +59,25 @@ export const footerData = {
     {
       title: '帮助支持',
       links: [
-        { text: '使用指南', href: (import.meta.env.SITE_URL || 'http://115.190.182.95') + '#demo' },
-        { text: '常见问题', href: (import.meta.env.SITE_URL || 'http://115.190.182.95') + '#contact' },
-        { text: '联系我们', href: (import.meta.env.SITE_URL || 'http://115.190.182.95') + '#contact' },
-        { text: '意见反馈', href: (import.meta.env.SITE_URL || 'http://115.190.182.95') + '#contact' },
+        { text: '使用指南', href: '/user-guide/' },
+        { text: '常见问题', href: '/faq/' },
+        { text: '联系我们', href: '/contact/' },
+        { text: '意见反馈', href: '/feedback/' },
       ],
     },
     {
       title: '关于我们',
       links: [
-        { text: '公司介绍', href: (import.meta.env.SITE_URL || 'http://115.190.182.95') + '#about' },
-        { text: '团队介绍', href: (import.meta.env.SITE_URL || 'http://115.190.182.95') + '#about' },
-        { text: '加入我们', href: (import.meta.env.SITE_URL || 'http://115.190.182.95') + '#contact' },
-        { text: '合作伙伴', href: (import.meta.env.SITE_URL || 'http://115.190.182.95') + '#contact' },
+        { text: '公司介绍', href: '/about/#company' },
+        { text: '团队介绍', href: '/about/#team' },
+        { text: '加入我们', href: '/careers/' },
+        { text: '合作伙伴', href: '/about/#partners' },
       ],
     },
   ],
   secondaryLinks: [
-    { text: '服务条款', href: (import.meta.env.SITE_URL || 'http://115.190.182.95') + '/terms' },
-    { text: '隐私政策', href: (import.meta.env.SITE_URL || 'http://115.190.182.95') + '/privacy' },
+    { text: '服务条款', href: '/terms/' },
+    { text: '隐私政策', href: '/privacy/' },
   ],
   socialLinks: [
     { ariaLabel: '微信', icon: 'tabler:brand-wechat', href: '#' },

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { authService } from '../services/authService';
 
 const Navigation = () => {
@@ -18,12 +18,12 @@ const Navigation = () => {
     };
 
     checkAuthStatus();
-    
+
     // 监听存储变化
     const handleStorageChange = () => {
       checkAuthStatus();
     };
-    
+
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
@@ -94,13 +94,7 @@ const Navigation = () => {
                    {isLoggedIn ? (
                      <>
                        <span className="text-gray-700 text-sm">欢迎，{user?.username || user?.email || '用户'}</span>
-                       <button 
-                         onClick={handleDashboardClick}
-                         className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-                       >
-                         后台管理
-                       </button>
-                       <button 
+                       <button
                          onClick={handleLogout}
                          className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
                        >
@@ -154,20 +148,14 @@ const Navigation = () => {
               <a href="#contact" className="text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium">
                 联系我们
               </a>
-              
+
               {/* 移动端登录按钮 */}
               {isLoggedIn ? (
                 <>
                   <div className="px-3 py-2 text-sm text-gray-600">
                     欢迎，{user?.username || user?.email || '用户'}
                   </div>
-                  <button 
-                    onClick={handleDashboardClick}
-                    className="w-full bg-indigo-600 text-white px-6 py-2 rounded-lg mt-2 text-center block hover:bg-indigo-700"
-                  >
-                    后台管理
-                  </button>
-                  <button 
+                  <button
                     onClick={handleLogout}
                     className="w-full bg-gray-600 text-white px-6 py-2 rounded-lg mt-2 text-center block hover:bg-gray-700"
                   >
