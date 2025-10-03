@@ -231,7 +231,7 @@ const ResumeDelivery: React.FC = () => {
                       配置搜索条件
                     </button>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-lg">
                     <h4 className="font-semibold mb-2">🎯 精准匹配</h4>
                     <p className="text-sm opacity-90 mb-3">AI分析简历与职位匹配度</p>
@@ -242,7 +242,7 @@ const ResumeDelivery: React.FC = () => {
                       优化简历内容
                     </button>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-lg">
                     <h4 className="font-semibold mb-2">⚡ 自动投递</h4>
                     <p className="text-sm opacity-90 mb-3">一键启动全自动投递流程</p>
