@@ -1,0 +1,44 @@
+{
+  "templates": {
+    "feature-development": {
+      "name": "功能开发",
+      "template": "我需要开发一个新功能：{feature}。请帮我：1. 分析需求 2. 设计架构 3. 编写代码 4. 添加测试 5. 更新文档。请遵循项目开发规范。"
+    },
+    "bug-fix": {
+      "name": "Bug修复",
+      "template": "我遇到了一个Bug：{bug_description}。请帮我：1. 分析问题原因 2. 提供解决方案 3. 编写修复代码 4. 添加测试用例 5. 验证修复效果。"
+    },
+    "code-review": {
+      "name": "代码审查",
+      "template": "请审查以下代码：\n```{language}\n{code}\n```\n请检查：1. 代码质量 2. 安全性 3. 性能 4. 可维护性 5. 测试覆盖。"
+    },
+    "refactoring": {
+      "name": "代码重构",
+      "template": "请重构以下代码：\n```{language}\n{code}\n```\n目标是：{goal}。请提供重构方案和优化建议。"
+    },
+    "performance-optimization": {
+      "name": "性能优化",
+      "template": "以下代码存在性能问题：\n```{language}\n{code}\n```\n请分析性能瓶颈并提供优化方案。"
+    },
+    "security-audit": {
+      "name": "安全审计",
+      "template": "请对以下代码进行安全审计：\n```{language}\n{code}\n```\n检查安全漏洞并提供防护建议。"
+    },
+    "test-generation": {
+      "name": "测试生成",
+      "template": "请为以下代码生成测试用例：\n```{language}\n{code}\n```\n包括：1. 单元测试 2. 集成测试 3. 边界测试 4. 异常测试。"
+    },
+    "documentation": {
+      "name": "文档编写",
+      "template": "请为以下代码编写文档：\n```{language}\n{code}\n```\n包括：1. 功能说明 2. API文档 3. 使用示例 4. 注意事项。"
+    },
+    "architecture-design": {
+      "name": "架构设计",
+      "template": "我需要设计一个{component}的架构。需求：{requirements}。请提供：1. 架构设计 2. 技术选型 3. 实现方案 4. 注意事项。"
+    },
+    "deployment-plan": {
+      "name": "部署方案",
+      "template": "我需要制定部署方案，环境：{environment}，要求：{requirements}。请提供：1. 部署架构 2. 配置方案 3. 监控策略 4. 回滚方案。"
+    }
+  }
+}

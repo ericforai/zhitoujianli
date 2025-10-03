@@ -22,7 +22,7 @@ const Footer = () => {
             <ul className="space-y-2">
               <li><a href="#features" className="text-gray-400 hover:text-white transition-colors">功能</a></li>
               <li><a href="#demo" className="text-gray-400 hover:text-white transition-colors">演示</a></li>
-              <li><a href="https://zhitoujianli.com/blog/" className="text-gray-400 hover:text-white transition-colors">博客</a></li>
+              <li><a href="/blog/" className="text-gray-400 hover:text-white transition-colors">博客</a></li>
               <li><a href="#pricing" className="text-gray-400 hover:text-white transition-colors">价格</a></li>
               <li><a href="#contact" className="text-gray-400 hover:text-white transition-colors">联系我们</a></li>
             </ul>

@@ -1,0 +1,33 @@
+{
+  "cursor.ai.enabled": true,
+  "cursor.ai.model": "gpt-4",
+  "cursor.ai.temperature": 0.1,
+  "cursor.ai.maxTokens": 4000,
+  "cursor.ai.contextWindow": 8000,
+  "cursor.ai.includeWorkspace": true,
+  "cursor.ai.includeGitHistory": true,
+  "cursor.ai.includeOpenFiles": true,
+  "cursor.ai.includeRecentFiles": true,
+  "cursor.ai.includeProjectStructure": true,
+  "cursor.ai.includeRules": true,
+  "cursor.ai.alwaysIncludeRules": true,
+  "cursor.ai.rulesPriority": "high",
+  "cursor.ai.customInstructions": "🚨 重要：你正在协助开发智投简历SaaS项目。每次对话都必须严格遵循.cursorrules中的所有项目规范，使用中文交流，考虑安全性、性能和可维护性。",
+  "cursor.ai.codeStyle": "严格遵循项目规范，使用TypeScript和Java最佳实践，包含完整的错误处理和类型定义",
+  "cursor.ai.securityFocus": "始终考虑代码安全性，避免常见安全漏洞，包含输入验证和XSS防护",
+  "cursor.ai.performanceFocus": "关注代码性能和用户体验，提供优化建议",
+  "cursor.ai.testingFocus": "建议添加适当的测试用例，确保测试覆盖",
+  "cursor.ai.documentationFocus": "提供清晰的中文注释和文档",
+  "cursor.ai.consistencyCheck": true,
+  "cursor.ai.ruleEnforcement": "strict",
+  "cursor.ai.autoApplyRules": true,
+  "cursor.ai.remindRules": true,
+  "cursor.ai.projectContext": "智投简历SaaS项目 - React + Spring Boot + AI服务",
+  "cursor.ai.qualityGates": {
+    "typeSafety": true,
+    "securityCheck": true,
+    "performanceCheck": true,
+    "errorHandling": true,
+    "documentation": true
+  }
+}

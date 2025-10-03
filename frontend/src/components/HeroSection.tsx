@@ -20,7 +20,7 @@ const HeroSection = () => {
                    <a href="#contact" className="bg-gradient-primary text-white px-8 py-4 rounded-lg text-lg font-semibold hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg text-center">
                      立即体验
                    </a>
-                   <a href="https://zhitoujianli.com" target="_blank" rel="noopener noreferrer" className="bg-gray-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg text-center">
+                   <a href="/" target="_blank" rel="noopener noreferrer" className="bg-gray-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg text-center">
                      后台管理
                    </a>
                    <a href="#pricing" className="border-2 border-primary-500 text-primary-500 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-primary-500 hover:text-white transition-all duration-300 text-center">

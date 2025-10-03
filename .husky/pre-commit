@@ -1,0 +1,47 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# 运行代码质量检查
+echo "🔍 运行代码质量检查..."
+
+# 前端代码检查
+if [ -d "frontend" ]; then
+  echo "📱 检查前端代码..."
+  cd frontend
+
+  # 类型检查
+  echo "🔧 运行TypeScript类型检查..."
+  npm run type-check
+
+  # ESLint检查
+  echo "📝 运行ESLint检查..."
+  npm run lint:check
+
+  # Prettier格式检查
+  echo "💅 运行Prettier格式检查..."
+  npm run format:check
+
+  cd ..
+fi
+
+# 后端代码检查
+if [ -d "backend/get_jobs" ]; then
+  echo "⚙️ 检查后端代码..."
+  cd backend/get_jobs
+
+  # Checkstyle检查
+  echo "📋 运行Checkstyle检查..."
+  mvn checkstyle:check
+
+  # SpotBugs检查
+  echo "🐛 运行SpotBugs检查..."
+  mvn spotbugs:check
+
+  # PMD检查
+  echo "🔍 运行PMD检查..."
+  mvn pmd:check
+
+  cd ../..
+fi
+
+echo "✅ 代码质量检查完成！"

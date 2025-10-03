@@ -1,0 +1,45 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# 推送前的检查
+echo "🚀 推送前检查..."
+
+# 运行完整的测试套件
+echo "🧪 运行测试套件..."
+
+# 前端测试
+if [ -d "frontend" ]; then
+  echo "📱 运行前端测试..."
+  cd frontend
+  npm test -- --watchAll=false --coverage --passWithNoTests
+  cd ..
+fi
+
+# 后端测试
+if [ -d "backend/get_jobs" ]; then
+  echo "⚙️ 运行后端测试..."
+  cd backend/get_jobs
+  mvn test
+  cd ../..
+fi
+
+# 构建检查
+echo "🏗️ 构建检查..."
+
+# 前端构建
+if [ -d "frontend" ]; then
+  echo "📱 构建前端..."
+  cd frontend
+  npm run build
+  cd ..
+fi
+
+# 后端构建
+if [ -d "backend/get_jobs" ]; then
+  echo "⚙️ 构建后端..."
+  cd backend/get_jobs
+  mvn compile
+  cd ../..
+fi
+
+echo "✅ 推送前检查完成！"

@@ -27,7 +27,7 @@ const BlogSection = () => {
             <div className="p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-2">简历优化技巧</h3>
               <p className="text-gray-600 mb-4">学习如何打造一份脱颖而出的简历，提高面试邀请率</p>
-              <a href="https://zhitoujianli.com/blog/resume-optimization-tips/" className="text-indigo-600 hover:text-indigo-800 font-medium">
+              <a href="/blog/resume-optimization-tips/" className="text-indigo-600 hover:text-indigo-800 font-medium">
                 阅读更多 →
               </a>
             </div>
@@ -45,7 +45,7 @@ const BlogSection = () => {
             <div className="p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-2">面试准备完全指南</h3>
               <p className="text-gray-600 mb-4">从准备到成功的全流程指导，助你自信应对面试</p>
-              <a href="https://zhitoujianli.com/blog/interview-preparation-guide/" className="text-indigo-600 hover:text-indigo-800 font-medium">
+              <a href="/blog/interview-preparation-guide/" className="text-indigo-600 hover:text-indigo-800 font-medium">
                 阅读更多 →
               </a>
             </div>
@@ -63,7 +63,7 @@ const BlogSection = () => {
             <div className="p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-2">智投简历介绍</h3>
               <p className="text-gray-600 mb-4">了解智投简历的AI技术，让求职更智能高效</p>
-              <a href="https://zhitoujianli.com/blog/zhitoujianli-introduction/" className="text-indigo-600 hover:text-indigo-800 font-medium">
+              <a href="/blog/zhitoujianli-introduction/" className="text-indigo-600 hover:text-indigo-800 font-medium">
                 阅读更多 →
               </a>
             </div>
@@ -72,7 +72,7 @@ const BlogSection = () => {
 
         <div className="text-center">
           <a 
-            href="https://zhitoujianli.com/blog/" 
+            href="/blog/" 
             className="bg-gradient-primary text-white px-8 py-3 rounded-lg text-lg font-semibold hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg inline-flex items-center space-x-2"
           >
             <span>访问博客</span>

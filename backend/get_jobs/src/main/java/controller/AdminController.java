@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -135,59 +136,6 @@ public class AdminController {
             ));
         }
     }
-    @GetMapping("/dashboard")
-    public ResponseEntity<Map<String, Object>> getDashboard() {
-        try {
-            String userId = UserContextUtil.getCurrentUserId();
-            log.info("🎯 获取管理员仪表板: userId={}", userId);
-            
-            // 检查管理员权限
-            if (!adminService.isAdmin(userId)) {
-                return ResponseEntity.status(403).body(Map.of(
-                    "success", false,
-                    "message", "需要管理员权限"
-                ));
-            }
-            
-            Map<String, Object> dashboard = new HashMap<>();
-            
-            // 基础统计数据
-            dashboard.put("totalUsers", 1250); // TODO: 从实际数据库获取
-            dashboard.put("activeUsers", 856);
-            dashboard.put("newUsersToday", 23);
-            dashboard.put("totalRevenue", 12580.50);
-            
-            // 套餐分布
-            Map<String, Integer> planDistribution = new HashMap<>();
-            planDistribution.put("FREE", 800);
-            planDistribution.put("BASIC", 300);
-            planDistribution.put("PROFESSIONAL", 120);
-            planDistribution.put("ENTERPRISE", 30);
-            dashboard.put("planDistribution", planDistribution);
-            
-            // 配额使用趋势
-            dashboard.put("quotaUsageTrend", generateMockTrend());
-            
-            // 系统状态
-            Map<String, Object> systemStatus = new HashMap<>();
-            systemStatus.put("status", "healthy");
-            systemStatus.put("uptime", "99.98%");
-            systemStatus.put("responseTime", "120ms");
-            dashboard.put("systemStatus", systemStatus);
-            
-            return ResponseEntity.ok(Map.of(
-                "success", true,
-                "data", dashboard
-            ));
-            
-        } catch (Exception e) {
-            log.error("❌ 获取管理员仪表板异常", e);
-            return ResponseEntity.status(500).body(Map.of(
-                "success", false,
-                "message", "获取仪表板数据失败"
-            ));
-        }
-    }
     
     /**
      * 获取用户列表
@@ -237,7 +185,7 @@ public class AdminController {
      * 初始化超级管理员（仅用于系统初始化）
      */
     @PostMapping("/init-super-admin")
-    public ResponseEntity<Map<String, Object>> initSuperAdmin(@RequestBody InitSuperAdminRequest request) {
+    public ResponseEntity<Map<String, Object>> initSuperAdmin(@RequestBody InitSuperAdminRequest request, HttpServletRequest httpRequest) {
         try {
             log.info("🚀 初始化超级管理员: userId={}", request.getUserId());
             
@@ -276,7 +224,7 @@ public class AdminController {
                     "adminType", superAdmin.getAdminType(),
                     "permissions", superAdmin.getPermissions(),
                     "createdAt", superAdmin.getCreatedAt(),
-                    "loginUrl", request.getScheme() + "://" + request.getServerName() + (request.getServerPort() != 80 && request.getServerPort() != 443 ? ":" + request.getServerPort() : "") + "/",
+                    "loginUrl", httpRequest.getScheme() + "://" + httpRequest.getServerName() + (httpRequest.getServerPort() != 80 && httpRequest.getServerPort() != 443 ? ":" + httpRequest.getServerPort() : "") + "/",
                     "adminDashboard", "http://localhost:8080/api/admin/dashboard"
                 )
             ));
