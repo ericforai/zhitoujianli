@@ -5,6 +5,7 @@ import cn.authing.sdk.java.client.AuthenticationClient;
 import cn.authing.sdk.java.dto.CreateUserReqDto;
 import cn.authing.sdk.java.dto.UserSingleRespDto;
 import cn.authing.sdk.java.dto.SignInOptionsDto;
+import cn.authing.sdk.java.dto.LoginTokenRespDto;
 import com.superxiang.dto.ErrorResponse;
 import config.AuthingConfig;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -148,20 +149,20 @@ public class AuthController {
             
             // 使用AuthenticationClient进行登录
             SignInOptionsDto options = new SignInOptionsDto();
-            Map<String, Object> loginResult = authenticationClient.signInByEmailPassword(email, password, options);
+            LoginTokenRespDto loginResult = authenticationClient.signInByEmailPassword(email, password, options);
             
             log.info("📥 登录响应: {}", loginResult);
 
-            if (loginResult != null && loginResult.get("access_token") != null) {
+            if (loginResult != null && loginResult.getData() != null) {
                 Map<String, Object> result = new HashMap<>();
                 result.put("success", true);
-                result.put("token", loginResult.get("access_token"));
-                result.put("refreshToken", loginResult.get("refresh_token"));
-                result.put("expiresIn", loginResult.get("expires_in"));
+                result.put("token", loginResult.getData().getAccessToken());
+                result.put("refreshToken", loginResult.getData().getRefreshToken());
+                result.put("expiresIn", 7200); // Default 2 hours
                 result.put("user", Map.of(
-                    "userId", loginResult.get("sub") != null ? loginResult.get("sub") : "unknown",
+                    "userId", "unknown",
                     "email", email,
-                    "username", loginResult.get("nickname") != null ? loginResult.get("nickname") : email
+                    "username", email
                 ));
 
                 log.info("✅ 用户登录成功，邮箱: {}", email);

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智投简历博客 — 让求职更智能</title>
+    <meta name="description" content="智投简历官方博客 - 分享求职技巧、简历优化、面试经验、职场发展等实用内容，助你更快拿到心仪Offer">
+    <link rel="stylesheet" href="/blog/_astro/click-through.BEzTWakg.css">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+        .header { background: white; border-bottom: 1px solid #e5e7eb; padding: 1rem 0; position: sticky; top: 0; z-index: 50; }
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 1rem; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: #1f2937; text-decoration: none; }
+        .nav { display: flex; gap: 2rem; }
+        .nav a { color: #6b7280; text-decoration: none; font-weight: 500; }
+        .nav a:hover { color: #3b82f6; }
+        .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 3rem 0; text-align: center; }
+        .hero h1 { font-size: 2.5rem; margin: 0 0 1rem 0; font-weight: bold; }
+        .hero p { font-size: 1.2rem; margin: 0 0 2rem 0; opacity: 0.9; }
+        .hero-buttons { display: flex; gap: 1rem; justify-content: center; }
+        .btn { padding: 0.75rem 1.5rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600; transition: all 0.3s; }
+        .btn-primary { background: #3b82f6; color: white; }
+        .btn-primary:hover { background: #2563eb; }
+        .btn-secondary { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.3); }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+        .section { padding: 4rem 0; }
+        .section-title { text-align: center; margin-bottom: 3rem; }
+        .section-title h2 { font-size: 2rem; font-weight: bold; color: #1f2937; margin: 0 0 1rem 0; }
+        .section-title p { color: #6b7280; font-size: 1.1rem; }
+        .articles-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 3rem; }
+        .article-card { background: white; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; }
+        .article-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        .article-image { width: 100%; height: 200px; background: linear-gradient(45deg, #f3f4f6, #e5e7eb); display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 1.5rem; }
+        .article-content { padding: 1.5rem; }
+        .article-title { font-size: 1.25rem; font-weight: bold; margin: 0 0 0.5rem 0; }
+        .article-title a { color: #1f2937; text-decoration: none; }
+        .article-title a:hover { color: #3b82f6; }
+        .article-meta { color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem; }
+        .article-excerpt { color: #4b5563; line-height: 1.6; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+        .feature { text-align: center; padding: 2rem 1rem; }
+        .feature-icon { width: 60px; height: 60px; background: #3b82f6; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; }
+        .feature h3 { font-size: 1.25rem; font-weight: bold; margin: 0 0 0.5rem 0; }
+        .feature p { color: #6b7280; }
+        .footer { background: #1f2937; color: white; padding: 3rem 0 1rem; }
+        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 2rem; }
+        .footer-section h3 { font-size: 1.125rem; font-weight: bold; margin: 0 0 1rem 0; }
+        .footer-section ul { list-style: none; padding: 0; margin: 0; }
+        .footer-section li { margin-bottom: 0.5rem; }
+        .footer-section a { color: #d1d5db; text-decoration: none; }
+        .footer-section a:hover { color: white; }
+        .footer-bottom { border-top: 1px solid #374151; padding-top: 1rem; text-align: center; color: #9ca3af; }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+            .nav { display: none; }
+            .articles-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="/blog/" class="logo">📝 智投简历博客</a>
+            <nav class="nav">
+                <a href="http://115.190.182.95">首页</a>
+                <a href="/blog/">博客</a>
+                <a href="http://115.190.182.95#contact">关于我们</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>智投简历官方博客</h1>
+            <p>分享求职技巧、简历优化、面试经验、职场发展等实用内容，助你更快拿到心仪Offer</p>
+            <div class="hero-buttons">
+                <a href="http://115.190.182.95" class="btn btn-primary">立即体验</a>
+                <a href="#articles" class="btn btn-secondary">查看文章</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="articles">
+        <div class="container">
+            <div class="section-title">
+                <h2>最新博客文章</h2>
+                <p>专业的求职指导内容，涵盖简历优化、面试技巧、职场发展等各个方面</p>
+            </div>
+            
+            <div class="articles-grid">
+                <article class="article-card">
+                    <div class="article-image">🚀</div>
+                    <div class="article-content">
+                        <h3 class="article-title"><a href="/blog/intelligent-greeting-feature/">智能化打招呼语：AI驱动的简历投递个性化方案</a></h3>
+                        <div class="article-meta">智投简历团队 · 2025年10月3日</div>
+                        <p class="article-excerpt">探索AI技术在求职打招呼语中的创新应用，如何通过智能化方案提升简历投递的个性化程度。</p>
+                    </div>
+                </article>
+
+                <article class="article-card">
+                    <div class="article-image">📊</div>
+                    <div class="article-content">
+                        <h3 class="article-title"><a href="/blog/ai-smart-greeting-deep-dive/">AI智能打招呼语深度解析：让求职投递HR回复率提升342%的技术方案</a></h3>
+                        <div class="article-meta">智投简历技术团队 · 2025年10月3日</div>
+                        <p class="article-excerpt">详细介绍两阶段AI处理架构、隐私保护优先设计、PDF/DOC简历解析技术，以及真实测试数据。</p>
+                    </div>
+                </article>
+
+                <article class="article-card">
+                    <div class="article-image">💼</div>
+                    <div class="article-content">
+                        <h3 class="article-title"><a href="/blog/career-development-guide/">职场发展指南：从新手到专家的成长路径</a></h3>
+                        <div class="article-meta">智投简历团队 · 2025年10月3日</div>
+                        <p class="article-excerpt">全面的职场发展指南，帮助你制定职业规划，提升职业技能，实现从职场新手到行业专家的转变。</p>
+                    </div>
+                </article>
+
+                <article class="article-card">
+                    <div class="article-image">🤖</div>
+                    <div class="article-content">
+                        <h3 class="article-title"><a href="/blog/ai-job-matching-technology/">AI职位匹配技术深度解析：如何让求职更精准</a></h3>
+                        <div class="article-meta">智投简历技术团队 · 2025年10月3日</div>
+                        <p class="article-excerpt">深入分析AI职位匹配技术的核心原理、算法模型和实际应用，揭秘智投简历如何通过AI技术提升求职匹配精准度。</p>
+                    </div>
+                </article>
+
+                <article class="article-card">
+                    <div class="article-image">📈</div>
+                    <div class="article-content">
+                        <h3 class="article-title"><a href="/blog/industry-trends-analysis/">2025年就业市场趋势分析：AI时代的职业新机遇</a></h3>
+                        <div class="article-meta">智投简历市场研究团队 · 2025年10月3日</div>
+                        <p class="article-excerpt">深度分析2025年就业市场趋势，探讨AI技术发展对各行各业的影响，为求职者提供前瞻性的职业规划建议。</p>
+                    </div>
+                </article>
+
+                <article class="article-card">
+                    <div class="article-image">📝</div>
+                    <div class="article-content">
+                        <h3 class="article-title"><a href="/blog/zhitoujianli-introduction/">智投简历 - 让求职更智能</a></h3>
+                        <div class="article-meta">智投简历团队 · 2025年10月3日</div>
+                        <p class="article-excerpt">介绍智投简历平台的核心理念、主要功能和技术特色，展示如何通过AI技术让求职更高效。</p>
+                    </div>
+                </article>
+
+                <article class="article-card">
+                    <div class="article-image">✨</div>
+                    <div class="article-content">
+                        <h3 class="article-title"><a href="/blog/resume-optimization-tips/">简历优化技巧 - 让你的简历脱颖而出</a></h3>
+                        <div class="article-meta">智投简历团队 · 2025年10月3日</div>
+                        <p class="article-excerpt">详细的简历优化指南，从格式到内容，从关键词到排版，全方位提升简历质量，让你的简历在众多求职者中脱颖而出。</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" style="background: #f9fafb;">
+        <div class="container">
+            <div class="section-title">
+                <h2>博客特色</h2>
+                <p>智投简历博客为您提供专业的求职指导内容</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature">
+                    <div class="feature-icon">👥</div>
+                    <h3>专业求职指导</h3>
+                    <p>由资深HR和职业规划师撰写，提供最实用的求职技巧和职场建议</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📄</div>
+                    <h3>简历优化技巧</h3>
+                    <p>详细的简历优化指南，从格式到内容，全方位提升简历质量</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">💬</div>
+                    <h3>面试准备指南</h3>
+                    <p>全面的面试准备攻略，包括常见问题回答、面试技巧、心理准备等</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📈</div>
+                    <h3>职场发展建议</h3>
+                    <p>职业规划和发展建议，帮助您明确职业方向，制定发展计划</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📊</div>
+                    <h3>行业趋势分析</h3>
+                    <p>最新的行业动态和就业趋势分析，帮助您了解市场变化</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🏆</div>
+                    <h3>成功案例分享</h3>
+                    <p>真实的求职成功案例分享，学习他人的经验，为自己的求职之路提供参考</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>智投简历博客</h3>
+                    <p>让求职更智能，为求职者提供全方位的职业发展支持。</p>
+                </div>
+                <div class="footer-section">
+                    <h3>博客分类</h3>
+                    <ul>
+                        <li><a href="/blog/category/产品动态/">产品动态</a></li>
+                        <li><a href="/blog/category/求职指南/">求职指南</a></li>
+                        <li><a href="/blog/category/职场建议/">职场建议</a></li>
+                        <li><a href="/blog/category/技术深度/">技术深度</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>帮助支持</h3>
+                    <ul>
+                        <li><a href="http://115.190.182.95#demo">使用指南</a></li>
+                        <li><a href="http://115.190.182.95#contact">常见问题</a></li>
+                        <li><a href="http://115.190.182.95#contact">联系我们</a></li>
+                        <li><a href="/blog/rss.xml">RSS订阅</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>关于我们</h3>
+                    <ul>
+                        <li><a href="http://115.190.182.95#about">公司介绍</a></li>
+                        <li><a href="http://115.190.182.95#about">团队介绍</a></li>
+                        <li><a href="http://115.190.182.95#contact">加入我们</a></li>
+                        <li><a href="http://115.190.182.95#contact">合作伙伴</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>智投简历 © 2025 · 让求职更智能 · <a href="http://115.190.182.95" style="color: #3b82f6;">返回首页</a></p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -3,7 +3,7 @@ title: "AI职位匹配技术深度解析：如何让求职更精准"
 description: "深入分析AI职位匹配技术的核心原理、算法模型和实际应用，揭秘智投简历如何通过AI技术提升求职匹配精准度。"
 pubDate: 2025-10-03
 author: "智投简历技术团队"
-heroImage: "/images/ai-job-matching.jpg"
+heroImage: "/_astro/default.CZ816Hke_Z2gd2WR.jpg"
 tags: ["AI技术", "职位匹配", "算法优化", "技术架构"]
 category: "技术深度"
 ---

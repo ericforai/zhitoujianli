@@ -1,9 +1,9 @@
 /**
  * 身份认证服务
- * 
+ *
  * 提供前端调用后端认证API的方法
  * 自动处理Token存储和请求头添加
- * 
+ *
  * @author ZhiTouJianLi Team
  * @since 2025-09-30
  */
@@ -50,7 +50,7 @@ apiClient.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('authToken'); // 清除后端使用的key
       localStorage.removeItem('user');
-      
+
       // 如果不在登录页，跳转到登录页
       if (window.location.pathname !== '/login') {
         // 动态检测环境并跳转
@@ -98,7 +98,7 @@ export interface LoginResponse {
  * 认证服务
  */
 export const authService = {
-  
+
   /**
    * 邮箱密码登录
    */
@@ -107,23 +107,23 @@ export const authService = {
       email,
       password,
     });
-    
+
     if (response.data.success && response.data.token) {
       // 保存Token和用户信息到本地
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('authToken', response.data.token); // 兼容后端使用的key
-      
+
       // 设置跨域Cookie以便后台管理能够读取Token
       const domain = window.location.hostname === 'localhost' ? 'localhost' : '.115.190.182.95';
       const secure = window.location.protocol === 'https:';
       document.cookie = `authToken=${response.data.token}; path=/; domain=${domain}; secure=${secure}; SameSite=Lax`;
       console.log('🍪 authService: 已设置authToken Cookie为跨域访问, domain:', domain);
-      
+
       if (response.data.user) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
       }
     }
-    
+
     return response.data;
   },
 
@@ -143,22 +143,22 @@ export const authService = {
       phone,
       code,
     });
-    
+
     if (response.data.success && response.data.token) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('authToken', response.data.token); // 兼容后端使用的key
-      
+
       // 设置跨域Cookie以便后台管理能够读取Token
       const domain = window.location.hostname === 'localhost' ? 'localhost' : '.115.190.182.95';
       const secure = window.location.protocol === 'https:';
       document.cookie = `authToken=${response.data.token}; path=/; domain=${domain}; secure=${secure}; SameSite=Lax`;
       console.log('🍪 authService: 已设置authToken Cookie为跨域访问, domain:', domain);
-      
+
       if (response.data.user) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
       }
     }
-    
+
     return response.data;
   },
 
@@ -166,8 +166,8 @@ export const authService = {
    * 邮箱密码注册
    */
   register: async (
-    email: string, 
-    password: string, 
+    email: string,
+    password: string,
     username?: string
   ): Promise<{ success: boolean; message: string; userId?: string }> => {
     const response = await apiClient.post('/auth/register', {
@@ -191,7 +191,7 @@ export const authService = {
       localStorage.removeItem('token');
       localStorage.removeItem('authToken'); // 清除后端使用的key
       localStorage.removeItem('user');
-      
+
       // 跳转到登录页
       // 动态检测环境并跳转
       if (window.location.hostname === 'localhost') {
@@ -214,13 +214,13 @@ export const authService = {
   getCurrentUser: async (): Promise<User | null> => {
     try {
       const response = await apiClient.get<{ success: boolean; user: User }>('/auth/user/info');
-      
+
       if (response.data.success && response.data.user) {
         // 更新本地缓存
         localStorage.setItem('user', JSON.stringify(response.data.user));
         return response.data.user;
       }
-      
+
       return null;
     } catch (error) {
       console.error('获取用户信息失败', error);
@@ -236,12 +236,12 @@ export const authService = {
       const response = await apiClient.post<LoginResponse>('/auth/refresh', {
         refreshToken,
       });
-      
+
       if (response.data.success && response.data.token) {
         localStorage.setItem('token', response.data.token);
         return response.data.token;
       }
-      
+
       return null;
     } catch (error) {
       console.error('刷新Token失败', error);
