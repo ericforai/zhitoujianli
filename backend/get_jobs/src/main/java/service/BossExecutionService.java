@@ -25,10 +25,19 @@ public class BossExecutionService {
      * 使用独立的JVM进程避免线程和资源冲突
      */
     public CompletableFuture<Void> executeBossProgram(String logFilePath) {
+        return executeBossProgram(logFilePath, false); // 默认无头模式
+    }
+
+    /**
+     * 异步执行Boss程序 - 完全隔离模式
+     * @param logFilePath 日志文件路径
+     * @param headless 是否使用无头模式
+     */
+    public CompletableFuture<Void> executeBossProgram(String logFilePath, boolean headless) {
         return CompletableFuture.runAsync(() -> {
             Process process = null;
             try {
-                log.info("开始执行Boss程序，使用隔离执行环境");
+                log.info("开始执行Boss程序，使用隔离执行环境，头模式: {}", headless ? "无头" : "有头");
 
                 // 确保日志文件存在
                 File logFile = new File(logFilePath);
@@ -39,7 +48,7 @@ public class BossExecutionService {
                     writeLogHeader(logWriter);
 
                     // 创建独立的Boss进程
-                    ProcessBuilder pb = createIsolatedBossProcess();
+                    ProcessBuilder pb = createIsolatedBossProcess(headless);
 
                     logWriter.write(formatTimestamp() + " - 启动独立Boss进程...\n");
                     logWriter.flush();
@@ -101,8 +110,9 @@ public class BossExecutionService {
 
     /**
      * 创建完全隔离的Boss进程
+     * @param headless 是否使用无头模式
      */
-    private ProcessBuilder createIsolatedBossProcess() throws IOException {
+    private ProcessBuilder createIsolatedBossProcess(boolean headless) throws IOException {
         String javaHome = System.getProperty("java.home");
         String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
 
@@ -116,7 +126,7 @@ public class BossExecutionService {
             "-Xms256m", "-Xmx1024m",  // 限制内存使用
             "-XX:+UseG1GC",           // 使用G1垃圾收集器
             "-XX:+DisableExplicitGC", // 禁用显式GC
-            "-Djava.awt.headless=true", // 无头模式
+            "-Djava.awt.headless=" + headless, // 动态头模式
             "-Dfile.encoding=UTF-8",   // 设置文件编码
             "-Dsun.java.command=boss.IsolatedBossRunner", // 设置主类
             "-cp", fullClasspath,      // 设置classpath

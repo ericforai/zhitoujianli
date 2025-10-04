@@ -30,7 +30,7 @@ public class WebController {
     @Autowired
     private UserDataService userDataService;
 
-    // Boss执行服务实例
+    @Autowired
     private BossExecutionService bossExecutionService;
 
     // 存储程序运行状态
@@ -155,8 +155,7 @@ public class WebController {
             isRunning = true;
 
             // 生成日志文件名
-            currentLogFile = new java.io.File("logs/boss_web_" +
-                new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".log").getAbsolutePath();
+            currentLogFile = generateLogFileName("boss_web");
 
             log.info("Web UI启动Boss任务开始");
 
@@ -169,10 +168,7 @@ public class WebController {
             // 创建日志文件
             java.io.FileWriter logWriter = new java.io.FileWriter(currentLogFile);
 
-            // 初始化Boss执行服务
-            if (bossExecutionService == null) {
-                bossExecutionService = new BossExecutionService();
-            }
+            // Boss执行服务已通过@Autowired注入
 
             // 使用Boss执行服务
             bossExecutionService.executeBossProgram(currentLogFile)
@@ -201,6 +197,38 @@ public class WebController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("启动Boss任务失败", e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "启动Boss任务失败: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @PostMapping("/start-boss-task-with-ui")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> startBossTaskWithUI() {
+        if (isRunning) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Boss任务已在运行中");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        try {
+            isRunning = true;
+            currentLogFile = "boss_web_ui_" + System.currentTimeMillis() + ".log";
+
+            // 使用有头模式启动Boss程序
+            bossExecutionService.executeBossProgram(currentLogFile, false); // false = 有头模式
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("logFile", currentLogFile);
+            response.put("message", "Boss任务已启动（有头模式），请在弹出的浏览器窗口中完成登录");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("启动Boss任务失败", e);
+            isRunning = false;
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", "启动Boss任务失败: " + e.getMessage());
@@ -618,5 +646,15 @@ public class WebController {
             response.put("message", "保存简历失败: " + e.getMessage());
             return ResponseEntity.status(500).body(response);
         }
+    }
+
+    /**
+     * 生成日志文件名
+     * @param prefix 日志文件前缀
+     * @return 完整的日志文件路径
+     */
+    private String generateLogFileName(String prefix) {
+        return new java.io.File("logs/" + prefix + "_" +
+            new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".log").getAbsolutePath();
     }
 }
