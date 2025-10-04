@@ -2,7 +2,7 @@ import apiClient from './apiService';
 
 /**
  * 简历管理服务
- * 
+ *
  * @author ZhiTouJianLi Team
  * @since 2025-09-30
  */
@@ -43,7 +43,7 @@ export const resumeService = {
           'Content-Type': 'multipart/form-data',
         },
       });
-      
+
       return response.data;
     } catch (error: any) {
       console.error('简历上传失败:', error);
