@@ -399,7 +399,6 @@ public class AuthController {
                     return ResponseEntity.ok(Map.of(
                         "success", true,
                         "message", "验证码已发送到邮箱，请查看邮件",
-                        "code", verificationCode, // 开发环境显示验证码
                         "expiresIn", CODE_EXPIRE_TIME / 1000,
                         "authingConfigured", true,
                         "productionReady", true,

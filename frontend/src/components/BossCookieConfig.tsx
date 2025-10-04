@@ -130,6 +130,44 @@ const BossCookieConfig: React.FC<BossCookieConfigProps> = ({ onClose }) => {
     }
   };
 
+  const handleHybridDelivery = async () => {
+    setIsLoading(true);
+    try {
+      // 获取当前用户ID（这里简化处理）
+      const userId = localStorage.getItem('userId') || 'user_' + Date.now();
+      
+      const response = await axios.post(`http://115.190.182.95:8080/api/boss/start-hybrid-delivery?userId=${userId}`);
+      
+      if (response.data.success) {
+        if (response.data.download_script) {
+          // 需要下载脚本
+          setMessage('✅ 首次使用需要本地登录！请下载并运行脚本，在本地浏览器中完成登录。');
+          
+          // 创建下载链接
+          const downloadUrl = `http://115.190.182.95:8080${response.data.script_url}`;
+          const link = document.createElement('a');
+          link.href = downloadUrl;
+          link.download = 'boss-runner.js';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          setMessage('📥 脚本已开始下载！请按照以下步骤操作：\n1. 安装依赖：npm install playwright ws\n2. 运行脚本：node boss-runner.js\n3. 在本地浏览器中扫码登录\n4. 登录成功后自动切换到无头模式');
+        } else {
+          // 直接无头模式
+          setMessage('✅ ' + response.data.message);
+        }
+      } else {
+        setMessage('❌ ' + response.data.message);
+      }
+    } catch (error) {
+      console.error('启动混合投递失败', error);
+      setMessage('❌ 启动失败');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -240,11 +278,11 @@ const BossCookieConfig: React.FC<BossCookieConfigProps> = ({ onClose }) => {
           {/* 第二行：启动按钮 */}
           <div className="flex gap-3">
             <button
-              onClick={handleStartBossWithUI}
+              onClick={handleHybridDelivery}
               disabled={isLoading}
               className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {isLoading ? '启动中...' : '🎯 有头模式登录（推荐）'}
+              {isLoading ? '启动中...' : '🚀 智能投递（推荐）'}
             </button>
 
             <button
@@ -261,16 +299,21 @@ const BossCookieConfig: React.FC<BossCookieConfigProps> = ({ onClose }) => {
         <div className="mt-4 p-3 bg-gray-50 rounded-lg text-sm text-gray-600">
           <p><strong>使用说明:</strong></p>
           <ul className="list-disc list-inside space-y-1 mt-1">
-            <li><strong>🎯 有头模式登录（推荐）</strong>：首次使用或Cookie失效时，会弹出浏览器窗口进行扫码登录，登录成功后自动切换到无头模式</li>
+            <li><strong>🚀 智能投递（推荐）</strong>：首次使用会下载脚本到本地，在本地浏览器中扫码登录，登录成功后自动切换到无头模式</li>
             <li><strong>启动Boss程序</strong>：使用已保存的Cookie直接启动，无需登录</li>
-            <li><strong>手动配置Cookie</strong>：如果服务器环境不支持图形界面，可以手动获取Cookie并配置</li>
+            <li><strong>手动配置Cookie</strong>：如果不想使用本地脚本，可以手动获取Cookie并配置</li>
           </ul>
         </div>
 
-        {/* 环境提示 */}
-        <div className="mt-4 p-3 bg-yellow-50 rounded-lg text-sm text-yellow-700">
-          <p><strong>⚠️ 环境提示:</strong></p>
-          <p>当前服务器环境可能不支持图形界面，如果&quot;有头模式登录&quot;启动失败，请使用&quot;手动配置Cookie&quot;的方式。</p>
+        {/* 智能投递说明 */}
+        <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-700">
+          <p><strong>💡 智能投递优势:</strong></p>
+          <ul className="list-disc list-inside space-y-1 mt-1">
+            <li>首次登录：本地浏览器显示二维码，用户扫码登录</li>
+            <li>后续使用：后台无头模式运行，不干扰用户正常使用电脑</li>
+            <li>安全可靠：Cookie保存在本地，不会泄露给服务器</li>
+            <li>自动切换：登录成功后自动切换到无头模式</li>
+          </ul>
         </div>
       </div>
     </div>

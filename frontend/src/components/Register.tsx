@@ -73,19 +73,11 @@ const Register: React.FC = () => {
         const result = await response.json();
 
         if (result.success) {
-          setSuccess('验证码已发送到邮箱');
+          setSuccess('验证码已发送到邮箱，请查看邮件');
           setCodeSent(true);
           setCodeCountdown(60); // 60秒倒计时
           setEmailVerified(false); // 重置验证状态
           setPhoneVerified(false); // 重置手机验证状态
-          
-          // 自动填充验证码到输入框（开发环境）
-          if (result.code) {
-            setVerificationCode(result.code);
-            setSuccess(`验证码已发送到邮箱，已自动填入: ${result.code}`);
-          } else {
-            console.log('验证码:', result.code); // 仅用于演示
-          }
         } else {
           setError(result.message || '发送验证码失败');
         }
