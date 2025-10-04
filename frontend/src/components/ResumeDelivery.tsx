@@ -14,8 +14,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { authService } from '../services/authService';
 import resumeService, { CandidateInfo } from '../services/resumeService';
-import BossDelivery from './BossDelivery';
 import BossCookieConfig from './BossCookieConfig';
+import BossDelivery from './BossDelivery';
 
 const ResumeDelivery: React.FC = () => {
   const [user, setUser] = useState<any>(null);

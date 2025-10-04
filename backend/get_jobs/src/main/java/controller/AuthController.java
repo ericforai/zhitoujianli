@@ -475,15 +475,10 @@ public class AuthController {
             }
 
             try {
-                // 尝试使用Authing发送短信验证码
-                // 注意：Authing的短信服务需要额外配置，这里先尝试调用
-
-                // 使用ManagementClient发送短信验证码
-                // 注意：Authing SDK可能没有直接的sendSms方法，需要查看官方文档
-
+                // 使用Authing发送短信验证码
                 log.info("🔍 尝试使用Authing短信服务，手机号: {}", phone);
 
-                // 暂时使用演示模式，等待Authing短信服务配置
+                // 生成验证码
                 String verificationCode = generateVerificationCode();
 
                 // 存储验证码和过期时间
@@ -494,19 +489,53 @@ public class AuthController {
                 codeInfo.put("verified", false);
                 verificationCodes.put(phone, codeInfo);
 
-                log.info("📱 手机验证码发送成功（演示模式），手机号: {}, 验证码: {}", phone, verificationCode);
-                log.warn("⚠️ 注意：当前使用演示模式，需要配置Authing短信服务才能发送真实短信");
+                // 注意：Authing SDK 3.1.19版本可能没有直接的sendSms方法
+                // 这里使用REST API调用Authing的短信服务
+                String authingApiUrl = appHost + "/api/v3/send-sms";
 
-                return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "message", "验证码已发送到手机（演示环境）",
-                    "code", verificationCode, // 演示环境显示验证码
-                    "expiresIn", CODE_EXPIRE_TIME / 1000,
-                    "authingConfigured", false,
-                    "productionReady", false,
-                    "fallback", true,
-                    "note", "需要在Authing控制台配置短信服务"
-                ));
+                // 构建请求体
+                Map<String, Object> requestBody = new HashMap<>();
+                requestBody.put("phoneNumber", phone); // Authing API使用phoneNumber字段
+                requestBody.put("channel", "CHANNEL_LOGIN"); // 登录通道
+
+                // 设置请求头
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.set("Authorization", "Bearer " + appSecret);
+                headers.set("x-authing-app-id", appId);
+
+                HttpEntity<Map<String, Object>> httpRequest = new HttpEntity<>(requestBody, headers);
+
+                try {
+                    // 调用Authing短信API
+                    ResponseEntity<Map> response = restTemplate.postForEntity(authingApiUrl, httpRequest, Map.class);
+
+                    if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                        Map<String, Object> responseBody = response.getBody();
+
+                        if ((Boolean) responseBody.getOrDefault("success", false)) {
+                            log.info("✅ Authing短信验证码发送成功，手机号: {}, RequestId: {}", phone, responseBody.get("requestId"));
+
+                            return ResponseEntity.ok(Map.of(
+                                "success", true,
+                                "message", "验证码已发送到手机",
+                                "expiresIn", CODE_EXPIRE_TIME / 1000,
+                                "authingConfigured", true,
+                                "productionReady", true,
+                                "requestId", responseBody.get("requestId"),
+                                "note", "真实短信已发送"
+                            ));
+                        } else {
+                            throw new RuntimeException("Authing短信API返回失败: " + responseBody.get("message"));
+                        }
+                    } else {
+                        throw new RuntimeException("Authing短信API调用失败，状态码: " + response.getStatusCode());
+                    }
+
+                } catch (Exception apiException) {
+                    log.error("❌ Authing短信API调用失败，手机号: {}", phone, apiException);
+                    throw apiException;
+                }
 
             } catch (Exception authingException) {
                 log.error("❌ Authing短信服务调用失败，手机号: {}", phone, authingException);

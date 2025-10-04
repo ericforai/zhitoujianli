@@ -47,6 +47,12 @@ public class PlaywrightUtil {
     // 桌面浏览器上下文
     private static BrowserContext DESKTOP_CONTEXT;
 
+    // 当前头模式状态
+    private static boolean HEADLESS_MODE = true;
+
+    // 是否已初始化
+    private static boolean INITIALIZED = false;
+
     // 移动设备浏览器上下文
     private static BrowserContext MOBILE_CONTEXT;
 
@@ -72,8 +78,20 @@ public class PlaywrightUtil {
 
     /**
      * 初始化Playwright及浏览器实例
+     * @param headless 是否使用无头模式
      */
-    public static void init() {
+    public static void init(boolean headless) {
+        HEADLESS_MODE = headless;
+
+        // 如果已经初始化且头模式相同，直接返回
+        if (INITIALIZED && (BROWSER == null || BROWSER.isConnected())) {
+            log.info("Playwright已初始化，当前头模式: {}", HEADLESS_MODE ? "无头" : "有头");
+            return;
+        }
+
+        // 清理现有实例
+        cleanup();
+
         // 启动Playwright
         PLAYWRIGHT = Playwright.create();
 
@@ -82,7 +100,7 @@ public class PlaywrightUtil {
         java.io.File chromeFile = new java.io.File(chromePath);
 
         BrowserType.LaunchOptions options = new BrowserType.LaunchOptions()
-                .setHeadless(true) // 无头模式，后台运行
+                .setHeadless(HEADLESS_MODE) // 动态头模式
                 .setSlowMo(100) // 增加操作延迟，模拟人类行为
                 .setArgs(Arrays.asList(
                     "--disable-blink-features=AutomationControlled",
@@ -101,11 +119,22 @@ public class PlaywrightUtil {
                     "--disable-renderer-backgrounding"
                 ));
 
+        // 如果有头模式，添加显示相关参数
+        if (!HEADLESS_MODE) {
+            options.setArgs(Arrays.asList(
+                "--disable-blink-features=AutomationControlled",
+                "--disable-web-security",
+                "--disable-features=VizDisplayCompositor",
+                "--no-first-run",
+                "--no-default-browser-check"
+            ));
+        }
+
         if (chromeFile.exists()) {
             options.setExecutablePath(java.nio.file.Paths.get(chromePath));
-            log.info("使用系统Chrome浏览器: {}", chromePath);
+            log.info("使用系统Chrome浏览器: {}, 头模式: {}", chromePath, HEADLESS_MODE ? "无头" : "有头");
         } else {
-            log.info("系统Chrome不存在，使用Playwright默认浏览器");
+            log.info("系统Chrome不存在，使用Playwright默认浏览器, 头模式: {}", HEADLESS_MODE ? "无头" : "有头");
         }
 
         // 创建浏览器实例
@@ -137,13 +166,90 @@ public class PlaywrightUtil {
         DESKTOP_PAGE = DESKTOP_CONTEXT.newPage();
         DESKTOP_PAGE.setDefaultTimeout(DEFAULT_TIMEOUT);
 
+        INITIALIZED = true;
+        log.info("Playwright初始化完成，头模式: {}", HEADLESS_MODE ? "无头" : "有头");
+    }
+
+    /**
+     * 初始化Playwright及浏览器实例（使用默认无头模式）
+     */
+    public static void init() {
+        init(true); // 默认使用无头模式
+    }
+
+    /**
+     * 切换头模式
+     * @param headless 是否使用无头模式
+     */
+    public static void switchHeadlessMode(boolean headless) {
+        if (HEADLESS_MODE == headless) {
+            log.info("头模式未改变: {}", headless ? "无头" : "有头");
+            return;
+        }
+
+        log.info("切换头模式: {} -> {}", HEADLESS_MODE ? "无头" : "有头", headless ? "无头" : "有头");
+        init(headless);
+    }
+
+    /**
+     * 切换到无头模式
+     */
+    public static void switchToHeadless() {
+        switchHeadlessMode(true);
+    }
+
+    /**
+     * 切换到有头模式
+     */
+    public static void switchToHeaded() {
+        switchHeadlessMode(false);
+    }
+
+    /**
+     * 获取当前头模式状态
+     */
+    public static boolean isHeadless() {
+        return HEADLESS_MODE;
+    }
+
+    /**
+     * 清理Playwright资源
+     */
+    public static void cleanup() {
+        try {
+            if (DESKTOP_PAGE != null) {
+                DESKTOP_PAGE.close();
+                DESKTOP_PAGE = null;
+            }
+            if (DESKTOP_CONTEXT != null) {
+                DESKTOP_CONTEXT.close();
+                DESKTOP_CONTEXT = null;
+            }
+            if (MOBILE_CONTEXT != null) {
+                MOBILE_CONTEXT.close();
+                MOBILE_CONTEXT = null;
+            }
+            if (BROWSER != null) {
+                BROWSER.close();
+                BROWSER = null;
+            }
+            if (PLAYWRIGHT != null) {
+                PLAYWRIGHT.close();
+                PLAYWRIGHT = null;
+            }
+            INITIALIZED = false;
+            log.info("Playwright资源已清理");
+        } catch (Exception e) {
+            log.error("清理Playwright资源时出错", e);
+        }
+    }
+
 //        // 启用JavaScript捕获控制台日志（用于调试）
 //        DESKTOP_PAGE.onConsoleMessage(message -> {
 //            if (message.type().equals("error")) {
 //                log.error("Browser console error: {}", message.text());
 //            }
 //        });
-    }
 
     /**
      * 设置默认设备类型

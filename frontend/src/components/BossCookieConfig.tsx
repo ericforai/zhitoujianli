@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 
 interface BossCookieConfigProps {
   onClose?: () => void;
@@ -24,13 +24,13 @@ const BossCookieConfig: React.FC<BossCookieConfigProps> = ({ onClose }) => {
     try {
       const response = await axios.get('http://115.190.182.95:8080/api/boss/cookie');
       setCookieStatus(response.data);
-      
+
       if (response.data.has_cookie && response.data.cookie_content) {
         try {
           const cookies = JSON.parse(response.data.cookie_content);
           const zpTokenCookie = cookies.find((c: any) => c.name === 'zp_token');
           const sessionCookie = cookies.find((c: any) => c.name === 'session');
-          
+
           if (zpTokenCookie) setZpToken(zpTokenCookie.value);
           if (sessionCookie) setSession(sessionCookie.value);
         } catch (e) {
@@ -113,6 +113,23 @@ const BossCookieConfig: React.FC<BossCookieConfigProps> = ({ onClose }) => {
     }
   };
 
+  const handleStartBossWithUI = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.post('http://115.190.182.95:8080/start-boss-task-with-ui', {});
+      if (response.data.success) {
+        setMessage('✅ 有头模式登录已启动！请在弹出的浏览器窗口中完成登录，登录成功后会自动切换到无头模式。');
+      } else {
+        setMessage('⚠️ ' + response.data.message);
+      }
+    } catch (error) {
+      console.error('启动有头模式登录失败', error);
+      setMessage('❌ 有头模式启动失败：当前服务器环境不支持图形界面。请使用手动配置Cookie的方式。');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -134,8 +151,8 @@ const BossCookieConfig: React.FC<BossCookieConfigProps> = ({ onClose }) => {
             <h3 className="font-semibold text-gray-700 mb-2">当前状态:</h3>
             <div className="flex items-center gap-2">
               <span className={`px-2 py-1 rounded text-sm ${
-                cookieStatus.has_cookie 
-                  ? 'bg-green-100 text-green-800' 
+                cookieStatus.has_cookie
+                  ? 'bg-green-100 text-green-800'
                   : 'bg-yellow-100 text-yellow-800'
               }`}>
                 {cookieStatus.has_cookie ? '✅ 已配置Cookie' : '⚠️ 未配置Cookie'}
@@ -151,10 +168,10 @@ const BossCookieConfig: React.FC<BossCookieConfigProps> = ({ onClose }) => {
           <ol className="text-sm text-blue-700 space-y-1 list-decimal list-inside">
             <li>打开浏览器，访问 <a href="https://www.zhipin.com" target="_blank" rel="noopener noreferrer" className="underline">Boss直聘官网</a></li>
             <li>登录你的Boss直聘账号</li>
-            <li>按F12打开开发者工具，切换到"Application"或"应用程序"标签</li>
-            <li>在左侧找到"Cookies" → "https://www.zhipin.com"</li>
+            <li>按F12打开开发者工具，切换到&quot;Application&quot;或&quot;应用程序&quot;标签</li>
+            <li>在左侧找到&quot;Cookies&quot; → &quot;https://www.zhipin.com&quot;</li>
             <li>找到 <code className="bg-blue-100 px-1 rounded">zp_token</code> 和 <code className="bg-blue-100 px-1 rounded">session</code> 两个Cookie</li>
-            <li>复制它们的"Value"值，粘贴到下面的输入框中</li>
+            <li>复制它们的&quot;Value&quot;值，粘贴到下面的输入框中</li>
           </ol>
         </div>
 
@@ -200,40 +217,60 @@ const BossCookieConfig: React.FC<BossCookieConfigProps> = ({ onClose }) => {
         )}
 
         {/* 操作按钮 */}
-        <div className="flex gap-3 mt-6">
-          <button
-            onClick={handleSave}
-            disabled={isLoading || !zpToken.trim() || !session.trim()}
-            className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
-            {isLoading ? '保存中...' : '保存Cookie'}
-          </button>
-          
-          <button
-            onClick={handleClear}
-            disabled={isLoading}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed"
-          >
-            清除
-          </button>
-          
-          <button
-            onClick={handleStartBoss}
-            disabled={isLoading || !cookieStatus?.has_cookie}
-            className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
-            {isLoading ? '启动中...' : '启动Boss程序'}
-          </button>
+        <div className="space-y-3 mt-6">
+          {/* 第一行：保存和清除按钮 */}
+          <div className="flex gap-3">
+            <button
+              onClick={handleSave}
+              disabled={isLoading || !zpToken.trim() || !session.trim()}
+              className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {isLoading ? '保存中...' : '保存Cookie'}
+            </button>
+
+            <button
+              onClick={handleClear}
+              disabled={isLoading}
+              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            >
+              清除
+            </button>
+          </div>
+
+          {/* 第二行：启动按钮 */}
+          <div className="flex gap-3">
+            <button
+              onClick={handleStartBossWithUI}
+              disabled={isLoading}
+              className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {isLoading ? '启动中...' : '🎯 有头模式登录（推荐）'}
+            </button>
+
+            <button
+              onClick={handleStartBoss}
+              disabled={isLoading || !cookieStatus?.has_cookie}
+              className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {isLoading ? '启动中...' : '启动Boss程序'}
+            </button>
+          </div>
         </div>
 
         {/* 提示信息 */}
         <div className="mt-4 p-3 bg-gray-50 rounded-lg text-sm text-gray-600">
-          <p><strong>提示:</strong></p>
+          <p><strong>使用说明:</strong></p>
           <ul className="list-disc list-inside space-y-1 mt-1">
-            <li>Cookie配置完成后，Boss程序将自动使用保存的登录信息</li>
-            <li>无需扫码登录，程序会自动开始投递简历</li>
-            <li>如果Cookie失效，请重新获取并更新</li>
+            <li><strong>🎯 有头模式登录（推荐）</strong>：首次使用或Cookie失效时，会弹出浏览器窗口进行扫码登录，登录成功后自动切换到无头模式</li>
+            <li><strong>启动Boss程序</strong>：使用已保存的Cookie直接启动，无需登录</li>
+            <li><strong>手动配置Cookie</strong>：如果服务器环境不支持图形界面，可以手动获取Cookie并配置</li>
           </ul>
+        </div>
+
+        {/* 环境提示 */}
+        <div className="mt-4 p-3 bg-yellow-50 rounded-lg text-sm text-yellow-700">
+          <p><strong>⚠️ 环境提示:</strong></p>
+          <p>当前服务器环境可能不支持图形界面，如果&quot;有头模式登录&quot;启动失败，请使用&quot;手动配置Cookie&quot;的方式。</p>
         </div>
       </div>
     </div>

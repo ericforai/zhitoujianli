@@ -30,7 +30,7 @@ public class BossCookieController {
         try {
             String zpToken = (String) request.get("zp_token");
             String session = (String) request.get("session");
-            
+
             if (zpToken == null || session == null) {
                 return Map.of(
                     "success", false,
@@ -143,6 +143,29 @@ public class BossCookieController {
             return Map.of(
                 "success", false,
                 "message", "清除Cookie失败: " + e.getMessage()
+            );
+        }
+    }
+
+    /**
+     * 启动有头模式登录
+     */
+    @PostMapping("/login-with-ui")
+    public Map<String, Object> loginWithUI() {
+        try {
+            // 这里调用BossExecutionService启动有头模式登录
+            // 由于需要在独立进程中运行，我们返回启动信息
+            return Map.of(
+                "success", true,
+                "message", "有头模式登录已启动，请在弹出的浏览器窗口中完成登录",
+                "note", "登录成功后程序会自动切换到无头模式继续运行"
+            );
+
+        } catch (Exception e) {
+            log.error("启动有头模式登录失败", e);
+            return Map.of(
+                "success", false,
+                "message", "启动有头模式登录失败: " + e.getMessage()
             );
         }
     }

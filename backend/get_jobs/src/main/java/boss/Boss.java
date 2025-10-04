@@ -42,7 +42,7 @@ public class Boss {
         // 在类加载时就设置日志文件名，确保Logger初始化时能获取到正确的属性
         System.setProperty("log.name", "boss");
     }
-    
+
     private static final Logger log = LoggerFactory.getLogger(Boss.class);
     static String homeUrl = "https://www.zhipin.com";
     static String baseUrl = "https://www.zhipin.com/web/geek/job?";
@@ -93,14 +93,14 @@ public class Boss {
     public static void main(String[] args) {
         log.info("Boss程序启动，环境检查开始...");
         log.info("运行模式: {}", System.getProperty("maven.compiler.fork") != null ? "Web UI调用" : "终端直接运行");
-        
+
         loadData(dataPath);
         // 使用Playwright前检查环境
         try {
             log.info("初始化Playwright环境...");
             PlaywrightUtil.init();
             log.info("Playwright初始化成功");
-            
+
             startDate = new Date();
             login();
             config.getCityCode().forEach(Boss::postJobByCity);
@@ -131,7 +131,7 @@ public class Boss {
         if (!config.getDebugger()) {
             PlaywrightUtil.close();
         }
-        
+
         // 确保所有日志都被刷新到文件
         try {
             Thread.sleep(1000); // 等待1秒确保日志写入完成
@@ -153,10 +153,10 @@ public class Boss {
             String url = searchUrl + "&query=" + encodedKeyword;
             log.info("投递地址:{}", searchUrl + "&query=" + keyword);
             com.microsoft.playwright.Page page = PlaywrightUtil.getPageObject();
-            
+
             // 使用标准导航方法，避免超时问题
             page.navigate(url);
-            
+
             // 导航后模拟人类行为
             PlaywrightUtil.randomSleepMillis(3000, 6000);
             PlaywrightUtil.simulateHumanBehavior();
@@ -166,10 +166,10 @@ public class Boss {
             while (true) {
                 // 模拟人类滚动行为
                 PlaywrightUtil.simulateScroll();
-                
+
                 // 滑动到底部
                 page.evaluate("window.scrollTo(0, document.body.scrollHeight);");
-                
+
                 // 随机延迟等待加载
                 PlaywrightUtil.randomSleepMillis(2000, 4000);
 
@@ -182,7 +182,7 @@ public class Boss {
                     break; // 没有新内容，跳出循环
                 }
                 lastCount = currentCount;
-                
+
                 // 随机模拟人类行为
                 PlaywrightUtil.simulateHumanBehavior();
             }
@@ -196,31 +196,31 @@ public class Boss {
             log.info("【{}】开始遍历岗位列表，总计{}个岗位", keyword, lastCount);
             Locator cards = page.locator("//ul[contains(@class, 'rec-job-list')]//li[contains(@class, 'job-card-box')]");
             int count = cards.count();
-            
+
             // 确保count正确
             if (count != lastCount) {
                 log.warn("【{}】列表计数不一致！定位器找到{}个，加载时有{}个", keyword, count, lastCount);
                 count = Math.min(count, lastCount);
             }
-            
+
             for (int i = 0; i < count; i++) {
                 try {
                     log.info("【{}】正在处理第{}个岗位（共{}个）", keyword, i + 1, count);
-                    
+
                     // 重新获取卡片，避免元素过期
                     cards = page.locator("//ul[contains(@class, 'rec-job-list')]//li[contains(@class, 'job-card-box')]");
-                    
+
                     if (i >= cards.count()) {
                         log.warn("【{}】第{}个岗位不存在，跳过", keyword, i + 1);
                         continue;
                     }
-                    
+
                     // 模拟人类行为后再点击
                     PlaywrightUtil.simulateMouseMove();
                     cards.nth(i).click();
-                    
+
                     log.info("【{}】第{}个岗位：已点击，等待页面加载", keyword, i + 1);
-                    
+
                     // 随机延迟等待页面加载
                     PlaywrightUtil.randomSleepMillis(2000, 4000);
 
@@ -232,7 +232,7 @@ public class Boss {
                         log.error("【{}】第{}个岗位：等待详情页面超时，跳过此岗位", keyword, i + 1);
                         continue;
                     }
-                    
+
                     Locator detailBox = page.locator("div[class*='job-detail-box']");
 
                     // 岗位名称
@@ -245,17 +245,17 @@ public class Boss {
                         log.info("【{}】第{}个岗位：{}在黑名单中，跳过", keyword, i + 1, jobName);
                         continue;
                     }
-                    
+
                     // 薪资(原始)
                     String jobSalaryRaw = safeText(detailBox, "span.job-salary");
                     String jobSalary = decodeSalary(jobSalaryRaw);
-                    
+
                     // 城市/经验/学历
                     List<String> tags = safeAllText(detailBox, "ul[class*='tag-list'] > li");
-                    
+
                     // 岗位描述
                     String jobDesc = safeText(detailBox, "p.desc");
-                    
+
                     // Boss姓名、活跃
                     String bossNameRaw = safeText(detailBox, "h2[class*='name']");
                     String[] bossInfo = splitBossName(bossNameRaw);
@@ -265,7 +265,7 @@ public class Boss {
                         log.info("【{}】第{}个岗位：{}Boss状态异常，跳过", keyword, i + 1, jobName);
                         continue;
                     }
-                    
+
                     // Boss公司/职位
                     String bossTitleRaw = safeText(detailBox, "div[class*='boss-info-attr']");
                     String[] bossTitleInfo = splitBossTitle(bossTitleRaw);
@@ -279,7 +279,7 @@ public class Boss {
                         log.info("【{}】第{}个岗位：{}招聘者职位{}在黑名单中，跳过", keyword, i + 1, jobName, bossJobTitle);
                         continue;
                     }
-                    
+
                     // 创建Job对象
                     Job job = new Job();
                     job.setJobName(jobName);
@@ -290,13 +290,13 @@ public class Boss {
                     job.setJobInfo(jobDesc);
 
                     log.info("【{}】第{}个岗位：准备投递{}，公司：{}，Boss：{}", keyword, i + 1, jobName, bossCompany, bossName);
-                    
+
                     // 执行投递
                     resumeSubmission(page, keyword, job);
                     postCount++;
-                    
+
                     log.info("【{}】第{}个岗位：投递完成！", keyword, i + 1);
-                    
+
                 } catch (Exception e) {
                     log.error("【{}】第{}个岗位处理异常：{}", keyword, i + 1, e.getMessage(), e);
                     // 继续处理下一个岗位
@@ -538,10 +538,10 @@ public class Boss {
         com.microsoft.playwright.Page detailPage = null;
         try {
             detailPage = page.context().newPage();
-            
+
             // 使用标准导航方法，添加超时设置
             detailPage.navigate(detailUrl);
-            
+
             // 导航后模拟人类行为
             PlaywrightUtil.randomSleepMillis(2000, 4000);
             PlaywrightUtil.simulateHumanBehavior();
@@ -619,24 +619,24 @@ public class Boss {
 
         // 7. 输入打招呼语
         Locator input = inputLocator.first();
-        
+
         // 模拟人类行为：先点击获得焦点
         PlaywrightUtil.simulateMouseMove();
         input.click();
-        
+
         // 随机延迟，模拟人类思考时间
         PlaywrightUtil.randomSleepMillis(1000, 3000);
-        
+
         // 使用已经找到的input元素进行输入，而不是重新查找
         try {
             // 先聚焦到元素
             input.focus();
             PlaywrightUtil.randomSleepMillis(500, 1000);
-            
+
             // 清空现有内容
             input.clear();
             PlaywrightUtil.randomSleepMillis(200, 500);
-            
+
             // 直接输入文本
             input.fill(message);
             log.info("已成功输入打招呼语: {}", message);
@@ -686,7 +686,7 @@ public class Boss {
             // 模拟人类行为后发送
             PlaywrightUtil.simulateMouseMove();
             sendBtn.first().click();
-            
+
             // 发送后随机延迟
             PlaywrightUtil.randomSleepMillis(2000, 4000);
             sendSuccess = true;
@@ -699,7 +699,7 @@ public class Boss {
         // 9. 关闭详情页，回到主页面，增加异常处理
         try {
             detailPage.close();
-            
+
             // 关闭后随机延迟，模拟人类操作间隔
             PlaywrightUtil.randomSleepMillis(3000, 6000);
 
@@ -918,19 +918,19 @@ public class Boss {
      */
     private static String generateGreetingMessage(String keyword, Job job, String fullJobDescription) {
         String sayHi = config.getSayHi().replaceAll("[\\r\\n]", "");
-        
+
         // 检查是否启用智能打招呼
         if (!config.getEnableSmartGreeting()) {
             log.info("【打招呼语】智能打招呼未启用，使用默认招呼语");
             return sayHi;
         }
-        
+
         // 检查是否有候选人简历
         if (!CandidateResumeService.hasCandidateResume()) {
             log.warn("【打招呼语】未找到候选人简历，使用默认招呼语");
             return sayHi;
         }
-        
+
         try {
             // 加载候选人信息
             Map<String, Object> candidate = CandidateResumeService.loadCandidateInfo();
@@ -938,14 +938,14 @@ public class Boss {
                 log.warn("【打招呼语】加载候选人信息失败，使用默认招呼语");
                 return sayHi;
             }
-            
+
             // 使用完整JD生成智能打招呼语
             String smartGreeting = SmartGreetingService.generateSmartGreeting(
-                candidate, 
-                job.getJobName(), 
+                candidate,
+                job.getJobName(),
                 fullJobDescription
             );
-            
+
             if (smartGreeting != null && !smartGreeting.trim().isEmpty()) {
                 log.info("【智能打招呼】成功生成，长度: {}字", smartGreeting.length());
                 return smartGreeting;
@@ -953,7 +953,7 @@ public class Boss {
                 log.warn("【智能打招呼】生成失败或超时，使用默认招呼语");
                 return sayHi;
             }
-            
+
         } catch (Exception e) {
             log.error("【智能打招呼】异常，使用默认招呼语: {}", e.getMessage());
             return sayHi;
@@ -967,27 +967,27 @@ public class Boss {
     private static String extractFullJobDescription(com.microsoft.playwright.Page detailPage) {
         try {
             StringBuilder fullJD = new StringBuilder();
-            
+
             // 等待岗位详情区域加载
             detailPage.waitForSelector("div.job-detail-section", new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(5000));
-            
+
             // 抓取所有岗位详情文本块
             Locator jobDetailSections = detailPage.locator("div.job-sec-text");
             int sectionCount = jobDetailSections.count();
-            
+
             log.info("【完整JD】找到{}个详情文本块", sectionCount);
-            
+
             for (int i = 0; i < sectionCount; i++) {
                 String sectionText = jobDetailSections.nth(i).textContent();
                 if (sectionText != null && !sectionText.trim().isEmpty()) {
                     fullJD.append(sectionText.trim()).append("\n\n");
                 }
             }
-            
+
             // 如果没有抓到内容，尝试其他选择器
             if (fullJD.length() == 0) {
                 log.warn("【完整JD】未找到job-sec-text，尝试备用选择器");
-                
+
                 // 备用选择器1: 职位描述区域
                 Locator jobDescArea = detailPage.locator("div.job-detail-content");
                 if (jobDescArea.count() > 0) {
@@ -996,7 +996,7 @@ public class Boss {
                         fullJD.append(desc.trim());
                     }
                 }
-                
+
                 // 备用选择器2: 整个详情区域
                 if (fullJD.length() == 0) {
                     Locator wholeDetailArea = detailPage.locator("div.job-detail-section");
@@ -1008,17 +1008,17 @@ public class Boss {
                     }
                 }
             }
-            
+
             String result = fullJD.toString().trim();
-            
+
             if (result.isEmpty()) {
                 log.warn("【完整JD】未能抓取到任何岗位描述内容");
                 return null;
             }
-            
+
             log.info("【完整JD】抓取成功，总长度: {}字", result.length());
             return result;
-            
+
         } catch (Exception e) {
             log.error("【完整JD】抓取失败: {}", e.getMessage());
             return null;
@@ -1052,15 +1052,30 @@ public class Boss {
 
     @SneakyThrows
     private static void login() {
-        log.info("打开Boss直聘网站中...");
+        log.info("开始Boss直聘登录流程...");
+
+        // 检查是否需要登录
+        boolean needLogin = !PlaywrightUtil.isCookieValid(cookiePath);
+
+        if (needLogin) {
+            log.info("Cookie无效，切换到有头模式进行登录...");
+            // 切换到有头模式进行登录
+            PlaywrightUtil.switchToHeaded();
+        } else {
+            log.info("Cookie有效，使用无头模式...");
+            // 使用无头模式
+            PlaywrightUtil.switchToHeadless();
+        }
 
         com.microsoft.playwright.Page page = PlaywrightUtil.getPageObject();
         page.navigate(homeUrl);
         PlaywrightUtil.sleep(1);
+
         // 检查滑块验证
         waitForSliderVerify(page);
 
-        if (PlaywrightUtil.isCookieValid(cookiePath)) {
+        // 如果Cookie有效，加载Cookie
+        if (!needLogin) {
             PlaywrightUtil.loadCookies(cookiePath);
             page.reload();
             PlaywrightUtil.sleep(1);
@@ -1069,9 +1084,16 @@ public class Boss {
             PlaywrightUtil.initStealth();
         }
 
+        // 检查是否需要登录
         if (isLoginRequired()) {
-            log.error("cookie失效，尝试扫码登录...");
+            log.info("需要登录，启动登录流程...");
             scanLogin();
+
+            // 登录成功后切换到无头模式
+            log.info("登录成功，切换到无头模式...");
+            PlaywrightUtil.switchToHeadless();
+        } else {
+            log.info("登录状态正常，继续执行...");
         }
     }
 
