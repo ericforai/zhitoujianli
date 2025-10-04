@@ -49,11 +49,13 @@ public class SecurityConfig {
                     "http://localhost:4321",
                     "http://127.0.0.1:3000",
                     "http://115.190.182.95",
+                    "http://115.190.182.95:3000",
+                    "http://115.190.182.95:3001",
                     "https://zhitoujianli.com",
                     "https://www.zhitoujianli.com",
                     "https://*.zhitoujianli.com"
                 ));
-                corsConfig.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                corsConfig.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
                 corsConfig.setAllowedHeaders(java.util.Arrays.asList("*"));
                 corsConfig.setAllowCredentials(true);
                 corsConfig.setMaxAge(3600L);

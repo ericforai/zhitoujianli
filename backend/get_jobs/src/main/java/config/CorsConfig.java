@@ -31,6 +31,8 @@ public class CorsConfig {
             "http://localhost:8080",
             "http://127.0.0.1:8080",
             "http://115.190.182.95",
+            "http://115.190.182.95:3000",
+            "http://115.190.182.95:3001",
             "https://zhitoujianli.com",
             "https://www.zhitoujianli.com",
             "https://*.zhitoujianli.com",

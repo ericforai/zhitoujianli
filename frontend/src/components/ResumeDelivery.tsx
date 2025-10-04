@@ -181,19 +181,19 @@ const ResumeDelivery: React.FC = () => {
                     </p>
                     <div className="space-y-3">
                       <button
-                        onClick={() => window.open('http://localhost:8080', '_blank')}
+                        onClick={() => window.open('http://115.190.182.95:8080', '_blank')}
                         className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                       >
                         📋 配置投递参数
                       </button>
                       <button
-                        onClick={() => window.open('http://localhost:8080/resume-manager', '_blank')}
+                        onClick={() => window.open('http://115.190.182.95:8080/resume-manager', '_blank')}
                         className="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
                       >
                         📄 管理简历内容
                       </button>
                       <button
-                        onClick={() => window.open('http://localhost:8080?start=true', '_blank')}
+                        onClick={() => window.open('http://115.190.182.95:8080?start=true', '_blank')}
                         className="w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
                       >
                         ▶️ 启动自动投递
@@ -225,7 +225,7 @@ const ResumeDelivery: React.FC = () => {
                     <h4 className="font-semibold mb-2">🔍 智能搜索</h4>
                     <p className="text-sm opacity-90 mb-3">基于关键词自动搜索匹配职位</p>
                     <button
-                      onClick={() => window.open('http://localhost:8080', '_blank')}
+                      onClick={() => window.open('http://115.190.182.95:8080', '_blank')}
                       className="bg-white text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-50 transition-colors"
                     >
                       配置搜索条件
@@ -236,7 +236,7 @@ const ResumeDelivery: React.FC = () => {
                     <h4 className="font-semibold mb-2">🎯 精准匹配</h4>
                     <p className="text-sm opacity-90 mb-3">AI分析简历与职位匹配度</p>
                     <button
-                      onClick={() => window.open('http://localhost:8080/resume-manager', '_blank')}
+                      onClick={() => window.open('http://115.190.182.95:8080/resume-manager', '_blank')}
                       className="bg-white text-green-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-50 transition-colors"
                     >
                       优化简历内容
@@ -247,7 +247,7 @@ const ResumeDelivery: React.FC = () => {
                     <h4 className="font-semibold mb-2">⚡ 自动投递</h4>
                     <p className="text-sm opacity-90 mb-3">一键启动全自动投递流程</p>
                     <button
-                      onClick={() => window.open('http://localhost:8080?start=true', '_blank')}
+                      onClick={() => window.open('http://115.190.182.95:8080?start=true', '_blank')}
                       className="bg-white text-purple-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-50 transition-colors"
                     >
                       开始自动投递
@@ -301,7 +301,7 @@ const ResumeDelivery: React.FC = () => {
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="font-semibold text-gray-900">📈 投递统计</h4>
                     <button
-                      onClick={() => window.open('http://localhost:8080', '_blank')}
+                      onClick={() => window.open('http://115.190.182.95:8080', '_blank')}
                       className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                     >
                       查看详细记录 →
@@ -350,19 +350,19 @@ const ResumeDelivery: React.FC = () => {
                   <h4 className="font-semibold text-indigo-900 mb-3">🚀 快速操作</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <button
-                      onClick={() => window.open('http://localhost:8080', '_blank')}
+                      onClick={() => window.open('http://115.190.182.95:8080', '_blank')}
                       className="bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 transition-colors text-center"
                     >
                       📊 查看投递统计
                     </button>
                     <button
-                      onClick={() => window.open('http://localhost:8080/resume-manager', '_blank')}
+                      onClick={() => window.open('http://115.190.182.95:8080/resume-manager', '_blank')}
                       className="bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition-colors text-center"
                     >
                       📄 管理简历
                     </button>
                     <button
-                      onClick={() => window.open('http://localhost:8080?start=true', '_blank')}
+                      onClick={() => window.open('http://115.190.182.95:8080?start=true', '_blank')}
                       className="bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 transition-colors text-center"
                     >
                       ▶️ 启动投递
@@ -454,7 +454,7 @@ const ResumeDelivery: React.FC = () => {
                       <h5 className="font-medium text-yellow-800 mb-2">第二步：启动匹配</h5>
                       <p className="text-yellow-700 text-sm mb-3">配置搜索条件后，AI会自动匹配最适合的职位</p>
                       <button
-                        onClick={() => window.open('http://localhost:8080', '_blank')}
+                        onClick={() => window.open('http://115.190.182.95:8080', '_blank')}
                         className="bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-yellow-700 transition-colors"
                       >
                         配置匹配参数
