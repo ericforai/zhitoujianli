@@ -57,7 +57,7 @@ apiClient.interceptors.response.use(
         if (window.location.hostname === 'localhost') {
           // 本地开发环境
           if (window.location.port === '3000') {
-            window.location.href = 'http://localhost:8080/login';
+            window.location.href = 'http://115.190.182.95:8080/login';
           } else {
             window.location.href = '/login';
           }
@@ -199,7 +199,7 @@ export const authService = {
       if (window.location.hostname === 'localhost') {
         // 本地开发环境
         if (window.location.port === '3000') {
-          window.location.href = 'http://localhost:8080/login';
+          window.location.href = 'http://115.190.182.95:8080/login';
         } else {
           window.location.href = '/login';
         }
