@@ -30,6 +30,7 @@ const Register: React.FC = () => {
   const [codeCountdown, setCodeCountdown] = useState(0);
   const [codeSent, setCodeSent] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
+  const [phoneVerified, setPhoneVerified] = useState(false);
 
   // 验证码倒计时效果
   useEffect(() => {
@@ -119,6 +120,7 @@ const Register: React.FC = () => {
           setSuccess('验证码已发送到手机');
           setCodeSent(true);
           setCodeCountdown(60); // 60秒倒计时
+          setPhoneVerified(false); // 重置验证状态
           console.log('验证码:', result.code); // 仅用于演示
         } else {
           setError(result.message || '发送验证码失败');
@@ -162,6 +164,35 @@ const Register: React.FC = () => {
   };
 
   /**
+   * 验证手机验证码
+   */
+  const handleVerifyPhoneCode = async () => {
+    if (!phone || !verificationCode) {
+      setError('请先输入手机号和验证码');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError('');
+
+      const result = await authService.verifyPhoneCode(phone, verificationCode);
+
+      if (result.success) {
+        setPhoneVerified(true);
+        setSuccess('手机验证成功');
+      } else {
+        setError(result.message || '验证码验证失败');
+      }
+    } catch (err: any) {
+      console.error('验证手机验证码失败:', err);
+      setError('网络错误，请稍后重试');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
    * 处理注册
    */
   const handleRegister = async (e: React.FormEvent) => {
@@ -190,8 +221,13 @@ const Register: React.FC = () => {
       return;
     }
 
-    if (!emailVerified) {
+    if (mode === 'email' && !emailVerified) {
       setError('请先验证邮箱验证码');
+      return;
+    }
+
+    if (mode === 'phone' && !phoneVerified) {
+      setError('请先验证手机验证码');
       return;
     }
 
@@ -202,9 +238,8 @@ const Register: React.FC = () => {
       if (mode === 'email') {
         result = await authService.register(email, password, username);
       } else {
-        // 手机号注册 - 暂时不支持，提示用户使用邮箱注册
-        setError('手机号注册功能暂未开放，请使用邮箱注册');
-        return;
+        // 手机号注册
+        result = await authService.registerByPhone(phone, password, username);
       }
 
       if (result.success) {
@@ -382,18 +417,27 @@ const Register: React.FC = () => {
                     className='flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100'
                     placeholder='请输入6位验证码'
                     maxLength={6}
-                    disabled={mode === 'email' ? emailVerified : false}
+                    disabled={mode === 'email' ? emailVerified : phoneVerified}
                   />
-                  {mode === 'email' && (
-                    <button
-                      type='button'
-                      onClick={handleVerifyEmailCode}
-                      disabled={!verificationCode || loading || emailVerified}
-                      className='px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm'
-                    >
-                      {emailVerified ? '已验证' : '验证'}
-                    </button>
-                  )}
+                   {mode === 'email' ? (
+                     <button
+                       type='button'
+                       onClick={handleVerifyEmailCode}
+                       disabled={!verificationCode || loading || emailVerified}
+                       className='px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm'
+                     >
+                       {emailVerified ? '已验证' : '验证'}
+                     </button>
+                   ) : (
+                     <button
+                       type='button'
+                       onClick={handleVerifyPhoneCode}
+                       disabled={!verificationCode || loading || phoneVerified}
+                       className='px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm'
+                     >
+                       {phoneVerified ? '已验证' : '验证'}
+                     </button>
+                   )}
                 </div>
                 <p className='mt-1 text-xs text-gray-500'>
                   验证码已发送到 {mode === 'email' ? email : phone}
@@ -402,6 +446,11 @@ const Register: React.FC = () => {
                 {mode === 'email' && emailVerified && (
                   <p className='mt-1 text-xs text-green-600'>
                     ✓ 邮箱验证成功，可以继续注册
+                  </p>
+                )}
+                {mode === 'phone' && phoneVerified && (
+                  <p className='mt-1 text-xs text-green-600'>
+                    ✓ 手机验证成功，可以继续注册
                   </p>
                 )}
               </div>
