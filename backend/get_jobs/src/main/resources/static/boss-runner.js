@@ -22,13 +22,13 @@ class BossRunner {
     async start() {
         try {
             console.log('🚀 启动Boss投递程序...');
-            
+
             // 连接WebSocket
             await this.connectWebSocket();
-            
+
             // 等待服务器指令
             console.log('📡 等待服务器指令...');
-            
+
         } catch (error) {
             console.error('❌ 启动失败:', error);
             process.exit(1);
@@ -42,7 +42,7 @@ class BossRunner {
         return new Promise((resolve, reject) => {
             const wsUrl = `ws://${this.serverUrl}/ws/boss-delivery?userId=${this.userId}`;
             console.log('🔌 连接到服务器:', wsUrl);
-            
+
             this.ws = new WebSocket(wsUrl);
 
             this.ws.on('open', () => {
@@ -76,32 +76,32 @@ class BossRunner {
      */
     async handleMessage(message) {
         console.log('📨 收到指令:', message.action);
-        
+
         switch (message.action) {
             case 'welcome':
                 console.log('🎉', message.message);
                 break;
-                
+
             case 'login':
                 await this.handleLogin();
                 break;
-                
+
             case 'start_delivery':
                 await this.handleDelivery(message.config);
                 break;
-                
+
             case 'login_confirmed':
                 console.log('✅', message.message);
                 break;
-                
+
             case 'delivery_confirmed':
                 console.log('🎯', message.message);
                 break;
-                
+
             case 'error':
                 console.error('❌', message.message);
                 break;
-                
+
             default:
                 console.log('❓ 未知指令:', message.action);
         }
@@ -114,7 +114,7 @@ class BossRunner {
         try {
             console.log('🔐 开始登录流程...');
             this.isLoginMode = true;
-            
+
             // 启动浏览器（有头模式）
             this.browser = await chromium.launch({
                 headless: false, // 显示浏览器窗口
@@ -127,16 +127,16 @@ class BossRunner {
             });
 
             this.page = await this.browser.newPage();
-            
+
             // 设置用户代理
             await this.page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36');
-            
+
             console.log('🌐 打开Boss直聘登录页面...');
             await this.page.goto('https://www.zhipin.com/web/user/?ka=header-login');
-            
+
             // 等待页面加载
             await this.page.waitForLoadState('networkidle');
-            
+
             // 查找并点击二维码登录
             try {
                 const qrButton = this.page.locator('.login-switch-btn');
@@ -147,13 +147,13 @@ class BossRunner {
             } catch (error) {
                 console.log('⚠️ 二维码切换按钮未找到，可能已经是二维码模式');
             }
-            
+
             console.log('⏳ 等待用户扫码登录...');
             console.log('💡 请在浏览器中扫码完成登录');
-            
+
             // 监控登录状态
             await this.monitorLoginStatus();
-            
+
         } catch (error) {
             console.error('❌ 登录流程失败:', error);
             this.sendMessage({
@@ -169,34 +169,34 @@ class BossRunner {
     async monitorLoginStatus() {
         const maxWaitTime = 5 * 60 * 1000; // 5分钟
         const startTime = Date.now();
-        
+
         while (Date.now() - startTime < maxWaitTime) {
             try {
                 // 检查是否已登录
                 const currentUrl = this.page.url();
-                
+
                 // 如果URL包含用户信息或跳转到主页，说明登录成功
                 if (currentUrl.includes('/user/') && !currentUrl.includes('/login')) {
                     console.log('✅ 检测到登录成功！');
-                    
+
                     // 等待页面完全加载
                     await this.page.waitForLoadState('networkidle');
-                    
+
                     // 保存Cookie
                     const cookies = await this.page.context().cookies();
                     console.log('💾 保存登录状态...');
-                    
+
                     // 通知服务器登录成功
                     this.sendMessage({
                         action: 'login_complete',
                         cookies: cookies,
                         userAgent: await this.page.evaluate(() => navigator.userAgent)
                     });
-                    
+
                     this.isLoginMode = false;
                     return;
                 }
-                
+
                 // 检查是否有错误或需要重新登录
                 const errorElement = this.page.locator('.login-error, .error-msg');
                 if (await errorElement.count() > 0) {
@@ -205,10 +205,10 @@ class BossRunner {
                         throw new Error('登录失败: ' + errorText);
                     }
                 }
-                
+
                 // 等待1秒后再次检查
                 await this.page.waitForTimeout(1000);
-                
+
             } catch (error) {
                 if (error.message.includes('登录失败')) {
                     throw error;
@@ -217,7 +217,7 @@ class BossRunner {
                 await this.page.waitForTimeout(2000);
             }
         }
-        
+
         throw new Error('登录超时，请重试');
     }
 
@@ -227,14 +227,14 @@ class BossRunner {
     async handleDelivery(config) {
         try {
             console.log('📋 开始投递简历...');
-            
+
             // 如果当前是有头模式，切换到无头模式
             if (this.isLoginMode && this.browser) {
                 console.log('🔄 切换到无头模式...');
                 await this.browser.close();
                 this.isLoginMode = false;
             }
-            
+
             // 启动无头浏览器
             if (!this.browser) {
                 this.browser = await chromium.launch({
@@ -247,13 +247,13 @@ class BossRunner {
                         '--disable-dev-shm-usage'
                     ]
                 });
-                
+
                 this.page = await this.browser.newPage();
             }
-            
+
             // 执行投递逻辑
             await this.performDelivery(config);
-            
+
         } catch (error) {
             console.error('❌ 投递失败:', error);
             this.sendMessage({
@@ -269,11 +269,11 @@ class BossRunner {
     async performDelivery(config) {
         // 这里实现具体的投递逻辑
         console.log('🎯 投递配置:', config);
-        
+
         // 模拟投递过程
         for (let i = 1; i <= 10; i++) {
             console.log(`📤 投递进度: ${i}/10`);
-            
+
             // 发送进度更新
             this.sendMessage({
                 action: 'delivery_progress',
@@ -281,11 +281,11 @@ class BossRunner {
                 current: i,
                 total: 10
             });
-            
+
             // 模拟投递延迟
             await new Promise(resolve => setTimeout(resolve, 2000));
         }
-        
+
         // 投递完成
         console.log('🎉 投递完成！');
         this.sendMessage({
@@ -312,19 +312,19 @@ class BossRunner {
      */
     async cleanup() {
         console.log('🧹 清理资源...');
-        
+
         if (this.page) {
             await this.page.close();
         }
-        
+
         if (this.browser) {
             await this.browser.close();
         }
-        
+
         if (this.ws) {
             this.ws.close();
         }
-        
+
         console.log('✅ 清理完成');
     }
 }

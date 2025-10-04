@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 /**
  * Boss程序Cookie管理控制器
@@ -179,19 +182,19 @@ public class BossCookieController {
             // 检查Cookie状态
             File cookieFile = new File(COOKIE_FILE_PATH);
             boolean hasValidCookie = cookieFile.exists() && cookieFile.length() > 10;
-            
+
             // 生成脚本内容
             String scriptContent = generateScriptContent(userId, hasValidCookie);
-            
+
             // 设置响应头，让浏览器下载文件
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
             headers.setContentDispositionFormData("attachment", "boss-runner.js");
-            
+
             return ResponseEntity.ok()
                     .headers(headers)
                     .body(scriptContent);
-                    
+
         } catch (Exception e) {
             log.error("生成用户脚本失败", e);
             return ResponseEntity.status(500)
@@ -208,7 +211,7 @@ public class BossCookieController {
             // 检查Cookie状态
             File cookieFile = new File(COOKIE_FILE_PATH);
             boolean hasValidCookie = cookieFile.exists() && cookieFile.length() > 10;
-            
+
             if (hasValidCookie) {
                 // 有有效Cookie，直接无头模式启动
                 return Map.of(
@@ -227,7 +230,7 @@ public class BossCookieController {
                     "script_url", "/api/boss/generate-script?userId=" + userId
                 );
             }
-            
+
         } catch (Exception e) {
             log.error("启动混合投递失败", e);
             return Map.of(
@@ -242,14 +245,14 @@ public class BossCookieController {
      */
     private String generateScriptContent(String userId, boolean hasValidCookie) {
         StringBuilder script = new StringBuilder();
-        
+
         script.append("// Boss投递本地运行脚本 - 用户ID: ").append(userId).append("\n");
         script.append("// 生成时间: ").append(new java.util.Date()).append("\n");
         script.append("// 需要先安装依赖: npm install playwright ws\n\n");
-        
+
         script.append("const { chromium } = require('playwright');\n");
         script.append("const WebSocket = require('ws');\n\n");
-        
+
         script.append("class BossRunner {\n");
         script.append("    constructor(serverUrl, userId) {\n");
         script.append("        this.serverUrl = serverUrl;\n");
@@ -259,7 +262,7 @@ public class BossCookieController {
         script.append("        this.ws = null;\n");
         script.append("        this.isLoginMode = false;\n");
         script.append("    }\n\n");
-        
+
         if (hasValidCookie) {
             // 有Cookie的情况，直接无头模式
             script.append("    async start() {\n");
@@ -284,7 +287,7 @@ public class BossCookieController {
             script.append("        }\n");
             script.append("    }\n\n");
         }
-        
+
         // 添加WebSocket连接方法
         script.append("    async connectWebSocket() {\n");
         script.append("        return new Promise((resolve, reject) => {\n");
@@ -310,7 +313,7 @@ public class BossCookieController {
         script.append("            });\n");
         script.append("        });\n");
         script.append("    }\n\n");
-        
+
         // 添加消息处理方法
         script.append("    async handleMessage(message) {\n");
         script.append("        console.log('📨 收到指令:', message.action);\n");
@@ -325,7 +328,7 @@ public class BossCookieController {
         script.append("                console.log('📨', message.message || message);\n");
         script.append("        }\n");
         script.append("    }\n\n");
-        
+
         // 添加登录处理方法
         script.append("    async handleLogin() {\n");
         script.append("        try {\n");
@@ -344,7 +347,7 @@ public class BossCookieController {
         script.append("            console.error('❌ 登录流程失败:', error);\n");
         script.append("        }\n");
         script.append("    }\n\n");
-        
+
         // 添加登录状态监控
         script.append("    async monitorLoginStatus() {\n");
         script.append("        const maxWaitTime = 5 * 60 * 1000;\n");
@@ -365,7 +368,7 @@ public class BossCookieController {
         script.append("        }\n");
         script.append("        throw new Error('登录超时，请重试');\n");
         script.append("    }\n\n");
-        
+
         // 添加投递处理方法
         script.append("    async handleDelivery(config) {\n");
         script.append("        try {\n");
@@ -384,7 +387,7 @@ public class BossCookieController {
         script.append("            console.error('❌ 投递失败:', error);\n");
         script.append("        }\n");
         script.append("    }\n\n");
-        
+
         // 添加投递执行方法
         script.append("    async performDelivery(config) {\n");
         script.append("        console.log('🎯 投递配置:', config);\n");
@@ -402,14 +405,14 @@ public class BossCookieController {
         script.append("            summary: { total: 10, successful: 10, failed: 0 }\n");
         script.append("        });\n");
         script.append("    }\n\n");
-        
+
         // 添加发送消息方法
         script.append("    sendMessage(message) {\n");
         script.append("        if (this.ws && this.ws.readyState === WebSocket.OPEN) {\n");
         script.append("            this.ws.send(JSON.stringify(message));\n");
         script.append("        }\n");
         script.append("    }\n\n");
-        
+
         // 添加清理方法
         script.append("    async cleanup() {\n");
         script.append("        console.log('🧹 清理资源...');\n");
@@ -419,14 +422,14 @@ public class BossCookieController {
         script.append("        console.log('✅ 清理完成');\n");
         script.append("    }\n");
         script.append("}\n\n");
-        
+
         // 添加启动代码
         script.append("const runner = new BossRunner('115.190.182.95:8080', '").append(userId).append("');\n");
         script.append("runner.start().catch(error => {\n");
         script.append("    console.error('❌ 程序异常退出:', error);\n");
         script.append("    process.exit(1);\n");
         script.append("});\n");
-        
+
         return script.toString();
     }
 }

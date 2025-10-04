@@ -385,15 +385,13 @@ public class AuthController {
                 if (response != null && response.getRequestId() != null) {
                     log.info("✅ Authing邮件验证码发送成功，邮箱: {}, RequestId: {}", email, response.getRequestId());
 
-                    // 生成本地验证码用于验证（Authing会通过邮件发送真实验证码）
-                    String verificationCode = generateVerificationCode();
-
-                    // 存储验证码和过期时间（用于本地验证）
+                    // 存储邮箱和验证状态，不存储验证码（Authing会处理验证码验证）
                     Map<String, Object> codeInfo = new HashMap<>();
-                    codeInfo.put("code", verificationCode);
+                    codeInfo.put("email", email);
                     codeInfo.put("expiresAt", System.currentTimeMillis() + CODE_EXPIRE_TIME);
                     codeInfo.put("attempts", 0);
                     codeInfo.put("verified", false);
+                    codeInfo.put("authingRequestId", response.getRequestId());
                     verificationCodes.put(email, codeInfo);
 
                     return ResponseEntity.ok(Map.of(
@@ -663,22 +661,35 @@ public class AuthController {
                     .body(Map.of("success", false, "message", "验证码验证失败次数过多，请重新发送"));
             }
 
-            // 验证验证码
-            String storedCode = (String) codeInfo.get("code");
-            if (!storedCode.equals(code)) {
+            // 使用Authing验证邮箱验证码
+            try {
+                VerifyEmailVerificationCodeDto verifyDto = new VerifyEmailVerificationCodeDto();
+                verifyDto.setEmail(email);
+                verifyDto.setVerificationCode(code);
+
+                VerifyEmailVerificationCodeRespDto verifyResponse = authenticationClient.verifyEmailVerificationCode(verifyDto);
+                
+                if (verifyResponse != null && verifyResponse.getValid() != null && verifyResponse.getValid()) {
+                    // 验证成功，标记为已验证
+                    codeInfo.put("verified", true);
+                    
+                    log.info("✅ Authing邮箱验证码验证成功: {}", email);
+                    return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "验证码验证成功"
+                    ));
+                } else {
+                    codeInfo.put("attempts", attempts + 1);
+                    log.warn("⚠️ Authing邮箱验证码验证失败: {}", email);
+                    return ResponseEntity.badRequest()
+                        .body(Map.of("success", false, "message", "验证码错误"));
+                }
+            } catch (Exception authingException) {
+                log.error("❌ Authing邮箱验证码验证异常: {}", email, authingException);
                 codeInfo.put("attempts", attempts + 1);
                 return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "message", "验证码错误"));
+                    .body(Map.of("success", false, "message", "验证码验证失败"));
             }
-
-            // 验证成功，标记为已验证
-            codeInfo.put("verified", true);
-
-            log.info("✅ 邮箱验证码验证成功: {}", email);
-            return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "验证码验证成功"
-            ));
 
         } catch (Exception e) {
             log.error("❌ 验证码验证失败", e);
