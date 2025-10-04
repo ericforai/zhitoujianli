@@ -119,4 +119,5 @@ export const parseResumeFile = async (file: File): Promise<ResumeData> => {
 };
 
 // 导出类型
-export type { ResumeData, GreetingSettings, AnalysisResult };
+export type { AnalysisResult, GreetingSettings, ResumeData };
+
