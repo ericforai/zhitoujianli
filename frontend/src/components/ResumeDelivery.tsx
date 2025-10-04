@@ -11,10 +11,10 @@
  * @since 2025-10-03
  */
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { authService } from '../services/authService';
-import BossDelivery from './BossDelivery';
 import resumeService, { CandidateInfo } from '../services/resumeService';
+import BossDelivery from './BossDelivery';
 
 const ResumeDelivery: React.FC = () => {
   const [user, setUser] = useState<any>(null);
@@ -33,7 +33,7 @@ const ResumeDelivery: React.FC = () => {
 
     const userData = authService.getCachedUser();
     setUser(userData);
-    
+
     // 加载已有简历
     loadExistingResume();
   }, []);
@@ -63,7 +63,7 @@ const ResumeDelivery: React.FC = () => {
 
     // 检查文件类型
     const fileName = file.name.toLowerCase();
-    if (!fileName.endsWith('.txt') && !fileName.endsWith('.pdf') && 
+    if (!fileName.endsWith('.txt') && !fileName.endsWith('.pdf') &&
         !fileName.endsWith('.doc') && !fileName.endsWith('.docx')) {
       setUploadMessage('不支持的文件格式，请上传TXT、PDF、DOC、DOCX文件');
       return;
@@ -230,19 +230,19 @@ const ResumeDelivery: React.FC = () => {
                         拖拽文件到此处，或
                         <span className="text-indigo-600 hover:text-indigo-500">点击选择文件</span>
                       </span>
-                      <input 
+                      <input
                         ref={fileInputRef}
-                        id="resume-upload" 
-                        name="resume-upload" 
-                        type="file" 
-                        className="sr-only" 
+                        id="resume-upload"
+                        name="resume-upload"
+                        type="file"
+                        className="sr-only"
                         accept=".pdf,.doc,.docx,.txt"
                         onChange={handleFileUpload}
                         disabled={uploading}
                       />
                     </label>
                     <p className="mt-1 text-xs text-gray-500">支持 PDF, DOC, DOCX, TXT 格式，最大 10MB</p>
-                    
+
                     {/* 上传状态显示 */}
                     {uploading && (
                       <div className="mt-4 p-3 bg-blue-50 rounded-lg">
@@ -252,7 +252,7 @@ const ResumeDelivery: React.FC = () => {
                         </div>
                       </div>
                     )}
-                    
+
                     {uploadMessage && !uploading && (
                       <div className={`mt-4 p-3 rounded-lg ${
                         uploadMessage.includes('成功') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
@@ -260,7 +260,7 @@ const ResumeDelivery: React.FC = () => {
                         <p className="text-sm">{uploadMessage}</p>
                       </div>
                     )}
-                    
+
                     {/* 简历信息显示 */}
                     {candidateInfo && (
                       <div className="mt-4 p-4 bg-gray-50 rounded-lg">
