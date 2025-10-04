@@ -67,7 +67,7 @@
 <body>
     <div class="container">
         <h1>🔧 API连接测试</h1>
-        
+
         <div class="test-section">
             <h3>🎯 测试目标</h3>
             <p>验证前端能否正确连接到后端API，特别是登录接口</p>
@@ -126,7 +126,7 @@
 
         async function testBackendConnection() {
             log('🔍 开始测试后端API连接...');
-            
+
             try {
                 const response = await fetch('http://localhost:8080/api/auth/health', {
                     method: 'GET',
@@ -134,7 +134,7 @@
                         'Content-Type': 'application/json',
                     }
                 });
-                
+
                 if (response.ok) {
                     log('✅ 后端API连接成功', 'success');
                     document.getElementById('results').innerHTML = '<div class="test-section success"><h4>✅ 后端API连接正常</h4><p>后端服务运行正常，可以接收请求</p></div>';
@@ -150,7 +150,7 @@
 
         async function testLoginAPI() {
             log('🔍 开始测试登录接口...');
-            
+
             try {
                 const response = await fetch('http://localhost:8080/api/auth/login/email', {
                     method: 'POST',
@@ -162,9 +162,9 @@
                         password: '123456'
                     })
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (response.ok && data.success) {
                     log('✅ 登录接口测试成功', 'success');
                     log(`📝 返回Token: ${data.token.substring(0, 20)}...`);
@@ -193,3 +193,4 @@
     </script>
 </body>
 </html>
+
