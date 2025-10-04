@@ -11,13 +11,18 @@
  * @since 2025-10-03
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { authService } from '../services/authService';
 import BossDelivery from './BossDelivery';
+import resumeService, { CandidateInfo } from '../services/resumeService';
 
 const ResumeDelivery: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [candidateInfo, setCandidateInfo] = useState<CandidateInfo | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // 检查登录状态
@@ -28,7 +33,59 @@ const ResumeDelivery: React.FC = () => {
 
     const userData = authService.getCachedUser();
     setUser(userData);
+    
+    // 加载已有简历
+    loadExistingResume();
   }, []);
+
+  // 加载已有简历
+  const loadExistingResume = async () => {
+    try {
+      const result = await resumeService.loadResume();
+      if (result.success && result.data) {
+        setCandidateInfo(result.data);
+      }
+    } catch (error) {
+      console.error('加载简历失败:', error);
+    }
+  };
+
+  // 处理文件上传
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // 检查文件大小（10MB）
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadMessage('文件过大，请上传小于10MB的文件');
+      return;
+    }
+
+    // 检查文件类型
+    const fileName = file.name.toLowerCase();
+    if (!fileName.endsWith('.txt') && !fileName.endsWith('.pdf') && 
+        !fileName.endsWith('.doc') && !fileName.endsWith('.docx')) {
+      setUploadMessage('不支持的文件格式，请上传TXT、PDF、DOC、DOCX文件');
+      return;
+    }
+
+    setUploading(true);
+    setUploadMessage('正在上传文件并解析简历...');
+
+    try {
+      const result = await resumeService.uploadResume(file);
+      if (result.success && result.data) {
+        setCandidateInfo(result.data);
+        setUploadMessage('简历上传并解析成功！');
+      } else {
+        setUploadMessage(result.message || '简历解析失败');
+      }
+    } catch (error: any) {
+      setUploadMessage(error.message || '简历上传失败');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleLogout = () => {
     authService.logout();
@@ -173,9 +230,49 @@ const ResumeDelivery: React.FC = () => {
                         拖拽文件到此处，或
                         <span className="text-indigo-600 hover:text-indigo-500">点击选择文件</span>
                       </span>
-                      <input id="resume-upload" name="resume-upload" type="file" className="sr-only" accept=".pdf,.doc,.docx,.txt" />
+                      <input 
+                        ref={fileInputRef}
+                        id="resume-upload" 
+                        name="resume-upload" 
+                        type="file" 
+                        className="sr-only" 
+                        accept=".pdf,.doc,.docx,.txt"
+                        onChange={handleFileUpload}
+                        disabled={uploading}
+                      />
                     </label>
                     <p className="mt-1 text-xs text-gray-500">支持 PDF, DOC, DOCX, TXT 格式，最大 10MB</p>
+                    
+                    {/* 上传状态显示 */}
+                    {uploading && (
+                      <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                        <div className="flex items-center">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                          <span className="ml-2 text-sm text-blue-600">正在上传和解析...</span>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {uploadMessage && !uploading && (
+                      <div className={`mt-4 p-3 rounded-lg ${
+                        uploadMessage.includes('成功') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                      }`}>
+                        <p className="text-sm">{uploadMessage}</p>
+                      </div>
+                    )}
+                    
+                    {/* 简历信息显示 */}
+                    {candidateInfo && (
+                      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                        <h5 className="font-medium text-gray-900 mb-2">已上传简历信息：</h5>
+                        <div className="text-sm text-gray-600 space-y-1">
+                          <p><strong>姓名：</strong>{candidateInfo.name}</p>
+                          <p><strong>联系方式：</strong>{candidateInfo.phone || candidateInfo.email}</p>
+                          <p><strong>学历：</strong>{candidateInfo.education}</p>
+                          <p><strong>工作经验：</strong>{candidateInfo.workExperience}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 

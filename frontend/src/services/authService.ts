@@ -54,17 +54,8 @@ apiClient.interceptors.response.use(
       // 如果不在登录页，跳转到登录页
       if (window.location.pathname !== '/login') {
         // 动态检测环境并跳转
-        if (window.location.hostname === 'localhost') {
-          // 本地开发环境
-          if (window.location.port === '3000') {
-            window.location.href = 'http://115.190.182.95:8080/login';
-          } else {
-            window.location.href = '/login';
-          }
-        } else {
-          // 生产环境
-          window.location.href = '/login';
-        }
+        // 统一跳转到前端登录页面
+        window.location.href = '/login';
       }
     }
     return Promise.reject(error);
@@ -195,18 +186,7 @@ export const authService = {
       localStorage.removeItem('user');
 
       // 跳转到登录页
-      // 动态检测环境并跳转
-      if (window.location.hostname === 'localhost') {
-        // 本地开发环境
-        if (window.location.port === '3000') {
-          window.location.href = 'http://115.190.182.95:8080/login';
-        } else {
-          window.location.href = '/login';
-        }
-      } else {
-        // 生产环境
-        window.location.href = '/login';
-      }
+      window.location.href = '/login';
     }
   },
 

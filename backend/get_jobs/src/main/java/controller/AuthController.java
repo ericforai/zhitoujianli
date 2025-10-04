@@ -261,7 +261,7 @@ public class AuthController {
 
     /**
      * 发送邮箱验证码 - 支持Authing真实验证码服务
-     * 
+     *
      * 注意：Authing的邮件验证码功能需要：
      * 1. 在Authing控制台配置邮件服务
      * 2. 根据最新SDK文档使用正确的API
@@ -285,7 +285,7 @@ public class AuthController {
 
             // 生成6位数字验证码
             String verificationCode = generateVerificationCode();
-            
+
             // 存储验证码和过期时间
             Map<String, Object> codeInfo = new HashMap<>();
             codeInfo.put("code", verificationCode);
@@ -300,7 +300,7 @@ public class AuthController {
             // 1. Authing控制台邮件服务配置
             // 2. 使用正确的SDK API调用
             // 3. 处理邮件发送失败的情况
-            
+
             // 当前使用演示方案：在控制台输出验证码
             log.info("📧 发送验证码到邮箱: {}, 验证码: {}", email, verificationCode);
             log.info("💡 提示：生产环境请配置Authing邮件服务或第三方邮件服务");
