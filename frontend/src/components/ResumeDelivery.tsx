@@ -285,13 +285,27 @@ const ResumeDelivery: React.FC = () => {
                     </p>
                     <div className="space-y-3">
                       <button
-                        onClick={() => window.open('http://115.190.182.95:8080', '_blank')}
+                        onClick={() => {
+                          const token = localStorage.getItem('token');
+                          if (token) {
+                            window.open(`http://115.190.182.95:8080/token?token=${encodeURIComponent(token)}`, '_blank');
+                          } else {
+                            window.open('http://115.190.182.95:8080', '_blank');
+                          }
+                        }}
                         className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                       >
                         📋 配置投递参数
                       </button>
                       <button
-                        onClick={() => window.open('http://115.190.182.95:8080/resume-manager', '_blank')}
+                        onClick={() => {
+                          const token = localStorage.getItem('token');
+                          if (token) {
+                            window.open(`http://115.190.182.95:8080/token?token=${encodeURIComponent(token)}#resume-manager`, '_blank');
+                          } else {
+                            window.open('http://115.190.182.95:8080/resume-manager', '_blank');
+                          }
+                        }}
                         className="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
                       >
                         📄 管理简历内容

@@ -3,7 +3,9 @@ package service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import util.UserContextUtil;
 
@@ -18,13 +20,16 @@ import java.util.Map;
 /**
  * 用户数据服务
  * 提供用户级别的数据存储和管理
- * 
+ *
  * @author ZhiTouJianLi Team
  * @since 2025-10-01
  */
 @Slf4j
 @Service
 public class UserDataService {
+
+    @Autowired
+    private Dotenv dotenv;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -48,27 +53,46 @@ public class UserDataService {
      * 保存用户配置
      */
     public boolean saveUserConfig(Map<String, Object> config) {
-        if (!UserContextUtil.hasCurrentUser()) {
-            log.warn("没有当前用户，无法保存配置");
+        // 检查安全认证是否启用
+        boolean securityEnabled = Boolean.parseBoolean(dotenv.get("SECURITY_ENABLED", "true"));
+        log.info("当前安全认证状态: {}, SECURITY_ENABLED值: {}", securityEnabled, dotenv.get("SECURITY_ENABLED", "true"));
+
+        String userId, userEmail, username, configPath;
+
+        if (securityEnabled && !UserContextUtil.hasCurrentUser()) {
+            log.warn("安全认证已启用但没有当前用户，无法保存配置");
             return false;
         }
 
+        if (!securityEnabled) {
+            // 安全认证禁用时，使用默认用户
+            userId = "default_user";
+            userEmail = "demo@example.com";
+            username = "Demo User";
+            configPath = "user_data/default_user/config.json";
+            log.info("安全认证已禁用，使用默认用户保存配置");
+        } else {
+            // 安全认证启用时，使用当前用户
+            userId = UserContextUtil.getCurrentUserId();
+            userEmail = UserContextUtil.getCurrentUserEmail();
+            username = UserContextUtil.getCurrentUsername();
+            configPath = UserContextUtil.getUserConfigPath();
+        }
+
         ensureUserDataDirectory();
-        
+
         try {
-            String configPath = UserContextUtil.getUserConfigPath();
-            
             // 添加用户信息到配置中
-            config.put("userId", UserContextUtil.getCurrentUserId());
-            config.put("userEmail", UserContextUtil.getCurrentUserEmail());
-            config.put("username", UserContextUtil.getCurrentUsername());
+            config.put("userId", userId);
+            config.put("userEmail", userEmail);
+            config.put("username", username);
             config.put("lastModified", System.currentTimeMillis());
-            
+            config.put("securityEnabled", securityEnabled);
+
             objectMapper.writerWithDefaultPrettyPrinter()
                        .writeValue(new File(configPath), config);
-            
-            log.info("✅ 用户配置保存成功: userId={}, path={}", 
-                    UserContextUtil.getCurrentUserId(), configPath);
+
+            log.info("✅ 用户配置保存成功: userId={}, path={}", userId, configPath);
             return true;
         } catch (Exception e) {
             log.error("保存用户配置失败: {}", e.getMessage(), e);
@@ -80,25 +104,39 @@ public class UserDataService {
      * 加载用户配置
      */
     public Map<String, Object> loadUserConfig() {
-        if (!UserContextUtil.hasCurrentUser()) {
-            log.warn("没有当前用户，返回默认配置");
+        // 检查安全认证是否启用
+        boolean securityEnabled = Boolean.parseBoolean(dotenv.get("SECURITY_ENABLED", "true"));
+
+        String userId, configPath;
+
+        if (securityEnabled && !UserContextUtil.hasCurrentUser()) {
+            log.warn("安全认证已启用但没有当前用户，返回默认配置");
             return getDefaultConfig();
         }
 
+        if (!securityEnabled) {
+            // 安全认证禁用时，使用默认用户
+            userId = "default_user";
+            configPath = "user_data/default_user/config.json";
+            log.info("安全认证已禁用，使用默认用户加载配置");
+        } else {
+            // 安全认证启用时，使用当前用户
+            userId = UserContextUtil.getCurrentUserId();
+            configPath = UserContextUtil.getUserConfigPath();
+        }
+
         try {
-            String configPath = UserContextUtil.getUserConfigPath();
             File configFile = new File(configPath);
-            
+
             if (!configFile.exists()) {
                 log.info("用户配置文件不存在，返回默认配置: {}", configPath);
                 return getDefaultConfig();
             }
-            
+
             @SuppressWarnings("unchecked")
             Map<String, Object> config = objectMapper.readValue(configFile, Map.class);
-            
-            log.info("✅ 用户配置加载成功: userId={}, path={}", 
-                    UserContextUtil.getCurrentUserId(), configPath);
+
+            log.info("✅ 用户配置加载成功: userId={}, path={}", userId, configPath);
             return config;
         } catch (Exception e) {
             log.error("加载用户配置失败: {}", e.getMessage(), e);
@@ -110,25 +148,39 @@ public class UserDataService {
      * 保存用户AI配置
      */
     public boolean saveUserAiConfig(Map<String, Object> aiConfig) {
-        if (!UserContextUtil.hasCurrentUser()) {
-            log.warn("没有当前用户，无法保存AI配置");
+        // 检查安全认证是否启用
+        boolean securityEnabled = Boolean.parseBoolean(dotenv.get("SECURITY_ENABLED", "true"));
+
+        String userId, aiConfigPath;
+
+        if (securityEnabled && !UserContextUtil.hasCurrentUser()) {
+            log.warn("安全认证已启用但没有当前用户，无法保存AI配置");
             return false;
         }
 
+        if (!securityEnabled) {
+            // 安全认证禁用时，使用默认用户
+            userId = "default_user";
+            aiConfigPath = "user_data/default_user/ai_config.json";
+            log.info("安全认证已禁用，使用默认用户保存AI配置");
+        } else {
+            // 安全认证启用时，使用当前用户
+            userId = UserContextUtil.getCurrentUserId();
+            aiConfigPath = UserContextUtil.getUserAiConfigPath();
+        }
+
         ensureUserDataDirectory();
-        
+
         try {
-            String aiConfigPath = UserContextUtil.getUserAiConfigPath();
-            
             // 添加用户信息到AI配置中
-            aiConfig.put("userId", UserContextUtil.getCurrentUserId());
+            aiConfig.put("userId", userId);
             aiConfig.put("lastModified", System.currentTimeMillis());
-            
+            aiConfig.put("securityEnabled", securityEnabled);
+
             objectMapper.writerWithDefaultPrettyPrinter()
                        .writeValue(new File(aiConfigPath), aiConfig);
-            
-            log.info("✅ 用户AI配置保存成功: userId={}, path={}", 
-                    UserContextUtil.getCurrentUserId(), aiConfigPath);
+
+            log.info("✅ 用户AI配置保存成功: userId={}, path={}", userId, aiConfigPath);
             return true;
         } catch (Exception e) {
             log.error("保存用户AI配置失败: {}", e.getMessage(), e);
@@ -140,25 +192,39 @@ public class UserDataService {
      * 加载用户AI配置
      */
     public Map<String, Object> loadUserAiConfig() {
-        if (!UserContextUtil.hasCurrentUser()) {
-            log.warn("没有当前用户，返回默认AI配置");
+        // 检查安全认证是否启用
+        boolean securityEnabled = Boolean.parseBoolean(dotenv.get("SECURITY_ENABLED", "true"));
+
+        String userId, aiConfigPath;
+
+        if (securityEnabled && !UserContextUtil.hasCurrentUser()) {
+            log.warn("安全认证已启用但没有当前用户，返回默认AI配置");
             return getDefaultAiConfig();
         }
 
+        if (!securityEnabled) {
+            // 安全认证禁用时，使用默认用户
+            userId = "default_user";
+            aiConfigPath = "user_data/default_user/ai_config.json";
+            log.info("安全认证已禁用，使用默认用户加载AI配置");
+        } else {
+            // 安全认证启用时，使用当前用户
+            userId = UserContextUtil.getCurrentUserId();
+            aiConfigPath = UserContextUtil.getUserAiConfigPath();
+        }
+
         try {
-            String aiConfigPath = UserContextUtil.getUserAiConfigPath();
             File aiConfigFile = new File(aiConfigPath);
-            
+
             if (!aiConfigFile.exists()) {
                 log.info("用户AI配置文件不存在，返回默认配置: {}", aiConfigPath);
                 return getDefaultAiConfig();
             }
-            
+
             @SuppressWarnings("unchecked")
             Map<String, Object> aiConfig = objectMapper.readValue(aiConfigFile, Map.class);
-            
-            log.info("✅ 用户AI配置加载成功: userId={}, path={}", 
-                    UserContextUtil.getCurrentUserId(), aiConfigPath);
+
+            log.info("✅ 用户AI配置加载成功: userId={}, path={}", userId, aiConfigPath);
             return aiConfig;
         } catch (Exception e) {
             log.error("加载用户AI配置失败: {}", e.getMessage(), e);
@@ -176,12 +242,12 @@ public class UserDataService {
         }
 
         ensureUserDataDirectory();
-        
+
         try {
             String resumePath = UserContextUtil.getUserResumePath();
             Files.write(Paths.get(resumePath), resumeContent.getBytes("UTF-8"));
-            
-            log.info("✅ 用户简历保存成功: userId={}, path={}", 
+
+            log.info("✅ 用户简历保存成功: userId={}, path={}",
                     UserContextUtil.getCurrentUserId(), resumePath);
             return true;
         } catch (Exception e) {
@@ -202,15 +268,15 @@ public class UserDataService {
         try {
             String resumePath = UserContextUtil.getUserResumePath();
             File resumeFile = new File(resumePath);
-            
+
             if (!resumeFile.exists()) {
                 log.info("用户简历文件不存在: {}", resumePath);
                 return "";
             }
-            
+
             String resumeContent = new String(Files.readAllBytes(Paths.get(resumePath)), "UTF-8");
-            
-            log.info("✅ 用户简历加载成功: userId={}, length={}", 
+
+            log.info("✅ 用户简历加载成功: userId={}, length={}",
                     UserContextUtil.getCurrentUserId(), resumeContent.length());
             return resumeContent;
         } catch (Exception e) {
@@ -224,7 +290,7 @@ public class UserDataService {
      */
     private Map<String, Object> getDefaultConfig() {
         Map<String, Object> defaultConfig = new HashMap<>();
-        
+
         // Boss配置
         Map<String, Object> bossConfig = new HashMap<>();
         bossConfig.put("debugger", false);
@@ -243,20 +309,20 @@ public class UserDataService {
         bossConfig.put("enableAI", false);
         bossConfig.put("sendImgResume", false);
         bossConfig.put("deadStatus", new String[]{"2周内活跃", "本月活跃", "2月内活跃", "半年前活跃"});
-        
+
         // AI配置
         Map<String, Object> aiConfig = new HashMap<>();
         aiConfig.put("introduce", "");
         aiConfig.put("prompt", "");
-        
+
         // Bot配置
         Map<String, Object> botConfig = new HashMap<>();
         botConfig.put("is_send", false);
-        
+
         defaultConfig.put("boss", bossConfig);
         defaultConfig.put("ai", aiConfig);
         defaultConfig.put("bot", botConfig);
-        
+
         return defaultConfig;
     }
 
@@ -270,7 +336,7 @@ public class UserDataService {
         defaultAiConfig.put("MODEL", "qwen2:7b");
         defaultAiConfig.put("HOOK_URL", "");
         defaultAiConfig.put("BARK_URL", "");
-        
+
         return defaultAiConfig;
     }
 }

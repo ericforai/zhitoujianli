@@ -42,7 +42,7 @@ public class AiService {
         requestData.put("model", MODEL);
         requestData.put("temperature", 0.5);
         requestData.put("stream", false);
-        
+
         // 添加消息内容
         JSONArray messages = new JSONArray();
         JSONObject message = new JSONObject();
@@ -50,12 +50,12 @@ public class AiService {
         message.put("content", content);
         messages.put(message);
         requestData.put("messages", messages);
-        
+
         log.info("使用DeepSeek API，模型: {}", MODEL);
 
         // 构建API端点
         String apiEndpoint = BASE_URL + "/v1/chat/completions";
-        
+
         // 构建 HTTP 请求
         HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                 .uri(URI.create(apiEndpoint))
@@ -63,7 +63,7 @@ public class AiService {
                 .header("Accept", "application/json")
                 .header("Authorization", "Bearer " + API_KEY)
                 .POST(HttpRequest.BodyPublishers.ofString(requestData.toString()));
-        
+
         HttpRequest request = requestBuilder.build();
 
         // 创建线程池用于执行请求
@@ -80,7 +80,7 @@ public class AiService {
                 // 解析响应体
                 log.info("AI响应: {}", response.body());
                 JSONObject responseObject = new JSONObject(response.body());
-                
+
                 // 安全获取响应字段
                 String requestId = responseObject.optString("id", "unknown");
                 long created = responseObject.optLong("created", System.currentTimeMillis() / 1000);
@@ -111,12 +111,12 @@ public class AiService {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                     String formattedTime = createdTime.format(formatter);
 
-                    log.info("请求ID: {}, 创建时间: {}, 模型名: {}, 提示词: {}, 补全: {}, 总用量: {}", 
+                    log.info("请求ID: {}, 创建时间: {}, 模型名: {}, 提示词: {}, 补全: {}, 总用量: {}",
                             requestId, formattedTime, model, promptTokens, completionTokens, totalTokens);
                 } else {
                     log.info("DeepSeek API响应成功，模型: {}", model);
                 }
-                
+
                 return responseContent;
             } else {
                 log.error("AI请求失败！状态码: {}, 响应: {}", response.statusCode(), response.body());
