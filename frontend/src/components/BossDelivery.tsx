@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { bossService, BossStatus } from '../services/bossService';
 
 /**
  * Boss直聘投递组件
- * 
+ *
  * @author ZhiTouJianLi Team
  * @since 2025-09-30
  */
@@ -41,7 +41,7 @@ const BossDelivery: React.FC = () => {
   const handleStart = async () => {
     setLoading(true);
     setMessage('');
-    
+
     try {
       const result = await bossService.startBossTask();
       if (result.success) {
@@ -64,7 +64,7 @@ const BossDelivery: React.FC = () => {
   const handleStop = async () => {
     setLoading(true);
     setMessage('');
-    
+
     try {
       const result = await bossService.stopBossTask();
       if (result.success) {
@@ -138,7 +138,7 @@ const BossDelivery: React.FC = () => {
         >
           {loading ? '启动中...' : '▶️ 启动自动投递'}
         </button>
-        
+
         <button
           onClick={handleStop}
           disabled={loading || !status.isRunning}
@@ -146,7 +146,7 @@ const BossDelivery: React.FC = () => {
         >
           {loading ? '停止中...' : '⏹️ 停止投递'}
         </button>
-        
+
         <button
           onClick={handleViewLogs}
           className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
@@ -208,7 +208,7 @@ const BossDelivery: React.FC = () => {
                 ✕
               </button>
             </div>
-            
+
             <div className="bg-gray-900 text-green-400 p-4 rounded-lg h-96 overflow-y-auto font-mono text-sm">
               {logs.length > 0 ? (
                 logs.map((log, index) => (
@@ -220,7 +220,7 @@ const BossDelivery: React.FC = () => {
                 <div className="text-gray-500">暂无日志记录</div>
               )}
             </div>
-            
+
             <div className="flex justify-end mt-4">
               <button
                 onClick={() => setShowLogs(false)}

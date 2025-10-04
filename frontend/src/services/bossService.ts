@@ -2,7 +2,7 @@ import apiClient from './apiService';
 
 /**
  * Boss直聘投递功能服务
- * 
+ *
  * @author ZhiTouJianLi Team
  * @since 2025-09-30
  */
