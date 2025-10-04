@@ -17,7 +17,7 @@ import TestLogin from './components/TestLogin';
 // 主页组件
 const HomePage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-white">
+    <div className='min-h-screen bg-white'>
       <Navigation />
       <HeroSection />
       <Features />
@@ -54,10 +54,10 @@ const DashboardEntry: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">正在跳转到后台管理...</p>
+    <div className='min-h-screen flex items-center justify-center'>
+      <div className='text-center'>
+        <div className='animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto'></div>
+        <p className='mt-4 text-gray-600'>正在跳转到后台管理...</p>
       </div>
     </div>
   );
@@ -67,12 +67,12 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/resume-delivery" element={<ResumeDelivery />} />
-        <Route path="/dashboard" element={<DashboardEntry />} />
-        <Route path="/test-login" element={<TestLogin />} />
+        <Route path='/' element={<HomePage />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<Register />} />
+        <Route path='/resume-delivery' element={<ResumeDelivery />} />
+        <Route path='/dashboard' element={<DashboardEntry />} />
+        <Route path='/test-login' element={<TestLogin />} />
       </Routes>
     </Router>
   );

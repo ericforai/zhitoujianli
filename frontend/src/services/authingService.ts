@@ -48,12 +48,14 @@ export interface AuthingRegisterResponse {
  * Authing认证服务
  */
 export const authingService = {
-
   /**
    * 邮箱密码登录
    * 使用Authing SDK进行用户认证
    */
-  loginByEmail: async (email: string, password: string): Promise<AuthingLoginResponse> => {
+  loginByEmail: async (
+    email: string,
+    password: string
+  ): Promise<AuthingLoginResponse> => {
     try {
       console.log('🔐 开始Authing邮箱登录...');
 
@@ -71,7 +73,7 @@ export const authingService = {
           username: user.username,
           nickname: user.nickname,
           avatar: user.photo,
-          photo: user.photo
+          photo: user.photo,
         };
 
         // 生成模拟token（简化版本）
@@ -82,7 +84,10 @@ export const authingService = {
         localStorage.setItem('authing_user', JSON.stringify(authingUser));
 
         // 设置跨域Cookie
-        const domain = window.location.hostname === 'localhost' ? 'localhost' : '115.190.182.95';
+        const domain =
+          window.location.hostname === 'localhost'
+            ? 'localhost'
+            : '115.190.182.95';
         const secure = window.location.protocol === 'https:';
         document.cookie = `authingToken=${token}; path=/; domain=${domain}; secure=${secure}; SameSite=Lax`;
         console.log('🍪 已设置Authing Token Cookie');
@@ -92,13 +97,13 @@ export const authingService = {
           token,
           refreshToken: `authing_refresh_token_${user.id}_${Date.now()}`,
           expiresIn: 7200, // 2小时
-          user: authingUser
+          user: authingUser,
         };
       } else {
         console.error('❌ Authing登录失败: 用户信息为空');
         return {
           success: false,
-          message: '登录失败，请检查邮箱和密码'
+          message: '登录失败，请检查邮箱和密码',
         };
       }
     } catch (error: any) {
@@ -119,7 +124,7 @@ export const authingService = {
 
       return {
         success: false,
-        message: errorMessage
+        message: errorMessage,
       };
     }
   },
@@ -138,7 +143,7 @@ export const authingService = {
 
       // 使用Authing SDK进行注册 - V4 API
       const user: any = await authingClient.registerByEmail(email, password, {
-        nickname: nickname || email.split('@')[0]
+        nickname: nickname || email.split('@')[0],
       });
 
       if (user && user.id) {
@@ -147,13 +152,13 @@ export const authingService = {
         return {
           success: true,
           message: '注册成功，请登录',
-          userId: user.id
+          userId: user.id,
         };
       } else {
         console.error('❌ Authing注册失败: 用户信息为空');
         return {
           success: false,
-          message: '注册失败，请稍后重试'
+          message: '注册失败，请稍后重试',
         };
       }
     } catch (error: any) {
@@ -172,7 +177,7 @@ export const authingService = {
 
       return {
         success: false,
-        message: errorMessage
+        message: errorMessage,
       };
     }
   },
@@ -199,7 +204,7 @@ export const authingService = {
           username: user.username,
           nickname: user.nickname,
           avatar: user.photo,
-          photo: user.photo
+          photo: user.photo,
         };
 
         // 更新本地缓存
@@ -232,14 +237,15 @@ export const authingService = {
       localStorage.removeItem('user');
 
       // 清除Cookie
-      document.cookie = 'authingToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-      document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      document.cookie =
+        'authingToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      document.cookie =
+        'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
 
       console.log('✅ Authing登出成功');
 
       // 跳转到登录页
       window.location.href = '/login';
-
     } catch (error) {
       console.error('❌ Authing登出异常:', error);
 
@@ -307,7 +313,7 @@ export const authingService = {
       console.error('❌ Authing健康检查失败:', error);
       return false;
     }
-  }
+  },
 };
 
 export default authingService;

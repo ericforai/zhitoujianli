@@ -27,14 +27,14 @@ const apiClient: AxiosInstance = axios.create({
  * 请求拦截器：自动添加Token
  */
 apiClient.interceptors.request.use(
-  (config) => {
+  config => {
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
+  error => {
     return Promise.reject(error);
   }
 );
@@ -43,8 +43,8 @@ apiClient.interceptors.request.use(
  * 响应拦截器：处理401错误（Token过期或无效）
  */
 apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  response => response,
+  error => {
     if (error.response?.status === 401) {
       // Token过期或无效，清除本地存储
       localStorage.removeItem('token');
@@ -89,11 +89,13 @@ export interface LoginResponse {
  * 认证服务
  */
 export const authService = {
-
   /**
    * 邮箱密码登录
    */
-  loginByEmail: async (email: string, password: string): Promise<LoginResponse> => {
+  loginByEmail: async (
+    email: string,
+    password: string
+  ): Promise<LoginResponse> => {
     const response = await apiClient.post<LoginResponse>('/auth/login/email', {
       email,
       password,
@@ -105,10 +107,16 @@ export const authService = {
       localStorage.setItem('authToken', response.data.token); // 兼容后端使用的key
 
       // 设置跨域Cookie以便后台管理能够读取Token
-      const domain = window.location.hostname === 'localhost' ? 'localhost' : '115.190.182.95';
+      const domain =
+        window.location.hostname === 'localhost'
+          ? 'localhost'
+          : '115.190.182.95';
       const secure = window.location.protocol === 'https:';
       document.cookie = `authToken=${response.data.token}; path=/; domain=${domain}; secure=${secure}; SameSite=Lax`;
-      console.log('🍪 authService: 已设置authToken Cookie为跨域访问, domain:', domain);
+      console.log(
+        '🍪 authService: 已设置authToken Cookie为跨域访问, domain:',
+        domain
+      );
 
       if (response.data.user) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -121,7 +129,9 @@ export const authService = {
   /**
    * 发送手机验证码
    */
-  sendPhoneCode: async (phone: string): Promise<{ success: boolean; message: string }> => {
+  sendPhoneCode: async (
+    phone: string
+  ): Promise<{ success: boolean; message: string }> => {
     const response = await apiClient.post('/auth/send-code', { phone });
     return response.data;
   },
@@ -140,10 +150,16 @@ export const authService = {
       localStorage.setItem('authToken', response.data.token); // 兼容后端使用的key
 
       // 设置跨域Cookie以便后台管理能够读取Token
-      const domain = window.location.hostname === 'localhost' ? 'localhost' : '115.190.182.95';
+      const domain =
+        window.location.hostname === 'localhost'
+          ? 'localhost'
+          : '115.190.182.95';
       const secure = window.location.protocol === 'https:';
       document.cookie = `authToken=${response.data.token}; path=/; domain=${domain}; secure=${secure}; SameSite=Lax`;
-      console.log('🍪 authService: 已设置authToken Cookie为跨域访问, domain:', domain);
+      console.log(
+        '🍪 authService: 已设置authToken Cookie为跨域访问, domain:',
+        domain
+      );
 
       if (response.data.user) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -195,7 +211,9 @@ export const authService = {
    */
   getCurrentUser: async (): Promise<User | null> => {
     try {
-      const response = await apiClient.get<{ success: boolean; user: User }>('/auth/user/info');
+      const response = await apiClient.get<{ success: boolean; user: User }>(
+        '/auth/user/info'
+      );
 
       if (response.data.success && response.data.user) {
         // 更新本地缓存

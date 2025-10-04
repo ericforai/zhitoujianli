@@ -38,11 +38,15 @@ export const resumeService = {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await apiClient.post<ResumeUploadResponse>('/candidate-resume/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await apiClient.post<ResumeUploadResponse>(
+        '/candidate-resume/upload',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
 
       return response.data;
     } catch (error: any) {
@@ -56,7 +60,9 @@ export const resumeService = {
    */
   loadResume: async (): Promise<ResumeUploadResponse> => {
     try {
-      const response = await apiClient.get<ResumeUploadResponse>('/candidate-resume/load');
+      const response = await apiClient.get<ResumeUploadResponse>(
+        '/candidate-resume/load'
+      );
       return response.data;
     } catch (error: any) {
       console.error('加载简历失败:', error);
@@ -67,9 +73,14 @@ export const resumeService = {
   /**
    * 保存简历信息
    */
-  saveResume: async (candidateInfo: CandidateInfo): Promise<ResumeUploadResponse> => {
+  saveResume: async (
+    candidateInfo: CandidateInfo
+  ): Promise<ResumeUploadResponse> => {
     try {
-      const response = await apiClient.post<ResumeUploadResponse>('/candidate-resume/save', candidateInfo);
+      const response = await apiClient.post<ResumeUploadResponse>(
+        '/candidate-resume/save',
+        candidateInfo
+      );
       return response.data;
     } catch (error: any) {
       console.error('保存简历失败:', error);
@@ -82,7 +93,9 @@ export const resumeService = {
    */
   deleteResume: async (): Promise<ResumeUploadResponse> => {
     try {
-      const response = await apiClient.post<ResumeUploadResponse>('/candidate-resume/delete');
+      const response = await apiClient.post<ResumeUploadResponse>(
+        '/candidate-resume/delete'
+      );
       return response.data;
     } catch (error: any) {
       console.error('删除简历失败:', error);
@@ -93,17 +106,19 @@ export const resumeService = {
   /**
    * 生成智能打招呼语
    */
-  generateGreeting: async (jobDescription: string): Promise<{ success: boolean; message: string; data?: string }> => {
+  generateGreeting: async (
+    jobDescription: string
+  ): Promise<{ success: boolean; message: string; data?: string }> => {
     try {
       const response = await apiClient.post('/smart-greeting/generate', {
-        jobDescription
+        jobDescription,
       });
       return response.data;
     } catch (error: any) {
       console.error('生成打招呼语失败:', error);
       throw new Error(error.response?.data?.message || '生成打招呼语失败');
     }
-  }
+  },
 };
 
 export default resumeService;

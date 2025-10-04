@@ -85,7 +85,10 @@ const Login: React.FC = () => {
           const tokenKey = useAuthing ? 'authingToken' : 'authToken';
           // 设置Cookie到当前域
           document.cookie = `${tokenKey}=${result.token}; path=/; domain=115.190.182.95; secure=false; SameSite=Lax`;
-          console.log('🍪 已设置Token Cookie:', result.token.substring(0, 20) + '...');
+          console.log(
+            '🍪 已设置Token Cookie:',
+            result.token.substring(0, 20) + '...'
+          );
         }
 
         setTimeout(() => {
@@ -155,7 +158,10 @@ const Login: React.FC = () => {
         if (result.token) {
           // 设置Cookie到当前域
           document.cookie = `authToken=${result.token}; path=/; domain=115.190.182.95; secure=false; SameSite=Lax`;
-          console.log('🍪 已设置authToken Cookie:', result.token.substring(0, 20) + '...');
+          console.log(
+            '🍪 已设置authToken Cookie:',
+            result.token.substring(0, 20) + '...'
+          );
         }
 
         setTimeout(() => {
@@ -173,20 +179,18 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8'>
+      <div className='max-w-md w-full space-y-8'>
         {/* Logo和标题 */}
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900">智投简历</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            智能化求职投递平台
-          </p>
+        <div className='text-center'>
+          <h1 className='text-4xl font-bold text-gray-900'>智投简历</h1>
+          <p className='mt-2 text-sm text-gray-600'>智能化求职投递平台</p>
         </div>
 
         {/* 登录卡片 */}
-        <div className="bg-white rounded-lg shadow-lg p-8">
+        <div className='bg-white rounded-lg shadow-lg p-8'>
           {/* 认证方式切换 */}
-          <div className="flex border-b mb-4">
+          <div className='flex border-b mb-4'>
             <button
               className={`flex-1 py-2 text-center text-sm ${
                 !useAuthing
@@ -210,7 +214,7 @@ const Login: React.FC = () => {
           </div>
 
           {/* 登录方式切换 */}
-          <div className="flex border-b mb-6">
+          <div className='flex border-b mb-6'>
             <button
               className={`flex-1 py-2 text-center ${
                 mode === 'email'
@@ -235,55 +239,61 @@ const Login: React.FC = () => {
 
           {/* 错误提示 */}
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+            <div className='mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm'>
               {error}
             </div>
           )}
 
           {/* 成功提示 */}
           {success && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md text-green-700 text-sm">
+            <div className='mb-4 p-3 bg-green-50 border border-green-200 rounded-md text-green-700 text-sm'>
               {success}
             </div>
           )}
 
           {/* 邮箱登录表单 */}
           {mode === 'email' && (
-            <form onSubmit={handleEmailLogin} className="space-y-4">
+            <form onSubmit={handleEmailLogin} className='space-y-4'>
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor='email'
+                  className='block text-sm font-medium text-gray-700 mb-1'
+                >
                   邮箱地址
                 </label>
                 <input
-                  id="email"
-                  type="email"
+                  id='email'
+                  type='email'
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="your@email.com"
+                  onChange={e => setEmail(e.target.value)}
+                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
+                  placeholder='your@email.com'
                 />
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor='password'
+                  className='block text-sm font-medium text-gray-700 mb-1'
+                >
                   密码
                 </label>
                 <input
-                  id="password"
-                  type="password"
+                  id='password'
+                  type='password'
                   required
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="至少6位"
+                  onChange={e => setPassword(e.target.value)}
+                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
+                  placeholder='至少6位'
                 />
               </div>
 
               <button
-                type="submit"
+                type='submit'
                 disabled={loading}
-                className="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className='w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
               >
                 {loading ? '登录中...' : '登录'}
               </button>
@@ -292,43 +302,49 @@ const Login: React.FC = () => {
 
           {/* 手机号登录表单 */}
           {mode === 'phone' && (
-            <form onSubmit={handlePhoneLogin} className="space-y-4">
+            <form onSubmit={handlePhoneLogin} className='space-y-4'>
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor='phone'
+                  className='block text-sm font-medium text-gray-700 mb-1'
+                >
                   手机号
                 </label>
                 <input
-                  id="phone"
-                  type="tel"
+                  id='phone'
+                  type='tel'
                   required
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="13800138000"
-                  pattern="^1[3-9]\d{9}$"
+                  onChange={e => setPhone(e.target.value)}
+                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
+                  placeholder='13800138000'
+                  pattern='^1[3-9]\d{9}$'
                 />
               </div>
 
               <div>
-                <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor='code'
+                  className='block text-sm font-medium text-gray-700 mb-1'
+                >
                   验证码
                 </label>
-                <div className="flex space-x-2">
+                <div className='flex space-x-2'>
                   <input
-                    id="code"
-                    type="text"
+                    id='code'
+                    type='text'
                     required
                     value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    placeholder="6位验证码"
+                    onChange={e => setCode(e.target.value)}
+                    className='flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
+                    placeholder='6位验证码'
                     maxLength={6}
                   />
                   <button
-                    type="button"
+                    type='button'
                     onClick={handleSendCode}
                     disabled={countdown > 0 || loading}
-                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+                    className='px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap'
                   >
                     {countdown > 0 ? `${countdown}s` : '发送验证码'}
                   </button>
@@ -336,9 +352,9 @@ const Login: React.FC = () => {
               </div>
 
               <button
-                type="submit"
+                type='submit'
                 disabled={loading}
-                className="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className='w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
               >
                 {loading ? '登录中...' : '登录'}
               </button>
@@ -346,52 +362,54 @@ const Login: React.FC = () => {
           )}
 
           {/* 社交登录分割线 */}
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
+          <div className='mt-6'>
+            <div className='relative'>
+              <div className='absolute inset-0 flex items-center'>
+                <div className='w-full border-t border-gray-300'></div>
               </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">或使用以下方式登录</span>
+              <div className='relative flex justify-center text-sm'>
+                <span className='px-2 bg-white text-gray-500'>
+                  或使用以下方式登录
+                </span>
               </div>
             </div>
           </div>
 
           {/* 社交登录按钮 */}
-          <div className="mt-6 grid grid-cols-2 gap-3">
+          <div className='mt-6 grid grid-cols-2 gap-3'>
             <button
-              type="button"
-              className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+              type='button'
+              className='flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors'
               onClick={() => {
                 alert('请在Authing控制台配置微信登录后使用此功能');
               }}
             >
-              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="#09BB07">
-                <path d="M8.5 10c.83 0 1.5-.67 1.5-1.5S9.33 7 8.5 7 7 7.67 7 8.5 7.67 10 8.5 10zm7 0c.83 0 1.5-.67 1.5-1.5S16.33 7 15.5 7 14 7.67 14 8.5s.67 1.5 1.5 1.5z"/>
+              <svg className='w-5 h-5 mr-2' viewBox='0 0 24 24' fill='#09BB07'>
+                <path d='M8.5 10c.83 0 1.5-.67 1.5-1.5S9.33 7 8.5 7 7 7.67 7 8.5 7.67 10 8.5 10zm7 0c.83 0 1.5-.67 1.5-1.5S16.33 7 15.5 7 14 7.67 14 8.5s.67 1.5 1.5 1.5z' />
               </svg>
-              <span className="text-sm font-medium text-gray-700">微信</span>
+              <span className='text-sm font-medium text-gray-700'>微信</span>
             </button>
 
             <button
-              type="button"
-              className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+              type='button'
+              className='flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors'
               onClick={() => {
                 alert('请在Authing控制台配置支付宝登录后使用此功能');
               }}
             >
-              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="#1677FF">
-                <path d="M3 3h18v18H3V3zm16 14.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+              <svg className='w-5 h-5 mr-2' viewBox='0 0 24 24' fill='#1677FF'>
+                <path d='M3 3h18v18H3V3zm16 14.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z' />
               </svg>
-              <span className="text-sm font-medium text-gray-700">支付宝</span>
+              <span className='text-sm font-medium text-gray-700'>支付宝</span>
             </button>
           </div>
 
           {/* 注册链接 */}
-          <div className="mt-6 text-center">
-            <span className="text-sm text-gray-600">还没有账号？</span>
+          <div className='mt-6 text-center'>
+            <span className='text-sm text-gray-600'>还没有账号？</span>
             <a
-              href="/register"
-              className="ml-1 text-sm font-medium text-indigo-600 hover:text-indigo-500"
+              href='/register'
+              className='ml-1 text-sm font-medium text-indigo-600 hover:text-indigo-500'
             >
               立即注册
             </a>
@@ -399,11 +417,15 @@ const Login: React.FC = () => {
         </div>
 
         {/* 底部提示 */}
-        <div className="text-center text-xs text-gray-500">
+        <div className='text-center text-xs text-gray-500'>
           <p>登录即表示同意</p>
-          <a href="/terms" className="text-indigo-600 hover:underline">用户协议</a>
+          <a href='/terms' className='text-indigo-600 hover:underline'>
+            用户协议
+          </a>
           <span> 和 </span>
-          <a href="/privacy" className="text-indigo-600 hover:underline">隐私政策</a>
+          <a href='/privacy' className='text-indigo-600 hover:underline'>
+            隐私政策
+          </a>
         </div>
       </div>
     </div>
