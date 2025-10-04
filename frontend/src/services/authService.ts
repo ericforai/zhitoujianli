@@ -176,9 +176,9 @@ export const authService = {
     email: string,
     verificationCode: string
   ): Promise<{ success: boolean; message: string }> => {
-    const response = await apiClient.post('/auth/verify-email-code', {
+    const response = await apiClient.post('/auth/verify-code', {
       email,
-      verificationCode,
+      code: verificationCode,
     });
     return response.data;
   },
