@@ -1,4 +1,3 @@
-import apiClient from './apiService';
 import axios from 'axios';
 
 /**

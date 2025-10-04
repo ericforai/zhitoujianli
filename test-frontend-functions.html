@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智投简历功能测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>智投简历功能测试页面</h1>
+    
+    <div class="test-section">
+        <h2>1. 后端服务状态测试</h2>
+        <button onclick="testBackendStatus()">测试后端状态</button>
+        <div id="backend-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Boss投递功能测试</h2>
+        <button onclick="testBossStart()">启动Boss任务</button>
+        <button onclick="testBossStatus()">查询Boss状态</button>
+        <button onclick="testBossLogs()">获取投递日志</button>
+        <button onclick="testBossStop()">停止Boss任务</button>
+        <div id="boss-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. 简历管理功能测试</h2>
+        <button onclick="testResumeLoad()">加载简历信息</button>
+        <div id="resume-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. AI智能打招呼语测试</h2>
+        <button onclick="testSmartGreeting()">测试AI连接</button>
+        <button onclick="testGenerateGreeting()">生成打招呼语</button>
+        <div id="ai-result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://115.190.182.95:8080';
+        
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            element.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+        }
+
+        async function testBackendStatus() {
+            const elementId = 'backend-status';
+            document.getElementById(elementId).innerHTML = '';
+            log(elementId, '测试后端服务状态...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/status`);
+                const data = await response.json();
+                log(elementId, `后端状态: ${JSON.stringify(data)}`, 'success');
+            } catch (error) {
+                log(elementId, `后端连接失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testBossStart() {
+            const elementId = 'boss-result';
+            log(elementId, '启动Boss投递任务...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/start-boss-task`, { method: 'POST' });
+                const data = await response.json();
+                log(elementId, `启动结果: ${JSON.stringify(data)}`, data.success ? 'success' : 'error');
+            } catch (error) {
+                log(elementId, `启动失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testBossStatus() {
+            const elementId = 'boss-result';
+            log(elementId, '查询Boss任务状态...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/status`);
+                const data = await response.json();
+                log(elementId, `状态: ${JSON.stringify(data)}`, 'success');
+            } catch (error) {
+                log(elementId, `查询失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testBossLogs() {
+            const elementId = 'boss-result';
+            log(elementId, '获取投递日志...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/logs?lines=10`);
+                const data = await response.json();
+                if (data.success && data.logs) {
+                    log(elementId, '日志内容:', 'success');
+                    data.logs.forEach(log => {
+                        log(elementId, `  ${log}`, 'info');
+                    });
+                } else {
+                    log(elementId, `获取日志失败: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(elementId, `获取日志失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testBossStop() {
+            const elementId = 'boss-result';
+            log(elementId, '停止Boss投递任务...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/stop-program`, { method: 'POST' });
+                const data = await response.json();
+                log(elementId, `停止结果: ${JSON.stringify(data)}`, data.success ? 'success' : 'error');
+            } catch (error) {
+                log(elementId, `停止失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testResumeLoad() {
+            const elementId = 'resume-result';
+            log(elementId, '加载简历信息...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/candidate-resume/load`);
+                const data = await response.json();
+                if (data.success && data.data) {
+                    log(elementId, `简历信息加载成功:`, 'success');
+                    log(elementId, `姓名: ${data.data.name}`, 'info');
+                    log(elementId, `职位: ${data.data.current_title}`, 'info');
+                    log(elementId, `公司: ${data.data.company}`, 'info');
+                    log(elementId, `经验: ${data.data.years_experience}年`, 'info');
+                } else {
+                    log(elementId, `加载失败: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(elementId, `加载失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSmartGreeting() {
+            const elementId = 'ai-result';
+            log(elementId, '测试AI连接...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/smart-greeting/test`);
+                const data = await response.json();
+                log(elementId, `AI测试结果: ${JSON.stringify(data)}`, data.success ? 'success' : 'error');
+            } catch (error) {
+                log(elementId, `AI测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testGenerateGreeting() {
+            const elementId = 'ai-result';
+            log(elementId, '生成智能打招呼语...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/smart-greeting/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jobDescription: '招聘Java开发工程师，要求3年以上Spring Boot经验，熟悉微服务架构'
+                    })
+                });
+                const data = await response.json();
+                log(elementId, `生成结果: ${JSON.stringify(data)}`, data.success ? 'success' : 'error');
+                if (data.success && data.data) {
+                    log(elementId, `生成的打招呼语:`, 'info');
+                    log(elementId, data.data, 'info');
+                }
+            } catch (error) {
+                log(elementId, `生成失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 页面加载时自动测试后端状态
+        window.onload = function() {
+            testBackendStatus();
+        };
+    </script>
+</body>
+</html>
