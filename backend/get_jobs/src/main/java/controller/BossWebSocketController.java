@@ -20,7 +20,7 @@ public class BossWebSocketController implements WebSocketHandler {
 
     // 存储用户会话
     private final Map<String, WebSocketSession> userSessions = new ConcurrentHashMap<>();
-    
+
     // 等待登录完成的信号量
     private final Map<String, CountDownLatch> loginWaiters = new ConcurrentHashMap<>();
 
@@ -29,7 +29,7 @@ public class BossWebSocketController implements WebSocketHandler {
         String userId = getUserIdFromSession(session);
         userSessions.put(userId, session);
         log.info("用户连接WebSocket: {}", userId);
-        
+
         // 发送欢迎消息
         sendMessage(session, createMessage("welcome", "连接成功，等待指令"));
     }
@@ -38,14 +38,14 @@ public class BossWebSocketController implements WebSocketHandler {
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
         String payload = message.getPayload().toString();
         String userId = getUserIdFromSession(session);
-        
+
         log.info("收到用户消息: {} - {}", userId, payload);
-        
+
         try {
             // 解析消息
             Map<String, Object> messageData = parseMessage(payload);
             String action = (String) messageData.get("action");
-            
+
             switch (action) {
                 case "login_complete":
                     handleLoginComplete(userId, messageData);
@@ -72,7 +72,7 @@ public class BossWebSocketController implements WebSocketHandler {
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
         String userId = getUserIdFromSession(session);
         log.error("WebSocket传输错误: {}", userId, exception);
-        
+
         // 清理资源
         userSessions.remove(userId);
         loginWaiters.remove(userId);
@@ -82,7 +82,7 @@ public class BossWebSocketController implements WebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
         String userId = getUserIdFromSession(session);
         log.info("用户断开WebSocket连接: {} - {}", userId, closeStatus);
-        
+
         // 清理资源
         userSessions.remove(userId);
         loginWaiters.remove(userId);
@@ -114,16 +114,16 @@ public class BossWebSocketController implements WebSocketHandler {
                 "message", "请扫码登录Boss直聘",
                 "timeout", 300 // 5分钟超时
             );
-            
+
             sendMessage(session, loginCommand);
             log.info("已发送登录指令给用户: {}", userId);
-            
+
             // 等待登录完成（最多5分钟）
             boolean loginSuccess = loginLatch.await(5, TimeUnit.MINUTES);
-            
+
             // 清理等待信号量
             loginWaiters.remove(userId);
-            
+
             return loginSuccess;
         } catch (Exception e) {
             log.error("发送登录指令失败", e);
@@ -148,7 +148,7 @@ public class BossWebSocketController implements WebSocketHandler {
                 "config", deliveryConfig,
                 "message", "开始投递简历"
             );
-            
+
             sendMessage(session, deliveryCommand);
             log.info("已发送投递指令给用户: {}", userId);
         } catch (Exception e) {
@@ -169,13 +169,13 @@ public class BossWebSocketController implements WebSocketHandler {
      */
     private void handleLoginComplete(String userId, Map<String, Object> messageData) {
         log.info("用户登录完成: {}", userId);
-        
+
         // 通知等待登录的线程
         CountDownLatch loginLatch = loginWaiters.get(userId);
         if (loginLatch != null) {
             loginLatch.countDown();
         }
-        
+
         // 发送确认消息
         WebSocketSession session = userSessions.get(userId);
         if (session != null) {
@@ -188,7 +188,7 @@ public class BossWebSocketController implements WebSocketHandler {
      */
     private void handleLoginFailed(String userId, Map<String, Object> messageData) {
         log.error("用户登录失败: {}", userId);
-        
+
         // 通知等待登录的线程
         CountDownLatch loginLatch = loginWaiters.get(userId);
         if (loginLatch != null) {
@@ -209,7 +209,7 @@ public class BossWebSocketController implements WebSocketHandler {
      */
     private void handleDeliveryComplete(String userId, Map<String, Object> messageData) {
         log.info("用户投递完成: {} - {}", userId, messageData.get("summary"));
-        
+
         // 发送完成确认
         WebSocketSession session = userSessions.get(userId);
         if (session != null) {

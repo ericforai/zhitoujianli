@@ -135,14 +135,14 @@ const BossCookieConfig: React.FC<BossCookieConfigProps> = ({ onClose }) => {
     try {
       // 获取当前用户ID（这里简化处理）
       const userId = localStorage.getItem('userId') || 'user_' + Date.now();
-      
+
       const response = await axios.post(`http://115.190.182.95:8080/api/boss/start-hybrid-delivery?userId=${userId}`);
-      
+
       if (response.data.success) {
         if (response.data.download_script) {
           // 需要下载脚本
           setMessage('✅ 首次使用需要本地登录！请下载并运行脚本，在本地浏览器中完成登录。');
-          
+
           // 创建下载链接
           const downloadUrl = `http://115.190.182.95:8080${response.data.script_url}`;
           const link = document.createElement('a');
@@ -151,7 +151,7 @@ const BossCookieConfig: React.FC<BossCookieConfigProps> = ({ onClose }) => {
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
-          
+
           setMessage('📥 脚本已开始下载！请按照以下步骤操作：\n1. 安装依赖：npm install playwright ws\n2. 运行脚本：node boss-runner.js\n3. 在本地浏览器中扫码登录\n4. 登录成功后自动切换到无头模式');
         } else {
           // 直接无头模式
