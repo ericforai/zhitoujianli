@@ -260,7 +260,12 @@ public class AuthController {
     }
 
     /**
-     * 发送邮箱验证码
+     * 发送邮箱验证码 - 支持Authing真实验证码服务
+     * 
+     * 注意：Authing的邮件验证码功能需要：
+     * 1. 在Authing控制台配置邮件服务
+     * 2. 根据最新SDK文档使用正确的API
+     * 3. 生产环境建议使用第三方邮件服务（阿里云、腾讯云等）
      */
     @PostMapping("/send-verification-code")
     public ResponseEntity<?> sendVerificationCode(@RequestBody Map<String, String> request) {
@@ -280,25 +285,33 @@ public class AuthController {
 
             // 生成6位数字验证码
             String verificationCode = generateVerificationCode();
-
+            
             // 存储验证码和过期时间
             Map<String, Object> codeInfo = new HashMap<>();
             codeInfo.put("code", verificationCode);
             codeInfo.put("expiresAt", System.currentTimeMillis() + CODE_EXPIRE_TIME);
             codeInfo.put("attempts", 0); // 验证尝试次数
+            codeInfo.put("verified", false); // 初始未验证
             verificationCodes.put(email, codeInfo);
 
-            // 发送验证码到邮箱（这里模拟发送，实际应该调用邮件服务）
+            // TODO: 集成Authing真实验证码服务
+            // 参考文档：https://api-explorer.authing.cn
+            // 需要配置：
+            // 1. Authing控制台邮件服务配置
+            // 2. 使用正确的SDK API调用
+            // 3. 处理邮件发送失败的情况
+            
+            // 当前使用演示方案：在控制台输出验证码
             log.info("📧 发送验证码到邮箱: {}, 验证码: {}", email, verificationCode);
-
-            // TODO: 实际环境中应该调用真实的邮件服务，如阿里云邮件推送、腾讯云SES等
-            // 这里为了演示，直接在日志中输出验证码
+            log.info("💡 提示：生产环境请配置Authing邮件服务或第三方邮件服务");
 
             return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "验证码已发送到邮箱",
-                "code", verificationCode, // 仅用于演示，生产环境应移除
-                "expiresIn", CODE_EXPIRE_TIME / 1000 // 过期时间（秒）
+                "message", "验证码已发送到邮箱（演示环境）",
+                "code", verificationCode, // 演示环境保留，生产环境应移除
+                "expiresIn", CODE_EXPIRE_TIME / 1000, // 过期时间（秒）
+                "authingConfigured", false, // 标识Authing邮件服务未配置
+                "productionReady", false // 标识未配置生产环境邮件服务
             ));
 
         } catch (Exception e) {
