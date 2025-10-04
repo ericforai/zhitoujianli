@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 
 /**
  * API服务配置
- * 
+ *
  * @author ZhiTouJianLi Team
  * @since 2025-09-30
  */
@@ -28,7 +28,7 @@ apiClient.interceptors.request.use(
   (config) => {
     // 从localStorage获取token
     const token = localStorage.getItem('token') || localStorage.getItem('authToken');
-    
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

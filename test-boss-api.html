@@ -70,7 +70,7 @@
 <body>
     <div class="container">
         <h1>🚀 Boss投递API测试</h1>
-        
+
         <div class="status info">
             <strong>测试说明：</strong> 这个页面用于测试Boss投递功能的API接口是否正常工作。
         </div>
@@ -92,7 +92,7 @@
 
     <script>
         const API_BASE = 'http://115.190.182.95:8080';
-        
+
         function log(message) {
             const logDiv = document.getElementById('log');
             const timestamp = new Date().toLocaleTimeString();
@@ -115,7 +115,7 @@
             try {
                 const response = await fetch(`${API_BASE}/status`);
                 const data = await response.json();
-                
+
                 if (response.ok) {
                     log(`✅ 状态获取成功: ${JSON.stringify(data, null, 2)}`);
                     updateStatus(`运行状态: ${data.isRunning ? '运行中' : '已停止'}, 投递数量: ${data.deliveryCount || 0}`, 'success');
@@ -139,7 +139,7 @@
                     }
                 });
                 const data = await response.json();
-                
+
                 if (response.ok && data.success) {
                     log(`✅ Boss任务启动成功: ${data.message}`);
                     updateStatus('Boss任务启动成功', 'success');
@@ -163,7 +163,7 @@
                     }
                 });
                 const data = await response.json();
-                
+
                 if (response.ok && data.success) {
                     log(`✅ Boss任务停止成功: ${data.message}`);
                     updateStatus('Boss任务停止成功', 'success');
@@ -182,7 +182,7 @@
             try {
                 const response = await fetch(`${API_BASE}/logs?lines=10`);
                 const data = await response.json();
-                
+
                 if (response.ok && data.success) {
                     if (data.logs && data.logs.length > 0) {
                         log(`✅ 日志获取成功，共 ${data.logs.length} 条记录:`);
