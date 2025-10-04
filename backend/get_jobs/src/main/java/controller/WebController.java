@@ -224,7 +224,7 @@ public class WebController {
             String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
 
             // 构建正确的classpath
-            String classpathFile = "/Users/user/autoresume/get_jobs/classpath.txt";
+            String classpathFile = "/root/zhitoujianli/backend/get_jobs/classpath.txt";
             String classpath;
             try {
                 classpath = Files.readString(new java.io.File(classpathFile).toPath());
@@ -249,7 +249,7 @@ public class WebController {
             env.clear();  // 清空默认环境，避免冲突
             env.putAll(System.getenv());  // 继承当前环境变量
             env.put("PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD", "1");  // 强制跳过下载
-            env.put("PLAYWRIGHT_BROWSERS_PATH", "/Users/user/.cache/ms-playwright");
+            env.put("PLAYWRIGHT_BROWSERS_PATH", "/root/.cache/ms-playwright");
             env.put("PATH", env.get("PATH") + ":/opt/miniconda3/bin");  // 添加conda路径
             // 清理可能干扰的变量
             env.remove("PLAYWRIGHT_DOWNLOAD_TRACE");
