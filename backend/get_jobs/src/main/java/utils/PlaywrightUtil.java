@@ -61,11 +61,11 @@ public class PlaywrightUtil {
 
     // 默认等待时间（毫秒）
     private static final int DEFAULT_WAIT_TIME = 10000;
-    
+
     // 随机延迟范围（毫秒）
     private static final int MIN_RANDOM_DELAY = 2000;
     private static final int MAX_RANDOM_DELAY = 5000;
-    
+
     // 人类行为模拟延迟范围（毫秒）
     private static final int MIN_HUMAN_DELAY = 500;
     private static final int MAX_HUMAN_DELAY = 2000;
@@ -80,7 +80,7 @@ public class PlaywrightUtil {
         // 尝试使用系统Chrome路径
         String chromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
         java.io.File chromeFile = new java.io.File(chromePath);
-        
+
         BrowserType.LaunchOptions options = new BrowserType.LaunchOptions()
                 .setHeadless(true) // 无头模式，后台运行
                 .setSlowMo(100) // 增加操作延迟，模拟人类行为
@@ -100,7 +100,7 @@ public class PlaywrightUtil {
                     "--disable-backgrounding-occluded-windows",
                     "--disable-renderer-backgrounding"
                 ));
-        
+
         if (chromeFile.exists()) {
             options.setExecutablePath(java.nio.file.Paths.get(chromePath));
             log.info("使用系统Chrome浏览器: {}", chromePath);
@@ -253,7 +253,7 @@ public class PlaywrightUtil {
             log.error("Sleep被中断", e);
         }
     }
-    
+
     /**
      * 随机延迟等待（模拟人类行为）
      *
@@ -265,14 +265,14 @@ public class PlaywrightUtil {
         int delay = random.nextInt(maxSeconds - minSeconds + 1) + minSeconds;
         sleep(delay);
     }
-    
+
     /**
      * 默认随机延迟（2-5秒）
      */
     public static void randomSleep() {
         randomSleep(2, 5);
     }
-    
+
     /**
      * 随机毫秒延迟
      *
@@ -374,13 +374,13 @@ public class PlaywrightUtil {
         try {
             // 先模拟鼠标移动到元素上
             simulateMouseMove(deviceType);
-            
+
             // 随机延迟
             randomSleepMillis(MIN_HUMAN_DELAY, MAX_HUMAN_DELAY);
-            
+
             getPage(deviceType).locator(selector).click();
             log.info("已点击元素: {} (设备类型: {})", selector, deviceType);
-            
+
             // 点击后随机延迟
             randomSleepMillis(MIN_HUMAN_DELAY, MAX_HUMAN_DELAY);
         } catch (PlaywrightException e) {
@@ -408,16 +408,16 @@ public class PlaywrightUtil {
         try {
             // 先点击元素获得焦点
             getPage(deviceType).locator(selector).click();
-            
+
             // 随机延迟
             randomSleepMillis(MIN_HUMAN_DELAY, MAX_HUMAN_DELAY);
-            
+
             // 清空现有内容
             getPage(deviceType).locator(selector).fill("");
-            
+
             // 模拟人类输入
             typeHumanLike(selector, text, 50, 200, deviceType);
-            
+
             log.info("已在元素{}中输入文本 (设备类型: {})", selector, deviceType);
         } catch (PlaywrightException e) {
             log.error("填写表单失败: {} (设备类型: {})", selector, deviceType, e);
@@ -446,14 +446,14 @@ public class PlaywrightUtil {
     public static void typeHumanLike(String selector, String text, int minDelay, int maxDelay, DeviceType deviceType) {
         try {
             Locator locator = getPage(deviceType).locator(selector);
-            
+
             // 等待元素可见并可点击
             locator.waitFor(new Locator.WaitForOptions().setTimeout(10000));
-            
+
             // 先聚焦到元素
             locator.focus();
             PlaywrightUtil.randomSleepMillis(500, 1000);
-            
+
             // 清空现有内容
             locator.clear();
             PlaywrightUtil.randomSleepMillis(200, 500);
@@ -845,7 +845,7 @@ public class PlaywrightUtil {
     public static void initStealth(DeviceType deviceType) {
         // 获取当前页面，不重新创建上下文和页面
         Page page = getPage(deviceType);
-        
+
         // 为现有上下文设置额外的HTTP头
         BrowserContext context = getContext(deviceType);
         if (deviceType == DeviceType.DESKTOP) {
@@ -873,7 +873,7 @@ public class PlaywrightUtil {
         String stealthScript = """
                 // 移除webdriver标识
                 Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
-                
+
                 // 删除Chrome自动化标识
                 delete window.cdc_adoQpoasnfa76pfcZLmcfl_Array;
                 delete window.cdc_adoQpoasnfa76pfcZLmcfl_JSON;
@@ -882,42 +882,42 @@ public class PlaywrightUtil {
                 delete window.cdc_adoQpoasnfa76pfcZLmcfl_Proxy;
                 delete window.cdc_adoQpoasnfa76pfcZLmcfl_Symbol;
                 delete window.cdc_adoQpoasnfa76pfcZLmcfl_Window;
-                
+
                 // 模拟Chrome运行时
-                window.navigator.chrome = { 
+                window.navigator.chrome = {
                     runtime: {},
                     loadTimes: function() {},
                     csi: function() {},
                     app: {}
                 };
-                
+
                 // 设置语言
                 Object.defineProperty(navigator, 'languages', {get: () => ['zh-CN', 'zh', 'en']});
-                
+
                 // 设置插件
                 Object.defineProperty(navigator, 'plugins', {get: () => [
                     {name: 'Chrome PDF Plugin', filename: 'internal-pdf-viewer'},
                     {name: 'Chrome PDF Viewer', filename: 'mhjfbmdgcfjbbpaeojofohoefgiehjai'},
                     {name: 'Native Client', filename: 'internal-nacl-plugin'}
                 ]});
-                
+
                 // 设置权限
                 Object.defineProperty(navigator, 'permissions', {get: () => ({
                     query: function() { return Promise.resolve({state: 'granted'}); }
                 })});
-                
+
                 // 模拟媒体设备
                 Object.defineProperty(navigator, 'mediaDevices', {get: () => ({
                     enumerateDevices: function() { return Promise.resolve([]); },
                     getUserMedia: function() { return Promise.reject(new Error('Not supported')); }
                 })});
-                
+
                 // 设置屏幕信息
                 Object.defineProperty(screen, 'availHeight', {get: () => 1055});
                 Object.defineProperty(screen, 'availWidth', {get: () => 1920});
                 Object.defineProperty(screen, 'colorDepth', {get: () => 24});
                 Object.defineProperty(screen, 'pixelDepth', {get: () => 24});
-                
+
                 // 设置时区
                 Object.defineProperty(Intl, 'DateTimeFormat', {get: () => function() {
                     return {
@@ -926,7 +926,7 @@ public class PlaywrightUtil {
                         }
                     };
                 }});
-                
+
                 // 覆盖Date对象
                 const originalDate = Date;
                 Date = class extends originalDate {
@@ -934,7 +934,7 @@ public class PlaywrightUtil {
                         return -480; // 中国时区
                     }
                 };
-                
+
                 // 设置Canvas指纹
                 const getContext = HTMLCanvasElement.prototype.getContext;
                 HTMLCanvasElement.prototype.getContext = function(type) {
@@ -954,7 +954,7 @@ public class PlaywrightUtil {
                     }
                     return getContext.apply(this, arguments);
                 };
-                
+
                 // 设置WebGL指纹
                 const getParameter = WebGLRenderingContext.prototype.getParameter;
                 WebGLRenderingContext.prototype.getParameter = function(parameter) {
@@ -966,19 +966,19 @@ public class PlaywrightUtil {
                     }
                     return getParameter.apply(this, arguments);
                 };
-                
+
                 // 覆盖console方法
                 const originalLog = console.log;
                 console.log = function() {
                     // 静默处理，避免暴露自动化痕迹
                 };
-                
+
                 // 设置内存信息
                 Object.defineProperty(navigator, 'deviceMemory', {get: () => 8});
-                
+
                 // 设置硬件并发
                 Object.defineProperty(navigator, 'hardwareConcurrency', {get: () => 8});
-                
+
                 // 设置连接信息
                 Object.defineProperty(navigator, 'connection', {get: () => ({
                     effectiveType: '4g',
@@ -986,7 +986,7 @@ public class PlaywrightUtil {
                     downlink: 10
                 })});
                 """;
-        
+
         page.addInitScript(stealthScript);
 
         // 如果有stealth.min.js文件，也尝试加载
@@ -1015,18 +1015,18 @@ public class PlaywrightUtil {
      */
     public static void setDefaultHeaders(DeviceType deviceType) {
         BrowserContext context = getContext(deviceType);
-        
+
         Map<String, String> headers = Map.of(
                 "sec-ch-ua", "\"Google Chrome\";v=\"135\", \"Not-A.Brand\";v=\"8\", \"Chromium\";v=\"135\"",
                 "sec-ch-ua-mobile", deviceType == DeviceType.MOBILE ? "?1" : "?0",
                 "sec-ch-ua-platform", deviceType == DeviceType.MOBILE ? "\"iOS\"" : "\"macOS\"",
-                "user-agent", deviceType == DeviceType.MOBILE ? 
+                "user-agent", deviceType == DeviceType.MOBILE ?
                     "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1" :
                     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
                 "accept-language", "zh-CN,zh;q=0.9",
                 "referer", "https://www.zhipin.com/"
         );
-        
+
         context.setExtraHTTPHeaders(headers);
         log.info("已设置默认请求头 (设备类型: {})", deviceType);
     }
@@ -1189,13 +1189,13 @@ public class PlaywrightUtil {
         try {
             Page page = getPage(deviceType);
             Random random = new Random();
-            
+
             // 随机移动鼠标到页面不同位置
             int x = random.nextInt(800) + 100; // 100-900
             int y = random.nextInt(600) + 100; // 100-700
-            
+
             page.mouse().move(x, y);
-            
+
             // 随机延迟
             randomSleepMillis(100, 300);
         } catch (Exception e) {
@@ -1219,17 +1219,17 @@ public class PlaywrightUtil {
         try {
             Page page = getPage(deviceType);
             Random random = new Random();
-            
+
             // 随机滚动距离
             int scrollDistance = random.nextInt(300) + 100; // 100-400像素
-            
+
             // 随机滚动方向
             if (random.nextBoolean()) {
                 page.mouse().wheel(0, scrollDistance); // 向下滚动
             } else {
                 page.mouse().wheel(0, -scrollDistance); // 向上滚动
             }
-            
+
             // 滚动后随机延迟
             randomSleepMillis(200, 800);
         } catch (Exception e) {
@@ -1253,13 +1253,13 @@ public class PlaywrightUtil {
         try {
             Page page = getPage(deviceType);
             Random random = new Random();
-            
+
             // 随机按一些无害的键
             String[] keys = {"Tab", "ArrowDown", "ArrowUp", "Home", "End"};
             String randomKey = keys[random.nextInt(keys.length)];
-            
+
             page.keyboard().press(randomKey);
-            
+
             // 按键后随机延迟
             randomSleepMillis(100, 400);
         } catch (Exception e) {
@@ -1281,13 +1281,13 @@ public class PlaywrightUtil {
      */
     public static void simulateHumanBehavior(DeviceType deviceType) {
         Random random = new Random();
-        
+
         // 随机选择要执行的行为
         int behaviorCount = random.nextInt(3) + 1; // 1-3个行为
-        
+
         for (int i = 0; i < behaviorCount; i++) {
             int behavior = random.nextInt(3);
-            
+
             switch (behavior) {
                 case 0:
                     simulateMouseMove(deviceType);
@@ -1299,7 +1299,7 @@ public class PlaywrightUtil {
                     simulateKeyboardActivity(deviceType);
                     break;
             }
-            
+
             // 行为间随机延迟
             randomSleepMillis(300, 1000);
         }
@@ -1321,17 +1321,17 @@ public class PlaywrightUtil {
     public static void navigateWithHumanBehavior(String url, DeviceType deviceType) {
         // 导航前模拟人类行为
         simulateHumanBehavior(deviceType);
-        
+
         // 执行导航
         navigate(url, deviceType);
-        
+
         // 导航后等待页面加载（使用更宽松的超时时间）
         try {
             getPage(deviceType).waitForLoadState(LoadState.DOMCONTENTLOADED, new Page.WaitForLoadStateOptions().setTimeout(10000));
         } catch (Exception e) {
             log.warn("页面加载超时，继续执行: {}", e.getMessage());
         }
-        
+
         // 导航后模拟人类行为
         randomSleepMillis(2000, 5000);
         simulateHumanBehavior(deviceType);
@@ -1345,7 +1345,7 @@ public class PlaywrightUtil {
     public static void navigateWithHumanBehavior(String url) {
         navigateWithHumanBehavior(url, defaultDeviceType);
     }
-    
+
     /**
      * 获取浏览器可执行文件路径
      */
@@ -1369,7 +1369,7 @@ public class PlaywrightUtil {
             log.info("找到浏览器: {}", windowsPath);
             return windowsPath;
         }
-        
+
         // 如果都不存在，返回null让Playwright使用默认路径
         log.warn("未找到已安装的浏览器，可能触发下载");
         return null;
