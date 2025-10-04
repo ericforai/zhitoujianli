@@ -170,19 +170,31 @@ export const authService = {
   },
 
   /**
+   * 验证邮箱验证码
+   */
+  verifyEmailCode: async (
+    email: string,
+    verificationCode: string
+  ): Promise<{ success: boolean; message: string }> => {
+    const response = await apiClient.post('/auth/verify-email-code', {
+      email,
+      verificationCode,
+    });
+    return response.data;
+  },
+
+  /**
    * 邮箱密码注册
    */
   register: async (
     email: string,
     password: string,
-    username?: string,
-    verificationCode?: string
+    username?: string
   ): Promise<{ success: boolean; message: string; userId?: string }> => {
     const response = await apiClient.post('/auth/register', {
       email,
       password,
       username,
-      verificationCode,
     });
     return response.data;
   },

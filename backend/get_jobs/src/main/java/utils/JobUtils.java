@@ -43,10 +43,30 @@ public class JobUtils {
     @SneakyThrows
     public static <T> T getConfig(Class<T> clazz) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+
+        // 首先尝试从classpath加载
         InputStream is = clazz.getClassLoader().getResourceAsStream("config.yaml");
+
+        // 如果classpath中没有，尝试从当前工作目录加载
+        if (is == null) {
+            java.io.File configFile = new java.io.File("config.yaml");
+            if (configFile.exists()) {
+                is = new java.io.FileInputStream(configFile);
+            }
+        }
+
+        // 如果仍然没有找到，尝试从用户目录加载
+        if (is == null) {
+            java.io.File configFile = new java.io.File(System.getProperty("user.dir") + "/config.yaml");
+            if (configFile.exists()) {
+                is = new java.io.FileInputStream(configFile);
+            }
+        }
+
         if (is == null) {
             throw new FileNotFoundException("无法找到 config.yaml 文件");
         }
+
         JsonNode rootNode = mapper.readTree(is);
         String key = clazz.getSimpleName().toLowerCase().replaceAll("config", "");
         JsonNode configNode = rootNode.path(key);
