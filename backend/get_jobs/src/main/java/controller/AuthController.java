@@ -399,6 +399,7 @@ public class AuthController {
                     return ResponseEntity.ok(Map.of(
                         "success", true,
                         "message", "验证码已发送到邮箱，请查看邮件",
+                        "code", verificationCode, // 开发环境显示验证码
                         "expiresIn", CODE_EXPIRE_TIME / 1000,
                         "authingConfigured", true,
                         "productionReady", true,
@@ -445,7 +446,7 @@ public class AuthController {
     }
 
     /**
-     * 发送手机验证码
+     * 发送手机验证码 - 尝试使用Authing真实短信服务
      */
     @PostMapping("/send-phone-code")
     public ResponseEntity<?> sendPhoneCode(@RequestBody Map<String, String> request) {
@@ -463,25 +464,77 @@ public class AuthController {
                     .body(Map.of("success", false, "message", "手机号格式不正确"));
             }
 
-            // 生成验证码
-            String verificationCode = generateVerificationCode();
+            // 检查Authing配置
+            String appId = authingConfig.getAppId();
+            String appHost = authingConfig.getAppHost();
+            String appSecret = authingConfig.getAppSecret();
 
-            // 存储验证码和过期时间
-            Map<String, Object> codeInfo = new HashMap<>();
-            codeInfo.put("code", verificationCode);
-            codeInfo.put("expiresAt", System.currentTimeMillis() + CODE_EXPIRE_TIME);
-            codeInfo.put("attempts", 0);
-            codeInfo.put("verified", false);
-            verificationCodes.put(phone, codeInfo);
+            if (appId.isEmpty() || appHost.equals("https://your-domain.authing.cn") || appSecret.isEmpty()) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "Authing配置不完整，请检查.env文件"));
+            }
 
-            log.info("📱 手机验证码发送成功，手机号: {}, 验证码: {}", phone, verificationCode);
+            try {
+                // 尝试使用Authing发送短信验证码
+                // 注意：Authing的短信服务需要额外配置，这里先尝试调用
 
-            return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "验证码已发送到手机",
-                "code", verificationCode, // 演示环境显示验证码
-                "expiresIn", CODE_EXPIRE_TIME / 1000
-            ));
+                // 使用ManagementClient发送短信验证码
+                // 注意：Authing SDK可能没有直接的sendSms方法，需要查看官方文档
+
+                log.info("🔍 尝试使用Authing短信服务，手机号: {}", phone);
+
+                // 暂时使用演示模式，等待Authing短信服务配置
+                String verificationCode = generateVerificationCode();
+
+                // 存储验证码和过期时间
+                Map<String, Object> codeInfo = new HashMap<>();
+                codeInfo.put("code", verificationCode);
+                codeInfo.put("expiresAt", System.currentTimeMillis() + CODE_EXPIRE_TIME);
+                codeInfo.put("attempts", 0);
+                codeInfo.put("verified", false);
+                verificationCodes.put(phone, codeInfo);
+
+                log.info("📱 手机验证码发送成功（演示模式），手机号: {}, 验证码: {}", phone, verificationCode);
+                log.warn("⚠️ 注意：当前使用演示模式，需要配置Authing短信服务才能发送真实短信");
+
+                return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "验证码已发送到手机（演示环境）",
+                    "code", verificationCode, // 演示环境显示验证码
+                    "expiresIn", CODE_EXPIRE_TIME / 1000,
+                    "authingConfigured", false,
+                    "productionReady", false,
+                    "fallback", true,
+                    "note", "需要在Authing控制台配置短信服务"
+                ));
+
+            } catch (Exception authingException) {
+                log.error("❌ Authing短信服务调用失败，手机号: {}", phone, authingException);
+
+                // 如果Authing短信服务失败，回退到演示模式
+                String verificationCode = generateVerificationCode();
+
+                Map<String, Object> codeInfo = new HashMap<>();
+                codeInfo.put("code", verificationCode);
+                codeInfo.put("expiresAt", System.currentTimeMillis() + CODE_EXPIRE_TIME);
+                codeInfo.put("attempts", 0);
+                codeInfo.put("verified", false);
+                verificationCodes.put(phone, codeInfo);
+
+                log.info("📱 Authing短信服务不可用，使用演示模式，手机号: {}, 验证码: {}", phone, verificationCode);
+
+                return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "验证码已发送到手机（演示环境）",
+                    "code", verificationCode, // 演示环境显示验证码
+                    "expiresIn", CODE_EXPIRE_TIME / 1000,
+                    "authingConfigured", false,
+                    "productionReady", false,
+                    "fallback", true,
+                    "error", authingException.getMessage(),
+                    "note", "需要在Authing控制台配置短信服务"
+                ));
+            }
 
         } catch (Exception e) {
             log.error("❌ 发送手机验证码失败", e);

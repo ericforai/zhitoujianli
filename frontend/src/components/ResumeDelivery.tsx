@@ -15,6 +15,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { authService } from '../services/authService';
 import resumeService, { CandidateInfo } from '../services/resumeService';
 import BossDelivery from './BossDelivery';
+import BossCookieConfig from './BossCookieConfig';
 
 const ResumeDelivery: React.FC = () => {
   const [user, setUser] = useState<any>(null);
@@ -24,6 +25,7 @@ const ResumeDelivery: React.FC = () => {
   );
   const [uploading, setUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
+  const [showCookieConfig, setShowCookieConfig] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -359,6 +361,12 @@ const ResumeDelivery: React.FC = () => {
                         className='w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors'
                       >
                         📋 配置投递参数
+                      </button>
+                      <button
+                        onClick={() => setShowCookieConfig(true)}
+                        className='w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors'
+                      >
+                        🍪 配置Boss登录Cookie
                       </button>
                       <button
                         onClick={() => {
@@ -790,6 +798,11 @@ const ResumeDelivery: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Boss Cookie配置弹窗 */}
+      {showCookieConfig && (
+        <BossCookieConfig onClose={() => setShowCookieConfig(false)} />
+      )}
     </div>
   );
 };
