@@ -23,7 +23,7 @@ import java.util.Map;
 
 /**
  * 候选人简历管理控制器
- * 
+ *
  * @author AI Assistant
  */
 @RestController
@@ -52,7 +52,7 @@ public class CandidateResumeController {
     public ResponseEntity<Map<String, Object>> loadResume() {
         try {
             Map<String, Object> candidate = CandidateResumeService.loadCandidateInfo();
-            
+
             Map<String, Object> response = new HashMap<>();
             if (candidate != null) {
                 response.put("success", true);
@@ -63,7 +63,7 @@ public class CandidateResumeController {
                 response.put("message", "未找到简历文件");
                 return ResponseEntity.badRequest().body(response);
             }
-            
+
         } catch (Exception e) {
             log.error("加载简历失败", e);
             Map<String, Object> response = new HashMap<>();
@@ -88,18 +88,18 @@ public class CandidateResumeController {
             }
 
             log.info("【简历管理】开始解析简历，文本长度: {}", resumeText.length());
-            
+
             // Stage A: 调用AI解析简历
             Map<String, Object> candidateInfo = CandidateResumeService.parseAndSaveResume(resumeText);
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("data", candidateInfo);
             response.put("message", "简历解析成功");
-            
+
             log.info("【简历管理】简历解析完成: {}", candidateInfo.get("name"));
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             log.error("【简历管理】简历解析失败", e);
             Map<String, Object> response = new HashMap<>();
@@ -136,15 +136,15 @@ public class CandidateResumeController {
 
             // 调用简历解析
             Map<String, Object> candidateInfo = CandidateResumeService.parseAndSaveResume(resumeText);
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("data", candidateInfo);
             response.put("message", "简历文件解析成功");
-            
+
             log.info("【简历管理】简历文件解析完成: {}", candidateInfo.get("name"));
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             log.error("【简历管理】简历文件上传解析失败", e);
             Map<String, Object> response = new HashMap<>();
@@ -161,12 +161,12 @@ public class CandidateResumeController {
     public ResponseEntity<Map<String, Object>> deleteResume() {
         try {
             CandidateResumeService.deleteCandidateResume();
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "简历已删除");
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             log.error("【简历管理】删除简历失败", e);
             Map<String, Object> response = new HashMap<>();
@@ -184,7 +184,7 @@ public class CandidateResumeController {
         try {
             @SuppressWarnings("unchecked")
             Map<String, Object> candidate = (Map<String, Object>) request.get("candidate");
-            
+
             if (candidate == null) {
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", false);
@@ -193,18 +193,18 @@ public class CandidateResumeController {
             }
 
             log.info("【默认打招呼语】开始生成，候选人: {}", candidate.get("name"));
-            
+
             // 调用AI生成默认打招呼语
             String greeting = generateDefaultGreetingInternal(candidate);
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("greeting", greeting);
             response.put("message", "默认打招呼语生成成功");
-            
+
             log.info("【默认打招呼语】生成完成，长度: {}字", greeting.length());
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             log.error("【默认打招呼语】生成失败", e);
             Map<String, Object> response = new HashMap<>();
@@ -230,22 +230,22 @@ public class CandidateResumeController {
 
             // 加载当前配置
             Map<String, Object> config = loadConfig();
-            
+
             // 更新boss.sayHi字段
             @SuppressWarnings("unchecked")
             Map<String, Object> bossConfig = (Map<String, Object>) config.get("boss");
             bossConfig.put("sayHi", greeting);
-            
+
             // 保存配置
             saveConfig(config);
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "默认打招呼语已保存");
-            
+
             log.info("【默认打招呼语】已保存到配置文件");
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             log.error("【默认打招呼语】保存失败", e);
             Map<String, Object> response = new HashMap<>();
@@ -262,7 +262,7 @@ public class CandidateResumeController {
         // 构建AI Prompt
         String systemPrompt = """
             你是资深HR顾问，专门为求职者生成通用的求职打招呼语。
-            
+
             基于候选人的简历信息，生成一段通用的、适合大多数岗位的打招呼语（200字以内），要求：
             - 开头礼貌问候
             - 简要介绍候选人背景（职位、年限、核心优势）
@@ -270,17 +270,17 @@ public class CandidateResumeController {
             - 表达进一步沟通的意愿
             - 语气真诚专业，不套路
             - 不要提及具体的岗位名称或公司
-            
+
             输出格式：
             直接返回打招呼语文本，不要任何解释、分析或其他内容。
             """;
-        
+
         StringBuilder userPrompt = new StringBuilder();
         userPrompt.append("【候选人信息】\n");
         userPrompt.append("姓名：").append(candidate.get("name")).append("\n");
         userPrompt.append("当前职位：").append(candidate.get("current_title")).append("\n");
         userPrompt.append("工作年限：").append(candidate.get("years_experience")).append("年\n");
-        
+
         @SuppressWarnings("unchecked")
         List<String> coreStrengths = (List<String>) candidate.get("core_strengths");
         if (coreStrengths != null && !coreStrengths.isEmpty()) {
@@ -289,29 +289,29 @@ public class CandidateResumeController {
                 userPrompt.append("- ").append(strength).append("\n");
             }
         }
-        
+
         @SuppressWarnings("unchecked")
         List<String> skills = (List<String>) candidate.get("skills");
         if (skills != null && !skills.isEmpty()) {
             userPrompt.append("技能：").append(String.join("、", skills)).append("\n");
         }
-        
+
         userPrompt.append("\n请生成通用的打招呼语。\n");
-        
+
         // 调用AI服务
         String fullPrompt = systemPrompt + "\n\n" + userPrompt.toString();
         String aiResponse = AiService.sendRequest(fullPrompt);
-        
+
         if (aiResponse == null || aiResponse.trim().isEmpty()) {
             throw new RuntimeException("AI服务返回空响应");
         }
-        
+
         // 清理响应
         String greeting = aiResponse.trim();
         greeting = greeting.replaceAll("^(以下是|打招呼语[：:])\\s*", "");
         greeting = greeting.replaceAll("```.*?```", "");
         greeting = greeting.replaceAll("```", "");
-        
+
         return greeting;
     }
 
@@ -326,65 +326,65 @@ public class CandidateResumeController {
                 log.error("【文件解析】文件名为空");
                 throw new RuntimeException("文件名为空");
             }
-            
+
             String lowerFileName = fileName.toLowerCase();
-            log.info("【文件解析】开始解析文件: {}, 大小: {} bytes, 类型: {}", 
+            log.info("【文件解析】开始解析文件: {}, 大小: {} bytes, 类型: {}",
                 fileName, file.getSize(), file.getContentType());
-            
+
             String content = null;
-            
+
             // TXT文件
             if (lowerFileName.endsWith(".txt")) {
                 content = new String(file.getBytes(), "UTF-8");
                 log.info("【文件解析】TXT文件解析成功，长度: {} 字符", content.length());
-                
+
             // PDF文件
             } else if (lowerFileName.endsWith(".pdf")) {
                 try (InputStream inputStream = file.getInputStream();
                      PDDocument document = PDDocument.load(inputStream)) {
-                    
+
                     PDFTextStripper stripper = new PDFTextStripper();
                     content = stripper.getText(document);
-                    log.info("【文件解析】PDF文件解析成功，页数: {}, 长度: {} 字符", 
+                    log.info("【文件解析】PDF文件解析成功，页数: {}, 长度: {} 字符",
                         document.getNumberOfPages(), content.length());
                 }
-                
+
             // DOCX文件（Word 2007+）
             } else if (lowerFileName.endsWith(".docx")) {
                 try (InputStream inputStream = file.getInputStream();
                      XWPFDocument document = new XWPFDocument(inputStream);
                      XWPFWordExtractor extractor = new XWPFWordExtractor(document)) {
-                    
+
                     content = extractor.getText();
                     log.info("【文件解析】DOCX文件解析成功，长度: {} 字符", content.length());
                 }
-                
+
             // DOC文件（Word 97-2003）
             } else if (lowerFileName.endsWith(".doc")) {
                 try (InputStream inputStream = file.getInputStream();
                      HWPFDocument document = new HWPFDocument(inputStream);
                      WordExtractor extractor = new WordExtractor(document)) {
-                    
+
                     content = extractor.getText();
                     log.info("【文件解析】DOC文件解析成功，长度: {} 字符", content.length());
                 }
-                
+
             } else {
                 log.error("【文件解析】不支持的文件格式: {}", fileName);
                 throw new RuntimeException("不支持的文件格式，请上传 TXT、PDF、DOC 或 DOCX 文件");
             }
-            
+
             // 验证内容
             if (content == null || content.trim().isEmpty()) {
                 throw new RuntimeException("文件内容为空或无法提取文本");
             }
-            
+
             // 清理内容
             content = content.trim();
             log.info("【文件解析】文件解析完成，最终内容长度: {} 字符", content.length());
-            
+
             return content;
-            
+
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {

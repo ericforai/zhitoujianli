@@ -26,13 +26,13 @@ public class WebController {
 
     private final String CONFIG_PATH = "src/main/resources/config.yaml";
     private final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
-    
+
     @Autowired
     private UserDataService userDataService;
-    
+
     // Boss执行服务实例
     private BossExecutionService bossExecutionService;
-    
+
     // 存储程序运行状态
     private volatile boolean isRunning = false;
     private Process currentProcess;
@@ -44,12 +44,12 @@ public class WebController {
             // 检查用户是否已登录
             if (!UserContextUtil.isAuthenticated()) {
                 log.warn("未登录用户试图访问后台管理页面，重定向到登录页面");
-                
+
                 // 检查是否为AJAX请求
                 String requestedWith = request.getHeader("X-Requested-With");
                 String acceptHeader = request.getHeader("Accept");
-                
-                if ("XMLHttpRequest".equals(requestedWith) || 
+
+                if ("XMLHttpRequest".equals(requestedWith) ||
                     (acceptHeader != null && acceptHeader.contains("application/json"))) {
                     // AJAX请求返回JSON错误
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -67,12 +67,12 @@ public class WebController {
                     return "redirect:" + request.getScheme() + "://" + request.getServerName() + (request.getServerPort() != 80 && request.getServerPort() != 443 ? ":" + request.getServerPort() : "") + "/login";
                 }
             }
-            
+
             // 已登录用户，显示后台管理页面
             String userId = UserContextUtil.getCurrentUserId();
             String userEmail = UserContextUtil.getCurrentUserEmail();
             log.info("已登录用户访问后台管理: userId={}, email={}", userId, userEmail);
-            
+
             // 加载当前配置
             Map<String, Object> config = loadConfig();
             model.addAttribute("config", config);
@@ -80,7 +80,7 @@ public class WebController {
             model.addAttribute("currentLogFile", currentLogFile);
             model.addAttribute("userId", userId);
             model.addAttribute("userEmail", userEmail);
-            
+
             return "index";
         } catch (Exception e) {
             log.error("加载配置失败", e);
@@ -111,17 +111,21 @@ public class WebController {
         try {
             // 使用用户数据服务保存配置
             boolean success = userDataService.saveUserConfig(config);
-            
+
             Map<String, Object> response = new HashMap<>();
             if (success) {
                 response.put("success", true);
                 response.put("message", "配置保存成功");
-                
-                // 记录用户信息
+
+                // 记录用户信息（兼容安全认证禁用的情况）
                 String userId = UserContextUtil.getCurrentUserId();
                 String userEmail = UserContextUtil.getCurrentUserEmail();
+                if (userId == null) {
+                    userId = "default_user";
+                    userEmail = "demo@example.com";
+                }
                 log.info("✅ 用户配置保存成功: userId={}, email={}", userId, userEmail);
-                
+
                 return ResponseEntity.ok(response);
             } else {
                 response.put("success", false);
@@ -137,7 +141,7 @@ public class WebController {
         }
     }
 
-    @PostMapping("/start-boss-task") 
+    @PostMapping("/start-boss-task")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> startBossTask() {
         if (isRunning) {
@@ -149,27 +153,27 @@ public class WebController {
 
         try {
             isRunning = true;
-            
+
             // 生成日志文件名
-            currentLogFile = new java.io.File("logs/boss_web_" + 
+            currentLogFile = new java.io.File("logs/boss_web_" +
                 new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".log").getAbsolutePath();
-            
+
             log.info("Web UI启动Boss任务开始");
-            
+
             // 确保日志目录存在
             File logsDir = new File("logs");
             if (!logsDir.exists()) {
                 logsDir.mkdirs();
             }
-            
+
             // 创建日志文件
             java.io.FileWriter logWriter = new java.io.FileWriter(currentLogFile);
-            
+
             // 初始化Boss执行服务
             if (bossExecutionService == null) {
                 bossExecutionService = new BossExecutionService();
             }
-            
+
             // 使用Boss执行服务
             bossExecutionService.executeBossProgram(currentLogFile)
                 .whenComplete((result, throwable) -> {
@@ -218,7 +222,7 @@ public class WebController {
             // 使用独立的Java进程启动Boss程序，完全避开Spring Boot
             String javaHome = System.getProperty("java.home");
             String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
-            
+
             // 构建正确的classpath
             String classpathFile = "/Users/user/autoresume/get_jobs/classpath.txt";
             String classpath;
@@ -231,15 +235,15 @@ public class WebController {
                 // 回退到简单方式
                 classpath = "target/classes:" + System.getProperty("java.class.path");
             }
-            
+
             // 构建启动命令，完整路径
-            String command = String.format("\"%s\" -cp \"%s\" %s", 
+            String command = String.format("\"%s\" -cp \"%s\" %s",
                 javaBin, classpath, "boss.Boss");
-            
+
             ProcessBuilder pb = new ProcessBuilder("bash", "-c", command);
             pb.directory(new File("."));
             pb.redirectErrorStream(true);
-            
+
             // 继承当前JVM的环境变量，并确保Playwright使用正确路径
             Map<String, String> env = pb.environment();
             env.clear();  // 清空默认环境，避免冲突
@@ -251,21 +255,21 @@ public class WebController {
             env.remove("PLAYWRIGHT_DOWNLOAD_TRACE");
             env.remove("PLAYWRIGHT_BROWSERS_PATH_OVERRIDE");
             log.info("环境变量PATH: {}", env.get("PATH"));
-            
+
             pb.environment().putAll(env);  // 将环境变量应用到ProcessBuilder
-            
+
             log.info("启动Boss程序命令: {}", command);
             currentProcess = pb.start();
             isRunning = true;
-            
+
             // 生成日志文件名，确保目录存在
             File logsDir = new File("logs");
             if (!logsDir.exists()) {
                 logsDir.mkdirs();
             }
-            currentLogFile = new File("logs", "boss_" + 
+            currentLogFile = new File("logs", "boss_" +
                 new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".log").getAbsolutePath();
-            
+
             // 异步处理输出和写入日志文件
             CompletableFuture.runAsync(() -> {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(currentProcess.getInputStream()));
@@ -278,11 +282,11 @@ public class WebController {
                         // 同时输出到控制台日志
                         log.info("程序输出: {}", line);
                     }
-                    
+
                     // 等待进程结束
                     int exitCode = currentProcess.waitFor();
                     log.info("Boss程序结束，退出码: {}", exitCode);
-                    
+
                 } catch (IOException | InterruptedException e) {
                     log.error("处理程序输出失败", e);
                 } finally {
@@ -345,7 +349,7 @@ public class WebController {
         Map<String, Object> status = new HashMap<>();
         status.put("isRunning", isRunning);
         status.put("logFile", currentLogFile);
-        
+
         // 获取投递统计
         if (currentLogFile != null && Files.exists(Paths.get(currentLogFile))) {
             try {
@@ -357,7 +361,7 @@ public class WebController {
                 log.error("读取日志文件失败", e);
             }
         }
-        
+
         return ResponseEntity.ok(status);
     }
 
@@ -365,7 +369,7 @@ public class WebController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getLogs(@RequestParam(defaultValue = "50") int lines) {
         Map<String, Object> response = new HashMap<>();
-        
+
         if (currentLogFile == null || !Files.exists(Paths.get(currentLogFile))) {
             response.put("success", false);
             response.put("message", "日志文件不存在");
@@ -376,7 +380,7 @@ public class WebController {
             List<String> logLines = Files.readAllLines(Paths.get(currentLogFile));
             int startIndex = Math.max(0, logLines.size() - lines);
             List<String> recentLogs = logLines.subList(startIndex, logLines.size());
-            
+
             response.put("success", true);
             response.put("logs", recentLogs);
             return ResponseEntity.ok(response);
@@ -394,13 +398,13 @@ public class WebController {
             // 如果配置文件不存在，返回默认配置
             return getDefaultConfig();
         }
-        
+
         return yamlMapper.readValue(configFile, Map.class);
     }
 
     private Map<String, Object> getDefaultConfig() {
         Map<String, Object> config = new HashMap<>();
-        
+
         // Boss配置
         Map<String, Object> boss = new HashMap<>();
         boss.put("debugger", false);
@@ -435,7 +439,7 @@ public class WebController {
 
         return config;
     }
-    
+
     /**
      * 获取用户配置 - RESTful API
      */
@@ -444,14 +448,14 @@ public class WebController {
     public ResponseEntity<Map<String, Object>> getUserConfig() {
         try {
             Map<String, Object> config = userDataService.loadUserConfig();
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("config", config);
-            
+
             String userId = UserContextUtil.getCurrentUserId();
             log.info("✅ 用户配置加载成功: userId={}", userId);
-            
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("加载用户配置失败", e);
@@ -461,7 +465,7 @@ public class WebController {
             return ResponseEntity.status(500).body(response);
         }
     }
-    
+
     /**
      * 保存用户配置 - RESTful API
      */
@@ -470,16 +474,16 @@ public class WebController {
     public ResponseEntity<Map<String, Object>> saveUserConfig(@RequestBody Map<String, Object> config) {
         try {
             boolean success = userDataService.saveUserConfig(config);
-            
+
             Map<String, Object> response = new HashMap<>();
             if (success) {
                 response.put("success", true);
                 response.put("message", "用户配置保存成功");
-                
+
                 String userId = UserContextUtil.getCurrentUserId();
                 String userEmail = UserContextUtil.getCurrentUserEmail();
                 log.info("✅ 用户配置保存成功: userId={}, email={}", userId, userEmail);
-                
+
                 return ResponseEntity.ok(response);
             } else {
                 response.put("success", false);
@@ -494,7 +498,7 @@ public class WebController {
             return ResponseEntity.status(500).body(response);
         }
     }
-    
+
     /**
      * 获取用户AI配置 - RESTful API
      */
@@ -503,14 +507,14 @@ public class WebController {
     public ResponseEntity<Map<String, Object>> getUserAiConfig() {
         try {
             Map<String, Object> aiConfig = userDataService.loadUserAiConfig();
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("config", aiConfig);
-            
+
             String userId = UserContextUtil.getCurrentUserId();
             log.info("✅ 用户AI配置加载成功: userId={}", userId);
-            
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("加载用户AI配置失败", e);
@@ -520,7 +524,7 @@ public class WebController {
             return ResponseEntity.status(500).body(response);
         }
     }
-    
+
     /**
      * 保存用户AI配置 - RESTful API
      */
@@ -529,15 +533,15 @@ public class WebController {
     public ResponseEntity<Map<String, Object>> saveUserAiConfig(@RequestBody Map<String, Object> aiConfig) {
         try {
             boolean success = userDataService.saveUserAiConfig(aiConfig);
-            
+
             Map<String, Object> response = new HashMap<>();
             if (success) {
                 response.put("success", true);
                 response.put("message", "用户AI配置保存成功");
-                
+
                 String userId = UserContextUtil.getCurrentUserId();
                 log.info("✅ 用户AI配置保存成功: userId={}", userId);
-                
+
                 return ResponseEntity.ok(response);
             } else {
                 response.put("success", false);
@@ -552,7 +556,7 @@ public class WebController {
             return ResponseEntity.status(500).body(response);
         }
     }
-    
+
     /**
      * 获取用户简历
      */
@@ -561,14 +565,14 @@ public class WebController {
     public ResponseEntity<Map<String, Object>> getUserResume() {
         try {
             String resumeContent = userDataService.loadUserResume();
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("content", resumeContent);
-            
+
             String userId = UserContextUtil.getCurrentUserId();
             log.info("✅ 用户简历加载成功: userId={}, length={}", userId, resumeContent.length());
-            
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("加载用户简历失败", e);
@@ -578,7 +582,7 @@ public class WebController {
             return ResponseEntity.status(500).body(response);
         }
     }
-    
+
     /**
      * 保存用户简历
      */
@@ -590,17 +594,17 @@ public class WebController {
             if (resumeContent == null) {
                 resumeContent = "";
             }
-            
+
             boolean success = userDataService.saveUserResume(resumeContent);
-            
+
             Map<String, Object> response = new HashMap<>();
             if (success) {
                 response.put("success", true);
                 response.put("message", "用户简历保存成功");
-                
+
                 String userId = UserContextUtil.getCurrentUserId();
                 log.info("✅ 用户简历保存成功: userId={}, length={}", userId, resumeContent.length());
-                
+
                 return ResponseEntity.ok(response);
             } else {
                 response.put("success", false);

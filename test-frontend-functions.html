@@ -16,7 +16,7 @@
 </head>
 <body>
     <h1>智投简历功能测试页面</h1>
-    
+
     <div class="test-section">
         <h2>1. 后端服务状态测试</h2>
         <button onclick="testBackendStatus()">测试后端状态</button>
@@ -47,7 +47,7 @@
 
     <script>
         const API_BASE = 'http://115.190.182.95:8080';
-        
+
         function log(elementId, message, type = 'info') {
             const element = document.getElementById(elementId);
             const timestamp = new Date().toLocaleTimeString();
@@ -59,7 +59,7 @@
             const elementId = 'backend-status';
             document.getElementById(elementId).innerHTML = '';
             log(elementId, '测试后端服务状态...');
-            
+
             try {
                 const response = await fetch(`${API_BASE}/status`);
                 const data = await response.json();
@@ -72,7 +72,7 @@
         async function testBossStart() {
             const elementId = 'boss-result';
             log(elementId, '启动Boss投递任务...');
-            
+
             try {
                 const response = await fetch(`${API_BASE}/start-boss-task`, { method: 'POST' });
                 const data = await response.json();
@@ -85,7 +85,7 @@
         async function testBossStatus() {
             const elementId = 'boss-result';
             log(elementId, '查询Boss任务状态...');
-            
+
             try {
                 const response = await fetch(`${API_BASE}/status`);
                 const data = await response.json();
@@ -98,7 +98,7 @@
         async function testBossLogs() {
             const elementId = 'boss-result';
             log(elementId, '获取投递日志...');
-            
+
             try {
                 const response = await fetch(`${API_BASE}/logs?lines=10`);
                 const data = await response.json();
@@ -118,7 +118,7 @@
         async function testBossStop() {
             const elementId = 'boss-result';
             log(elementId, '停止Boss投递任务...');
-            
+
             try {
                 const response = await fetch(`${API_BASE}/stop-program`, { method: 'POST' });
                 const data = await response.json();
@@ -131,7 +131,7 @@
         async function testResumeLoad() {
             const elementId = 'resume-result';
             log(elementId, '加载简历信息...');
-            
+
             try {
                 const response = await fetch(`${API_BASE}/api/candidate-resume/load`);
                 const data = await response.json();
@@ -152,7 +152,7 @@
         async function testSmartGreeting() {
             const elementId = 'ai-result';
             log(elementId, '测试AI连接...');
-            
+
             try {
                 const response = await fetch(`${API_BASE}/api/smart-greeting/test`);
                 const data = await response.json();
@@ -165,7 +165,7 @@
         async function testGenerateGreeting() {
             const elementId = 'ai-result';
             log(elementId, '生成智能打招呼语...');
-            
+
             try {
                 const response = await fetch(`${API_BASE}/api/smart-greeting/generate`, {
                     method: 'POST',

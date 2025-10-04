@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试修复功能</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>智投简历功能测试页面</h1>
+
+    <div class="test-section">
+        <h3>🔧 测试1: AI服务连接</h3>
+        <button onclick="testAIConnection()">测试AI连接</button>
+        <div id="ai-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🤖 测试2: 智能打招呼语生成</h3>
+        <button onclick="testGreetingGeneration()">测试打招呼语生成</button>
+        <div id="greeting-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🔑 测试3: Token传递功能</h3>
+        <button onclick="testTokenTransfer()">测试Token传递</button>
+        <div id="token-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>📄 测试4: 简历上传功能</h3>
+        <input type="file" id="resume-file" accept=".txt,.pdf,.doc,.docx">
+        <button onclick="testResumeUpload()">测试简历上传</button>
+        <div id="resume-result" class="result"></div>
+    </div>
+
+    <script>
+        // 模拟token
+        const testToken = 'test-token-12345';
+
+        async function testAIConnection() {
+            const resultDiv = document.getElementById('ai-result');
+            resultDiv.innerHTML = '正在测试...';
+
+            try {
+                const response = await fetch('http://115.190.182.95:8080/api/smart-greeting/test');
+                const data = await response.json();
+
+                if (data.success) {
+                    resultDiv.innerHTML = `✅ AI服务连接正常: ${data.data}`;
+                    resultDiv.parentElement.className = 'test-section success';
+                } else {
+                    resultDiv.innerHTML = `❌ AI服务连接失败: ${data.message}`;
+                    resultDiv.parentElement.className = 'test-section error';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `❌ 请求失败: ${error.message}`;
+                resultDiv.parentElement.className = 'test-section error';
+            }
+        }
+
+        async function testGreetingGeneration() {
+            const resultDiv = document.getElementById('greeting-result');
+            resultDiv.innerHTML = '正在生成打招呼语...';
+
+            try {
+                const response = await fetch('http://115.190.182.95:8080/api/smart-greeting/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        jobDescription: '我们需要一位有经验的Java开发工程师，熟悉Spring Boot、MySQL等技术栈，能够独立完成项目开发。'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    resultDiv.innerHTML = `✅ 打招呼语生成成功:<br><br><strong>${data.data}</strong>`;
+                    resultDiv.parentElement.className = 'test-section success';
+                } else {
+                    resultDiv.innerHTML = `❌ 打招呼语生成失败: ${data.message}`;
+                    resultDiv.parentElement.className = 'test-section error';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `❌ 请求失败: ${error.message}`;
+                resultDiv.parentElement.className = 'test-section error';
+            }
+        }
+
+        async function testTokenTransfer() {
+            const resultDiv = document.getElementById('token-result');
+            resultDiv.innerHTML = '正在测试Token传递...';
+
+            try {
+                const response = await fetch(`http://115.190.182.95:8080/token?token=${testToken}`);
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `✅ Token传递成功，状态码: ${response.status}`;
+                    resultDiv.parentElement.className = 'test-section success';
+
+                    // 检查Cookie是否设置
+                    const cookies = document.cookie;
+                    if (cookies.includes('authToken')) {
+                        resultDiv.innerHTML += '<br>✅ Cookie已正确设置';
+                    } else {
+                        resultDiv.innerHTML += '<br>⚠️ Cookie未设置（可能由于跨域限制）';
+                    }
+                } else {
+                    resultDiv.innerHTML = `❌ Token传递失败，状态码: ${response.status}`;
+                    resultDiv.parentElement.className = 'test-section error';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `❌ 请求失败: ${error.message}`;
+                resultDiv.parentElement.className = 'test-section error';
+            }
+        }
+
+        async function testResumeUpload() {
+            const fileInput = document.getElementById('resume-file');
+            const resultDiv = document.getElementById('resume-result');
+
+            if (!fileInput.files[0]) {
+                resultDiv.innerHTML = '⚠️ 请先选择一个文件';
+                resultDiv.parentElement.className = 'test-section error';
+                return;
+            }
+
+            resultDiv.innerHTML = '正在上传简历...';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+
+                const response = await fetch('http://115.190.182.95:8080/api/candidate-resume/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    resultDiv.innerHTML = `✅ 简历上传成功: ${JSON.stringify(data.data, null, 2)}`;
+                    resultDiv.parentElement.className = 'test-section success';
+                } else {
+                    resultDiv.innerHTML = `❌ 简历上传失败: ${data.message}`;
+                    resultDiv.parentElement.className = 'test-section error';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `❌ 请求失败: ${error.message}`;
+                resultDiv.parentElement.className = 'test-section error';
+            }
+        }
+
+        // 页面加载时自动测试AI连接
+        window.addEventListener('load', testAIConnection);
+    </script>
+</body>
+</html>
+

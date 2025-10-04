@@ -36,6 +36,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // 从.env文件中读取安全开关配置
         boolean securityEnabled = Boolean.parseBoolean(dotenv.get("SECURITY_ENABLED", "true"));
+        System.out.println("SecurityConfig - 安全认证状态: " + securityEnabled + ", SECURITY_ENABLED值: " + dotenv.get("SECURITY_ENABLED", "true"));
         http
             // 禁用CSRF，因为使用JWT
             .csrf(csrf -> csrf.disable())
