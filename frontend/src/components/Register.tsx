@@ -51,13 +51,16 @@ const Register: React.FC = () => {
       setLoading(true);
       setError('');
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://115.190.182.95:8080/api'}/auth/send-verification-code`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL || 'http://115.190.182.95:8080/api'}/auth/send-verification-code`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        }
+      );
 
       const result = await response.json();
 
@@ -109,7 +112,12 @@ const Register: React.FC = () => {
     setLoading(true);
 
     try {
-      const result = await authService.register(email, password, username, verificationCode);
+      const result = await authService.register(
+        email,
+        password,
+        username,
+        verificationCode
+      );
 
       if (result.success) {
         setSuccess('注册成功！3秒后跳转到登录页...');
@@ -130,69 +138,77 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8'>
+      <div className='max-w-md w-full space-y-8'>
         {/* Logo和标题 */}
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900">智投简历</h1>
-          <p className="mt-2 text-sm text-gray-600">
+        <div className='text-center'>
+          <h1 className='text-4xl font-bold text-gray-900'>智投简历</h1>
+          <p className='mt-2 text-sm text-gray-600'>
             创建账号，开启智能求职之旅
           </p>
         </div>
 
         {/* 注册卡片 */}
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6">注册新账号</h2>
+        <div className='bg-white rounded-lg shadow-lg p-8'>
+          <h2 className='text-2xl font-semibold text-gray-900 mb-6'>
+            注册新账号
+          </h2>
 
           {/* 错误提示 */}
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+            <div className='mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm'>
               {error}
             </div>
           )}
 
           {/* 成功提示 */}
           {success && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md text-green-700 text-sm">
+            <div className='mb-4 p-3 bg-green-50 border border-green-200 rounded-md text-green-700 text-sm'>
               {success}
             </div>
           )}
 
           {/* 注册表单 */}
-          <form onSubmit={handleRegister} className="space-y-4">
+          <form onSubmit={handleRegister} className='space-y-4'>
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor='username'
+                className='block text-sm font-medium text-gray-700 mb-1'
+              >
                 用户名（可选）
               </label>
               <input
-                id="username"
-                type="text"
+                id='username'
+                type='text'
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="张三"
+                onChange={e => setUsername(e.target.value)}
+                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
+                placeholder='张三'
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                邮箱地址 <span className="text-red-500">*</span>
+              <label
+                htmlFor='email'
+                className='block text-sm font-medium text-gray-700 mb-1'
+              >
+                邮箱地址 <span className='text-red-500'>*</span>
               </label>
-              <div className="flex space-x-2">
+              <div className='flex space-x-2'>
                 <input
-                  id="email"
-                  type="email"
+                  id='email'
+                  type='email'
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="your@email.com"
+                  onChange={e => setEmail(e.target.value)}
+                  className='flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
+                  placeholder='your@email.com'
                 />
                 <button
-                  type="button"
+                  type='button'
                   onClick={handleSendVerificationCode}
                   disabled={loading || codeCountdown > 0}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className='px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
                 >
                   {codeCountdown > 0 ? `${codeCountdown}s` : '发送验证码'}
                 </button>
@@ -201,72 +217,81 @@ const Register: React.FC = () => {
 
             {codeSent && (
               <div>
-                <label htmlFor="verificationCode" className="block text-sm font-medium text-gray-700 mb-1">
-                  邮箱验证码 <span className="text-red-500">*</span>
+                <label
+                  htmlFor='verificationCode'
+                  className='block text-sm font-medium text-gray-700 mb-1'
+                >
+                  邮箱验证码 <span className='text-red-500'>*</span>
                 </label>
                 <input
-                  id="verificationCode"
-                  type="text"
+                  id='verificationCode'
+                  type='text'
                   required
                   value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="请输入6位验证码"
+                  onChange={e => setVerificationCode(e.target.value)}
+                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
+                  placeholder='请输入6位验证码'
                   maxLength={6}
                 />
-                <p className="mt-1 text-xs text-gray-500">
+                <p className='mt-1 text-xs text-gray-500'>
                   验证码已发送到 {email}，请在5分钟内输入
                 </p>
               </div>
             )}
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                密码 <span className="text-red-500">*</span>
+              <label
+                htmlFor='password'
+                className='block text-sm font-medium text-gray-700 mb-1'
+              >
+                密码 <span className='text-red-500'>*</span>
               </label>
               <input
-                id="password"
-                type="password"
+                id='password'
+                type='password'
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="至少6位"
+                onChange={e => setPassword(e.target.value)}
+                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
+                placeholder='至少6位'
                 minLength={6}
               />
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                确认密码 <span className="text-red-500">*</span>
+              <label
+                htmlFor='confirmPassword'
+                className='block text-sm font-medium text-gray-700 mb-1'
+              >
+                确认密码 <span className='text-red-500'>*</span>
               </label>
               <input
-                id="confirmPassword"
-                type="password"
+                id='confirmPassword'
+                type='password'
                 required
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="再次输入密码"
+                onChange={e => setConfirmPassword(e.target.value)}
+                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
+                placeholder='再次输入密码'
                 minLength={6}
               />
             </div>
 
             <button
-              type="submit"
+              type='submit'
               disabled={loading}
-              className="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className='w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
             >
               {loading ? '注册中...' : '注册'}
             </button>
           </form>
 
           {/* 登录链接 */}
-          <div className="mt-6 text-center">
-            <span className="text-sm text-gray-600">已有账号？</span>
+          <div className='mt-6 text-center'>
+            <span className='text-sm text-gray-600'>已有账号？</span>
             <a
-              href="/login"
-              className="ml-1 text-sm font-medium text-indigo-600 hover:text-indigo-500"
+              href='/login'
+              className='ml-1 text-sm font-medium text-indigo-600 hover:text-indigo-500'
             >
               立即登录
             </a>
@@ -274,11 +299,15 @@ const Register: React.FC = () => {
         </div>
 
         {/* 底部提示 */}
-        <div className="text-center text-xs text-gray-500">
+        <div className='text-center text-xs text-gray-500'>
           <p>注册即表示同意</p>
-          <a href="/terms" className="text-indigo-600 hover:underline">用户协议</a>
+          <a href='/terms' className='text-indigo-600 hover:underline'>
+            用户协议
+          </a>
           <span> 和 </span>
-          <a href="/privacy" className="text-indigo-600 hover:underline">隐私政策</a>
+          <a href='/privacy' className='text-indigo-600 hover:underline'>
+            隐私政策
+          </a>
         </div>
       </div>
     </div>

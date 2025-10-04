@@ -25,9 +25,10 @@ const apiClient: AxiosInstance = axios.create({
  * 请求拦截器：添加认证Token
  */
 apiClient.interceptors.request.use(
-  (config) => {
+  config => {
     // 从localStorage获取token
-    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+    const token =
+      localStorage.getItem('token') || localStorage.getItem('authToken');
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -35,7 +36,7 @@ apiClient.interceptors.request.use(
 
     return config;
   },
-  (error) => {
+  error => {
     return Promise.reject(error);
   }
 );
@@ -44,8 +45,8 @@ apiClient.interceptors.request.use(
  * 响应拦截器：处理401错误（Token过期或无效）
  */
 apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  response => response,
+  error => {
     if (error.response?.status === 401) {
       // Token过期或无效，清除本地存储
       localStorage.removeItem('token');

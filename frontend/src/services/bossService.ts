@@ -34,7 +34,9 @@ export const bossService = {
    */
   startBossTask: async (): Promise<BossTaskResponse> => {
     try {
-      const response = await axios.post<BossTaskResponse>('http://115.190.182.95:8080/start-boss-task');
+      const response = await axios.post<BossTaskResponse>(
+        'http://115.190.182.95:8080/start-boss-task'
+      );
       return response.data;
     } catch (error: any) {
       console.error('启动Boss任务失败:', error);
@@ -47,7 +49,9 @@ export const bossService = {
    */
   stopBossTask: async (): Promise<BossTaskResponse> => {
     try {
-      const response = await axios.post<BossTaskResponse>('http://115.190.182.95:8080/stop-program');
+      const response = await axios.post<BossTaskResponse>(
+        'http://115.190.182.95:8080/stop-program'
+      );
       return response.data;
     } catch (error: any) {
       console.error('停止Boss任务失败:', error);
@@ -60,7 +64,9 @@ export const bossService = {
    */
   getBossStatus: async (): Promise<BossStatus> => {
     try {
-      const response = await axios.get<BossStatus>('http://115.190.182.95:8080/status');
+      const response = await axios.get<BossStatus>(
+        'http://115.190.182.95:8080/status'
+      );
       return response.data;
     } catch (error: any) {
       console.error('获取Boss状态失败:', error);
@@ -73,7 +79,9 @@ export const bossService = {
    */
   getBossLogs: async (lines: number = 50): Promise<LogsResponse> => {
     try {
-      const response = await axios.get<LogsResponse>(`http://115.190.182.95:8080/logs?lines=${lines}`);
+      const response = await axios.get<LogsResponse>(
+        `http://115.190.182.95:8080/logs?lines=${lines}`
+      );
       return response.data;
     } catch (error: any) {
       console.error('获取Boss日志失败:', error);
@@ -99,13 +107,16 @@ export const bossService = {
    */
   saveUserConfig: async (config: any): Promise<any> => {
     try {
-      const response = await axios.post('http://115.190.182.95:8080/save-config', config);
+      const response = await axios.post(
+        'http://115.190.182.95:8080/save-config',
+        config
+      );
       return response.data;
     } catch (error: any) {
       console.error('保存用户配置失败:', error);
       throw new Error(error.response?.data?.message || '保存配置失败');
     }
-  }
+  },
 };
 
 export default bossService;
