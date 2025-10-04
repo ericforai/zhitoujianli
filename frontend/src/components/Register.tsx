@@ -77,6 +77,7 @@ const Register: React.FC = () => {
           setCodeSent(true);
           setCodeCountdown(60); // 60秒倒计时
           setEmailVerified(false); // 重置验证状态
+          setPhoneVerified(false); // 重置手机验证状态
           console.log('验证码:', result.code); // 仅用于演示
         } else {
           setError(result.message || '发送验证码失败');
@@ -120,7 +121,8 @@ const Register: React.FC = () => {
           setSuccess('验证码已发送到手机');
           setCodeSent(true);
           setCodeCountdown(60); // 60秒倒计时
-          setPhoneVerified(false); // 重置验证状态
+          setPhoneVerified(false); // 重置手机验证状态
+          setEmailVerified(false); // 重置邮箱验证状态
           console.log('验证码:', result.code); // 仅用于演示
         } else {
           setError(result.message || '发送验证码失败');

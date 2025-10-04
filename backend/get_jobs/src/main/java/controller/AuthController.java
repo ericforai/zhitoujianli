@@ -173,6 +173,86 @@ public class AuthController {
     }
 
     /**
+     * 手机号密码注册 - 使用AuthenticationClient正确实现
+     * 按照Authing V3官方文档规范
+     */
+    @PostMapping("/register/phone")
+    public ResponseEntity<?> registerByPhone(@RequestBody Map<String, String> request) {
+        String phone = null;
+        try {
+            phone = request.get("phone");
+            String password = request.get("password");
+            String username = request.get("username");
+
+            if (phone == null || password == null) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "手机号和密码不能为空"));
+            }
+
+            // 验证码校验
+            Map<String, Object> codeInfo = verificationCodes.get(phone);
+            if (codeInfo == null || !(Boolean) codeInfo.getOrDefault("verified", false)) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "请先验证手机号"));
+            }
+
+            // 检查Authing配置
+            String appId = authingConfig.getAppId();
+            String appHost = authingConfig.getAppHost();
+
+            if (appId.isEmpty() || appHost.equals("https://your-domain.authing.cn")) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "Authing配置不完整，请检查.env文件"));
+            }
+
+            // 使用ManagementClient创建用户 - 按照V3官方文档
+            CreateUserReqDto createUserReq = new CreateUserReqDto();
+            createUserReq.setPhone(phone);
+            createUserReq.setPassword(password);
+            if (username != null && !username.isEmpty()) {
+                createUserReq.setNickname(username);
+            }
+
+            UserSingleRespDto userResp = managementClient.createUser(createUserReq);
+
+            if (userResp != null && userResp.getData() != null && userResp.getData().getUserId() != null) {
+                log.info("✅ 用户注册成功，手机号: {}, 用户ID: {}", phone, userResp.getData().getUserId());
+
+                // 注册成功后清理验证码
+                verificationCodes.remove(phone);
+
+                return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "注册成功，请登录",
+                    "userId", userResp.getData().getUserId()
+                ));
+            } else {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "注册失败"));
+            }
+        } catch (Exception e) {
+            log.error("❌ 注册失败，手机号: {}", phone, e);
+            String errorMsg = e.getMessage();
+            if (errorMsg != null && errorMsg.contains("409")) {
+                errorMsg = "该手机号已被注册";
+            } else if (errorMsg != null && errorMsg.contains("400")) {
+                errorMsg = "注册信息格式不正确";
+            } else if (errorMsg != null && errorMsg.contains("401")) {
+                errorMsg = "Authing认证失败，请检查配置";
+            } else if (errorMsg != null && errorMsg.contains("403")) {
+                errorMsg = "没有权限创建用户";
+            } else if (errorMsg != null && errorMsg.contains("500")) {
+                errorMsg = "Authing服务错误";
+            } else {
+                errorMsg = "注册失败，请稍后重试";
+            }
+            log.error("❌ 注册错误详情: {}", errorMsg);
+            return ResponseEntity.badRequest()
+                .body(Map.of("success", false, "message", errorMsg));
+        }
+    }
+
+    /**
      * 邮箱密码登录 - 使用AuthenticationClient正确实现
      * 按照Authing V3官方文档规范
      */
@@ -361,6 +441,108 @@ public class AuthController {
             log.error("❌ 发送验证码失败", e);
             return ResponseEntity.internalServerError()
                 .body(Map.of("success", false, "message", "发送验证码失败"));
+        }
+    }
+
+    /**
+     * 发送手机验证码
+     */
+    @PostMapping("/send-phone-code")
+    public ResponseEntity<?> sendPhoneCode(@RequestBody Map<String, String> request) {
+        try {
+            String phone = request.get("phone");
+
+            if (phone == null || phone.isEmpty()) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "手机号不能为空"));
+            }
+
+            // 简单的手机号格式验证
+            if (!phone.matches("^1[3-9]\\d{9}$")) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "手机号格式不正确"));
+            }
+
+            // 生成验证码
+            String verificationCode = generateVerificationCode();
+
+            // 存储验证码和过期时间
+            Map<String, Object> codeInfo = new HashMap<>();
+            codeInfo.put("code", verificationCode);
+            codeInfo.put("expiresAt", System.currentTimeMillis() + CODE_EXPIRE_TIME);
+            codeInfo.put("attempts", 0);
+            codeInfo.put("verified", false);
+            verificationCodes.put(phone, codeInfo);
+
+            log.info("📱 手机验证码发送成功，手机号: {}, 验证码: {}", phone, verificationCode);
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "验证码已发送到手机",
+                "code", verificationCode, // 演示环境显示验证码
+                "expiresIn", CODE_EXPIRE_TIME / 1000
+            ));
+
+        } catch (Exception e) {
+            log.error("❌ 发送手机验证码失败", e);
+            return ResponseEntity.internalServerError()
+                .body(Map.of("success", false, "message", "发送验证码失败"));
+        }
+    }
+
+    /**
+     * 验证手机验证码
+     */
+    @PostMapping("/verify-phone-code")
+    public ResponseEntity<?> verifyPhoneCode(@RequestBody Map<String, String> request) {
+        try {
+            String phone = request.get("phone");
+            String code = request.get("code");
+
+            if (phone == null || code == null) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "手机号和验证码不能为空"));
+            }
+
+            Map<String, Object> codeInfo = verificationCodes.get(phone);
+            if (codeInfo == null) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "请先发送验证码"));
+            }
+
+            // 检查验证码是否过期
+            long expiresAt = (Long) codeInfo.get("expiresAt");
+            if (System.currentTimeMillis() > expiresAt) {
+                verificationCodes.remove(phone); // 清理过期验证码
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "验证码已过期，请重新发送"));
+            }
+
+            // 检查尝试次数
+            int attempts = (int) codeInfo.getOrDefault("attempts", 0);
+            if (attempts >= 3) { // 限制3次尝试
+                verificationCodes.remove(phone); // 超过次数清理验证码
+                log.warn("⚠️ 验证码尝试次数过多，手机号: {}", phone);
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "验证码尝试次数过多，请重新发送"));
+            }
+
+            if (code.equals(codeInfo.get("code"))) {
+                codeInfo.put("verified", true); // 标记为已验证
+                verificationCodes.put(phone, codeInfo); // 更新状态
+                log.info("✅ 手机验证码验证成功，手机号: {}", phone);
+                return ResponseEntity.ok(Map.of("success", true, "message", "验证码验证成功"));
+            } else {
+                codeInfo.put("attempts", attempts + 1); // 增加尝试次数
+                verificationCodes.put(phone, codeInfo); // 更新尝试次数
+                log.warn("⚠️ 验证码错误，手机号: {}, 尝试次数: {}", phone, attempts + 1);
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "验证码错误"));
+            }
+        } catch (Exception e) {
+            log.error("❌ 手机验证码验证失败", e);
+            return ResponseEntity.internalServerError()
+                .body(Map.of("success", false, "message", "验证码验证失败"));
         }
     }
 

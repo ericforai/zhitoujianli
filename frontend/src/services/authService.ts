@@ -184,6 +184,20 @@ export const authService = {
   },
 
   /**
+   * 验证手机验证码
+   */
+  verifyPhoneCode: async (
+    phone: string,
+    verificationCode: string
+  ): Promise<{ success: boolean; message: string }> => {
+    const response = await apiClient.post('/auth/verify-phone-code', {
+      phone,
+      code: verificationCode,
+    });
+    return response.data;
+  },
+
+  /**
    * 邮箱密码注册
    */
   register: async (
@@ -193,6 +207,22 @@ export const authService = {
   ): Promise<{ success: boolean; message: string; userId?: string }> => {
     const response = await apiClient.post('/auth/register', {
       email,
+      password,
+      username,
+    });
+    return response.data;
+  },
+
+  /**
+   * 手机号密码注册
+   */
+  registerByPhone: async (
+    phone: string,
+    password: string,
+    username?: string
+  ): Promise<{ success: boolean; message: string; userId?: string }> => {
+    const response = await apiClient.post('/auth/register/phone', {
+      phone,
       password,
       username,
     });
