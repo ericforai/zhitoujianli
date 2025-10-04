@@ -13,6 +13,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { authService } from '../services/authService';
+import BossDelivery from './BossDelivery';
 
 const ResumeDelivery: React.FC = () => {
   const [user, setUser] = useState<any>(null);
@@ -91,6 +92,7 @@ const ResumeDelivery: React.FC = () => {
           <nav className="-mb-px flex space-x-8">
             {[
               { id: 'dashboard', name: '工作台', icon: '📊' },
+              { id: 'boss', name: 'Boss投递', icon: '🚀' },
               { id: 'resume', name: '简历管理', icon: '📄' },
               { id: 'jobs', name: '职位搜索', icon: '🔍' },
               { id: 'delivery', name: '投递记录', icon: '📤' },
@@ -149,6 +151,11 @@ const ResumeDelivery: React.FC = () => {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* Boss直聘投递 Tab */}
+          {activeTab === 'boss' && (
+            <BossDelivery />
           )}
 
           {activeTab === 'resume' && (

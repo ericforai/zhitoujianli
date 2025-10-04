@@ -51,7 +51,7 @@ const Register: React.FC = () => {
       setLoading(true);
       setError('');
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080/api'}/auth/send-verification-code`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://115.190.182.95:8080/api'}/auth/send-verification-code`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
