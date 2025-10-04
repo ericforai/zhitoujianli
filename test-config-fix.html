@@ -14,7 +14,7 @@
             min-height: 100vh;
             color: #333;
         }
-        
+
         .container {
             background: white;
             border-radius: 16px;
@@ -22,27 +22,27 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             margin-bottom: 20px;
         }
-        
+
         .header {
             text-align: center;
             margin-bottom: 30px;
             border-bottom: 2px solid #f0f0f0;
             padding-bottom: 20px;
         }
-        
+
         .header h1 {
             color: #2c3e50;
             margin: 0;
             font-size: 2.5em;
             font-weight: 700;
         }
-        
+
         .header p {
             color: #7f8c8d;
             margin: 10px 0 0 0;
             font-size: 1.1em;
         }
-        
+
         .status-card {
             background: #f8f9fa;
             border: 2px solid #e9ecef;
@@ -51,29 +51,29 @@
             margin: 15px 0;
             position: relative;
         }
-        
+
         .status-card.success {
             border-color: #28a745;
             background: #d4edda;
         }
-        
+
         .status-card.error {
             border-color: #dc3545;
             background: #f8d7da;
         }
-        
+
         .status-card.pending {
             border-color: #ffc107;
             background: #fff3cd;
         }
-        
+
         .status-indicator {
             position: absolute;
             top: 15px;
             right: 15px;
             font-size: 1.5em;
         }
-        
+
         .test-button {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -86,19 +86,19 @@
             transition: all 0.3s ease;
             margin: 5px;
         }
-        
+
         .test-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
         }
-        
+
         .test-button:disabled {
             background: #ccc;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
-        
+
         .api-info {
             background: #e3f2fd;
             border: 1px solid #2196f3;
@@ -108,25 +108,25 @@
             font-family: 'Courier New', monospace;
             font-size: 0.9em;
         }
-        
+
         .config-form {
             background: #f8f9fa;
             padding: 20px;
             border-radius: 12px;
             margin: 20px 0;
         }
-        
+
         .form-group {
             margin-bottom: 15px;
         }
-        
+
         .form-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: 600;
             color: #495057;
         }
-        
+
         .form-group input, .form-group textarea {
             width: 100%;
             padding: 10px;
@@ -135,12 +135,12 @@
             font-size: 1em;
             box-sizing: border-box;
         }
-        
+
         .form-group textarea {
             height: 100px;
             resize: vertical;
         }
-        
+
         .result-display {
             background: #f8f9fa;
             border: 1px solid #dee2e6;
@@ -153,7 +153,7 @@
             max-height: 300px;
             overflow-y: auto;
         }
-        
+
         .fix-summary {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             color: white;
@@ -161,17 +161,17 @@
             border-radius: 12px;
             margin: 20px 0;
         }
-        
+
         .fix-summary h3 {
             margin: 0 0 15px 0;
             font-size: 1.3em;
         }
-        
+
         .fix-summary ul {
             margin: 0;
             padding-left: 20px;
         }
-        
+
         .fix-summary li {
             margin-bottom: 8px;
         }
@@ -183,7 +183,7 @@
             <h1>🔧 智投简历 - 配置保存修复测试</h1>
             <p>测试配置保存功能修复结果</p>
         </div>
-        
+
         <div class="fix-summary">
             <h3>✅ 修复完成</h3>
             <ul>
@@ -193,7 +193,7 @@
                 <li><strong>配置文件路径</strong>：user_data/default_user/config.json</li>
             </ul>
         </div>
-        
+
         <div class="status-card success">
             <div class="status-indicator">✅</div>
             <h3>服务连接状态</h3>
@@ -204,12 +204,12 @@
                 默认用户: default_user
             </div>
         </div>
-        
+
         <div class="status-card pending">
             <div class="status-indicator">⏳</div>
             <h3>配置保存测试</h3>
             <p>点击按钮测试配置保存功能</p>
-            
+
             <div class="config-form">
                 <div class="form-group">
                     <label for="testConfig">测试配置数据:</label>
@@ -219,27 +219,27 @@
                 <button class="test-button" onclick="testLoadConfig()">📄 测试加载配置</button>
                 <button class="test-button" onclick="testApiConfig()">🔧 测试API配置</button>
             </div>
-            
+
             <div id="configResult" class="result-display" style="display: none;"></div>
         </div>
-        
+
         <div class="status-card pending">
             <div class="status-indicator">⏳</div>
             <h3>其他功能测试</h3>
             <p>测试相关功能是否正常工作</p>
-            
+
             <button class="test-button" onclick="testAiService()">🤖 测试AI服务</button>
             <button class="test-button" onclick="testSmartGreeting()">💬 测试智能打招呼</button>
             <button class="test-button" onclick="testTokenEndpoint()">🔑 测试Token端点</button>
             <button class="test-button" onclick="testUserDataDirectory()">📁 检查用户数据目录</button>
-            
+
             <div id="otherResult" class="result-display" style="display: none;"></div>
         </div>
     </div>
 
     <script>
         const BASE_URL = 'http://115.190.182.95:8080';
-        
+
         function showResult(elementId, data, isSuccess = true) {
             const element = document.getElementById(elementId);
             element.style.display = 'block';
@@ -247,7 +247,7 @@
             element.style.borderColor = isSuccess ? '#28a745' : '#dc3545';
             element.textContent = JSON.stringify(data, null, 2);
         }
-        
+
         async function testSaveConfig() {
             try {
                 const configData = JSON.parse(document.getElementById('testConfig').value);
@@ -258,14 +258,14 @@
                     },
                     body: JSON.stringify(configData)
                 });
-                
+
                 const result = await response.json();
                 showResult('configResult', result, result.success);
             } catch (error) {
                 showResult('configResult', { error: error.message }, false);
             }
         }
-        
+
         async function testLoadConfig() {
             try {
                 const response = await fetch(`${BASE_URL}/api/config`);
@@ -275,7 +275,7 @@
                 showResult('configResult', { error: error.message }, false);
             }
         }
-        
+
         async function testApiConfig() {
             try {
                 const configData = { apiTest: 'success', timestamp: new Date().toISOString() };
@@ -286,14 +286,14 @@
                     },
                     body: JSON.stringify(configData)
                 });
-                
+
                 const result = await response.json();
                 showResult('configResult', result, result.success);
             } catch (error) {
                 showResult('configResult', { error: error.message }, false);
             }
         }
-        
+
         async function testAiService() {
             try {
                 const response = await fetch(`${BASE_URL}/api/smart-greeting/test`);
@@ -303,7 +303,7 @@
                 showResult('otherResult', { error: error.message }, false);
             }
         }
-        
+
         async function testSmartGreeting() {
             try {
                 const response = await fetch(`${BASE_URL}/api/smart-greeting/generate`, {
@@ -317,14 +317,14 @@
                         jobDescription: '负责前端开发工作'
                     })
                 });
-                
+
                 const result = await response.json();
                 showResult('otherResult', result, result.success);
             } catch (error) {
                 showResult('otherResult', { error: error.message }, false);
             }
         }
-        
+
         async function testTokenEndpoint() {
             try {
                 const response = await fetch(`${BASE_URL}/token?token=test_token_123`);
@@ -334,7 +334,7 @@
                 showResult('otherResult', { error: error.message }, false);
             }
         }
-        
+
         async function testUserDataDirectory() {
             try {
                 // 测试保存配置来验证目录
@@ -348,14 +348,14 @@
                         timestamp: new Date().toISOString()
                     })
                 });
-                
+
                 const result = await response.json();
                 showResult('otherResult', result, result.success);
             } catch (error) {
                 showResult('otherResult', { error: error.message }, false);
             }
         }
-        
+
         // 页面加载时自动测试基本功能
         window.onload = function() {
             console.log('🔧 配置保存修复测试页面已加载');
