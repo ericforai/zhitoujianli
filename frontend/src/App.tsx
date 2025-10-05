@@ -10,7 +10,6 @@ import Login from './components/Login';
 import Navigation from './components/Navigation';
 import Register from './components/Register';
 import ResumeDelivery from './components/ResumeDelivery';
-import SmartGreeting from './components/SmartGreeting';
 import TestLogin from './components/TestLogin';
 
 // 主页组件
@@ -21,7 +20,6 @@ const HomePage: React.FC = () => {
       <HeroSection />
       <Features />
       <Demo />
-      <SmartGreeting />
       <BlogSection />
       <Contact />
       <Footer />
