@@ -12,20 +12,24 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
+import aiService, { ResumeParseResult } from '../services/aiService';
 import { authService } from '../services/authService';
-import resumeService, { CandidateInfo } from '../services/resumeService';
 import BossCookieConfig from './BossCookieConfig';
 import BossDelivery from './BossDelivery';
 
 const ResumeDelivery: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [candidateInfo, setCandidateInfo] = useState<CandidateInfo | null>(
+  const [candidateInfo, setCandidateInfo] = useState<ResumeParseResult | null>(
     null
   );
   const [uploading, setUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
   const [showCookieConfig, setShowCookieConfig] = useState(false);
+  const [greeting, setGreeting] = useState('');
+  const [jobName, setJobName] = useState('');
+  const [jobDescription, setJobDescription] = useState('');
+  const [generatingGreeting, setGeneratingGreeting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -45,9 +49,11 @@ const ResumeDelivery: React.FC = () => {
   // 加载已有简历
   const loadExistingResume = async () => {
     try {
-      const result = await resumeService.loadResume();
-      if (result.success && result.data) {
-        setCandidateInfo(result.data);
+      // 首先检查是否有简历
+      const checkResult = await aiService.resume.checkResume();
+      if (checkResult.hasResume) {
+        const result = await aiService.resume.loadResume();
+        setCandidateInfo(result);
       }
     } catch (error) {
       console.error('加载简历失败:', error);
@@ -83,17 +89,48 @@ const ResumeDelivery: React.FC = () => {
     setUploadMessage('正在上传文件并解析简历...');
 
     try {
-      const result = await resumeService.uploadResume(file);
-      if (result.success && result.data) {
-        setCandidateInfo(result.data);
-        setUploadMessage('简历上传并解析成功！');
-      } else {
-        setUploadMessage(result.message || '简历解析失败');
-      }
+      const result = await aiService.resume.uploadResume(file);
+      setCandidateInfo(result);
+      setUploadMessage('简历上传并解析成功！');
     } catch (error: any) {
-      setUploadMessage(error.message || '简历上传失败');
+      console.error('简历上传失败:', error);
+      setUploadMessage(
+        '简历上传失败: ' +
+          (error.response?.data?.message || error.message || '未知错误')
+      );
     } finally {
       setUploading(false);
+    }
+  };
+
+  // 生成智能打招呼语
+  const generateSmartGreeting = async () => {
+    if (!candidateInfo) {
+      alert('请先上传简历');
+      return;
+    }
+
+    if (!jobName.trim() || !jobDescription.trim()) {
+      alert('请填写岗位名称和岗位描述');
+      return;
+    }
+
+    setGeneratingGreeting(true);
+    try {
+      const greeting = await aiService.greeting.generateGreeting({
+        candidate: candidateInfo,
+        jobName: jobName.trim(),
+        jobDescription: jobDescription.trim(),
+      });
+      setGreeting(greeting);
+    } catch (error: any) {
+      console.error('生成打招呼语失败:', error);
+      alert(
+        '生成打招呼语失败: ' +
+          (error.response?.data?.message || error.message || '未知错误')
+      );
+    } finally {
+      setGeneratingGreeting(false);
     }
   };
 
@@ -319,17 +356,45 @@ const ResumeDelivery: React.FC = () => {
                             {candidateInfo.name}
                           </p>
                           <p>
-                            <strong>联系方式：</strong>
-                            {candidateInfo.phone || candidateInfo.email}
+                            <strong>当前职位：</strong>
+                            {candidateInfo.current_title}
+                          </p>
+                          <p>
+                            <strong>工作年限：</strong>
+                            {candidateInfo.years_experience}年
                           </p>
                           <p>
                             <strong>学历：</strong>
                             {candidateInfo.education}
                           </p>
                           <p>
-                            <strong>工作经验：</strong>
-                            {candidateInfo.workExperience}
+                            <strong>当前公司：</strong>
+                            {candidateInfo.company}
                           </p>
+                          <p>
+                            <strong>核心技能：</strong>
+                            {candidateInfo.skills?.join('、')}
+                          </p>
+                          <p>
+                            <strong>核心优势：</strong>
+                            {candidateInfo.core_strengths?.join('；')}
+                          </p>
+                        </div>
+
+                        {/* AI功能按钮 */}
+                        <div className='mt-4 space-y-2'>
+                          <button
+                            onClick={() => setActiveTab('greeting')}
+                            className='w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors'
+                          >
+                            🤖 生成智能打招呼语
+                          </button>
+                          <button
+                            onClick={() => setActiveTab('boss-config')}
+                            className='w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors'
+                          >
+                            🚀 配置Boss投递参数
+                          </button>
                         </div>
                       </div>
                     )}
@@ -412,6 +477,96 @@ const ResumeDelivery: React.FC = () => {
                       <li>• 投递过程完全自动化</li>
                     </ul>
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'greeting' && (
+            <div>
+              <h3 className='text-xl font-semibold text-gray-900 mb-4'>
+                🤖 智能打招呼语生成
+              </h3>
+              <div className='space-y-6'>
+                {/* 岗位信息输入 */}
+                <div className='bg-white p-6 rounded-lg border'>
+                  <h4 className='font-semibold text-gray-900 mb-4'>岗位信息</h4>
+                  <div className='space-y-4'>
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-2'>
+                        岗位名称 *
+                      </label>
+                      <input
+                        type='text'
+                        value={jobName}
+                        onChange={e => setJobName(e.target.value)}
+                        placeholder='例如：市场总监、产品经理'
+                        className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                      />
+                    </div>
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-2'>
+                        岗位描述 *
+                      </label>
+                      <textarea
+                        value={jobDescription}
+                        onChange={e => setJobDescription(e.target.value)}
+                        placeholder='请粘贴岗位的详细描述和要求...'
+                        rows={6}
+                        className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                      />
+                    </div>
+                    <button
+                      onClick={generateSmartGreeting}
+                      disabled={generatingGreeting || !candidateInfo}
+                      className='w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors'
+                    >
+                      {generatingGreeting
+                        ? '🤖 AI正在生成中...'
+                        : '🤖 生成智能打招呼语'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* 生成的打招呼语 */}
+                {greeting && (
+                  <div className='bg-white p-6 rounded-lg border'>
+                    <h4 className='font-semibold text-gray-900 mb-4'>
+                      生成的打招呼语
+                    </h4>
+                    <div className='bg-gray-50 p-4 rounded-lg'>
+                      <p className='text-gray-800 whitespace-pre-wrap'>
+                        {greeting}
+                      </p>
+                    </div>
+                    <div className='mt-4 flex space-x-3'>
+                      <button
+                        onClick={() => navigator.clipboard.writeText(greeting)}
+                        className='px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors'
+                      >
+                        📋 复制到剪贴板
+                      </button>
+                      <button
+                        onClick={() => setGreeting('')}
+                        className='px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors'
+                      >
+                        🔄 重新生成
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* 使用说明 */}
+                <div className='bg-blue-50 p-4 rounded-lg'>
+                  <h5 className='font-semibold text-blue-800 mb-2'>
+                    💡 使用说明
+                  </h5>
+                  <ul className='text-blue-700 text-sm space-y-1'>
+                    <li>• AI会根据您的简历和岗位要求生成个性化打招呼语</li>
+                    <li>• 生成的打招呼语突出您的优势与岗位的匹配度</li>
+                    <li>• 可以直接复制使用，或根据需要调整</li>
+                    <li>• 建议针对不同岗位生成不同的打招呼语</li>
+                  </ul>
                 </div>
               </div>
             </div>
