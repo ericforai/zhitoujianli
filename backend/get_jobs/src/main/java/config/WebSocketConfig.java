@@ -26,3 +26,5 @@ public class WebSocketConfig implements WebSocketConfigurer {
                 .withSockJS(); // 支持SockJS降级
     }
 }
+
+

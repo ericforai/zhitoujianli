@@ -99,6 +99,7 @@ public class SecurityConfig {
                     "/api/jobs/**",
                     "/api/user/**",
                     "/api/resume/**",
+                    "/api/candidate-resume/**", // 候选人简历API需要认证
                     "/api/config",      // 用户配置API
                     "/api/ai-config",   // 用户AI配置API
                     "/api/resume",      // 用户简历API
@@ -129,11 +130,14 @@ public class SecurityConfig {
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                         response.setContentType("application/json;charset=UTF-8");
                         response.getWriter().write(
-                            "{\"success\":false,\"message\":\"需要登录认证\",\"redirectTo\":\"https://zhitoujianli.com/login\"}"
+                            "{\"success\":false,\"message\":\"需要登录认证\"}"
                         );
                     } else {
-                        // 浏览器请求重定向到首页登录
-                        response.sendRedirect("https://zhitoujianli.com/login");
+                        // 浏览器请求重定向到当前域的登录页面
+                        String loginUrl = request.getScheme() + "://" + request.getServerName() +
+                                        (request.getServerPort() == 80 || request.getServerPort() == 443 ? "" : ":" + request.getServerPort()) +
+                                        "/login";
+                        response.sendRedirect(loginUrl);
                     }
                 })
             )

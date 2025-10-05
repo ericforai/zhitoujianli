@@ -60,7 +60,7 @@ const Register: React.FC = () => {
         setError('');
 
         const response = await fetch(
-          `${process.env.REACT_APP_API_URL || 'http://115.190.182.95:8080/api'}/auth/send-verification-code`,
+          `http://115.190.182.95:8080/api/auth/send-verification-code`,
           {
             method: 'POST',
             headers: {
@@ -78,6 +78,8 @@ const Register: React.FC = () => {
           setCodeCountdown(60); // 60秒倒计时
           setEmailVerified(false); // 重置验证状态
           setPhoneVerified(false); // 重置手机验证状态
+          setVerificationCode(''); // 清空验证码输入框
+          console.log('✅ 验证码发送成功，状态已重置');
         } else {
           setError(result.message || '发送验证码失败');
         }
@@ -104,7 +106,7 @@ const Register: React.FC = () => {
         setError('');
 
         const response = await fetch(
-          `${process.env.REACT_APP_API_URL || 'http://115.190.182.95:8080/api'}/auth/send-phone-code`,
+          `http://115.190.182.95:8080/api/auth/send-phone-code`,
           {
             method: 'POST',
             headers: {
@@ -122,7 +124,9 @@ const Register: React.FC = () => {
           setCodeCountdown(60); // 60秒倒计时
           setPhoneVerified(false); // 重置手机验证状态
           setEmailVerified(false); // 重置邮箱验证状态
+          setVerificationCode(''); // 清空验证码输入框
           console.log('验证码:', result.code); // 仅用于演示
+          console.log('✅ 手机验证码发送成功，状态已重置');
         } else {
           setError(result.message || '发送验证码失败');
         }
@@ -148,6 +152,14 @@ const Register: React.FC = () => {
       setLoading(true);
       setError('');
 
+      // 添加详细的状态调试信息
+      console.log('🔍 调试信息 - 当前状态值:');
+      console.log('  email:', email);
+      console.log('  verificationCode:', verificationCode);
+      console.log('  mode:', mode);
+      console.log('  codeSent:', codeSent);
+      console.log('  emailVerified:', emailVerified);
+
       const result = await authService.verifyEmailCode(email, verificationCode);
 
       if (result.success) {
@@ -158,7 +170,14 @@ const Register: React.FC = () => {
       }
     } catch (err: any) {
       console.error('验证邮箱验证码失败:', err);
-      setError('网络错误，请稍后重试');
+      console.error('错误详情:', err.response?.data);
+
+      // 显示具体的后端错误信息，而不是通用的网络错误
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError('网络错误，请稍后重试');
+      }
     } finally {
       setLoading(false);
     }
@@ -420,25 +439,25 @@ const Register: React.FC = () => {
                     maxLength={6}
                     disabled={mode === 'email' ? emailVerified : phoneVerified}
                   />
-                   {mode === 'email' ? (
-                     <button
-                       type='button'
-                       onClick={handleVerifyEmailCode}
-                       disabled={!verificationCode || loading || emailVerified}
-                       className='px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm'
-                     >
-                       {emailVerified ? '已验证' : '验证'}
-                     </button>
-                   ) : (
-                     <button
-                       type='button'
-                       onClick={handleVerifyPhoneCode}
-                       disabled={!verificationCode || loading || phoneVerified}
-                       className='px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm'
-                     >
-                       {phoneVerified ? '已验证' : '验证'}
-                     </button>
-                   )}
+                  {mode === 'email' ? (
+                    <button
+                      type='button'
+                      onClick={handleVerifyEmailCode}
+                      disabled={!verificationCode || loading || emailVerified}
+                      className='px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm'
+                    >
+                      {emailVerified ? '已验证' : '验证'}
+                    </button>
+                  ) : (
+                    <button
+                      type='button'
+                      onClick={handleVerifyPhoneCode}
+                      disabled={!verificationCode || loading || phoneVerified}
+                      className='px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm'
+                    >
+                      {phoneVerified ? '已验证' : '验证'}
+                    </button>
+                  )}
                 </div>
                 <p className='mt-1 text-xs text-gray-500'>
                   验证码已发送到 {mode === 'email' ? email : phone}

@@ -168,12 +168,17 @@ public class BossExecutionService {
      * 生成最小classpath
      */
     private String generateMinimalClasspath() {
+        String mavenHome = System.getProperty("user.home") + "/.m2";
         StringBuilder sb = new StringBuilder();
-        sb.append("/Users/user/.m2/repository/com/microsoft/playwright/playwright/1.51.0/playwright-1.51.0.jar:");
-        sb.append("/Users/user/.m2/repository/org/json/json/20231013/json-20231013.jar:");
-        sb.append("/Users/user/.m2/repository/org/slf4j/slf4j-api/2.0.9/slf4j-api-2.0.9.jar:");
-        sb.append("/Users/user/.m2/repository/ch/qos/logback/logback-classic/1.4.11/logback-classic-1.4.11.jar:");
-        sb.append("/Users/user/.m2/repository/ch/qos/logback/logback-core/1.4.11/logback-core-1.4.11.jar");
+        sb.append(mavenHome).append("/repository/com/microsoft/playwright/playwright/1.51.0/playwright-1.51.0.jar:");
+        sb.append(mavenHome).append("/repository/org/json/json/20231013/json-20231013.jar:");
+        sb.append(mavenHome).append("/repository/org/slf4j/slf4j-api/2.0.9/slf4j-api-2.0.9.jar:");
+        sb.append(mavenHome).append("/repository/ch/qos/logback/logback-classic/1.4.11/logback-classic-1.4.11.jar:");
+        sb.append(mavenHome).append("/repository/ch/qos/logback/logback-core/1.4.11/logback-core-1.4.11.jar:");
+        sb.append(mavenHome).append("/repository/com/fasterxml/jackson/dataformat/jackson-dataformat-yaml/2.15.2/jackson-dataformat-yaml-2.15.2.jar:");
+        sb.append(mavenHome).append("/repository/com/fasterxml/jackson/core/jackson-databind/2.15.3/jackson-databind-2.15.3.jar:");
+        sb.append(mavenHome).append("/repository/com/fasterxml/jackson/core/jackson-core/2.15.3/jackson-core-2.15.3.jar:");
+        sb.append(mavenHome).append("/repository/org/yaml/snakeyaml/2.2/snakeyaml-2.2.jar");
         return sb.toString();
     }
 

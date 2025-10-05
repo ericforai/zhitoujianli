@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能投递混合模式测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .message {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-line;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .step {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 智能投递混合模式测试</h1>
+
+        <div class="step">
+            <h3>测试说明</h3>
+            <p>这个页面用于测试智能投递的混合模式：首次登录使用本地浏览器（有头模式），后续使用后台无头模式。</p>
+        </div>
+
+        <div>
+            <button class="button" onclick="testHybridDelivery()">🚀 启动智能投递</button>
+            <button class="button" onclick="testScriptGeneration()">📥 生成用户脚本</button>
+            <button class="button" onclick="testCookieStatus()">🍪 检查Cookie状态</button>
+            <button class="button" onclick="clearMessages()">🧹 清空消息</button>
+        </div>
+
+        <div id="messages"></div>
+
+        <div class="step">
+            <h3>使用步骤</h3>
+            <ol>
+                <li>点击"启动智能投递"按钮</li>
+                <li>如果是首次使用，会下载脚本文件</li>
+                <li>在本地安装依赖：<code>npm install playwright ws</code></li>
+                <li>运行脚本：<code>node boss-runner.js</code></li>
+                <li>在本地浏览器中扫码登录Boss直聘</li>
+                <li>登录成功后自动切换到无头模式</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>技术原理</h3>
+            <ul>
+                <li><strong>首次登录</strong>：下载本地脚本，在用户本地浏览器中显示二维码</li>
+                <li><strong>Cookie保存</strong>：登录成功后，Cookie保存在本地</li>
+                <li><strong>后续使用</strong>：使用保存的Cookie，后台无头模式运行</li>
+                <li><strong>WebSocket通信</strong>：本地脚本与服务器实时通信</li>
+                <li><strong>自动切换</strong>：登录成功后自动从有头模式切换到无头模式</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const SERVER_URL = 'http://115.190.182.95:8080';
+        const USER_ID = 'test_user_' + Date.now();
+
+        function addMessage(message, type = 'info') {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function clearMessages() {
+            document.getElementById('messages').innerHTML = '';
+        }
+
+        async function testHybridDelivery() {
+            addMessage('🚀 测试智能投递混合模式...', 'info');
+
+            try {
+                const response = await fetch(`${SERVER_URL}/api/boss/start-hybrid-delivery?userId=${USER_ID}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.download_script) {
+                        addMessage('✅ 首次使用需要本地登录！', 'success');
+                        addMessage('📥 开始下载脚本...', 'info');
+
+                        // 创建下载链接
+                        const downloadUrl = `${SERVER_URL}${data.script_url}`;
+                        const link = document.createElement('a');
+                        link.href = downloadUrl;
+                        link.download = 'boss-runner.js';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                        addMessage(`📋 脚本已开始下载！请按照以下步骤操作：
+1. 安装依赖：npm install playwright ws
+2. 运行脚本：node boss-runner.js
+3. 在本地浏览器中扫码登录
+4. 登录成功后自动切换到无头模式`, 'success');
+
+                    } else {
+                        addMessage(`✅ ${data.message}`, 'success');
+                        addMessage(`📊 模式：${data.mode}`, 'info');
+                    }
+                } else {
+                    addMessage(`❌ ${data.message}`, 'error');
+                }
+
+            } catch (error) {
+                addMessage(`❌ 请求失败：${error.message}`, 'error');
+            }
+        }
+
+        async function testScriptGeneration() {
+            addMessage('📥 测试脚本生成...', 'info');
+
+            try {
+                const response = await fetch(`${SERVER_URL}/api/boss/generate-script?userId=${USER_ID}`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    addMessage('✅ 脚本生成成功！', 'success');
+
+                    // 创建下载链接
+                    const downloadUrl = `${SERVER_URL}/api/boss/generate-script?userId=${USER_ID}`;
+                    const link = document.createElement('a');
+                    link.href = downloadUrl;
+                    link.download = 'boss-runner.js';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    addMessage('📥 脚本已开始下载！', 'success');
+                } else {
+                    const errorText = await response.text();
+                    addMessage(`❌ 脚本生成失败：${errorText}`, 'error');
+                }
+
+            } catch (error) {
+                addMessage(`❌ 请求失败：${error.message}`, 'error');
+            }
+        }
+
+        async function testCookieStatus() {
+            addMessage('🍪 检查Cookie状态...', 'info');
+
+            try {
+                const response = await fetch(`${SERVER_URL}/api/boss/cookie`);
+                const data = await response.json();
+
+                if (data.has_cookie) {
+                    addMessage('✅ 已保存Cookie，可以直接使用无头模式', 'success');
+                    addMessage(`📊 Cookie大小：${data.cookie_size} 字节`, 'info');
+                } else {
+                    addMessage('⚠️ 未保存Cookie，需要首次登录', 'info');
+                }
+
+            } catch (error) {
+                addMessage(`❌ 请求失败：${error.message}`, 'error');
+            }
+        }
+
+        // 页面加载时显示欢迎信息
+        window.onload = function() {
+            addMessage('🎉 智能投递混合模式测试页面已加载', 'success');
+            addMessage(`👤 用户ID：${USER_ID}`, 'info');
+            addMessage('💡 点击按钮开始测试混合模式功能', 'info');
+        };
+    </script>
+</body>
+</html>
+
+

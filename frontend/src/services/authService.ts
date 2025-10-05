@@ -10,7 +10,9 @@
 
 import axios, { AxiosInstance } from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
+// 直接使用完整的后端API地址
+// 这样可以避免代理配置问题，直接连接到后端服务器
+const API_BASE_URL = 'http://115.190.182.95:8080/api';
 
 /**
  * 创建axios实例

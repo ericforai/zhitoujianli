@@ -116,7 +116,7 @@ public class Boss {
         }
         log.info(resultList.isEmpty() ? "未发起新的聊天..." : "新发起聊天公司如下:\n{}",
                 resultList.stream().map(Object::toString).collect(Collectors.joining("\n")));
-        if (!config.getDebugger()) {
+        if (config.getDebugger() == null || !config.getDebugger()) {
             printResult();
         }
     }
@@ -128,7 +128,7 @@ public class Boss {
         sendMessageByTime(message);
         saveData(dataPath);
         resultList.clear();
-        if (!config.getDebugger()) {
+        if (config.getDebugger() == null || !config.getDebugger()) {
             PlaywrightUtil.close();
         }
 
@@ -217,7 +217,12 @@ public class Boss {
 
                     // 模拟人类行为后再点击
                     PlaywrightUtil.simulateMouseMove();
-                    cards.nth(i).click();
+
+                    // 使用安全点击方法，自动处理登录弹窗
+                    if (!safeClick(page, cards.nth(i), "点击岗位卡片")) {
+                        log.warn("【{}】第{}个岗位：点击失败，跳过", keyword, i + 1);
+                        continue;
+                    }
 
                     log.info("【{}】第{}个岗位：已点击，等待页面加载", keyword, i + 1);
 
@@ -576,7 +581,14 @@ public class Boss {
             }
             // 模拟人类行为后点击
             PlaywrightUtil.simulateMouseMove();
-            chatBtn.first().click();
+
+            // 使用安全点击方法，自动处理登录弹窗
+            if (!safeClick(detailPage, chatBtn.first(), "点击立即沟通按钮")) {
+                log.warn("点击立即沟通按钮失败，跳过岗位: {}", job.getJobName());
+                detailPage.close();
+                return;
+            }
+
             PlaywrightUtil.randomSleepMillis(2000, 4000);
         } catch (Exception e) {
             log.error("点击立即沟通按钮失败：{}", e.getMessage());
@@ -592,24 +604,192 @@ public class Boss {
         String fullJobDescription = extractFullJobDescription(detailPage);
         log.info("【完整JD】岗位: {}, JD长度: {}字", job.getJobName(), fullJobDescription != null ? fullJobDescription.length() : 0);
 
-        // 5. 等待聊天输入框
-        Locator inputLocator = detailPage.locator("div#chat-input.chat-input[contenteditable='true'], textarea.input-area");
-        boolean inputReady = false;
-        for (int i = 0; i < 10; i++) {
-            if (inputLocator.count() > 0 && inputLocator.first().isVisible()) {
-                inputReady = true;
+        // 5. 等待聊天对话框出现
+        log.info("等待聊天对话框加载...");
+        boolean dialogReady = false;
+        for (int i = 0; i < 20; i++) {  // 增加等待次数
+            // 检查多种可能的聊天对话框选择器
+            String[] dialogSelectors = {
+                ".dialog-container",
+                ".chat-dialog",
+                ".im-dialog",
+                ".chat-container",
+                ".message-container",
+                ".conversation-container",
+                "[class*='dialog']",
+                "[class*='chat']",
+                "[class*='message']",
+                "[class*='conversation']",
+                // Boss直聘特定的选择器
+                ".dialog-wrap",
+                ".chat-wrap",
+                ".im-wrap",
+                "#chat-input",
+                ".chat-input-area",
+                ".dialog-content",
+                ".chat-content"
+            };
+
+            for (String selector : dialogSelectors) {
+                try {
+                    Locator dialog = detailPage.locator(selector);
+                    if (dialog.count() > 0 && dialog.first().isVisible()) {
+                        log.info("找到聊天对话框: {}", selector);
+                        dialogReady = true;
+                        break;
+                    }
+                } catch (Exception e) {
+                    // 忽略单个选择器的错误
+                    continue;
+                }
+            }
+
+            if (dialogReady) break;
+
+            // 检查是否页面跳转到了聊天页面
+            String currentUrl = detailPage.url();
+            if (currentUrl.contains("/chat/") || currentUrl.contains("/im/") || currentUrl.contains("/message/")) {
+                log.info("页面已跳转到聊天页面: {}", currentUrl);
+                dialogReady = true;
                 break;
             }
-            // 随机延迟等待输入框出现
+
+            // 随机延迟等待对话框出现
             PlaywrightUtil.randomSleepMillis(1000, 2000);
         }
-        if (!inputReady) {
-            log.warn("聊天输入框未出现，跳过: {}", job.getJobName());
+
+        if (!dialogReady) {
+            log.warn("聊天对话框未出现，尝试备用方案: {}", job.getJobName());
+
+            // 尝试备用方案：使用JavaScript直接发送消息
+            if (tryAlternativeMessageSending(detailPage, job)) {
+                log.info("备用方案成功，投递完成: {}", job.getJobName());
+                detailPage.close();
+                return;
+            }
+
+            log.warn("备用方案也失败，跳过: {}", job.getJobName());
             detailPage.close();
             return;
         }
 
-        // 6. 生成打招呼语（智能AI生成 或 默认）
+        // 6. 等待聊天输入框（更新选择器）
+        log.info("等待聊天输入框加载...");
+        String[] inputSelectors = {
+            "div#chat-input.chat-input[contenteditable='true']",
+            "textarea.input-area",
+            "div[contenteditable='true']",
+            "[class*='input'][contenteditable='true']",
+            "textarea[placeholder*='输入']",
+            "input[placeholder*='输入']",
+            ".chat-input",
+            ".input-area",
+            ".message-input",
+            ".conversation-input",
+            "[class*='chat-input']",
+            "[class*='input-area']",
+            "[class*='message-input']",
+            "[class*='conversation-input']",
+            // Boss直聘特定的选择器
+            ".dialog-input",
+            ".chat-textarea",
+            ".im-input",
+            ".msg-input",
+            "#message-input",
+            "#chat-textarea",
+            // 更宽松的选择器
+            "input[type='text']",
+            "input[type='textarea']",
+            "textarea",
+            "[contenteditable='true']",
+            "[contenteditable]",
+            "[class*='input']",
+            "[class*='chat']",
+            "[class*='message']",
+            "[class*='text']"
+        };
+
+        Locator inputLocator = null;
+        boolean inputReady = false;
+
+        for (int i = 0; i < 15; i++) {  // 增加等待次数
+            for (String selector : inputSelectors) {
+                Locator testLocator = detailPage.locator(selector);
+                if (testLocator.count() > 0) {
+                    // 检查每个匹配的元素
+                    for (int j = 0; j < testLocator.count(); j++) {
+                        try {
+                            if (testLocator.nth(j).isVisible() && testLocator.nth(j).isEnabled()) {
+                                // 进一步检查是否是可编辑的输入框
+                                String elementType = testLocator.nth(j).evaluate("el => el.tagName.toLowerCase()").toString();
+                                String contentEditable = testLocator.nth(j).evaluate("el => el.contentEditable").toString();
+                                String inputType = testLocator.nth(j).evaluate("el => el.type || ''").toString();
+
+                                // 如果是input、textarea或contenteditable元素，认为是输入框
+                                if ("input".equals(elementType) || "textarea".equals(elementType) ||
+                                    "true".equals(contentEditable) || !inputType.isEmpty()) {
+                                    log.info("找到聊天输入框: {} (第{}个元素, 类型: {}, 可编辑: {})",
+                                        selector, j, elementType, contentEditable);
+                                    inputLocator = testLocator.nth(j);
+                                    inputReady = true;
+                                    break;
+                                }
+                            }
+                        } catch (Exception e) {
+                            // 忽略单个元素的检查错误
+                            continue;
+                        }
+                    }
+                    if (inputReady) break;
+                }
+            }
+
+            if (inputReady) break;
+
+            // 随机延迟等待输入框出现
+            PlaywrightUtil.randomSleepMillis(1000, 2000);
+        }
+
+        if (!inputReady) {
+            log.warn("聊天输入框未出现，尝试备用方案: {}", job.getJobName());
+
+            // 调试信息：输出当前页面的HTML结构
+            try {
+                String pageTitle = detailPage.title();
+                String currentUrl = detailPage.url();
+                log.warn("调试信息 - 页面标题: {}, URL: {}", pageTitle, currentUrl);
+
+                // 输出页面中所有可能的输入相关元素
+                String[] debugSelectors = {
+                    "input", "textarea", "[contenteditable]",
+                    "[class*='input']", "[class*='chat']", "[class*='dialog']",
+                    "[id*='input']", "[id*='chat']", "[id*='dialog']"
+                };
+
+                for (String selector : debugSelectors) {
+                    Locator elements = detailPage.locator(selector);
+                    if (elements.count() > 0) {
+                        log.warn("调试信息 - 找到{}个元素: {}", elements.count(), selector);
+                    }
+                }
+
+                // 尝试备用方案：使用JavaScript直接发送消息
+                if (tryAlternativeMessageSending(detailPage, job)) {
+                    log.info("备用方案成功，投递完成: {}", job.getJobName());
+                    detailPage.close();
+                    return;
+                }
+
+            } catch (Exception e) {
+                log.warn("获取调试信息失败: {}", e.getMessage());
+            }
+
+            log.warn("所有方案都失败，跳过: {}", job.getJobName());
+            detailPage.close();
+            return;
+        }
+
+        // 7. 生成打招呼语（智能AI生成 或 默认）
         String message = generateGreetingMessage(keyword, job, fullJobDescription);
         if (message == null || message.trim().isEmpty()) {
             log.warn("打招呼语为空，跳过: {}", job.getJobName());
@@ -865,7 +1045,7 @@ public class Boss {
     }
 
     private static boolean isDeadHR(com.microsoft.playwright.Page page) {
-        if (!config.getFilterDeadHR()) {
+        if (config.getFilterDeadHR() == null || !config.getFilterDeadHR()) {
             return false;
         }
         try {
@@ -920,7 +1100,7 @@ public class Boss {
         String sayHi = config.getSayHi().replaceAll("[\\r\\n]", "");
 
         // 检查是否启用智能打招呼
-        if (!config.getEnableSmartGreeting()) {
+        if (config.getEnableSmartGreeting() == null || !config.getEnableSmartGreeting()) {
             log.info("【打招呼语】智能打招呼未启用，使用默认招呼语");
             return sayHi;
         }
@@ -1050,6 +1230,245 @@ public class Boss {
         }
     }
 
+    /**
+     * 检查并关闭登录弹窗
+     * @param page 页面对象
+     * @return 是否关闭了弹窗
+     */
+    private static boolean checkAndCloseLoginDialog(com.microsoft.playwright.Page page) {
+        try {
+            // 检查是否存在登录弹窗遮罩
+            Locator loginMask = page.locator(Locators.LOGIN_DIALOG_MASK);
+            if (loginMask.count() > 0 && loginMask.first().isVisible()) {
+                log.info("检测到登录弹窗，尝试关闭...");
+
+                // 尝试点击关闭按钮
+                Locator closeBtn = page.locator(Locators.LOGIN_DIALOG_CLOSE);
+                if (closeBtn.count() > 0 && closeBtn.first().isVisible()) {
+                    log.info("找到关闭按钮，点击关闭登录弹窗");
+                    closeBtn.first().click();
+                    PlaywrightUtil.sleep(1);
+                    return true;
+                }
+
+                // 尝试点击取消按钮
+                Locator cancelBtn = page.locator(Locators.LOGIN_CANCEL_BTN);
+                if (cancelBtn.count() > 0 && cancelBtn.first().isVisible()) {
+                    log.info("找到取消按钮，点击关闭登录弹窗");
+                    cancelBtn.first().click();
+                    PlaywrightUtil.sleep(1);
+                    return true;
+                }
+
+                // 尝试点击遮罩层关闭
+                log.info("尝试点击遮罩层关闭登录弹窗");
+                loginMask.first().click();
+                PlaywrightUtil.sleep(1);
+
+                // 再次检查是否关闭成功
+                if (loginMask.count() == 0 || !loginMask.first().isVisible()) {
+                    log.info("登录弹窗已关闭");
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            log.warn("关闭登录弹窗失败: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 等待并处理登录弹窗
+     * @param page 页面对象
+     * @param maxWaitSeconds 最大等待时间（秒）
+     * @return 是否成功处理了弹窗
+     */
+    private static boolean waitAndHandleLoginDialog(com.microsoft.playwright.Page page, int maxWaitSeconds) {
+        int waitTime = 0;
+        while (waitTime < maxWaitSeconds) {
+            if (checkAndCloseLoginDialog(page)) {
+                return true;
+            }
+            PlaywrightUtil.sleep(1);
+            waitTime++;
+        }
+        return false;
+    }
+
+    /**
+     * 安全的点击操作，会自动处理登录弹窗
+     * @param page 页面对象
+     * @param locator 要点击的元素定位器
+     * @param description 操作描述（用于日志）
+     * @return 是否点击成功
+     */
+    private static boolean safeClick(com.microsoft.playwright.Page page, Locator locator, String description) {
+        try {
+            // 点击前检查并处理登录弹窗
+            if (checkAndCloseLoginDialog(page)) {
+                log.info("{}前检测到登录弹窗，已关闭", description);
+                PlaywrightUtil.sleep(1);
+            }
+
+            // 执行点击
+            locator.click();
+            log.info("{}成功", description);
+
+            // 点击后再次检查登录弹窗
+            if (checkAndCloseLoginDialog(page)) {
+                log.info("{}后检测到登录弹窗，已关闭", description);
+            }
+
+            return true;
+        } catch (Exception e) {
+            log.error("{}失败: {}", description, e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 尝试备用方案发送消息
+     * @param page 页面对象
+     * @param job 岗位信息
+     * @return 是否发送成功
+     */
+    private static boolean tryAlternativeMessageSending(com.microsoft.playwright.Page page, Job job) {
+        try {
+            log.info("尝试备用方案发送消息: {}", job.getJobName());
+
+            // 获取打招呼语
+            String fullJobDescription = extractFullJobDescription(page);
+            String message = generateGreetingMessage("市场总监", job, fullJobDescription);
+
+            if (message == null || message.trim().isEmpty()) {
+                log.warn("备用方案：打招呼语为空");
+                return false;
+            }
+
+            // 尝试使用JavaScript直接操作页面
+            String script = String.format("""
+                (function() {
+                    try {
+                        // 查找所有可能的输入元素
+                        const inputSelectors = [
+                            'div#chat-input.chat-input[contenteditable="true"]',
+                            'textarea.input-area',
+                            'div[contenteditable="true"]',
+                            '[class*="input"][contenteditable="true"]',
+                            'textarea[placeholder*="输入"]',
+                            'input[placeholder*="输入"]',
+                            '.chat-input',
+                            '.input-area',
+                            '.message-input',
+                            '[class*="chat-input"]',
+                            '[class*="input-area"]',
+                            'input[type="text"]',
+                            'textarea',
+                            '[contenteditable="true"]',
+                            '[contenteditable]'
+                        ];
+
+                        let inputElement = null;
+
+                        // 尝试找到输入框
+                        for (const selector of inputSelectors) {
+                            const elements = document.querySelectorAll(selector);
+                            for (const el of elements) {
+                                if (el.offsetParent !== null) { // 元素可见
+                                    inputElement = el;
+                                    console.log('找到输入框:', selector);
+                                    break;
+                                }
+                            }
+                            if (inputElement) break;
+                        }
+
+                        if (!inputElement) {
+                            console.log('未找到输入框');
+                            return {success: false, message: '未找到输入框'};
+                        }
+
+                // 清空输入框并输入消息
+                inputElement.focus();
+                inputElement.value = '';
+                inputElement.textContent = '';
+
+                // 触发输入事件
+                const inputEvent = new Event('input', { bubbles: true });
+                const changeEvent = new Event('change', { bubbles: true });
+
+                if (inputElement.tagName === 'TEXTAREA' || inputElement.tagName === 'INPUT') {
+                    inputElement.value = '%s';
+                    inputElement.dispatchEvent(inputEvent);
+                    inputElement.dispatchEvent(changeEvent);
+                } else {
+                    inputElement.textContent = '%s';
+                    inputElement.dispatchEvent(inputEvent);
+                    inputElement.dispatchEvent(changeEvent);
+                }
+
+                        // 尝试找到发送按钮并点击
+                        const sendSelectors = [
+                            'button[type="submit"]',
+                            'button[type="send"]',
+                            '.send-btn',
+                            '.submit-btn',
+                            '[class*="send"]',
+                            '[class*="submit"]'
+                        ];
+
+                        let sendButton = null;
+                        for (const selector of sendSelectors) {
+                            const buttons = document.querySelectorAll(selector);
+                            for (const btn of buttons) {
+                                if (btn.offsetParent !== null && btn.disabled === false) {
+                                    const btnText = btn.textContent || btn.innerText || '';
+                                    if (btnText.includes('发送') || btnText.includes('提交') || btnText.includes('确定')) {
+                                        sendButton = btn;
+                                        console.log('找到发送按钮:', selector, btnText);
+                                        break;
+                                    }
+                                }
+                            }
+                            if (sendButton) break;
+                        }
+
+                        if (sendButton) {
+                            sendButton.click();
+                            console.log('点击发送按钮成功');
+                            return {success: true, message: '点击发送按钮成功'};
+                        } else {
+                            // 尝试按回车键发送
+                            const keyEvent = new KeyboardEvent('keydown', {
+                                key: 'Enter',
+                                code: 'Enter',
+                                keyCode: 13,
+                                bubbles: true
+                            });
+                            inputElement.dispatchEvent(keyEvent);
+                            console.log('尝试回车键发送');
+                            return {success: true, message: '尝试回车键发送'};
+                        }
+                    } catch (error) {
+                        console.error('备用方案执行错误:', error);
+                        return {success: false, message: error.message};
+                    }
+                })()
+                """, message, message);
+
+            // 执行JavaScript
+            Object result = page.evaluate(script);
+            log.info("备用方案执行结果: {}", result);
+
+            return true;
+
+        } catch (Exception e) {
+            log.error("备用方案发送消息失败: {}", e.getMessage());
+            return false;
+        }
+    }
+
     @SneakyThrows
     private static void login() {
         log.info("开始Boss直聘登录流程...");
@@ -1082,18 +1501,15 @@ public class Boss {
             waitForSliderVerify(page);
             // 启用反检测模式
             PlaywrightUtil.initStealth();
-        }
-
-        // 检查是否需要登录
-        if (isLoginRequired()) {
+            log.info("Cookie已加载，登录状态正常，继续执行...");
+        } else {
+            // Cookie无效，需要登录
             log.info("需要登录，启动登录流程...");
             scanLogin();
 
             // 登录成功后切换到无头模式
             log.info("登录成功，切换到无头模式...");
             PlaywrightUtil.switchToHeadless();
-        } else {
-            log.info("登录状态正常，继续执行...");
         }
     }
 

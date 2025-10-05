@@ -71,7 +71,7 @@ public class SeleniumUtil {
                 break;
         }
         BossConfig config = BossConfig.init();
-        if (config.getDebugger()) {
+        if (config.getDebugger() != null && config.getDebugger()) {
             options.addExtensions(new File("src/main/resources/xpathHelper.crx"));
         } else {
             options.addArguments("--disable-extensions");
