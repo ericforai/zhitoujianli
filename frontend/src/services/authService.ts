@@ -47,7 +47,15 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   response => response,
   error => {
-    if (error.response?.status === 401) {
+    // 检查是否是认证相关的错误
+    if (
+      error.response?.status === 401 ||
+      (error.response?.data?.message &&
+        (error.response.data.message.includes('需要登录认证') ||
+          error.response.data.message.includes('用户未登录')))
+    ) {
+      console.log('🔐 检测到认证错误，清除本地存储并重定向到登录页');
+
       // Token过期或无效，清除本地存储
       localStorage.removeItem('token');
       localStorage.removeItem('authToken'); // 清除后端使用的key
