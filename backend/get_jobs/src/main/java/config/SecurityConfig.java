@@ -71,6 +71,7 @@ public class SecurityConfig {
             http.authorizeHttpRequests(authz -> authz
                 .anyRequest().permitAll()
             );
+            return http.build();
         } else {
             // 配置授权规则（启用安全认证时）
             http.authorizeHttpRequests(authz -> authz

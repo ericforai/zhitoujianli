@@ -661,14 +661,30 @@ public class Boss {
         if (!dialogReady) {
             log.warn("聊天对话框未出现，尝试备用方案: {}", job.getJobName());
 
-            // 尝试备用方案：使用JavaScript直接发送消息
-            if (tryAlternativeMessageSending(detailPage, job)) {
-                log.info("备用方案成功，投递完成: {}", job.getJobName());
-                detailPage.close();
-                return;
-            }
+                // 尝试备用方案：使用JavaScript直接发送消息
+                boolean alternativeSuccess = tryAlternativeMessageSending(detailPage, job);
+                if (alternativeSuccess) {
+                    // 检查是否真的有消息发送成功（需要进一步验证）
+                    log.info("备用方案执行成功，但需要验证是否真正投递: {}", job.getJobName());
 
-            log.warn("备用方案也失败，跳过: {}", job.getJobName());
+                    // 等待一段时间观察页面变化
+                    PlaywrightUtil.sleep(2);
+
+                    // 检查是否有成功提示或页面变化
+                    String currentUrl = detailPage.url();
+                    if (currentUrl.contains("/chat/") || currentUrl.contains("/im/") ||
+                        detailPage.locator(".success, .sent, [class*='success'], [class*='sent']").count() > 0) {
+                        log.info("✅ 备用方案验证成功，投递完成: {}", job.getJobName());
+                        detailPage.close();
+                        return;
+                    } else {
+                        log.warn("⚠️ 备用方案执行但未验证投递成功，可能失败: {}", job.getJobName());
+                    }
+                } else {
+                    log.warn("备用方案执行失败: {}", job.getJobName());
+                }
+
+                log.warn("所有方案都失败，跳过投递: {}", job.getJobName());
             detailPage.close();
             return;
         }
