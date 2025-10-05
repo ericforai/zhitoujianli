@@ -109,12 +109,6 @@ const Navigation = () => {
                 智能打招呼
               </a>
               <a
-                href='#pricing'
-                className='text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors'
-              >
-                价格
-              </a>
-              <a
                 href='/blog/'
                 className='text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors'
               >
@@ -205,12 +199,6 @@ const Navigation = () => {
                 className='text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium'
               >
                 智能打招呼
-              </a>
-              <a
-                href='#pricing'
-                className='text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium'
-              >
-                价格
               </a>
               <a
                 href='/blog/'

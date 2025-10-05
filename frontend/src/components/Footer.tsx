@@ -44,14 +44,6 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href='#pricing'
-                  className='text-gray-400 hover:text-white transition-colors'
-                >
-                  价格
-                </a>
-              </li>
-              <li>
-                <a
                   href='#contact'
                   className='text-gray-400 hover:text-white transition-colors'
                 >

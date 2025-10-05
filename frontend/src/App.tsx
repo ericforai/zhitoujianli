@@ -8,7 +8,6 @@ import Footer from './components/Footer';
 import HeroSection from './components/HeroSection';
 import Login from './components/Login';
 import Navigation from './components/Navigation';
-import Pricing from './components/Pricing';
 import Register from './components/Register';
 import ResumeDelivery from './components/ResumeDelivery';
 import SmartGreeting from './components/SmartGreeting';
@@ -24,7 +23,6 @@ const HomePage: React.FC = () => {
       <Demo />
       <SmartGreeting />
       <BlogSection />
-      <Pricing />
       <Contact />
       <Footer />
     </div>

@@ -60,4 +60,10 @@ public class Locators {
     public static final String PAGE_HEADER = "//h1";
     public static final String ERROR_PAGE_LOGIN = "//a[@ka='403_login']";
 
+    // 登录弹窗相关元素
+    public static final String LOGIN_DIALOG_MASK = ".boss-login-dialog-mask";
+    public static final String LOGIN_DIALOG = ".boss-login-dialog";
+    public static final String LOGIN_DIALOG_CLOSE = ".boss-login-dialog .icon-close, .boss-login-dialog .close-btn, .boss-login-dialog [class*='close']";
+    public static final String LOGIN_CANCEL_BTN = ".boss-login-dialog .cancel-btn, .boss-login-dialog [class*='cancel']";
+
 }
