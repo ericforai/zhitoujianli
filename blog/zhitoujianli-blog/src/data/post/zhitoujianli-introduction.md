@@ -4,7 +4,7 @@ description: 智投简历是一款基于AI技术的智能简历投递平台，�
 excerpt: 智投简历是一款革命性的AI求职平台，通过智能匹配、简历优化、个性化投递等功能，帮助求职者更精准、更高效地找到心仪工作。让AI为你的求职之路助力！
 pubDate: 2024-01-15
 author: 智投简历团队
-image: ~/assets/images/ai-platform-hero.svg
+image: ~/assets/images/ai-platform-hero.png
 tags: ["产品介绍", "AI技术", "求职工具", "智能简历", "人工智能", "简历平台", "求职网站", "AI招聘", "智能投递"]
 category: "产品动态"
 keywords: "智投简历,AI求职平台,智能简历投递,求职工具,AI求职,智能匹配,简历优化,求职助手,职业发展,求职技巧"
