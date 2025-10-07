@@ -3,7 +3,7 @@ title: AI简历写作指南 - 如何利用人工智能优化简历
 description: 详细介绍如何运用AI技术提升简历质量，包括关键词优化、格式美化、内容个性化等实用技巧，助你打造高质量简历。
 pubDate: 2024-10-02
 author: 智投简历团队
-image: ~/assets/images/ai-platform-hero.svg
+image: ~/assets/images/ai-platform-hero.png
 tags: ["AI技术", "简历优化", "求职技巧", "人工智能", "简历写作"]
 category: "技术深度"
 ---

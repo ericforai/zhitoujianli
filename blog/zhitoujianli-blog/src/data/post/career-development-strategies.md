@@ -3,7 +3,7 @@ title: 职业发展规划策略 - 如何制定有效的职业发展路径
 description: 全面解析职业发展规划的关键策略，包括职业定位、技能发展、目标设定等，帮助职场人士制定科学的职业发展路径，实现职业目标。
 pubDate: 2024-10-02
 author: 智投简历团队
-image: ~/assets/images/interview-preparation-hero.svg
+image: ~/assets/images/interview-preparation-hero.png
 tags: ["职业规划", "职场发展", "职业策略", "个人成长", "企业管理", "技能提升"]
 category: "求职指南"
 ---

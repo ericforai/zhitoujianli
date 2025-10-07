@@ -185,7 +185,12 @@ public class AdminController {
      * 初始化超级管理员（仅用于系统初始化）
      */
     @PostMapping("/init-super-admin")
+<<<<<<< HEAD:backend/get_jobs/src/main/java/controller/AdminController.java.bak
     public ResponseEntity<Map<String, Object>> initSuperAdmin(@RequestBody InitSuperAdminRequest request, HttpServletRequest httpRequest) {
+=======
+    public ResponseEntity<Map<String, Object>> initSuperAdmin(@RequestBody InitSuperAdminRequest request, 
+                                                                jakarta.servlet.http.HttpServletRequest httpRequest) {
+>>>>>>> a4b2da2 (fix: 修复后端编译错误并确保前后端成功启动):backend/get_jobs/src/main/java/controller/AdminController.java
         try {
             log.info("🚀 初始化超级管理员: userId={}", request.getUserId());
             
