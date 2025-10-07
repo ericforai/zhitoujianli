@@ -19,7 +19,7 @@ const API_BASE_URL = 'http://115.190.182.95:8080/api';
  */
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 60000, // 增加到60秒，适应简历解析等耗时操作
   headers: {
     'Content-Type': 'application/json',
   },
