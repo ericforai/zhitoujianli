@@ -1,10 +1,17 @@
+<<<<<<< HEAD
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { authService } from '../services/authService';
+=======
+import React, { useState } from 'react';
+// 移除认证服务导入
+// import { authService } from '../services/authService';
+>>>>>>> 61e6974 (✨ 修复博客图片显示问题 - 使用hero-image.png替代default.png)
 
 const Navigation = () => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+<<<<<<< HEAD
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
 
@@ -44,6 +51,8 @@ const Navigation = () => {
   //     window.location.href = '/login';
   //   }
   // };
+=======
+>>>>>>> 61e6974 (✨ 修复博客图片显示问题 - 使用hero-image.png替代default.png)
 
   return (
     <nav className='bg-white shadow-sm fixed w-full top-0 z-50'>
@@ -123,6 +132,7 @@ const Navigation = () => {
             </div>
           </div>
 
+<<<<<<< HEAD
           {/* CTA Buttons */}
           <div className='hidden md:flex items-center space-x-3'>
             {isLoggedIn ? (
@@ -154,6 +164,17 @@ const Navigation = () => {
               </>
             )}
           </div>
+=======
+                 {/* CTA Buttons - 移除登录注册 */}
+                 <div className="hidden md:flex items-center space-x-3">
+                   <a href="/dashboard" className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                     后台管理
+                   </a>
+                   <a href="#contact" className="bg-gradient-primary text-white px-6 py-2 rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                     立即体验
+                   </a>
+                 </div>
+>>>>>>> 61e6974 (✨ 修复博客图片显示问题 - 使用hero-image.png替代default.png)
 
           {/* Mobile menu button */}
           <div className='md:hidden'>
@@ -212,6 +233,7 @@ const Navigation = () => {
               >
                 联系我们
               </a>
+<<<<<<< HEAD
 
               {/* 移动端登录按钮 */}
               {isLoggedIn ? (
@@ -242,6 +264,13 @@ const Navigation = () => {
                   </a>
                 </>
               )}
+=======
+              
+              {/* 移动端按钮 - 移除登录注册 */}
+              <a href="/dashboard" className="w-full bg-indigo-600 text-white px-6 py-2 rounded-lg mt-2 text-center block hover:bg-indigo-700">
+                后台管理
+              </a>
+>>>>>>> 61e6974 (✨ 修复博客图片显示问题 - 使用hero-image.png替代default.png)
             </div>
           </div>
         )}

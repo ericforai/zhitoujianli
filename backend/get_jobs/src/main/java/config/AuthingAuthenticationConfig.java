@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
  * @since 2025-10-01
  */
 @Slf4j
-@Configuration
+// @Configuration  // 禁用认证配置
 public class AuthingAuthenticationConfig {
 
     @Autowired

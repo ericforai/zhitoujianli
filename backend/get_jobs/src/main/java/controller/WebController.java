@@ -41,7 +41,8 @@ public class WebController {
     @GetMapping("/")
     public String index(Model model, HttpServletRequest request, HttpServletResponse response) {
         try {
-            // 检查用户是否已登录
+            // 移除登录检查 - 无需认证即可访问
+            /* 
             if (!UserContextUtil.isAuthenticated()) {
                 log.warn("未登录用户试图访问后台管理页面，重定向到登录页面");
 
@@ -67,12 +68,22 @@ public class WebController {
                     return "redirect:" + request.getScheme() + "://" + request.getServerName() + (request.getServerPort() != 80 && request.getServerPort() != 443 ? ":" + request.getServerPort() : "") + "/login";
                 }
             }
+<<<<<<< HEAD
 
             // 已登录用户，显示后台管理页面
             String userId = UserContextUtil.getCurrentUserId();
             String userEmail = UserContextUtil.getCurrentUserEmail();
             log.info("已登录用户访问后台管理: userId={}, email={}", userId, userEmail);
 
+=======
+            */
+            
+            // 无需登录，直接显示后台管理页面
+            String userId = "anonymous";
+            String userEmail = "anonymous@example.com";
+            log.info("访客访问后台管理: userId={}, email={}", userId, userEmail);
+            
+>>>>>>> 61e6974 (✨ 修复博客图片显示问题 - 使用hero-image.png替代default.png)
             // 加载当前配置
             Map<String, Object> config = loadConfig();
             model.addAttribute("config", config);

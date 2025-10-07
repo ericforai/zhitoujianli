@@ -35,7 +35,7 @@ import java.util.Map;
  * @since 2025-10-01
  */
 @Slf4j
-@Component
+// @Component  // 禁用JWT过滤器
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final AuthingConfig authingConfig;

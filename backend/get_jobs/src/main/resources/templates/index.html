@@ -74,11 +74,6 @@
             <div class="col-md-3 bg-light p-3">
                 <h4 class="mb-4">
                     <i class="bi bi-robot"></i> AI找工作助手
-                    <div class="float-end">
-                        <button class="btn btn-outline-secondary btn-sm" onclick="logout()">
-                            <i class="bi bi-box-arrow-right"></i> 退出登录
-                        </button>
-                    </div>
                 </h4>
                 
                 <!-- 程序状态 -->
@@ -630,45 +625,16 @@
             console.log('关键词:', keywords);
         });
 
-        // 检查登录状态
+        // 检查登录状态 - 已禁用认证，直接返回true
         async function checkAuth() {
-            // 首先检查是否启用了安全认证
-            try {
-                const response = await fetch('/api/auth/security-status');
-                const securityStatus = await response.json();
-                
-                if (!securityStatus.enabled) {
-                    console.log('安全认证已禁用，跳过token检查');
-                    return true;
-                }
-            } catch (error) {
-                console.log('无法获取安全状态，默认进行认证检查');
-            }
-            
-            const token = localStorage.getItem('authToken');
-            if (!token) {
-                console.log('未找到认证token，重定向到登录页面');
-                // 检查当前是否在前端域名，如果是则跳转到后端登录页面
-                if (window.location.hostname === 'localhost' && window.location.port === '3000') {
-                    window.location.href = 'http://localhost:8080/login';
-                } else {
-                    window.location.href = '/login';
-                }
-                return false;
-            }
-            console.log('找到认证token，继续加载页面');
+            console.log('认证已禁用，允许所有访问');
             return true;
         }
 
-        // 退出登录
+        // 退出登录 - 已禁用
         function logout() {
-            localStorage.removeItem('authToken');
-            // 检查当前是否在前端域名，如果是则跳转到后端登录页面
-            if (window.location.hostname === 'localhost' && window.location.port === '3000') {
-                window.location.href = 'http://localhost:8080/login';
-            } else {
-                window.location.href = '/login';
-            }
+            console.log('登录功能已禁用');
+            // 不执行任何操作
         }
 
         // 页面加载完成后初始化

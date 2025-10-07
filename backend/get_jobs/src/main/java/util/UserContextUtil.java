@@ -17,41 +17,17 @@ import java.util.Map;
 public class UserContextUtil {
 
     /**
-     * 获取当前登录用户ID
+     * 获取当前登录用户ID - 已禁用认证，返回默认用户
      */
     public static String getCurrentUserId() {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null && authentication.getPrincipal() instanceof Map) {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> userInfo = (Map<String, Object>) authentication.getPrincipal();
-                String userId = (String) userInfo.get("userId");
-                log.debug("获取当前用户ID: {}", userId);
-                return userId;
-            }
-        } catch (Exception e) {
-            log.warn("获取当前用户ID失败: {}", e.getMessage());
-        }
-        return null;
+        return "anonymous";
     }
 
     /**
-     * 获取当前登录用户邮箱
+     * 获取当前用户邮箱 - 已禁用认证，返回默认邮箱
      */
     public static String getCurrentUserEmail() {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null && authentication.getPrincipal() instanceof Map) {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> userInfo = (Map<String, Object>) authentication.getPrincipal();
-                String email = (String) userInfo.get("email");
-                log.debug("获取当前用户邮箱: {}", email);
-                return email;
-            }
-        } catch (Exception e) {
-            log.warn("获取当前用户邮箱失败: {}", e.getMessage());
-        }
-        return null;
+        return "anonymous@example.com";
     }
 
     /**
@@ -96,26 +72,17 @@ public class UserContextUtil {
     }
 
     /**
-     * 检查是否有当前登录用户
+     * 检查是否有当前登录用户 - 已禁用认证，总是返回true
      */
     public static boolean hasCurrentUser() {
-        return getCurrentUserId() != null;
+        return true;
     }
     
     /**
-     * 检查当前用户是否已认证
+     * 检查当前用户是否已认证 - 已禁用认证，总是返回true
      */
     public static boolean isAuthenticated() {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            return authentication != null && 
-                   authentication.isAuthenticated() && 
-                   authentication.getPrincipal() instanceof Map &&
-                   getCurrentUserId() != null;
-        } catch (Exception e) {
-            log.warn("检查认证状态失败: {}", e.getMessage());
-            return false;
-        }
+        return true;
     }
 
     /**
