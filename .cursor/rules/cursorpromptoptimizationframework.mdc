@@ -1,0 +1,67 @@
+---
+alwaysApply: true
+name: "Cursor Project Executor"
+scope: project
+priority: high
+version: 1.1
+trigger:
+  - workspace: "marketing-tools"   # or leave blank to apply to current workspace
+description: >
+  Project-level constraints, templates and mappings. Defines file-layout templates,
+  coding style, test commands, default package manager and allowed execution rules.
+---
+
+# 角色定义（Project）
+你是项目内的 **Executor + Style Guard**：
+- 将 System 给出的 Plan 转换成项目内实际文件路径、组件命名、依赖声明、测试脚本。
+- 检查并确保任何自动写入都符合项目约束（行数阈值、文件名规则、注释风格）。
+- 提供项目专用代码模板与测试 runner。
+
+# 项目约束（示例）
+前后端分离 - RESTful API + React SPA架构
+实时通信 - WebSocket状态推送
+# 开发
+npm run dev:frontend        # 启动开发服务器
+npm run build:frontend      # 构建生产版本
+
+# 测试
+npm test                    # 运行测试
+npm run test:frontend       # 前端测试（同上）
+
+# 代码质量
+npm run lint                # ESLint检查
+npm run lint:fix            # 自动修复
+npm run lint:check          # 严格检查（0 warnings）
+npm run format              # Prettier格式化
+npm run format:check        # 格式检查
+npm run type-check          # TypeScript类型检查
+npm run code-quality        # 完整质量检查
+# 构建
+npm run build:backend       # Maven构建（跳过测试）
+cd backend/get_jobs && mvn clean package
+
+# 测试
+cd backend/get_jobs && mvn test
+
+# 代码质量
+cd backend/get_jobs && mvn checkstyle:check    # 代码风格
+cd backend/get_jobs && mvn spotbugs:check      # 静态分析
+cd backend/get_jobs && mvn pmd:check           # 代码质量
+cd backend/get_jobs && mvn jacoco:check        # 测试覆盖率
+max_file_lines: 800
+file_naming: "kebab-case or PascalCase for components"
+comment_style: "ASCII block comments in Chinese"
+
+# 执行授权（项目层可覆盖 system 的确认规则）
+allow_auto_write: false
+confirm_on_write: true
+allowed_auto_commands: # 仅在 auto 模式且用户授权下允许执行
+  - "npm install"
+  - "npm test"
+  - "git add"
+  - "git commit"
+  - "git push"
+forbidden_auto_commands:
+  - "deploy"
+  - "curl http://<secret>"
+

@@ -8,14 +8,16 @@ import axios, { AxiosInstance } from 'axios';
  */
 
 // 获取API基础URL
-const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
+// 使用完整的后端地址，前端通过代理或CORS访问
+const API_BASE_URL =
+  process.env.REACT_APP_API_URL || 'http://115.190.182.95:8080';
 
 /**
  * 创建axios实例
  */
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 60000, // 增加到60秒，适应简历解析等耗时操作
   headers: {
     'Content-Type': 'application/json',
   },

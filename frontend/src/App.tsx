@@ -1,6 +1,7 @@
 import React from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import BlogSection from './components/BlogSection';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import Contact from './components/Contact';
 import Demo from './components/Demo';
 import Features from './components/Features';
@@ -61,16 +62,18 @@ const DashboardEntry: React.FC = () => {
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path='/' element={<HomePage />} />
-        <Route path='/login' element={<Login />} />
-        <Route path='/register' element={<Register />} />
-        <Route path='/resume-delivery' element={<ResumeDelivery />} />
-        <Route path='/dashboard' element={<DashboardEntry />} />
-        <Route path='/test-login' element={<TestLogin />} />
-      </Routes>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <Routes>
+          <Route path='/' element={<HomePage />} />
+          <Route path='/login' element={<Login />} />
+          <Route path='/register' element={<Register />} />
+          <Route path='/resume-delivery' element={<ResumeDelivery />} />
+          <Route path='/dashboard' element={<DashboardEntry />} />
+          <Route path='/test-login' element={<TestLogin />} />
+        </Routes>
+      </Router>
+    </ErrorBoundary>
   );
 }
 
