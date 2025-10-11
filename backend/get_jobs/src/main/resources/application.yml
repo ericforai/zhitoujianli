@@ -35,28 +35,19 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        # 启用二级缓存
+        # 缓存配置
         cache:
           use_second_level_cache: false
+          use_query_cache: false
         # 批处理大小
         jdbc:
           batch_size: 20
-        # 启用查询缓存
-        cache:
-          use_query_cache: false
 
 # 安全认证开关
 # false: 禁用认证（测试用）
 # true: 启用认证（生产环境）
 security:
   enabled: ${SECURITY_ENABLED:true}
-
-# Authing身份认证配置
-authing:
-  userPoolId: ${AUTHING_USER_POOL_ID:}
-  appId: ${AUTHING_APP_ID:}
-  appSecret: ${AUTHING_APP_SECRET:}
-  appHost: ${AUTHING_APP_HOST:https://your-domain.authing.cn}
 
 # JWT配置
 jwt:
@@ -99,7 +90,7 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
   file:
     name: logs/zhitoujianli.log
     max-size: 100MB
