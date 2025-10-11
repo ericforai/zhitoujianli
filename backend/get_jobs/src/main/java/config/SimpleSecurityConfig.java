@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -11,24 +13,15 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SimpleSecurityConfig {
 
     @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(request -> {
-                var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                corsConfig.setAllowedOriginPatterns(java.util.Arrays.asList(
-                    "https://zhitoujianli.com",
-                    "https://www.zhitoujianli.com", 
-                    "https://*.zhitoujianli.com",
-                    "https://*.edgeone.app",
-                    "http://localhost:*"
-                ));
-                corsConfig.setAllowedMethods(java.util.Arrays.asList("*"));
-                corsConfig.setAllowedHeaders(java.util.Arrays.asList("*"));
-                corsConfig.setAllowCredentials(true);
-                corsConfig.setMaxAge(3600L);
-                return corsConfig;
-            }))
+            .cors(cors -> cors.disable())
             .authorizeHttpRequests(authz -> authz
                 .anyRequest().permitAll()
             );

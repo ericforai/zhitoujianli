@@ -25,6 +25,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     /**
      * 根据邮箱查找用户（包括已删除）
      */
+    @Query("SELECT u FROM User u WHERE u.email = :email")
     Optional<User> findByEmailIncludingDeleted(String email);
 
     /**

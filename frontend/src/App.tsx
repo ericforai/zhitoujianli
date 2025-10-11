@@ -10,13 +10,14 @@ import Footer from './components/Footer';
 import HeroSection from './components/HeroSection';
 import Login from './components/Login';
 import Navigation from './components/Navigation';
+import PrivateRoute from './components/PrivateRoute';
 import Register from './components/Register';
 import ResumeDelivery from './components/ResumeDelivery';
 import StandaloneApiTest from './components/StandaloneApiTest';
 import TestLogin from './components/TestLogin';
 import ErrorBoundary from './components/common/ErrorBoundary';
-import PrivateRoute from './components/PrivateRoute';
 import { AuthProvider } from './contexts/AuthContext';
+import Dashboard from './pages/Dashboard';
 
 // 主页组件
 const HomePage: React.FC = () => {
@@ -33,38 +34,7 @@ const HomePage: React.FC = () => {
   );
 };
 
-// 后台管理入口组件 - 无需登录直接访问
-const DashboardEntry: React.FC = () => {
-  React.useEffect(() => {
-<<<<<<< HEAD
-    // 获取Token并跳转到后台管理
-    const token = localStorage.getItem('token');
-    if (token) {
-      // 在新窗口打开后台管理，并通过URL传递token
-      const url = `/?token=${encodeURIComponent(token)}`;
-      window.open(url, '_blank');
-      // 跳转回首页
-      window.location.href = '/';
-    } else {
-      // 未登录，跳转到登录页
-      // 动态检测环境并跳转
-      if (window.location.hostname === 'localhost') {
-        window.location.href = '/login';
-      } else {
-        window.location.href = '/login';
-      }
-    }
-  }, []);
-
-  return (
-    <div className='min-h-screen flex items-center justify-center'>
-      <div className='text-center'>
-        <div className='animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto'></div>
-        <p className='mt-4 text-gray-600'>正在跳转到后台管理...</p>
-      </div>
-    </div>
-  );
-};
+// Dashboard入口组件已移除，直接使用Dashboard页面
 
 /**
  * 应用主组件 - 增强版
@@ -106,7 +76,7 @@ function App() {
               path='/dashboard'
               element={
                 <PrivateRoute>
-                  <DashboardEntry />
+                  <Dashboard />
                 </PrivateRoute>
               }
             />
