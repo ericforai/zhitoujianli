@@ -1,6 +1,49 @@
 spring:
   application:
     name: zhitoujianli-backend
+  # PostgreSQL数据库配置（生产版本）
+  datasource:
+    url: jdbc:postgresql://localhost:5432/zhitoujianli
+    driverClassName: org.postgresql.Driver
+    username: zhitoujianli
+    password: zhitoujianli123
+    # HikariCP连接池配置（性能最优）
+    hikari:
+      # 连接池中允许的最小连接数
+      minimum-idle: 5
+      # 连接池中允许的最大连接数
+      maximum-pool-size: 20
+      # 连接超时时间（毫秒）
+      connection-timeout: 30000
+      # 最大生命周期（毫秒，30分钟）
+      max-lifetime: 1800000
+      # 空闲超时时间（毫秒，10分钟）
+      idle-timeout: 600000
+      # 连接测试查询
+      connection-test-query: SELECT 1
+      # 连接池名称
+      pool-name: ZhiTouJianLi-HikariCP
+      # 是否自动提交
+      auto-commit: true
+      # 连接泄漏检测阈值（毫秒，0表示禁用）
+      leak-detection-threshold: 60000
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        # 启用二级缓存
+        cache:
+          use_second_level_cache: false
+        # 批处理大小
+        jdbc:
+          batch_size: 20
+        # 启用查询缓存
+        cache:
+          use_query_cache: false
 
 # 安全认证开关
 # false: 禁用认证（测试用）
@@ -37,8 +80,14 @@ alipay:
 
 # 服务器配置
 server:
-  port: ${SERVER_PORT:8081}
-  
+  port: ${SERVER_PORT:8080}
+  # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+      file-size-threshold: 2KB
+
 # 日志配置
 logging:
   level:
@@ -46,5 +95,28 @@ logging:
     controller: DEBUG
     security: DEBUG
     config: DEBUG
+    com.zaxxer.hikari: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/zhitoujianli.log
+    max-size: 100MB
+    max-history: 30
+
+# Spring Boot Actuator监控配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,hikaricp
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    enable:
+      hikaricp: true
+    export:
+      prometheus:
+        enabled: true

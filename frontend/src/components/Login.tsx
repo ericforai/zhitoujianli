@@ -11,15 +11,27 @@
  * @since 2025-09-30
  */
 
+/**
+ * 登录页面组件 - 增强版
+ *
+ * 🔧 修复：使用AuthContext统一管理认证
+ * - 使用useAuth Hook获取login方法
+ * - 移除手动跳转逻辑，由AuthContext处理
+ * - 保留UI和验证逻辑
+ */
+
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { authService } from '../services/authService';
+import logger from '../utils/logger';
 import './Login.css';
+
+const loginLogger = logger.createChild('Login');
 
 type LoginMode = 'email' | 'phone';
 
 const Login: React.FC = () => {
-  const navigate = useNavigate();
+  const { login: authLogin, loginByPhone: authLoginByPhone } = useAuth();
   const [mode, setMode] = useState<LoginMode>('email');
 
   // 邮箱登录状态
@@ -49,7 +61,7 @@ const Login: React.FC = () => {
 
   /**
    * 邮箱密码登录
-   * 支持两种认证方式：后端API和Authing SDK
+   * 🔧 修复：使用AuthContext的login方法，跳转由Context处理
    */
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,46 +69,19 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      console.log('🔍 开始邮箱登录请求...');
-      console.log('🔧 使用认证方式: 后端API');
+      loginLogger.info('开始邮箱登录', { email });
 
-      // 固定使用后端API进行登录
-      const result = await authService.loginByEmail(email, password);
+      // 使用AuthContext的login方法
+      // 登录成功后会自动跳转，由AuthContext处理
+      await authLogin(email, password);
 
-      console.log('📥 登录响应结果:', result);
-
-      if (result.success) {
-        setSuccess('登录成功！正在跳转...');
-        console.log('🔍 邮箱登录成功，准备跳转...');
-        console.log('📍 当前域名:', window.location.hostname);
-        console.log('📍 当前端口:', window.location.port);
-        console.log('📍 当前完整URL:', window.location.href);
-        console.log('🎯 目标跳转地址: /');
-        console.log('⏰ 1秒后执行跳转...');
-
-        // 设置跨域Cookie以便后台管理能够读取Token
-        if (result.token) {
-          const tokenKey = 'authToken';
-          // 设置Cookie到当前域
-          document.cookie = `${tokenKey}=${result.token}; path=/; domain=115.190.182.95; secure=false; SameSite=Lax`;
-          console.log(
-            '🍪 已设置Token Cookie:',
-            result.token.substring(0, 20) + '...'
-          );
-        }
-
-        setTimeout(() => {
-          // 跳转到项目内的简历投递页面
-          navigate('/resume-delivery');
-        }, 1000);
-      } else {
-        console.log('❌ 登录失败:', result.message);
-        setError(result.message || '登录失败，请检查邮箱和密码');
-      }
+      setSuccess('登录成功！正在跳转...');
+      loginLogger.info('邮箱登录成功');
     } catch (err: any) {
-      console.log('❌ 登录请求异常:', err);
-      console.log('❌ 错误详情:', err.response?.data);
-      setError(err.response?.data?.message || '登录失败，请稍后重试');
+      loginLogger.error('登录失败', err);
+      const errorMessage =
+        err.response?.data?.message || err.message || '登录失败，请稍后重试';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -132,6 +117,7 @@ const Login: React.FC = () => {
 
   /**
    * 手机号验证码登录
+   * 🔧 修复：使用AuthContext的loginByPhone方法
    */
   const handlePhoneLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,34 +125,19 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      const result = await authService.loginByPhone(phone, code);
+      loginLogger.info('开始手机号登录', { phone });
 
-      if (result.success) {
-        setSuccess('登录成功！正在跳转...');
-        console.log('🔍 手机号登录成功，准备跳转...');
-        console.log('📍 当前域名:', window.location.hostname);
-        console.log('📍 当前端口:', window.location.port);
-        console.log('🎯 目标跳转地址: /');
+      // 使用AuthContext的loginByPhone方法
+      // 登录成功后会自动跳转，由AuthContext处理
+      await authLoginByPhone(phone, code);
 
-        // 设置跨域Cookie以便后台管理能够读取Token
-        if (result.token) {
-          // 设置Cookie到当前域
-          document.cookie = `authToken=${result.token}; path=/; domain=115.190.182.95; secure=false; SameSite=Lax`;
-          console.log(
-            '🍪 已设置authToken Cookie:',
-            result.token.substring(0, 20) + '...'
-          );
-        }
-
-        setTimeout(() => {
-          // 跳转到项目内的简历投递页面
-          navigate('/resume-delivery');
-        }, 1000);
-      } else {
-        setError(result.message || '登录失败，请检查验证码');
-      }
+      setSuccess('登录成功！正在跳转...');
+      loginLogger.info('手机号登录成功');
     } catch (err: any) {
-      setError(err.response?.data?.message || '登录失败，请稍后重试');
+      loginLogger.error('登录失败', err);
+      const errorMessage =
+        err.response?.data?.message || err.message || '登录失败，请稍后重试';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
