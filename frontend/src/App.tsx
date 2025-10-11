@@ -1,25 +1,22 @@
 import React from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import ApiTestPage from './components/ApiTestPage';
 import BlogSection from './components/BlogSection';
-import ErrorBoundary from './components/common/ErrorBoundary';
 import Contact from './components/Contact';
 import Demo from './components/Demo';
+import DirectResumeEntry from './components/DirectResumeEntry';
 import Features from './components/Features';
 import Footer from './components/Footer';
-<<<<<<< HEAD
 import HeroSection from './components/HeroSection';
 import Login from './components/Login';
 import Navigation from './components/Navigation';
 import Register from './components/Register';
 import ResumeDelivery from './components/ResumeDelivery';
+import StandaloneApiTest from './components/StandaloneApiTest';
 import TestLogin from './components/TestLogin';
-=======
-import Navigation from './components/Navigation';
-// 移除登录注册相关导入
-// import Login from './components/Login';
-// import Register from './components/Register';
-// import PrivateRoute from './components/PrivateRoute';
->>>>>>> 61e6974 (✨ 修复博客图片显示问题 - 使用hero-image.png替代default.png)
+import ErrorBoundary from './components/common/ErrorBoundary';
+import PrivateRoute from './components/PrivateRoute';
+import { AuthProvider } from './contexts/AuthContext';
 
 // 主页组件
 const HomePage: React.FC = () => {
@@ -64,51 +61,64 @@ const DashboardEntry: React.FC = () => {
       <div className='text-center'>
         <div className='animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto'></div>
         <p className='mt-4 text-gray-600'>正在跳转到后台管理...</p>
-=======
-    // 直接跳转到后台管理（不需要token验证）
-    const url = 'http://localhost:8080';
-    window.open(url, '_blank');
-    // 跳转回首页
-    window.location.href = '/';
-  }, []);
-
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">正在打开后台管理...</p>
->>>>>>> 61e6974 (✨ 修复博客图片显示问题 - 使用hero-image.png替代default.png)
       </div>
     </div>
   );
 };
 
+/**
+ * 应用主组件 - 增强版
+ *
+ * 🔧 修复：使用AuthProvider统一管理认证状态
+ * - 在Router内部使用AuthProvider（需要访问useNavigate）
+ * - 为需要保护的路由添加PrivateRoute
+ * - 保持ErrorBoundary在最外层
+ */
 function App() {
   return (
-<<<<<<< HEAD
     <ErrorBoundary>
       <Router>
-        <Routes>
-          <Route path='/' element={<HomePage />} />
-          <Route path='/login' element={<Login />} />
-          <Route path='/register' element={<Register />} />
-          <Route path='/resume-delivery' element={<ResumeDelivery />} />
-          <Route path='/dashboard' element={<DashboardEntry />} />
-          <Route path='/test-login' element={<TestLogin />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            {/* 公开路由 */}
+            <Route path='/' element={<HomePage />} />
+            <Route path='/login' element={<Login />} />
+            <Route path='/register' element={<Register />} />
+
+            {/* 受保护的路由 - 需要登录 */}
+            <Route
+              path='/resume-delivery'
+              element={
+                <PrivateRoute>
+                  <ResumeDelivery />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path='/resume'
+              element={
+                <PrivateRoute>
+                  <DirectResumeEntry />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path='/dashboard'
+              element={
+                <PrivateRoute>
+                  <DashboardEntry />
+                </PrivateRoute>
+              }
+            />
+
+            {/* 测试路由 - 开发环境使用 */}
+            <Route path='/api-test' element={<ApiTestPage />} />
+            <Route path='/standalone-test' element={<StandaloneApiTest />} />
+            <Route path='/test-login' element={<TestLogin />} />
+          </Routes>
+        </AuthProvider>
       </Router>
     </ErrorBoundary>
-=======
-    <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        {/* 移除登录注册路由 */}
-        {/* <Route path="/login" element={<Login />} /> */}
-        {/* <Route path="/register" element={<Register />} /> */}
-        <Route path="/dashboard" element={<DashboardEntry />} />
-      </Routes>
-    </Router>
->>>>>>> 61e6974 (✨ 修复博客图片显示问题 - 使用hero-image.png替代default.png)
   );
 }
 
