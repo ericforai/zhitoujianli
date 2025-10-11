@@ -1,11 +1,24 @@
 import axios from 'axios';
+import config from '../config/environment';
 
 /**
  * Boss直聘投递功能服务
  *
  * @author ZhiTouJianLi Team
  * @since 2025-09-30
+ * @updated 2025-10-11 - 使用统一配置管理
  */
+
+/**
+ * 创建Boss服务专用的axios实例
+ */
+const bossApiClient = axios.create({
+  baseURL: config.apiBaseUrl.replace('/api', ''), // Boss服务不在 /api 路径下
+  timeout: config.requestTimeout,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 export interface BossStatus {
   isRunning: boolean;
@@ -34,9 +47,8 @@ export const bossService = {
    */
   startBossTask: async (): Promise<BossTaskResponse> => {
     try {
-      const response = await axios.post<BossTaskResponse>(
-        'http://115.190.182.95:8080/start-boss-task'
-      );
+      const response =
+        await bossApiClient.post<BossTaskResponse>('/start-boss-task');
       return response.data;
     } catch (error: any) {
       console.error('启动Boss任务失败:', error);
@@ -49,9 +61,8 @@ export const bossService = {
    */
   stopBossTask: async (): Promise<BossTaskResponse> => {
     try {
-      const response = await axios.post<BossTaskResponse>(
-        'http://115.190.182.95:8080/stop-program'
-      );
+      const response =
+        await bossApiClient.post<BossTaskResponse>('/stop-program');
       return response.data;
     } catch (error: any) {
       console.error('停止Boss任务失败:', error);
@@ -64,9 +75,7 @@ export const bossService = {
    */
   getBossStatus: async (): Promise<BossStatus> => {
     try {
-      const response = await axios.get<BossStatus>(
-        'http://115.190.182.95:8080/status'
-      );
+      const response = await bossApiClient.get<BossStatus>('/status');
       return response.data;
     } catch (error: any) {
       console.error('获取Boss状态失败:', error);
@@ -79,8 +88,8 @@ export const bossService = {
    */
   getBossLogs: async (lines: number = 50): Promise<LogsResponse> => {
     try {
-      const response = await axios.get<LogsResponse>(
-        `http://115.190.182.95:8080/logs?lines=${lines}`
+      const response = await bossApiClient.get<LogsResponse>(
+        `/logs?lines=${lines}`
       );
       return response.data;
     } catch (error: any) {
@@ -94,7 +103,7 @@ export const bossService = {
    */
   getUserConfig: async (): Promise<any> => {
     try {
-      const response = await axios.get('http://115.190.182.95:8080/api/config');
+      const response = await bossApiClient.get('/api/config');
       return response.data;
     } catch (error: any) {
       console.error('获取用户配置失败:', error);
@@ -105,12 +114,9 @@ export const bossService = {
   /**
    * 保存用户配置
    */
-  saveUserConfig: async (config: any): Promise<any> => {
+  saveUserConfig: async (configData: any): Promise<any> => {
     try {
-      const response = await axios.post(
-        'http://115.190.182.95:8080/save-config',
-        config
-      );
+      const response = await bossApiClient.post('/save-config', configData);
       return response.data;
     } catch (error: any) {
       console.error('保存用户配置失败:', error);

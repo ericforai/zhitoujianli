@@ -3,8 +3,10 @@
  *
  * @author ZhiTouJianLi Team
  * @since 2025-01-03
+ * @updated 2025-10-11 - 改进内存管理，删除重复Hook实现
  */
 
+import config from '../config/environment';
 import {
   DeliveryProgressMessage,
   DeliveryRecordMessage,
@@ -45,10 +47,8 @@ class WebSocketManager {
       this.isConnecting = true;
 
       try {
-        // 构建WebSocket URL
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const host = window.location.host;
-        const wsUrl = `${protocol}//${host}/ws`;
+        // 使用统一配置的WebSocket URL
+        const wsUrl = config.wsBaseUrl;
 
         this.ws = new WebSocket(wsUrl);
 
@@ -73,8 +73,11 @@ class WebSocketManager {
           this.isConnecting = false;
           this.ws = null;
 
-          // 自动重连
-          if (this.reconnectAttempts < this.maxReconnectAttempts) {
+          // 自动重连（仅在未手动断开的情况下）
+          if (
+            this.reconnectAttempts < this.maxReconnectAttempts &&
+            event.code !== 1000 // 1000 = 正常关闭
+          ) {
             this.reconnectAttempts++;
             console.log(
               `尝试重连WebSocket (${this.reconnectAttempts}/${this.maxReconnectAttempts})`
@@ -101,10 +104,18 @@ class WebSocketManager {
    * 断开WebSocket连接
    */
   disconnect(): void {
+    // 重置重连次数，防止自动重连
+    this.reconnectAttempts = this.maxReconnectAttempts;
+
+    // 清理所有事件处理器，防止内存泄漏
+    this.eventHandlers.clear();
+
     if (this.ws) {
-      this.ws.close();
+      this.ws.close(1000, 'Client disconnect'); // 正常关闭
       this.ws = null;
     }
+
+    console.log('🔌 WebSocket已断开并清理所有订阅');
   }
 
   /**
@@ -138,7 +149,27 @@ class WebSocketManager {
       if (index > -1) {
         handlers.splice(index, 1);
       }
+
+      // 如果该主题已无订阅者，删除整个主题
+      if (handlers.length === 0) {
+        this.eventHandlers.delete(topic);
+      }
     }
+  }
+
+  /**
+   * 取消指定主题的所有订阅
+   */
+  unsubscribeAll(topic: string): void {
+    this.eventHandlers.delete(topic);
+  }
+
+  /**
+   * 清除所有订阅
+   */
+  clearAllSubscriptions(): void {
+    this.eventHandlers.clear();
+    console.log('🧹 已清除所有WebSocket订阅');
   }
 
   /**
@@ -319,45 +350,11 @@ export const webSocketService = {
   isConnected: (): boolean => {
     return wsManager.getConnectionState() === 'open';
   },
+
+  /**
+   * 清除所有订阅
+   */
+  clearAllSubscriptions: (): void => {
+    wsManager.clearAllSubscriptions();
+  },
 };
-
-/**
- * WebSocket Hook - 用于React组件
- */
-export const useWebSocket = () => {
-  const [connectionState, setConnectionState] = React.useState<
-    'connecting' | 'open' | 'closing' | 'closed'
-  >('closed');
-
-  React.useEffect(() => {
-    const updateConnectionState = () => {
-      setConnectionState(webSocketService.getConnectionState());
-    };
-
-    // 初始连接
-    webSocketService
-      .connect()
-      .then(() => {
-        updateConnectionState();
-      })
-      .catch(console.error);
-
-    // 定期检查连接状态
-    const interval = setInterval(updateConnectionState, 1000);
-
-    return () => {
-      clearInterval(interval);
-      webSocketService.disconnect();
-    };
-  }, []);
-
-  return {
-    connectionState,
-    isConnected: connectionState === 'open',
-    connect: webSocketService.connect,
-    disconnect: webSocketService.disconnect,
-  };
-};
-
-// 导入React（如果使用Hook）
-import React from 'react';

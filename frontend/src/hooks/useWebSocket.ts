@@ -3,6 +3,7 @@
  *
  * @author ZhiTouJianLi Team
  * @since 2025-01-03
+ * @updated 2025-10-11 - 改进订阅管理，防止内存泄漏
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -257,9 +258,47 @@ export const useWebSocket = (): UseWebSocketReturn => {
     // 定期检查连接状态
     const interval = setInterval(updateConnectionState, 1000);
 
+    // 在 effect 内部复制 ref，供清理函数使用
+    const currentHandlersRef = handlersRef;
+
+    // 清理函数：组件卸载时清理所有订阅和连接
     return () => {
       clearInterval(interval);
+
+      // 清理所有在此Hook中注册的订阅
+      const allTopics = ['status', 'progress', 'record', 'error', 'success'];
+      allTopics.forEach(topic => {
+        const handlers = currentHandlersRef.current.get(topic);
+        if (handlers) {
+          handlers.forEach(handler => {
+            switch (topic) {
+              case 'status':
+                webSocketService.unsubscribeDeliveryStatus(handler);
+                break;
+              case 'progress':
+                webSocketService.unsubscribeDeliveryProgress(handler);
+                break;
+              case 'record':
+                webSocketService.unsubscribeDeliveryRecord(handler);
+                break;
+              case 'error':
+                webSocketService.unsubscribeError(handler);
+                break;
+              case 'success':
+                webSocketService.unsubscribeSuccess(handler);
+                break;
+            }
+          });
+        }
+      });
+
+      // 清空本地引用
+      currentHandlersRef.current.clear();
+
+      // 断开连接
       disconnect();
+
+      console.log('🧹 useWebSocket: 已清理所有订阅和连接');
     };
   }, [connect, disconnect, updateConnectionState]);
 

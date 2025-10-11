@@ -6,20 +6,133 @@
  *
  * @author ZhiTouJianLi Team
  * @since 2025-09-30
+ * @updated 2025-10-11 - 整合配置管理，改进安全策略
  */
 
 import axios, { AxiosInstance } from 'axios';
+import config, {
+  CONFIG_CONSTANTS,
+  getCookieDomain,
+  getLoginUrl,
+  isSecureContext,
+} from '../config/environment';
 
-// 直接使用完整的后端API地址
-// 这样可以避免代理配置问题，直接连接到后端服务器
-const API_BASE_URL = 'http://115.190.182.95:8080/api';
+/**
+ * Token管理类
+ */
+class TokenManager {
+  /**
+   * 安全地存储Token
+   */
+  static saveToken(token: string): void {
+    // 存储到localStorage
+    localStorage.setItem(CONFIG_CONSTANTS.TOKEN_KEY, token);
+    localStorage.setItem(CONFIG_CONSTANTS.AUTH_TOKEN_KEY, token);
+
+    // 设置安全Cookie
+    this.setSecureCookie(CONFIG_CONSTANTS.AUTH_TOKEN_KEY, token);
+  }
+
+  /**
+   * 设置安全的Cookie
+   */
+  private static setSecureCookie(name: string, value: string): void {
+    const domain = getCookieDomain();
+    const secure = isSecureContext();
+    const sameSite = secure ? 'Strict' : 'Lax';
+
+    // 构建Cookie属性
+    const cookieAttributes = [
+      `${name}=${value}`,
+      'path=/',
+      `domain=${domain}`,
+      `SameSite=${sameSite}`,
+      `max-age=${CONFIG_CONSTANTS.COOKIE_MAX_AGE}`,
+    ];
+
+    // 仅在HTTPS环境下添加Secure标记
+    if (secure) {
+      cookieAttributes.push('Secure');
+    } else if (config.isProduction) {
+      // 生产环境必须使用HTTPS
+      console.warn('⚠️  生产环境应使用HTTPS以确保Cookie安全');
+    }
+
+    document.cookie = cookieAttributes.join('; ');
+
+    console.log(
+      `🍪 已设置${secure ? '安全' : ''}Cookie: ${name}, domain: ${domain}`
+    );
+  }
+
+  /**
+   * 获取Token
+   */
+  static getToken(): string | null {
+    return localStorage.getItem(CONFIG_CONSTANTS.TOKEN_KEY);
+  }
+
+  /**
+   * 清除所有Token
+   */
+  static clearTokens(): void {
+    // 清除localStorage
+    localStorage.removeItem(CONFIG_CONSTANTS.TOKEN_KEY);
+    localStorage.removeItem(CONFIG_CONSTANTS.AUTH_TOKEN_KEY);
+    localStorage.removeItem(CONFIG_CONSTANTS.USER_KEY);
+
+    // 清除Cookie
+    const domain = getCookieDomain();
+    document.cookie = `${CONFIG_CONSTANTS.AUTH_TOKEN_KEY}=; path=/; domain=${domain}; max-age=0`;
+
+    console.log('🧹 已清除所有认证信息');
+  }
+
+  /**
+   * 检查是否已认证
+   */
+  static isAuthenticated(): boolean {
+    return this.getToken() !== null;
+  }
+}
+
+/**
+ * 用户管理类
+ */
+class UserManager {
+  /**
+   * 保存用户信息
+   */
+  static saveUser(user: User): void {
+    try {
+      localStorage.setItem(CONFIG_CONSTANTS.USER_KEY, JSON.stringify(user));
+    } catch (error) {
+      console.error('保存用户信息失败', error);
+    }
+  }
+
+  /**
+   * 获取缓存的用户信息
+   */
+  static getCachedUser(): User | null {
+    const userStr = localStorage.getItem(CONFIG_CONSTANTS.USER_KEY);
+    if (!userStr) return null;
+
+    try {
+      return JSON.parse(userStr);
+    } catch (error) {
+      console.error('解析用户信息失败', error);
+      return null;
+    }
+  }
+}
 
 /**
  * 创建axios实例
  */
 const apiClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 60000, // 增加到60秒，适应简历解析等耗时操作
+  baseURL: config.apiBaseUrl,
+  timeout: config.requestTimeout,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -29,12 +142,12 @@ const apiClient: AxiosInstance = axios.create({
  * 请求拦截器：自动添加Token
  */
 apiClient.interceptors.request.use(
-  config => {
-    const token = localStorage.getItem('token');
+  requestConfig => {
+    const token = TokenManager.getToken();
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      requestConfig.headers.Authorization = `Bearer ${token}`;
     }
-    return config;
+    return requestConfig;
   },
   error => {
     return Promise.reject(error);
@@ -56,16 +169,12 @@ apiClient.interceptors.response.use(
     ) {
       console.log('🔐 检测到认证错误，清除本地存储并重定向到登录页');
 
-      // Token过期或无效，清除本地存储
-      localStorage.removeItem('token');
-      localStorage.removeItem('authToken'); // 清除后端使用的key
-      localStorage.removeItem('user');
+      // Token过期或无效，清除所有认证信息
+      TokenManager.clearTokens();
 
       // 如果不在登录页，跳转到登录页
       if (window.location.pathname !== '/login') {
-        // 动态检测环境并跳转
-        // 统一跳转到前端登录页面
-        window.location.href = '/login';
+        window.location.href = getLoginUrl();
       }
     }
     return Promise.reject(error);
@@ -96,6 +205,23 @@ export interface LoginResponse {
 }
 
 /**
+ * 处理登录响应的通用逻辑
+ */
+const handleLoginResponse = (response: LoginResponse): LoginResponse => {
+  if (response.success && response.token) {
+    // 使用TokenManager安全保存Token
+    TokenManager.saveToken(response.token);
+
+    // 使用UserManager保存用户信息
+    if (response.user) {
+      UserManager.saveUser(response.user);
+    }
+  }
+
+  return response;
+};
+
+/**
  * 认证服务
  */
 export const authService = {
@@ -111,29 +237,7 @@ export const authService = {
       password,
     });
 
-    if (response.data.success && response.data.token) {
-      // 保存Token和用户信息到本地
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('authToken', response.data.token); // 兼容后端使用的key
-
-      // 设置跨域Cookie以便后台管理能够读取Token
-      const domain =
-        window.location.hostname === 'localhost'
-          ? 'localhost'
-          : '115.190.182.95';
-      const secure = window.location.protocol === 'https:';
-      document.cookie = `authToken=${response.data.token}; path=/; domain=${domain}; secure=${secure}; SameSite=Lax`;
-      console.log(
-        '🍪 authService: 已设置authToken Cookie为跨域访问, domain:',
-        domain
-      );
-
-      if (response.data.user) {
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-      }
-    }
-
-    return response.data;
+    return handleLoginResponse(response.data);
   },
 
   /**
@@ -155,28 +259,7 @@ export const authService = {
       code,
     });
 
-    if (response.data.success && response.data.token) {
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('authToken', response.data.token); // 兼容后端使用的key
-
-      // 设置跨域Cookie以便后台管理能够读取Token
-      const domain =
-        window.location.hostname === 'localhost'
-          ? 'localhost'
-          : '115.190.182.95';
-      const secure = window.location.protocol === 'https:';
-      document.cookie = `authToken=${response.data.token}; path=/; domain=${domain}; secure=${secure}; SameSite=Lax`;
-      console.log(
-        '🍪 authService: 已设置authToken Cookie为跨域访问, domain:',
-        domain
-      );
-
-      if (response.data.user) {
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-      }
-    }
-
-    return response.data;
+    return handleLoginResponse(response.data);
   },
 
   /**
@@ -248,13 +331,11 @@ export const authService = {
     } catch (error) {
       console.error('登出请求失败', error);
     } finally {
-      // 清除本地存储
-      localStorage.removeItem('token');
-      localStorage.removeItem('authToken'); // 清除后端使用的key
-      localStorage.removeItem('user');
+      // 使用TokenManager清除所有认证信息
+      TokenManager.clearTokens();
 
       // 跳转到登录页
-      window.location.href = '/login';
+      window.location.href = getLoginUrl();
     }
   },
 
@@ -268,8 +349,8 @@ export const authService = {
       );
 
       if (response.data.success && response.data.user) {
-        // 更新本地缓存
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+        // 使用UserManager更新本地缓存
+        UserManager.saveUser(response.data.user);
         return response.data.user;
       }
 
@@ -290,7 +371,7 @@ export const authService = {
       });
 
       if (response.data.success && response.data.token) {
-        localStorage.setItem('token', response.data.token);
+        TokenManager.saveToken(response.data.token);
         return response.data.token;
       }
 
@@ -305,30 +386,21 @@ export const authService = {
    * 检查是否已登录
    */
   isAuthenticated: (): boolean => {
-    return localStorage.getItem('token') !== null;
+    return TokenManager.isAuthenticated();
   },
 
   /**
    * 获取Token
    */
   getToken: (): string | null => {
-    return localStorage.getItem('token');
+    return TokenManager.getToken();
   },
 
   /**
    * 获取缓存的用户信息
    */
   getCachedUser: (): User | null => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try {
-        return JSON.parse(userStr);
-      } catch (error) {
-        console.error('解析用户信息失败', error);
-        return null;
-      }
-    }
-    return null;
+    return UserManager.getCachedUser();
   },
 
   /**

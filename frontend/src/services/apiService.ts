@@ -1,23 +1,20 @@
 import axios, { AxiosInstance } from 'axios';
+import config, { CONFIG_CONSTANTS, getLoginUrl } from '../config/environment';
 
 /**
  * API服务配置
  *
  * @author ZhiTouJianLi Team
  * @since 2025-09-30
+ * @updated 2025-10-11 - 使用统一配置管理
  */
-
-// 获取API基础URL
-// 使用完整的后端地址，前端通过代理或CORS访问
-const API_BASE_URL =
-  process.env.REACT_APP_API_URL || 'http://115.190.182.95:8080';
 
 /**
  * 创建axios实例
  */
 const apiClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 60000, // 增加到60秒，适应简历解析等耗时操作
+  baseURL: config.apiBaseUrl,
+  timeout: config.requestTimeout,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -27,16 +24,17 @@ const apiClient: AxiosInstance = axios.create({
  * 请求拦截器：添加认证Token
  */
 apiClient.interceptors.request.use(
-  config => {
+  requestConfig => {
     // 从localStorage获取token
     const token =
-      localStorage.getItem('token') || localStorage.getItem('authToken');
+      localStorage.getItem(CONFIG_CONSTANTS.TOKEN_KEY) ||
+      localStorage.getItem(CONFIG_CONSTANTS.AUTH_TOKEN_KEY);
 
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      requestConfig.headers.Authorization = `Bearer ${token}`;
     }
 
-    return config;
+    return requestConfig;
   },
   error => {
     return Promise.reject(error);
@@ -59,24 +57,13 @@ apiClient.interceptors.response.use(
       console.log('🔐 检测到认证错误，清除本地存储并重定向到登录页');
 
       // Token过期或无效，清除本地存储
-      localStorage.removeItem('token');
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('user');
+      localStorage.removeItem(CONFIG_CONSTANTS.TOKEN_KEY);
+      localStorage.removeItem(CONFIG_CONSTANTS.AUTH_TOKEN_KEY);
+      localStorage.removeItem(CONFIG_CONSTANTS.USER_KEY);
 
       // 如果不在登录页，跳转到登录页
       if (window.location.pathname !== '/login') {
-        // 动态检测环境并跳转
-        if (window.location.hostname === 'localhost') {
-          // 本地开发环境
-          if (window.location.port === '3000') {
-            window.location.href = 'http://115.190.182.95:3000/login';
-          } else {
-            window.location.href = '/login';
-          }
-        } else {
-          // 生产环境
-          window.location.href = '/login';
-        }
+        window.location.href = getLoginUrl();
       }
     }
     return Promise.reject(error);
