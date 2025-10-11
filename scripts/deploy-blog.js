@@ -1,42 +1,37 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
+/**
+ * 部署博客到主站 /blog/ 路径
+ *
+ * @author ZhiTouJianLi Team
+ * @since 2025-09-30
+ * @updated 2025-10-11 - 使用公共工具函数，改进错误处理
+ */
 
-function copyDir(src, dest) {
-  if (!fs.existsSync(dest)) {
-    fs.mkdirSync(dest, { recursive: true });
-  }
-  
-  const entries = fs.readdirSync(src, { withFileTypes: true });
-  
-  for (let entry of entries) {
-    const srcPath = path.join(src, entry.name);
-    const destPath = path.join(dest, entry.name);
-    
-    if (entry.isDirectory()) {
-      copyDir(srcPath, destPath);
-    } else {
-      fs.copyFileSync(srcPath, destPath);
-    }
-  }
-}
+const { copyDir, exists, getDirSize, formatSize } = require('./utils/file-utils');
 
-console.log('📝 Deploying blog to /blog/ path...');
+const BLOG_SOURCE_DIR = 'blog/zhitoujianli-blog/dist';
+const BLOG_DEST_DIR = 'build/blog';
+
+console.log('📝 正在部署博客到 /blog/ 路径...');
 
 try {
-  // 确保blog目录存在
-  const blogDestPath = 'build/blog';
-  
-  // 复制博客构建输出到主站build/blog目录
-  if (fs.existsSync('blog/zhitoujianli-blog/dist')) {
-    copyDir('blog/zhitoujianli-blog/dist', blogDestPath);
-    console.log('✅ Blog deployed successfully to /blog/ path!');
-  } else {
-    console.log('⚠️  Blog build not found. Please run npm run build:blog first.');
+  // 检查博客构建产物是否存在
+  if (!exists(BLOG_SOURCE_DIR)) {
+    console.error(`❌ 错误: 博客构建产物不存在: ${BLOG_SOURCE_DIR}`);
+    console.log('💡 提示: 请先运行 npm run build:blog 构建博客项目');
     process.exit(1);
   }
+
+  // 复制博客构建输出到主站build/blog目录
+  copyDir(BLOG_SOURCE_DIR, BLOG_DEST_DIR);
+
+  // 获取复制后的目录大小
+  const size = getDirSize(BLOG_DEST_DIR);
+  console.log(`✅ 博客部署成功! (大小: ${formatSize(size)})`);
+  console.log(`   源目录: ${BLOG_SOURCE_DIR}`);
+  console.log(`   目标目录: ${BLOG_DEST_DIR}`);
 } catch (error) {
-  console.error('❌ Error deploying blog:', error.message);
+  console.error('❌ 部署博客失败:', error.message);
   process.exit(1);
 }
