@@ -51,16 +51,13 @@ const Register: React.FC = () => {
       setLoading(true);
       setError('');
 
-      const response = await fetch(
-        `http://115.190.182.95:8080/api/auth/send-verification-code`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email }),
-        }
-      );
+      const response = await fetch(`/api/auth/send-verification-code`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
 
       const result = await response.json();
 

@@ -15,17 +15,13 @@ const StandaloneApiTest: React.FC = () => {
 
     try {
       // 直接使用fetch，不依赖任何服务
-      const response = await fetch(
-        'http://115.190.182.95:8080/api/candidate-resume/check',
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Origin: 'http://115.190.182.95:3000',
-          },
-          mode: 'cors',
-        }
-      );
+      const response = await fetch('/api/candidate-resume/check', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'cors',
+      });
 
       console.log('Response status:', response.status);
       console.log('Response headers:', response.headers);
@@ -139,14 +135,14 @@ URL: ${response.url}`);
           <h3 style={{ marginTop: 0, color: '#495057' }}>系统信息</h3>
           <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
             <div>
-              <strong>前端服务:</strong> http://115.190.182.95:3000
+              <strong>前端服务:</strong> {window.location.origin}
             </div>
             <div>
-              <strong>后端服务:</strong> http://115.190.182.95:8080
+              <strong>后端服务:</strong> {window.location.origin}
             </div>
             <div>
-              <strong>测试API:</strong>{' '}
-              http://115.190.182.95:8080/api/candidate-resume/check
+              <strong>测试API:</strong> {window.location.origin}
+              /api/candidate-resume/check
             </div>
             <div>
               <strong>测试时间:</strong> {new Date().toLocaleString()}

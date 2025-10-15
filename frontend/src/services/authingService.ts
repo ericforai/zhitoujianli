@@ -87,7 +87,7 @@ export const authingService = {
         const domain =
           window.location.hostname === 'localhost'
             ? 'localhost'
-            : '115.190.182.95';
+            : window.location.hostname;
         const secure = window.location.protocol === 'https:';
         document.cookie = `authingToken=${token}; path=/; domain=${domain}; secure=${secure}; SameSite=Lax`;
         console.log('🍪 已设置Authing Token Cookie');

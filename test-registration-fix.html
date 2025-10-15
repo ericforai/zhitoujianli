@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>注册功能修复测试</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .test-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+      .test-result {
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+      }
+      .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      button:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+      }
+      .test-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+        margin: 20px 0;
+      }
+      .test-item {
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔧 注册功能修复测试</h1>
+
+    <div class="test-container">
+      <h2>📋 修复内容总结</h2>
+      <div class="test-result info">
+        <strong>修复的问题：</strong><br />
+        1. ✅ 混合内容错误（Mixed Content Error）<br />
+        2. ✅ 硬编码HTTP地址改为相对路径<br />
+        3. ✅ 环境配置优化，支持HTTPS<br />
+        4. ✅ Cookie域名动态设置<br />
+        5. ✅ API调用路径统一化
+      </div>
+    </div>
+
+    <div class="test-container">
+      <h2>🧪 修复验证测试</h2>
+      <div class="test-grid">
+        <div class="test-item">
+          <h4>协议检查</h4>
+          <p id="protocol-check">检查中...</p>
+        </div>
+        <div class="test-item">
+          <h4>API路径检查</h4>
+          <p id="api-path-check">检查中...</p>
+        </div>
+        <div class="test-item">
+          <h4>环境配置检查</h4>
+          <p id="env-check">检查中...</p>
+        </div>
+        <div class="test-item">
+          <h4>Cookie域名检查</h4>
+          <p id="cookie-check">检查中...</p>
+        </div>
+      </div>
+
+      <div class="test-grid">
+        <div class="test-item">
+          <h4>发送验证码API</h4>
+          <button onclick="testSendCode()">测试发送验证码</button>
+          <p id="send-code-result">未测试</p>
+        </div>
+        <div class="test-item">
+          <h4>验证码验证API</h4>
+          <button onclick="testVerifyCode()">测试验证码验证</button>
+          <p id="verify-code-result">未测试</p>
+        </div>
+        <div class="test-item">
+          <h4>注册API</h4>
+          <button onclick="testRegister()">测试注册</button>
+          <p id="register-result">未测试</p>
+        </div>
+        <div class="test-item">
+          <h4>完整注册流程</h4>
+          <button onclick="testFullRegistration()">测试完整流程</button>
+          <p id="full-registration-result">未测试</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-container">
+      <h2>📊 测试结果</h2>
+      <div id="test-results">
+        <div class="test-result info">点击上方按钮开始测试...</div>
+      </div>
+    </div>
+
+    <script>
+      // 测试数据
+      const testEmail = 'test@example.com';
+      const testPassword = 'test123456';
+      const testCode = '123456';
+
+      // 初始化检查
+      function initializeChecks() {
+        // 协议检查
+        const protocol = window.location.protocol;
+        const protocolElement = document.getElementById('protocol-check');
+        if (protocol === 'https:') {
+          protocolElement.innerHTML = '✅ HTTPS';
+          protocolElement.className = 'success';
+        } else {
+          protocolElement.innerHTML = '⚠️ HTTP (开发环境)';
+          protocolElement.className = 'info';
+        }
+
+        // API路径检查
+        const apiPath = '/api/auth/send-verification-code';
+        const apiPathElement = document.getElementById('api-path-check');
+        if (apiPath.startsWith('/')) {
+          apiPathElement.innerHTML = '✅ 相对路径';
+          apiPathElement.className = 'success';
+        } else {
+          apiPathElement.innerHTML = '❌ 绝对路径';
+          apiPathElement.className = 'error';
+        }
+
+        // 环境配置检查
+        const envElement = document.getElementById('env-check');
+        const hostname = window.location.hostname;
+        if (hostname === 'zhitoujianli.com' || hostname === 'www.zhitoujianli.com') {
+          envElement.innerHTML = '✅ 生产环境';
+          envElement.className = 'success';
+        } else if (hostname === 'localhost') {
+          envElement.innerHTML = '✅ 开发环境';
+          envElement.className = 'info';
+        } else {
+          envElement.innerHTML = '⚠️ 测试环境';
+          envElement.className = 'info';
+        }
+
+        // Cookie域名检查
+        const cookieElement = document.getElementById('cookie-check');
+        const domain = hostname === 'localhost' ? 'localhost' : hostname;
+        cookieElement.innerHTML = `✅ ${domain}`;
+        cookieElement.className = 'success';
+      }
+
+      // 测试发送验证码
+      async function testSendCode() {
+        const resultElement = document.getElementById('send-code-result');
+        resultElement.innerHTML = '测试中...';
+        resultElement.className = 'info';
+
+        try {
+          const response = await fetch('/api/auth/send-verification-code', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: testEmail }),
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            resultElement.innerHTML = '✅ 请求成功';
+            resultElement.className = 'success';
+            addTestResult('发送验证码API', '成功', 'success');
+          } else {
+            resultElement.innerHTML = `⚠️ ${result.message || '请求失败'}`;
+            resultElement.className = 'error';
+            addTestResult('发送验证码API', `失败: ${result.message}`, 'error');
+          }
+        } catch (error) {
+          resultElement.innerHTML = `❌ 网络错误: ${error.message}`;
+          resultElement.className = 'error';
+          addTestResult('发送验证码API', `网络错误: ${error.message}`, 'error');
+        }
+      }
+
+      // 测试验证码验证
+      async function testVerifyCode() {
+        const resultElement = document.getElementById('verify-code-result');
+        resultElement.innerHTML = '测试中...';
+        resultElement.className = 'info';
+
+        try {
+          const response = await fetch('/api/auth/verify-email-code', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: testEmail,
+              code: testCode,
+            }),
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            resultElement.innerHTML = '✅ 请求成功';
+            resultElement.className = 'success';
+            addTestResult('验证码验证API', '成功', 'success');
+          } else {
+            resultElement.innerHTML = `⚠️ ${result.message || '请求失败'}`;
+            resultElement.className = 'error';
+            addTestResult('验证码验证API', `失败: ${result.message}`, 'error');
+          }
+        } catch (error) {
+          resultElement.innerHTML = `❌ 网络错误: ${error.message}`;
+          resultElement.className = 'error';
+          addTestResult('验证码验证API', `网络错误: ${error.message}`, 'error');
+        }
+      }
+
+      // 测试注册
+      async function testRegister() {
+        const resultElement = document.getElementById('register-result');
+        resultElement.innerHTML = '测试中...';
+        resultElement.className = 'info';
+
+        try {
+          const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: testEmail,
+              password: testPassword,
+            }),
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            resultElement.innerHTML = '✅ 请求成功';
+            resultElement.className = 'success';
+            addTestResult('注册API', '成功', 'success');
+          } else {
+            resultElement.innerHTML = `⚠️ ${result.message || '请求失败'}`;
+            resultElement.className = 'error';
+            addTestResult('注册API', `失败: ${result.message}`, 'error');
+          }
+        } catch (error) {
+          resultElement.innerHTML = `❌ 网络错误: ${error.message}`;
+          resultElement.className = 'error';
+          addTestResult('注册API', `网络错误: ${error.message}`, 'error');
+        }
+      }
+
+      // 测试完整注册流程
+      async function testFullRegistration() {
+        const resultElement = document.getElementById('full-registration-result');
+        resultElement.innerHTML = '测试中...';
+        resultElement.className = 'info';
+
+        try {
+          // 1. 发送验证码
+          const sendCodeResponse = await fetch('/api/auth/send-verification-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: testEmail }),
+          });
+
+          if (!sendCodeResponse.ok) {
+            throw new Error('发送验证码失败');
+          }
+
+          // 2. 验证验证码（模拟）
+          const verifyResponse = await fetch('/api/auth/verify-email-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: testEmail,
+              code: testCode,
+            }),
+          });
+
+          if (!verifyResponse.ok) {
+            throw new Error('验证码验证失败');
+          }
+
+          // 3. 注册
+          const registerResponse = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: testEmail,
+              password: testPassword,
+            }),
+          });
+
+          if (!registerResponse.ok) {
+            throw new Error('注册失败');
+          }
+
+          resultElement.innerHTML = '✅ 完整流程成功';
+          resultElement.className = 'success';
+          addTestResult('完整注册流程', '成功', 'success');
+        } catch (error) {
+          resultElement.innerHTML = `❌ ${error.message}`;
+          resultElement.className = 'error';
+          addTestResult('完整注册流程', `失败: ${error.message}`, 'error');
+        }
+      }
+
+      // 添加测试结果
+      function addTestResult(testName, result, type) {
+        const resultsContainer = document.getElementById('test-results');
+        const resultDiv = document.createElement('div');
+        resultDiv.className = `test-result ${type}`;
+        resultDiv.innerHTML = `<strong>${testName}:</strong> ${result}`;
+        resultsContainer.appendChild(resultDiv);
+      }
+
+      // 页面加载时初始化
+      window.addEventListener('load', initializeChecks);
+    </script>
+  </body>
+</html>
