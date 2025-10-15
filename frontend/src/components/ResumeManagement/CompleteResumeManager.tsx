@@ -217,21 +217,22 @@ const CompleteResumeManager: React.FC<CompleteResumeManagerProps> = ({
     }
   };
 
-  /**
-   * 格式化置信度评分
-   */
-  const formatConfidence = (score: number): string => {
-    return `${Math.round(score * 100)}%`;
-  };
+  // 暂时注释掉未使用的工具函数
+  // /**
+  //  * 格式化置信度评分
+  //  */
+  // const formatConfidence = (score: number): string => {
+  //   return `${Math.round(score * 100)}%`;
+  // };
 
-  /**
-   * 获取置信度颜色
-   */
-  const getConfidenceColor = (score: number): string => {
-    if (score >= 0.8) return 'text-green-600 bg-green-100';
-    if (score >= 0.6) return 'text-yellow-600 bg-yellow-100';
-    return 'text-red-600 bg-red-100';
-  };
+  // /**
+  //  * 获取置信度颜色
+  //  */
+  // const getConfidenceColor = (score: number): string => {
+  //   if (score >= 0.8) return 'text-green-600 bg-green-100';
+  //   if (score >= 0.6) return 'text-yellow-600 bg-yellow-100';
+  //   return 'text-red-600 bg-red-100';
+  // };
 
   return (
     <div className='space-y-6'>

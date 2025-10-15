@@ -118,7 +118,11 @@ export function hasValidProperty<T>(
   property: string,
   typeCheck: (value: any) => value is T
 ): obj is { [K in typeof property]: T } {
-  return obj && Object.prototype.hasOwnProperty.call(obj, property) && typeCheck(obj[property]);
+  return (
+    obj &&
+    Object.prototype.hasOwnProperty.call(obj, property) &&
+    typeCheck(obj[property])
+  );
 }
 
 /**

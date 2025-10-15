@@ -5,7 +5,9 @@
  * @since 2025-10-11
  */
 
-import React from 'react';
+// import React from 'react';
+
+export {}; // 使其成为模块
 
 describe('Git合并冲突检测', () => {
   test('应该检测到Git合并冲突标记', () => {

@@ -77,9 +77,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
             if (currentUser) {
               setUser(currentUser);
-              authLogger.info('认证状态初始化成功', {
-                userId: currentUser.userId,
-              });
+              authLogger.info(
+                '认证状态初始化成功',
+                {
+                  userId: currentUser.userId,
+                },
+                []
+              );
             } else {
               authLogger.warn('Token无效，清除认证状态');
               // Token无效，清除本地存储
@@ -113,94 +117,88 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   /**
    * 邮箱密码登录
    */
-  const login = useCallback(
-    async (email: string, password: string) => {
-      try {
-        authLogger.info('开始邮箱登录', { email });
+  const login = useCallback(async (email: string, password: string) => {
+    try {
+      authLogger.info('开始邮箱登录', { email });
 
-        const result = await authService.loginByEmail(email, password);
+      const result = await authService.loginByEmail(email, password);
 
-        if (result.success && result.user) {
-          setUser(result.user);
-          authLogger.info('登录成功', { userId: result.user.userId });
+      if (result.success && result.user) {
+        setUser(result.user);
+        authLogger.info('登录成功', { userId: result.user.userId });
 
-          // 🔧 修复：登录成功后跳转到后端8080，并通过Cookie传递Token
-          // 设置Token到Cookie，供后端8080使用
-          const token = result.token || localStorage.getItem('token');
-          if (token) {
-            // 设置跨域Cookie
-            const domain =
-              window.location.hostname === 'localhost'
-                ? 'localhost'
-                : window.location.hostname;
-            const secure = window.location.protocol === 'https:';
-            document.cookie = `auth_token=${token}; path=/; domain=${domain}; ${secure ? 'secure;' : ''} SameSite=Lax; max-age=86400`;
-            authLogger.info('✅ 已设置auth_token Cookie用于后端认证');
-          }
-
-          // 跳转到后端8080
-          const backendUrl =
+        // 🔧 修复：登录成功后跳转到后端8080，并通过Cookie传递Token
+        // 设置Token到Cookie，供后端8080使用
+        const token = result.token || localStorage.getItem('token');
+        if (token) {
+          // 设置跨域Cookie
+          const domain =
             window.location.hostname === 'localhost'
-              ? 'http://localhost:8080'
-              : window.location.origin.replace('3000', '8080');
-          authLogger.info('🚀 跳转到后端管理界面:', backendUrl);
-          window.location.href = backendUrl;
-        } else {
-          throw new Error(result.message || '登录失败');
+              ? 'localhost'
+              : window.location.hostname;
+          const secure = window.location.protocol === 'https:';
+          document.cookie = `auth_token=${token}; path=/; domain=${domain}; ${secure ? 'secure;' : ''} SameSite=Lax; max-age=86400`;
+          authLogger.info('✅ 已设置auth_token Cookie用于后端认证');
         }
-      } catch (error: any) {
-        authLogger.error('登录失败', error);
-        throw error;
+
+        // 跳转到后端8080
+        const backendUrl =
+          window.location.hostname === 'localhost'
+            ? 'http://localhost:8080'
+            : window.location.origin.replace('3000', '8080');
+        authLogger.info('🚀 跳转到后端管理界面:', backendUrl);
+        window.location.href = backendUrl;
+      } else {
+        throw new Error(result.message || '登录失败');
       }
-    },
-    [navigate]
-  );
+    } catch (error: any) {
+      authLogger.error('登录失败', error);
+      throw error;
+    }
+  }, []);
 
   /**
    * 手机号验证码登录
    */
-  const loginByPhone = useCallback(
-    async (phone: string, code: string) => {
-      try {
-        authLogger.info('开始手机号登录', { phone });
+  const loginByPhone = useCallback(async (phone: string, code: string) => {
+    try {
+      authLogger.info('开始手机号登录', { phone });
 
-        const result = await authService.loginByPhone(phone, code);
+      const result = await authService.loginByPhone(phone, code);
 
-        if (result.success && result.user) {
-          setUser(result.user);
-          authLogger.info('登录成功', { userId: result.user.userId });
+      if (result.success && result.user) {
+        setUser(result.user);
+        authLogger.info('登录成功', { userId: result.user.userId });
 
-          // 🔧 修复：登录成功后跳转到后端8080，并通过Cookie传递Token
-          // 设置Token到Cookie，供后端8080使用
-          const token = result.token || localStorage.getItem('token');
-          if (token) {
-            // 设置跨域Cookie
-            const domain =
-              window.location.hostname === 'localhost'
-                ? 'localhost'
-                : window.location.hostname;
-            const secure = window.location.protocol === 'https:';
-            document.cookie = `auth_token=${token}; path=/; domain=${domain}; ${secure ? 'secure;' : ''} SameSite=Lax; max-age=86400`;
-            authLogger.info('✅ 已设置auth_token Cookie用于后端认证');
-          }
-
-          // 跳转到后端8080
-          const backendUrl =
+        // 🔧 修复：登录成功后跳转到后端8080，并通过Cookie传递Token
+        // 设置Token到Cookie，供后端8080使用
+        const token = result.token || localStorage.getItem('token');
+        if (token) {
+          // 设置跨域Cookie
+          const domain =
             window.location.hostname === 'localhost'
-              ? 'http://localhost:8080'
-              : window.location.origin.replace('3000', '8080');
-          authLogger.info('🚀 跳转到后端管理界面:', backendUrl);
-          window.location.href = backendUrl;
-        } else {
-          throw new Error(result.message || '登录失败');
+              ? 'localhost'
+              : window.location.hostname;
+          const secure = window.location.protocol === 'https:';
+          document.cookie = `auth_token=${token}; path=/; domain=${domain}; ${secure ? 'secure;' : ''} SameSite=Lax; max-age=86400`;
+          authLogger.info('✅ 已设置auth_token Cookie用于后端认证');
         }
-      } catch (error: any) {
-        authLogger.error('登录失败', error);
-        throw error;
+
+        // 跳转到后端8080
+        const backendUrl =
+          window.location.hostname === 'localhost'
+            ? 'http://localhost:8080'
+            : window.location.origin.replace('3000', '8080');
+        authLogger.info('🚀 跳转到后端管理界面:', backendUrl);
+        window.location.href = backendUrl;
+      } else {
+        throw new Error(result.message || '登录失败');
       }
-    },
-    [navigate]
-  );
+    } catch (error: any) {
+      authLogger.error('登录失败', error);
+      throw error;
+    }
+  }, []);
 
   /**
    * 登出
