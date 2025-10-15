@@ -1,12 +1,12 @@
 package config;
 
+import java.util.Arrays;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Arrays;
 
 /**
  * CORS跨域配置
@@ -24,20 +24,7 @@ public class CorsConfig {
 
         // 允许的源
         configuration.setAllowedOriginPatterns(Arrays.asList(
-            "http://localhost:3000",
-            "http://localhost:3001",
-            "http://localhost:4321",
-            "http://127.0.0.1:3000",
-            "http://localhost:8080",
-            "http://127.0.0.1:8080",
-            "http://115.190.182.95",
-            "http://115.190.182.95:3000",
-            "http://115.190.182.95:3001",
-            "https://zhitoujianli.com",
-            "https://www.zhitoujianli.com",
-            "https://*.zhitoujianli.com",
-            "https://*.edgeone.app",
-            "https://zhitoujianli-*.edgeone.app"
+            "*"
         ));
 
         // 允许的HTTP方法

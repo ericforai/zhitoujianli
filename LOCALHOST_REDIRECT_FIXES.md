@@ -102,7 +102,7 @@ String baseUrl = request.getScheme() + "://" + request.getServerName() +
 ### 生产环境 (zhitoujianli.com)
 - `zhitoujianli.com/login` → 登录成功后重定向到 `zhitoujianli.com/`
 - 所有内部跳转都使用生产域名
-- 完全支持EdgeOne部署平台
+- 完全支持火山云部署平台
 
 ## 📝 后续维护建议
 
@@ -120,4 +120,4 @@ String baseUrl = request.getScheme() + "://" + request.getServerName() +
 ---
 **修复完成时间**: 2025-10-02
 **修复状态**: ✅ 已完成并推送到GitHub
-**EdgeOne同步**: 🔄 等待自动同步生效
+**火山云同步**: 🔄 等待自动同步生效

@@ -377,9 +377,7 @@
 <a name='L312'></a><a href='#L312'>312</a>
 <a name='L313'></a><a href='#L313'>313</a>
 <a name='L314'></a><a href='#L314'>314</a>
-<a name='L315'></a><a href='#L315'>315</a>
-<a name='L316'></a><a href='#L316'>316</a>
-<a name='L317'></a><a href='#L317'>317</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L315'></a><a href='#L315'>315</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -462,6 +460,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -495,7 +497,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -538,10 +539,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -578,8 +576,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -774,9 +770,13 @@ export const AuthProvider: React.FC&lt;{ children: React.ReactNode }&gt; = <span
 &nbsp;
 <span class="cstat-no" title="statement not covered" >            if (currentUser) {</span>
 <span class="cstat-no" title="statement not covered" >              setUser(currentUser);</span>
-<span class="cstat-no" title="statement not covered" >              authLogger.info('认证状态初始化成功', {</span>
-                userId: currentUser.userId,
-              });
+<span class="cstat-no" title="statement not covered" >              authLogger.info(</span>
+                '认证状态初始化成功',
+                {
+                  userId: currentUser.userId,
+                },
+                []
+              );
             } else {
 <span class="cstat-no" title="statement not covered" >              authLogger.warn('Token无效，清除认证状态');</span>
               // Token无效，清除本地存储
@@ -810,94 +810,88 @@ export const AuthProvider: React.FC&lt;{ children: React.ReactNode }&gt; = <span
   /**
    * 邮箱密码登录
    */
-  const login = <span class="cstat-no" title="statement not covered" >useCallback(</span>
-<span class="fstat-no" title="function not covered" >    as</span>ync (email: string, password: string) =&gt; {
-<span class="cstat-no" title="statement not covered" >      try {</span>
-<span class="cstat-no" title="statement not covered" >        authLogger.info('开始邮箱登录', { email });</span>
+  const login = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >as</span>ync (email: string, password: string) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    try {</span>
+<span class="cstat-no" title="statement not covered" >      authLogger.info('开始邮箱登录', { email });</span>
 &nbsp;
-        const result = <span class="cstat-no" title="statement not covered" >await authService.loginByEmail(email, password);</span>
+      const result = <span class="cstat-no" title="statement not covered" >await authService.loginByEmail(email, password);</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >        if (result.success &amp;&amp; result.user) {</span>
-<span class="cstat-no" title="statement not covered" >          setUser(result.user);</span>
-<span class="cstat-no" title="statement not covered" >          authLogger.info('登录成功', { userId: result.user.userId });</span>
+<span class="cstat-no" title="statement not covered" >      if (result.success &amp;&amp; result.user) {</span>
+<span class="cstat-no" title="statement not covered" >        setUser(result.user);</span>
+<span class="cstat-no" title="statement not covered" >        authLogger.info('登录成功', { userId: result.user.userId });</span>
 &nbsp;
-          // 🔧 修复：登录成功后跳转到后端8080，并通过Cookie传递Token
-          // 设置Token到Cookie，供后端8080使用
-          const token = <span class="cstat-no" title="statement not covered" >result.token || localStorage.getItem('token');</span>
-<span class="cstat-no" title="statement not covered" >          if (token) {</span>
-            // 设置跨域Cookie
-            const domain =
-<span class="cstat-no" title="statement not covered" >              window.location.hostname === 'localhost'</span>
-                ? 'localhost'
-                : '115.190.182.95';
-            const secure = <span class="cstat-no" title="statement not covered" >window.location.protocol === 'https:';</span>
-<span class="cstat-no" title="statement not covered" >            document.cookie = `auth_token=${token}; path=/; domain=${domain}; ${secure ? 'secure;' : ''} SameSite=Lax; max-age=86400`;</span>
-<span class="cstat-no" title="statement not covered" >            authLogger.info('✅ 已设置auth_token Cookie用于后端认证');</span>
-          }
-&nbsp;
-          // 跳转到后端8080
-          const backendUrl =
+        // 🔧 修复：登录成功后跳转到后端8080，并通过Cookie传递Token
+        // 设置Token到Cookie，供后端8080使用
+        const token = <span class="cstat-no" title="statement not covered" >result.token || localStorage.getItem('token');</span>
+<span class="cstat-no" title="statement not covered" >        if (token) {</span>
+          // 设置跨域Cookie
+          const domain =
 <span class="cstat-no" title="statement not covered" >            window.location.hostname === 'localhost'</span>
-              ? 'http://localhost:8080'
-              : 'http://115.190.182.95:8080';
-<span class="cstat-no" title="statement not covered" >          authLogger.info('🚀 跳转到后端管理界面:', backendUrl);</span>
-<span class="cstat-no" title="statement not covered" >          window.location.href = backendUrl;</span>
-        } else {
-<span class="cstat-no" title="statement not covered" >          throw new Error(result.message || '登录失败');</span>
+              ? 'localhost'
+              : window.location.hostname;
+          const secure = <span class="cstat-no" title="statement not covered" >window.location.protocol === 'https:';</span>
+<span class="cstat-no" title="statement not covered" >          document.cookie = `auth_token=${token}; path=/; domain=${domain}; ${secure ? 'secure;' : ''} SameSite=Lax; max-age=86400`;</span>
+<span class="cstat-no" title="statement not covered" >          authLogger.info('✅ 已设置auth_token Cookie用于后端认证');</span>
         }
-      } catch (error: any) {
-<span class="cstat-no" title="statement not covered" >        authLogger.error('登录失败', error);</span>
-<span class="cstat-no" title="statement not covered" >        throw error;</span>
+&nbsp;
+        // 跳转到后端8080
+        const backendUrl =
+<span class="cstat-no" title="statement not covered" >          window.location.hostname === 'localhost'</span>
+            ? 'http://localhost:8080'
+            : window.location.origin.replace('3000', '8080');
+<span class="cstat-no" title="statement not covered" >        authLogger.info('🚀 跳转到后端管理界面:', backendUrl);</span>
+<span class="cstat-no" title="statement not covered" >        window.location.href = backendUrl;</span>
+      } else {
+<span class="cstat-no" title="statement not covered" >        throw new Error(result.message || '登录失败');</span>
       }
-    },
-    [navigate, location]
-  );
+    } catch (error: any) {
+<span class="cstat-no" title="statement not covered" >      authLogger.error('登录失败', error);</span>
+<span class="cstat-no" title="statement not covered" >      throw error;</span>
+    }
+  }, []);
 &nbsp;
   /**
    * 手机号验证码登录
    */
-  const loginByPhone = <span class="cstat-no" title="statement not covered" >useCallback(</span>
-<span class="fstat-no" title="function not covered" >    as</span>ync (phone: string, code: string) =&gt; {
-<span class="cstat-no" title="statement not covered" >      try {</span>
-<span class="cstat-no" title="statement not covered" >        authLogger.info('开始手机号登录', { phone });</span>
+  const loginByPhone = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >as</span>ync (phone: string, code: string) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    try {</span>
+<span class="cstat-no" title="statement not covered" >      authLogger.info('开始手机号登录', { phone });</span>
 &nbsp;
-        const result = <span class="cstat-no" title="statement not covered" >await authService.loginByPhone(phone, code);</span>
+      const result = <span class="cstat-no" title="statement not covered" >await authService.loginByPhone(phone, code);</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >        if (result.success &amp;&amp; result.user) {</span>
-<span class="cstat-no" title="statement not covered" >          setUser(result.user);</span>
-<span class="cstat-no" title="statement not covered" >          authLogger.info('登录成功', { userId: result.user.userId });</span>
+<span class="cstat-no" title="statement not covered" >      if (result.success &amp;&amp; result.user) {</span>
+<span class="cstat-no" title="statement not covered" >        setUser(result.user);</span>
+<span class="cstat-no" title="statement not covered" >        authLogger.info('登录成功', { userId: result.user.userId });</span>
 &nbsp;
-          // 🔧 修复：登录成功后跳转到后端8080，并通过Cookie传递Token
-          // 设置Token到Cookie，供后端8080使用
-          const token = <span class="cstat-no" title="statement not covered" >result.token || localStorage.getItem('token');</span>
-<span class="cstat-no" title="statement not covered" >          if (token) {</span>
-            // 设置跨域Cookie
-            const domain =
-<span class="cstat-no" title="statement not covered" >              window.location.hostname === 'localhost'</span>
-                ? 'localhost'
-                : '115.190.182.95';
-            const secure = <span class="cstat-no" title="statement not covered" >window.location.protocol === 'https:';</span>
-<span class="cstat-no" title="statement not covered" >            document.cookie = `auth_token=${token}; path=/; domain=${domain}; ${secure ? 'secure;' : ''} SameSite=Lax; max-age=86400`;</span>
-<span class="cstat-no" title="statement not covered" >            authLogger.info('✅ 已设置auth_token Cookie用于后端认证');</span>
-          }
-&nbsp;
-          // 跳转到后端8080
-          const backendUrl =
+        // 🔧 修复：登录成功后跳转到后端8080，并通过Cookie传递Token
+        // 设置Token到Cookie，供后端8080使用
+        const token = <span class="cstat-no" title="statement not covered" >result.token || localStorage.getItem('token');</span>
+<span class="cstat-no" title="statement not covered" >        if (token) {</span>
+          // 设置跨域Cookie
+          const domain =
 <span class="cstat-no" title="statement not covered" >            window.location.hostname === 'localhost'</span>
-              ? 'http://localhost:8080'
-              : 'http://115.190.182.95:8080';
-<span class="cstat-no" title="statement not covered" >          authLogger.info('🚀 跳转到后端管理界面:', backendUrl);</span>
-<span class="cstat-no" title="statement not covered" >          window.location.href = backendUrl;</span>
-        } else {
-<span class="cstat-no" title="statement not covered" >          throw new Error(result.message || '登录失败');</span>
+              ? 'localhost'
+              : window.location.hostname;
+          const secure = <span class="cstat-no" title="statement not covered" >window.location.protocol === 'https:';</span>
+<span class="cstat-no" title="statement not covered" >          document.cookie = `auth_token=${token}; path=/; domain=${domain}; ${secure ? 'secure;' : ''} SameSite=Lax; max-age=86400`;</span>
+<span class="cstat-no" title="statement not covered" >          authLogger.info('✅ 已设置auth_token Cookie用于后端认证');</span>
         }
-      } catch (error: any) {
-<span class="cstat-no" title="statement not covered" >        authLogger.error('登录失败', error);</span>
-<span class="cstat-no" title="statement not covered" >        throw error;</span>
+&nbsp;
+        // 跳转到后端8080
+        const backendUrl =
+<span class="cstat-no" title="statement not covered" >          window.location.hostname === 'localhost'</span>
+            ? 'http://localhost:8080'
+            : window.location.origin.replace('3000', '8080');
+<span class="cstat-no" title="statement not covered" >        authLogger.info('🚀 跳转到后端管理界面:', backendUrl);</span>
+<span class="cstat-no" title="statement not covered" >        window.location.href = backendUrl;</span>
+      } else {
+<span class="cstat-no" title="statement not covered" >        throw new Error(result.message || '登录失败');</span>
       }
-    },
-    [navigate, location]
-  );
+    } catch (error: any) {
+<span class="cstat-no" title="statement not covered" >      authLogger.error('登录失败', error);</span>
+<span class="cstat-no" title="statement not covered" >      throw error;</span>
+    }
+  }, []);
 &nbsp;
   /**
    * 登出
@@ -1018,7 +1012,7 @@ export default AuthContext;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-15T05:38:38.954Z
+                at 2025-10-15T15:47:31.130Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

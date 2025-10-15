@@ -17,7 +17,7 @@
 ```
 用户请求
     ↓
-EdgeOne CDN (zhitoujianli.com)
+火山云 CDN (zhitoujianli.com)
     ↓ 前端静态资源
     ↓ API请求 (/api/*)
 火山云服务器 (115.190.182.95)
@@ -28,7 +28,7 @@ EdgeOne CDN (zhitoujianli.com)
 ```
 
 ### 技术栈
-- **前端**: React + TypeScript (EdgeOne CDN)
+- **前端**: React + TypeScript (火山云 CDN)
 - **后端**: Spring Boot + Java 17
 - **数据库**: MySQL 8.0
 - **缓存**: Redis
@@ -169,8 +169,8 @@ ssh root@115.190.182.95 'free -h'
 TTL: 600秒
 ```
 
-### EdgeOne环境变量更新
-在腾讯云EdgeOne控制台更新：
+### 火山云环境变量更新
+在腾讯云火山云控制台更新：
 ```json
 {
   "env": {

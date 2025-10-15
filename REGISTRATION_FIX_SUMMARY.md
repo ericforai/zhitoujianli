@@ -144,20 +144,17 @@ const domain = window.location.hostname === 'localhost' ? 'localhost' : window.l
 
 ### 1. 生产环境配置
 
-EdgeOne配置已正确设置：
+火山云配置已正确设置：
 
-```json
-{
-  "env": {
-    "REACT_APP_API_URL": "https://zhitoujianli.com/api"
-  },
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "https://api.zhitoujianli.com/api/$1"
-    }
-  ]
-}
+```yaml
+# volcano-deployment.yml
+services:
+  frontend:
+    environment:
+      - REACT_APP_API_URL=https://zhitoujianli.com/api
+  backend:
+    ports:
+      - "8080:8080"
 ```
 
 ### 2. 开发环境配置

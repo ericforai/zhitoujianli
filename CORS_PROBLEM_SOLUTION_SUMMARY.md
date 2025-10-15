@@ -5,7 +5,7 @@
 您遇到的CORS错误：
 ```
 Access to XMLHttpRequest at 'https://zhitoujianli.com/api/auth/login/email' 
-from origin 'https://zhitoujianli-dhqxdjjuse.edgeone.app' 
+from origin 'https://zhitoujianli-dhqxdjjuse.zhitoujianli.com' 
 has been blocked by CORS policy
 ```
 
@@ -13,14 +13,14 @@ has been blocked by CORS policy
 
 ### 1. **后端CORS配置修复**
 - ✅ 清理了 `SecurityConfig.java` 中的Git合并冲突
-- ✅ 添加EdgeOne临时域名到CORS白名单：
-  - `https://zhitoujianli-*.edgeone.app`
-  - `https://*.edgeone.app`
+- ✅ 添加火山云临时域名到CORS白名单：
+  - `https://zhitoujianli-*.zhitoujianli.com`
+  - `https://*.zhitoujianli.com`
 - ✅ 更新了 `CorsConfig.java` 生产环境配置
-- ✅ 已推送到GitHub，EdgeOne正在重新部署
+- ✅ 已推送到GitHub，火山云正在重新部署
 
-### 2. **EdgeOne路由配置优化**
-- ✅ 修改 `.edgeonerc` 配置，准备API路由代理
+### 2. **火山云路由配置优化**
+- ✅ 修改 `.volcengine.yml` 配置，准备API路由代理
 - ✅ 为API请求配置独立路由规则
 
 ### 3. **诊断工具创建**
@@ -32,13 +32,13 @@ has been blocked by CORS policy
 通过诊断发现的**根本问题**：
 
 1. **后端服务缺失**: `zhitoujianli.com/api/*` 路径没有Spring Boot后端服务运行
-2. **EdgeOne配置**: 当前只部署了前端静态文件，API请求被重定向到HTML页面
+2. **火山云配置**: 当前只部署了前端静态文件，API请求被重定向到HTML页面
 3. **CORS配置失效**: Git合并冲突导致CORS配置代码重复，配置无效
 
 ## 🚀 解决方案路径
 
 ### 立即生效（2-5分钟）
-当前的CORS配置修复推送后，EdgeOne重新部署将解决CORS头缺失问题。
+当前的CORS配置修复推送后，火山云重新部署将解决CORS头缺失问题。
 
 ### 完整解决（需要后端部署）
 由于生产环境缺少后端服务，需要：
@@ -48,7 +48,7 @@ has been blocked by CORS policy
 # 生产环境部署后端服务
 1. 云服务器部署Spring Boot（端口8080）
 2. 配置域名：api.zhitoujianli.com → 后端服务器
-3. 更新EdgeOne路由：/api/* → api.zhitoujianli.com
+3. 更新火山云路由：/api/* → api.zhitoujianli.com
 ```
 
 #### 选项2: Serverless函数部署
@@ -56,7 +56,7 @@ has been blocked by CORS policy
 # 使用腾讯云函数SCF
 1. 打包Spring Boot为函数
 2. 配置触发器和API网关
-3. EdgeOne代理到API网关
+3. 火山云代理到API网关
 ```
 
 #### 选项3: 前端降级模式（临时方案）
@@ -74,7 +74,7 @@ if (useOfflineMode) {
 ### ✅ 已解决
 - [x] CORS配置错误
 - [x] Git合并冲突
-- [x] EdgeOne域名白名单
+- [x] 火山云域名白名单
 - [x] 诊断工具和文档
 
 ### 🔄 待解决
@@ -86,8 +86,8 @@ if (useOfflineMode) {
 
 ### 1. 检查CORS修复是否生效
 ```bash
-# 等待EdgeOne重新部署后测试
-curl -H "Origin: https://zhitoujianli-dhqxdjjuse.edgeone.app" \
+# 等待火山云重新部署后测试
+curl -H "Origin: https://zhitoujianli-dhqxdjjuse.zhitoujianli.com" \
      -H "Access-Control-Request-Method: POST" \
      -X OPTIONS \
      https://zhitoujianli.com/api/auth/login/email
@@ -102,7 +102,7 @@ curl https://zhitoujianli.com/api/status
 ## 💡 推荐行动方案
 
 ### 立即行动（今天）
-1. **等待EdgeOne部署生效**（2-5分钟）
+1. **等待火山云部署生效**（2-5分钟）
 2. **测试CORS是否解决**
 3. **确认登录页面可访问**
 
@@ -119,7 +119,7 @@ curl https://zhitoujianli.com/api/status
 ## 📞 技术支持
 
 ### 如果CORS问题仍未解决
-1. 检查EdgeOne部署日志
+1. 检查火山云部署日志
 2. 验证最新代码是否部署
 3. 确认DNS配置正确
 

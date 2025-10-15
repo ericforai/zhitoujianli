@@ -12,7 +12,7 @@
 
 ## 🔧 根本原因分析
 
-### 1. EdgeOne环境变量配置不完整
+### 1. 火山云环境变量配置不完整
 - 缺少 `NODE_ENV=production`
 - 未设置 `GENERATE_SOURCEMAP=false`
 - React环境变量可能未正确注入
@@ -32,9 +32,9 @@
 
 ## ✅ 完整修复方案
 
-### 修复1: EdgeOne配置优化
+### 修复1: 火山云配置优化
 ```json
-// .edgeonerc
+// .volcengine.yml
 {
   "env": {
     "NODE_ENV": "production",
@@ -110,20 +110,20 @@ function deployBlog() {
 **集成策略**:
 - 博客构建输出集成到主站build目录
 - 支持 `/blog/` 路径访问
-- 统一EdgeOne部署入口
+- 统一火山云部署入口
 
 ## 🚀 部署流程优化
 
 ### 新的构建流程
 ```bash
-# EdgeOne 执行的命令
+# 火山云 执行的命令
 npm install
 npm run build
 
 # 实际执行的步骤
 1. npm run build:frontend  # 构建React应用
 2. npm run copy:build      # 复制到根目录build
-3. EdgeOne收集build目录   # 部署到CDN
+3. 火山云收集build目录   # 部署到CDN
 ```
 
 ### 完整构建流程（包含博客）
@@ -141,7 +141,7 @@ npm run build:full
 ## 📊 验证检查清单
 
 ### ✅ 已完成
-- [x] EdgeOne环境变量配置完善
+- [x] 火山云环境变量配置完善
 - [x] 前端React应用构建成功
 - [x] 构建文件正确复制到根目录
 - [x] 项目路径结构修正
@@ -150,7 +150,7 @@ npm run build:full
 - [x] 修复代码推送到GitHub
 
 ### 🔄 等待生效
-- [ ] EdgeOne重新构建部署（2-5分钟）
+- [ ] 火山云重新构建部署（2-5分钟）
 - [ ] zhitoujianli.com主页恢复访问
 - [ ] 登录功能验证
 - [ ] 博客功能验证
@@ -180,13 +180,13 @@ curl https://zhitoujianli.com/static/js/main.*.js
 
 ### 如果主站仍无法访问
 
-#### 步骤1: 检查EdgeOne构建日志
-- 登录EdgeOne控制台
+#### 步骤1: 检查火山云构建日志
+- 登录火山云控制台
 - 查看最新部署的构建日志
 - 确认是否有构建错误
 
 #### 步骤2: 验证环境变量
-- 检查EdgeOne环境变量设置
+- 检查火山云环境变量设置
 - 确认所有 `REACT_APP_*` 变量正确设置
 - 验证 `NODE_ENV=production`
 
@@ -232,7 +232,7 @@ git push
 ```
 
 ### 方案2: 强制重新部署
-- EdgeOne控制台手动触发重新部署
+- 火山云控制台手动触发重新部署
 - 确保使用最新的配置和代码
 
 ### 方案3: 本地验证后部署
@@ -254,7 +254,7 @@ git push
 - **可用性**: 目标 99.9%
 
 ### 监控工具
-1. **EdgeOne 控制台**: 实时性能数据
+1. **火山云 控制台**: 实时性能数据
 2. **Google PageSpeed Insights**: 性能评分
 3. **浏览器开发者工具**: 详细分析
 
@@ -266,7 +266,7 @@ git push
 - 季度安全扫描
 
 ### 2. 自动化监控
-- 设置EdgeOne告警
+- 设置火山云告警
 - 配置GitHub Actions CI/CD
 - 实施自动化测试
 

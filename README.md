@@ -783,8 +783,8 @@ open target/site/jacoco/index.html  # macOS
 ### v2.0.2 (2025-01-27)
 
 **火山云部署**
-- ✅ 从 EdgeOne 迁移到火山云部署
-- ✅ 清理所有 EdgeOne 相关配置和文档
+- ✅ 从 火山云 迁移到火山云部署
+- ✅ 清理所有 火山云 相关配置和文档
 - ✅ 创建完整的 Docker 容器化部署方案
 - ✅ 配置 Nginx 反向代理和 SSL/TLS
 - ✅ 编写详细的火山云部署指南文档

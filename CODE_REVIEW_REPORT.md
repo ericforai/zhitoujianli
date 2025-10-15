@@ -78,7 +78,7 @@ if (jwtSecret == null || jwtSecret.isEmpty()) {
 ```java
 // 允许所有子域名
 "https://*.zhitoujianli.com",
-"https://*.edgeone.app"
+"https://*.zhitoujianli.com"
 // 允许所有请求头
 .setAllowedHeaders(Arrays.asList("*"));
 ```
