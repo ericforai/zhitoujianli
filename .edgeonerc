@@ -20,7 +20,11 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "https://api.zhitoujianli.com/api/$1"
+      "dest": "http://115.190.182.95:8080/api/$1",
+      "headers": {
+        "X-Forwarded-Proto": "https",
+        "X-Forwarded-For": "$remote_addr"
+      }
     },
     {
       "src": "/(.*)",
