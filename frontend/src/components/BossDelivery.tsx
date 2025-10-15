@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { bossService, BossStatus } from '../services/bossService';
+import { BossStatus, bossService } from '../services/bossService';
 
 /**
  * Boss直聘投递组件
@@ -193,14 +193,22 @@ const BossDelivery: React.FC = () => {
         <h4 className='font-semibold text-blue-900 mb-3'>⚙️ 配置管理</h4>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
           <button
-            onClick={() => window.open('http://115.190.182.95:8080', '_blank')}
+            onClick={() =>
+              window.open(
+                window.location.origin.replace('3000', '8080'),
+                '_blank'
+              )
+            }
             className='bg-white text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-50 transition-colors'
           >
             📋 投递参数配置
           </button>
           <button
             onClick={() =>
-              window.open('http://115.190.182.95:8080/resume-manager', '_blank')
+              window.open(
+                `${window.location.origin.replace('3000', '8080')}/resume-manager`,
+                '_blank'
+              )
             }
             className='bg-white text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-50 transition-colors'
           >

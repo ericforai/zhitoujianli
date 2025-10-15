@@ -75,10 +75,10 @@ const ApiTestPage: React.FC = () => {
           <h2 className='text-xl font-semibold mb-4'>系统信息</h2>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-sm'>
             <div>
-              <strong>前端服务:</strong> http://115.190.182.95:3000
+              <strong>前端服务:</strong> {window.location.origin}
             </div>
             <div>
-              <strong>后端服务:</strong> http://115.190.182.95:8080
+              <strong>后端服务:</strong> {window.location.origin}
             </div>
             <div>
               <strong>API基础URL:</strong> {apiClient.defaults.baseURL}

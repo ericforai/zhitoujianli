@@ -53,6 +53,11 @@ const getCurrentEnvironment = (): Environment => {
   const hostname =
     typeof window !== 'undefined' ? window.location.hostname : 'localhost';
 
+  // 如果是zhitoujianli.com域名，强制使用生产环境配置
+  if (hostname === 'zhitoujianli.com' || hostname === 'www.zhitoujianli.com') {
+    return Environment.Production;
+  }
+
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
     return Environment.Development;
   }
@@ -112,9 +117,7 @@ const getApiBaseUrl = (env: Environment): string => {
   switch (env) {
     case Environment.Development:
       // 开发环境：使用开发服务器地址
-      return (
-        process.env.REACT_APP_DEV_API_URL || 'http://115.190.182.95:8080/api'
-      );
+      return process.env.REACT_APP_DEV_API_URL || '/api';
     case Environment.Staging:
       // 测试环境
       return 'https://staging-api.zhitoujianli.com/api';
@@ -122,7 +125,7 @@ const getApiBaseUrl = (env: Environment): string => {
       // 生产环境：使用相对路径，由Nginx代理
       return '/api';
     default:
-      return 'http://115.190.182.95:8080/api';
+      return '/api';
   }
 };
 

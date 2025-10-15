@@ -132,7 +132,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             const domain =
               window.location.hostname === 'localhost'
                 ? 'localhost'
-                : '115.190.182.95';
+                : window.location.hostname;
             const secure = window.location.protocol === 'https:';
             document.cookie = `auth_token=${token}; path=/; domain=${domain}; ${secure ? 'secure;' : ''} SameSite=Lax; max-age=86400`;
             authLogger.info('✅ 已设置auth_token Cookie用于后端认证');
@@ -142,7 +142,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           const backendUrl =
             window.location.hostname === 'localhost'
               ? 'http://localhost:8080'
-              : 'http://115.190.182.95:8080';
+              : window.location.origin.replace('3000', '8080');
           authLogger.info('🚀 跳转到后端管理界面:', backendUrl);
           window.location.href = backendUrl;
         } else {
@@ -153,7 +153,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         throw error;
       }
     },
-    [navigate, location]
+    [navigate]
   );
 
   /**
@@ -178,7 +178,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             const domain =
               window.location.hostname === 'localhost'
                 ? 'localhost'
-                : '115.190.182.95';
+                : window.location.hostname;
             const secure = window.location.protocol === 'https:';
             document.cookie = `auth_token=${token}; path=/; domain=${domain}; ${secure ? 'secure;' : ''} SameSite=Lax; max-age=86400`;
             authLogger.info('✅ 已设置auth_token Cookie用于后端认证');
@@ -188,7 +188,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           const backendUrl =
             window.location.hostname === 'localhost'
               ? 'http://localhost:8080'
-              : 'http://115.190.182.95:8080';
+              : window.location.origin.replace('3000', '8080');
           authLogger.info('🚀 跳转到后端管理界面:', backendUrl);
           window.location.href = backendUrl;
         } else {
@@ -199,7 +199,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         throw error;
       }
     },
-    [navigate, location]
+    [navigate]
   );
 
   /**
