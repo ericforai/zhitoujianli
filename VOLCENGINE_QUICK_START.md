@@ -109,7 +109,7 @@ curl -X POST https://api.zhitoujianli.com/api/auth/login/email \
 
 ## 🎯 步骤七：更新前端配置
 
-在EdgeOne控制台更新环境变量：
+在火山云控制台更新环境变量：
 ```json
 {
   "env": {

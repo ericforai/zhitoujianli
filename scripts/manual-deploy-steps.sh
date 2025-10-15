@@ -74,7 +74,6 @@ public class SimpleSecurityConfig {
                     "https://zhitoujianli.com",
                     "https://www.zhitoujianli.com", 
                     "https://*.zhitoujianli.com",
-                    "https://*.edgeone.app",
                     "http://localhost:*"
                 ));
                 corsConfig.setAllowedMethods(java.util.Arrays.asList("*"));
@@ -225,7 +224,7 @@ echo "🏥 健康检查: http://$SERVER_IP:8080/health"
 echo ""
 echo "📋 下一步:"
 echo "1. 测试API: curl http://$SERVER_IP:8080/health"
-echo "2. 在EdgeOne更新环境变量: REACT_APP_API_URL=http://$SERVER_IP:8080/api"
+echo "2. 在火山云更新环境变量: REACT_APP_API_URL=http://$SERVER_IP:8080/api"
 echo "3. 重新部署前端应用"
 echo ""
 echo "🔧 管理命令:"

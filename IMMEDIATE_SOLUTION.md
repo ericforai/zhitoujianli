@@ -56,7 +56,7 @@ systemctl start nginx
 systemctl enable nginx
 ```
 
-#### 步骤2: 更新EdgeOne配置
+#### 步骤2: 更新火山云配置
 ```json
 {
   "env": {
@@ -95,7 +95,7 @@ import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"https://zhitoujianli.com", "https://*.zhitoujianli.com", "https://*.edgeone.app"})
+@CrossOrigin(origins = {"https://zhitoujianli.com", "https://*.zhitoujianli.com", "https://*.zhitoujianli.com"})
 public class ApiController {
 
     @GetMapping("/auth/health")
@@ -182,7 +182,7 @@ public class SecurityConfig {
                     "https://zhitoujianli.com",
                     "https://www.zhitoujianli.com",
                     "https://*.zhitoujianli.com",
-                    "https://*.edgeone.app"
+                    "https://*.zhitoujianli.com"
                 ));
                 corsConfig.setAllowedMethods(java.util.Arrays.asList("*"));
                 corsConfig.setAllowedHeaders(java.util.Arrays.asList("*"));
@@ -217,7 +217,7 @@ EOF
 ### 立即执行步骤：
 
 1. **在火山云服务器上设置Nginx代理**
-2. **在EdgeOne更新API地址为** `http://115.190.182.95/api`
+2. **在火山云更新API地址为** `http://115.190.182.95/api`
 3. **确保你的开发机器后端在运行**
 4. **测试登录功能**
 

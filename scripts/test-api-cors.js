@@ -12,7 +12,7 @@ function testAPI(url, description) {
         const req = https.request(url, {
             method: 'OPTIONS',
             headers: {
-                'Origin': 'https://zhitoujianli-dhqxdjjuse.edgeone.app',
+                'Origin': 'https://zhitoujianli.com',
                 'Access-Control-Request-Method': 'POST',
                 'Access-Control-Request-Headers': 'Content-Type'
             }
@@ -36,7 +36,7 @@ function testAPI(url, description) {
 }
 
 async function runTests() {
-    console.log('🎯 Target Origin: https://zhitoujianli-dhqxdjjuse.edgeone.app');
+    console.log('🎯 Target Origin: https://zhitoujianli.com');
     
     const tests = [
         ['https://zhitoujianli.com/api/status', 'API Status Endpoint'],
@@ -56,7 +56,7 @@ async function runTests() {
     if (!allPassed) {
         console.log('\n🔧 Recommended fixes:');
         console.log('1. Ensure backend server is running');
-        console.log('2. Update CORS configuration to include EdgeOne domains');
+        console.log('2. Update CORS configuration to include production domains');
         console.log('3. Restart backend server after configuration changes');
     }
 }

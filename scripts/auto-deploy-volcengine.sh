@@ -335,7 +335,6 @@ public class SimpleSecurityConfig {
                     "https://zhitoujianli.com",
                     "https://www.zhitoujianli.com",
                     "https://*.zhitoujianli.com",
-                    "https://*.edgeone.app",
                     "http://localhost:3000",
                     "http://localhost:3001"
                 ));
@@ -432,7 +431,7 @@ echo "🏥 健康检查: https://api.zhitoujianli.com/health"
 echo ""
 echo "📋 下一步操作："
 echo "1. 在域名DNS中添加A记录: api -> $SERVER_IP"
-echo "2. 在EdgeOne中更新环境变量:"
+echo "2. 在火山云中更新环境变量:"
 echo "   REACT_APP_API_URL=https://api.zhitoujianli.com/api"
 echo "3. 重新部署前端应用"
 echo ""

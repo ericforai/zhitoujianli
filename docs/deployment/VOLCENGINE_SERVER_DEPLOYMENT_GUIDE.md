@@ -4,7 +4,7 @@
 
 ```
 用户访问流程:
-EdgeOne CDN (zhitoujianli.com) 
+火山云 CDN (zhitoujianli.com) 
     ↓ 前端静态资源
     ↓ API请求 (/api/*)
 火山云服务器 (api.zhitoujianli.com)
@@ -395,8 +395,8 @@ certbot renew --dry-run
 TTL: 600秒
 ```
 
-### 5.2 在EdgeOne中更新API配置
-在腾讯云EdgeOne控制台中，更新环境变量：
+### 5.2 在火山云中更新API配置
+在腾讯云火山云控制台中，更新环境变量：
 ```json
 {
   "env": {

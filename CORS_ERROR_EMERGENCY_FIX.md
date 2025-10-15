@@ -5,13 +5,13 @@
 ### 错误信息分析
 ```
 Access to XMLHttpRequest at 'https://zhitoujianli.com/api/auth/login/email' 
-from origin 'https://zhitoujianli-dhqxdjjuse.edgeone.app' 
+from origin 'https://zhitoujianli-dhqxdjjuse.zhitoujianli.com' 
 has been blocked by CORS policy
 ```
 
 ### 根本原因
 1. **后端服务缺失**: 生产环境 `zhitoujianli.com/api/*` 没有Spring Boot后端服务
-2. **EdgeOne配置错误**: 所有请求（包括API）都重定向到前端HTML
+2. **火山云配置错误**: 所有请求（包括API）都重定向到前端HTML
 3. **CORS配置冲突**: SecurityConfig.java存在Git合并冲突标记
 
 ## ✅ 紧急修复方案
@@ -23,7 +23,7 @@ has been blocked by CORS policy
 // 在authService.ts中添加
 const isDevelopmentMode = () => {
   // 如果API不可用，降级到模拟模式
-  return window.location.hostname.includes('edgeone.app') || 
+  return window.location.hostname.includes('zhitoujianli.com') || 
          window.location.hostname === 'zhitoujianli.com';
 };
 
@@ -58,13 +58,13 @@ export const authService = {
 
 **选项2: 使用Serverless部署**
 - 腾讯云函数SCF部署Spring Boot
-- EdgeOne配置API路由代理
+- 火山云配置API路由代理
 
 **选项3: 使用容器部署**
 - Docker + 腾讯云容器服务
 - 自动扩缩容和负载均衡
 
-#### 步骤2: EdgeOne路由配置
+#### 步骤2: 火山云路由配置
 
 ```json
 {
@@ -87,7 +87,7 @@ export const authService = {
 已完成：删除SecurityConfig.java中的Git冲突标记
 
 ### 修复2: 更新CORS配置
-已完成：添加EdgeOne临时域名到允许列表
+已完成：添加火山云临时域名到允许列表
 
 ### 修复3: 前端降级模式
 为保证用户体验，实现API降级逻辑：
@@ -108,14 +108,14 @@ const useBackendAPI = async () => {
 
 ### ✅ 已完成
 - [x] 修复Git合并冲突
-- [x] 更新CORS配置支持EdgeOne域名  
-- [x] 添加通配符支持 `zhitoujianli-*.edgeone.app`
+- [x] 更新CORS配置支持火山云域名  
+- [x] 添加通配符支持 `zhitoujianli-*.zhitoujianli.com`
 - [x] 提交代码修复到GitHub
 
 ### 🔄 待实施
 - [ ] 选择后端部署方案
 - [ ] 配置生产环境API域名
-- [ ] 更新EdgeOne路由配置
+- [ ] 更新火山云路由配置
 - [ ] 验证API服务可用性
 
 ### 🧪 验证步骤

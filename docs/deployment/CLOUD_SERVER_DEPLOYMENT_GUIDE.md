@@ -5,7 +5,7 @@
 ```
 用户访问
     ↓
-EdgeOne CDN (zhitoujianli.com)
+火山云 CDN (zhitoujianli.com)
     ├── 前端静态资源 (/)
     └── API代理 (/api/*) → 云服务器后端
                             ↓
@@ -46,7 +46,7 @@ EdgeOne CDN (zhitoujianli.com)
 ```
 类型    主机记录    解析值
 A       api        云服务器公网IP
-CNAME   @          zhitoujianli-*.edgeone.app (保持不变)
+CNAME   @          zhitoujianli-*.zhitoujianli.com (保持不变)
 ```
 
 ### 2. 服务器环境要求
@@ -333,7 +333,7 @@ certbot renew --dry-run
 
 ### 第五步：配置域名解析
 
-在腾讯云 EdgeOne 控制台添加 DNS 记录：
+在腾讯云 火山云 控制台添加 DNS 记录：
 ```
 类型: A
 主机记录: api
@@ -343,8 +343,8 @@ TTL: 600
 
 ### 第六步：更新前端配置
 
-#### 6.1 修改 EdgeOne 环境变量
-在 EdgeOne 控制台更新环境变量：
+#### 6.1 修改 火山云 环境变量
+在 火山云 控制台更新环境变量：
 ```json
 {
   "env": {
@@ -354,7 +354,7 @@ TTL: 600
 ```
 
 #### 6.2 重新部署前端
-EdgeOne 会自动检测 GitHub 提交并重新部署。
+火山云 会自动检测 GitHub 提交并重新部署。
 
 ## 🔍 部署验证
 
