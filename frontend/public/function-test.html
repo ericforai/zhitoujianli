@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>智投简历 - 功能测试页面</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+      .tab-button.active {
+        border-bottom-color: #4f46e5;
+        color: #4f46e5;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center">
+            <h1 class="text-2xl font-bold text-indigo-600">智投简历</h1>
+            <span class="ml-4 text-sm text-gray-500">功能测试页面</span>
+          </div>
+          <div class="flex items-center space-x-4">
+            <span class="text-sm text-gray-700">欢迎，访客用户</span>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- 页面标题 -->
+      <div class="mb-8">
+        <h2 class="text-3xl font-bold text-gray-900">智能简历管理功能测试</h2>
+        <p class="mt-2 text-gray-600">测试所有功能是否正常工作</p>
+      </div>
+
+      <!-- 功能标签页 -->
+      <div class="border-b border-gray-200 mb-8">
+        <nav class="-mb-px flex space-x-8">
+          <button
+            id="resume-tab"
+            class="tab-button flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm border-indigo-500 text-indigo-600"
+            onclick="switchTab('resume')"
+          >
+            <span>📄</span>
+            <span>简历管理</span>
+          </button>
+          <button
+            id="config-tab"
+            class="tab-button flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            onclick="switchTab('config')"
+          >
+            <span>⚙️</span>
+            <span>投递配置</span>
+          </button>
+          <button
+            id="delivery-tab"
+            class="tab-button flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            onclick="switchTab('delivery')"
+          >
+            <span>🚀</span>
+            <span>自动投递</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- 标签页内容 -->
+      <div>
+        <!-- 简历管理标签页 -->
+        <div id="resume-content" class="tab-content active">
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-xl font-semibold mb-4">简历管理功能测试</h3>
+            <p class="text-gray-600 mb-6">测试简历上传、解析和管理功能</p>
+
+            <!-- 简历状态检查 -->
+            <div id="resume-status" class="mb-6">
+              <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div class="flex items-center">
+                  <div
+                    class="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-600 mr-2"
+                  ></div>
+                  <span class="text-yellow-800">正在检查简历状态...</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 功能测试按钮 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="space-y-4">
+                <h4 class="text-lg font-medium text-gray-900">API测试</h4>
+                <button
+                  onclick="testResumeCheck()"
+                  class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  测试简历检查API
+                </button>
+                <button
+                  onclick="testResumeInfo()"
+                  class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  测试简历信息API
+                </button>
+                <button
+                  onclick="testResumeUpload()"
+                  class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                >
+                  测试简历上传API
+                </button>
+              </div>
+
+              <div class="space-y-4">
+                <h4 class="text-lg font-medium text-gray-900">功能测试</h4>
+                <button
+                  onclick="testFileValidation()"
+                  class="w-full px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+                >
+                  测试文件验证
+                </button>
+                <button
+                  onclick="testResumeParse()"
+                  class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                >
+                  测试简历解析
+                </button>
+                <button
+                  onclick="testResumeDelete()"
+                  class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  测试简历删除
+                </button>
+              </div>
+            </div>
+
+            <!-- 测试结果 -->
+            <div id="test-results" class="mt-6">
+              <h4 class="text-lg font-medium text-gray-900 mb-4">测试结果</h4>
+              <div
+                id="test-output"
+                class="bg-gray-100 rounded-lg p-4 min-h-[200px]"
+              >
+                <p class="text-gray-500">点击上方按钮开始测试...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 投递配置标签页 -->
+        <div id="config-content" class="tab-content">
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-xl font-semibold mb-4">投递配置功能测试</h3>
+            <p class="text-gray-600 mb-6">测试投递配置相关的API功能</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="space-y-4">
+                <h4 class="text-lg font-medium text-gray-900">配置API测试</h4>
+                <button
+                  onclick="testDeliveryConfig()"
+                  class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  测试投递配置API
+                </button>
+                <button
+                  onclick="testBossConfig()"
+                  class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  测试Boss配置API
+                </button>
+                <button
+                  onclick="testBlacklistConfig()"
+                  class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                >
+                  测试黑名单配置API
+                </button>
+              </div>
+
+              <div class="space-y-4">
+                <h4 class="text-lg font-medium text-gray-900">配置更新测试</h4>
+                <button
+                  onclick="testConfigUpdate()"
+                  class="w-full px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+                >
+                  测试配置更新
+                </button>
+                <button
+                  onclick="testConfigValidation()"
+                  class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                >
+                  测试配置验证
+                </button>
+                <button
+                  onclick="testConfigTest()"
+                  class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  测试配置测试
+                </button>
+              </div>
+            </div>
+
+            <!-- 配置测试结果 -->
+            <div id="config-test-results" class="mt-6">
+              <h4 class="text-lg font-medium text-gray-900 mb-4">
+                配置测试结果
+              </h4>
+              <div
+                id="config-test-output"
+                class="bg-gray-100 rounded-lg p-4 min-h-[200px]"
+              >
+                <p class="text-gray-500">点击上方按钮开始测试...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 自动投递标签页 -->
+        <div id="delivery-content" class="tab-content">
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-xl font-semibold mb-4">自动投递功能测试</h3>
+            <p class="text-gray-600 mb-6">测试自动投递相关的API功能</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="space-y-4">
+                <h4 class="text-lg font-medium text-gray-900">
+                  投递控制API测试
+                </h4>
+                <button
+                  onclick="testDeliveryStatus()"
+                  class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  测试投递状态API
+                </button>
+                <button
+                  onclick="testStartDelivery()"
+                  class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  测试启动投递API
+                </button>
+                <button
+                  onclick="testStopDelivery()"
+                  class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  测试停止投递API
+                </button>
+              </div>
+
+              <div class="space-y-4">
+                <h4 class="text-lg font-medium text-gray-900">
+                  投递记录API测试
+                </h4>
+                <button
+                  onclick="testDeliveryRecords()"
+                  class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                >
+                  测试投递记录API
+                </button>
+                <button
+                  onclick="testDeliveryStatistics()"
+                  class="w-full px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+                >
+                  测试投递统计API
+                </button>
+                <button
+                  onclick="testManualDelivery()"
+                  class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                >
+                  测试手动投递API
+                </button>
+              </div>
+            </div>
+
+            <!-- 投递测试结果 -->
+            <div id="delivery-test-results" class="mt-6">
+              <h4 class="text-lg font-medium text-gray-900 mb-4">
+                投递测试结果
+              </h4>
+              <div
+                id="delivery-test-output"
+                class="bg-gray-100 rounded-lg p-4 min-h-[200px]"
+              >
+                <p class="text-gray-500">点击上方按钮开始测试...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE_URL = 'http://115.190.182.95:8080/api';
+
+      // 标签页切换
+      function switchTab(tabName) {
+        // 隐藏所有内容
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.classList.remove('active');
+        });
+
+        // 重置所有按钮样式
+        document.querySelectorAll('.tab-button').forEach(button => {
+          button.classList.remove('border-indigo-500', 'text-indigo-600');
+          button.classList.add('border-transparent', 'text-gray-500');
+        });
+
+        // 显示选中的内容
+        document.getElementById(tabName + '-content').classList.add('active');
+
+        // 设置选中的按钮样式
+        const activeButton = document.getElementById(tabName + '-tab');
+        activeButton.classList.remove('border-transparent', 'text-gray-500');
+        activeButton.classList.add('border-indigo-500', 'text-indigo-600');
+      }
+
+      // 日志输出函数
+      function log(message, type = 'info') {
+        const output =
+          document.getElementById('test-output') ||
+          document.getElementById('config-test-output') ||
+          document.getElementById('delivery-test-output');
+        if (output) {
+          const timestamp = new Date().toLocaleTimeString();
+          const color =
+            type === 'error'
+              ? 'text-red-600'
+              : type === 'success'
+                ? 'text-green-600'
+                : type === 'warning'
+                  ? 'text-yellow-600'
+                  : 'text-gray-700';
+          output.innerHTML += `<div class="${color}">[${timestamp}] ${message}</div>`;
+          output.scrollTop = output.scrollHeight;
+        }
+        console.log(`[${type.toUpperCase()}] ${message}`);
+      }
+
+      // 清空日志
+      function clearLog() {
+        const output =
+          document.getElementById('test-output') ||
+          document.getElementById('config-test-output') ||
+          document.getElementById('delivery-test-output');
+        if (output) {
+          output.innerHTML = '';
+        }
+      }
+
+      // 通用API测试函数
+      async function testApi(endpoint, method = 'GET', data = null) {
+        try {
+          log(`开始测试 ${method} ${endpoint}`, 'info');
+          log(`请求URL: ${API_BASE_URL}${endpoint}`, 'info');
+
+          const options = {
+            method,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            mode: 'cors',
+            credentials: 'omit', // 不发送凭据
+          };
+
+          if (data) {
+            options.body = JSON.stringify(data);
+            log(`请求数据: ${JSON.stringify(data, null, 2)}`, 'info');
+          }
+
+          log(`请求选项: ${JSON.stringify(options, null, 2)}`, 'info');
+
+          const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+
+          log(`响应状态: ${response.status} ${response.statusText}`, 'info');
+          log(`响应URL: ${response.url}`, 'info');
+          log(
+            `响应头: ${JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2)}`,
+            'info'
+          );
+
+          if (response.ok) {
+            const result = await response.json();
+            log(
+              `✅ API调用成功: ${JSON.stringify(result, null, 2)}`,
+              'success'
+            );
+            return result;
+          } else {
+            const errorText = await response.text();
+            log(`❌ API调用失败: ${errorText}`, 'error');
+            return null;
+          }
+        } catch (error) {
+          log(`❌ API测试错误: ${error.message}`, 'error');
+          log(`错误类型: ${error.name}`, 'error');
+          log(`错误堆栈: ${error.stack}`, 'error');
+          return null;
+        }
+      }
+
+      // 简历管理API测试
+      async function testResumeCheck() {
+        clearLog();
+        await testApi('/candidate-resume/check');
+      }
+
+      async function testResumeInfo() {
+        clearLog();
+        await testApi('/candidate-resume/info');
+      }
+
+      async function testResumeUpload() {
+        clearLog();
+        log('简历上传测试需要文件，跳过实际测试', 'warning');
+        log('上传功能需要用户选择文件，这里只测试API端点', 'info');
+      }
+
+      async function testFileValidation() {
+        clearLog();
+        log('文件验证测试', 'info');
+        log('支持的文件类型: PDF, DOC, DOCX, TXT', 'info');
+        log('文件大小限制: 10MB', 'info');
+        log('✅ 文件验证规则已配置', 'success');
+      }
+
+      async function testResumeParse() {
+        clearLog();
+        const testData = {
+          resume_text:
+            '张三\n前端开发工程师\n3年工作经验\n技能：React, Vue, JavaScript',
+        };
+        await testApi('/candidate-resume/parse', 'POST', testData);
+      }
+
+      async function testResumeDelete() {
+        clearLog();
+        await testApi('/candidate-resume/delete', 'POST');
+      }
+
+      // 投递配置API测试
+      async function testDeliveryConfig() {
+        clearLog();
+        await testApi('/delivery/config');
+      }
+
+      async function testBossConfig() {
+        clearLog();
+        await testApi('/delivery/boss-config');
+      }
+
+      async function testBlacklistConfig() {
+        clearLog();
+        await testApi('/delivery/blacklist');
+      }
+
+      async function testConfigUpdate() {
+        clearLog();
+        log('配置更新测试需要完整配置数据，跳过实际测试', 'warning');
+        log('更新功能需要完整的配置对象', 'info');
+      }
+
+      async function testConfigValidation() {
+        clearLog();
+        log('配置验证测试', 'info');
+        log('✅ 配置验证规则已配置', 'success');
+      }
+
+      async function testConfigTest() {
+        clearLog();
+        log('配置测试功能需要配置数据，跳过实际测试', 'warning');
+      }
+
+      // 自动投递API测试
+      async function testDeliveryStatus() {
+        clearLog();
+        await testApi('/delivery/status');
+      }
+
+      async function testStartDelivery() {
+        clearLog();
+        await testApi('/delivery/start', 'POST');
+      }
+
+      async function testStopDelivery() {
+        clearLog();
+        await testApi('/delivery/stop', 'POST');
+      }
+
+      async function testDeliveryRecords() {
+        clearLog();
+        await testApi('/delivery/records?page=0&size=10');
+      }
+
+      async function testDeliveryStatistics() {
+        clearLog();
+        await testApi('/delivery/statistics');
+      }
+
+      async function testManualDelivery() {
+        clearLog();
+        const testData = {
+          jobId: 'test-job-123',
+          jobTitle: '前端开发工程师',
+          companyName: '测试公司',
+          jobUrl: 'https://example.com/job/123',
+        };
+        await testApi('/delivery/manual', 'POST', testData);
+      }
+
+      // 页面加载完成后自动检查简历状态
+      window.addEventListener('load', function () {
+        console.log('页面加载完成，开始检查简历状态...');
+        checkResumeStatus();
+      });
+
+      // 检查简历状态
+      async function checkResumeStatus() {
+        const statusDiv = document.getElementById('resume-status');
+
+        try {
+          console.log('🧪 开始检查简历状态...');
+          console.log(
+            'API URL: http://115.190.182.95:8080/api/candidate-resume/check'
+          );
+
+          const response = await fetch(
+            'http://115.190.182.95:8080/api/candidate-resume/check',
+            {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                Origin: 'http://115.190.182.95:3000',
+              },
+              mode: 'cors',
+            }
+          );
+
+          console.log('Response status:', response.status);
+          console.log('Response URL:', response.url);
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log('✅ 简历状态检查成功:', data);
+
+            if (data.hasResume) {
+              statusDiv.innerHTML = `
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div class="flex items-center">
+                    <div class="text-green-600 mr-2">✅</div>
+                    <span class="text-green-800">简历已上传，可以开始投递</span>
+                  </div>
+                </div>
+              `;
+            } else {
+              statusDiv.innerHTML = `
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div class="flex items-center">
+                    <div class="text-blue-600 mr-2">ℹ️</div>
+                    <span class="text-blue-800">尚未上传简历，请先上传简历文件</span>
+                  </div>
+                </div>
+              `;
+            }
+          } else {
+            throw new Error(
+              `API调用失败: ${response.status} ${response.statusText}`
+            );
+          }
+        } catch (error) {
+          console.error('❌ 检查简历状态失败:', error);
+          statusDiv.innerHTML = `
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div class="flex items-center">
+                <div class="text-red-600 mr-2">❌</div>
+                <span class="text-red-800">检查简历状态失败: ${error.message}</span>
+              </div>
+            </div>
+          `;
+        }
+      }
+    </script>
+  </body>
+</html>

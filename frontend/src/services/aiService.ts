@@ -16,7 +16,9 @@ export interface ResumeParseResult {
   skills: string[];
   core_strengths: string[];
   education: string;
-  company: string;
+  company?: string; // 设为可选字段
+  phone?: string; // 设为可选字段
+  email?: string; // 设为可选字段
   confidence: {
     name: number;
     skills: number;
