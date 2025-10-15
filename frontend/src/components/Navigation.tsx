@@ -1,17 +1,10 @@
-<<<<<<< HEAD
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { authService } from '../services/authService';
-=======
-import React, { useState } from 'react';
-// 移除认证服务导入
-// import { authService } from '../services/authService';
->>>>>>> 61e6974 (✨ 修复博客图片显示问题 - 使用hero-image.png替代default.png)
 
 const Navigation = () => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-<<<<<<< HEAD
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
 
@@ -34,153 +27,131 @@ const Navigation = () => {
     };
 
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, [location.pathname]); // 当路径变化时重新检查登录状态
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   const handleLogout = () => {
     authService.logout();
     setIsLoggedIn(false);
     setUser(null);
-    // authService.logout() 已经包含了跳转逻辑
+    window.location.reload();
   };
 
-  // const handleDashboardClick = () => {
-  //   if (isLoggedIn) {
-  //     window.location.href = '/dashboard';
-  //   } else {
-  //     window.location.href = '/login';
-  //   }
-  // };
-=======
->>>>>>> 61e6974 (✨ 修复博客图片显示问题 - 使用hero-image.png替代default.png)
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
 
   return (
-    <nav className='bg-white shadow-sm fixed w-full top-0 z-50'>
+    <nav className='bg-white shadow-lg fixed w-full z-50 top-0'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-        <div className='flex justify-between items-center h-16'>
+        <div className='flex justify-between h-16'>
           {/* Logo */}
           <div className='flex items-center'>
-            <div className='flex-shrink-0 flex items-center space-x-2'>
-              {/* Logo图标：简历文档+箭头 */}
-              <div className='w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center'>
-                <svg
-                  className='w-5 h-5 text-white'
-                  fill='none'
-                  stroke='currentColor'
-                  viewBox='0 0 24 24'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
-                  />
-                </svg>
-                <svg
-                  className='w-3 h-3 text-white ml-0.5'
-                  fill='none'
-                  stroke='currentColor'
-                  viewBox='0 0 24 24'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={3}
-                    d='M13 7l5 5m0 0l-5 5m5-5H6'
-                  />
-                </svg>
-              </div>
-              <h1 className='text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent font-chinese'>
+            <a href='/' className='flex-shrink-0 flex items-center'>
+              <img className='h-8 w-8' src='/logo192.png' alt='智投简历' />
+              <span className='ml-2 text-xl font-bold text-gray-800'>
                 智投简历
-              </h1>
-            </div>
+              </span>
+            </a>
           </div>
 
-          {/* Desktop Menu */}
-          <div className='hidden md:block'>
-            <div className='ml-10 flex items-baseline space-x-8'>
-              <a
-                href='#features'
-                className='text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors'
-              >
-                功能
-              </a>
-              <a
-                href='#demo'
-                className='text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors'
-              >
-                演示
-              </a>
-              <a
-                href='#smart-greeting'
-                className='text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors'
-              >
-                智能打招呼
-              </a>
-              <a
-                href='/blog/'
-                className='text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors'
-              >
-                博客
-              </a>
-              <a
-                href='#contact'
-                className='text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors'
-              >
-                联系我们
-              </a>
-            </div>
+          {/* Desktop Navigation */}
+          <div className='hidden md:flex items-center space-x-8'>
+            <a
+              href='/'
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActive('/')
+                  ? 'text-blue-600 bg-blue-50'
+                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+              }`}
+            >
+              首页
+            </a>
+            <a
+              href='/features'
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActive('/features')
+                  ? 'text-blue-600 bg-blue-50'
+                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+              }`}
+            >
+              功能特色
+            </a>
+            <a
+              href='/pricing'
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActive('/pricing')
+                  ? 'text-blue-600 bg-blue-50'
+                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+              }`}
+            >
+              价格方案
+            </a>
+            <a
+              href='/blog'
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActive('/blog')
+                  ? 'text-blue-600 bg-blue-50'
+                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+              }`}
+            >
+              博客
+            </a>
+            <a
+              href='/contact'
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActive('/contact')
+                  ? 'text-blue-600 bg-blue-50'
+                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+              }`}
+            >
+              联系我们
+            </a>
           </div>
 
-<<<<<<< HEAD
-          {/* CTA Buttons */}
-          <div className='hidden md:flex items-center space-x-3'>
+          {/* Desktop Auth Buttons */}
+          <div className='hidden md:flex items-center space-x-4'>
             {isLoggedIn ? (
-              <>
-                <span className='text-gray-700 text-sm'>
-                  欢迎，{user?.username || user?.email || '用户'}
+              <div className='flex items-center space-x-4'>
+                <span className='text-sm text-gray-700'>
+                  欢迎，{user?.name || user?.email || '用户'}
                 </span>
                 <button
                   onClick={handleLogout}
-                  className='bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors'
+                  className='bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors'
                 >
-                  退出
+                  退出登录
                 </button>
-              </>
+              </div>
             ) : (
-              <>
+              <div className='flex items-center space-x-4'>
                 <a
                   href='/login'
-                  className='text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors'
+                  className='text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors'
                 >
                   登录
                 </a>
                 <a
                   href='/register'
-                  className='bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors'
+                  className='bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors'
                 >
                   注册
                 </a>
-              </>
+              </div>
             )}
           </div>
-=======
-                 {/* CTA Buttons - 移除登录注册 */}
-                 <div className="hidden md:flex items-center space-x-3">
-                   <a href="/dashboard" className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
-                     后台管理
-                   </a>
-                   <a href="#contact" className="bg-gradient-primary text-white px-6 py-2 rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                     立即体验
-                   </a>
-                 </div>
->>>>>>> 61e6974 (✨ 修复博客图片显示问题 - 使用hero-image.png替代default.png)
 
           {/* Mobile menu button */}
-          <div className='md:hidden'>
+          <div className='md:hidden flex items-center'>
             <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className='text-gray-700 hover:text-indigo-600 focus:outline-none'
+              onClick={toggleMenu}
+              className='text-gray-700 hover:text-blue-600 focus:outline-none focus:text-blue-600'
             >
               <svg
                 className='h-6 w-6'
@@ -198,83 +169,106 @@ const Navigation = () => {
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className='md:hidden'>
-            <div className='px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t'>
-              <a
-                href='#features'
-                className='text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium'
-              >
-                功能
-              </a>
-              <a
-                href='#demo'
-                className='text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium'
-              >
-                演示
-              </a>
-              <a
-                href='#smart-greeting'
-                className='text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium'
-              >
-                智能打招呼
-              </a>
-              <a
-                href='/blog/'
-                className='text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium'
-              >
-                博客
-              </a>
-              <a
-                href='#contact'
-                className='text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium'
-              >
-                联系我们
-              </a>
-<<<<<<< HEAD
+      {/* Mobile Navigation */}
+      {isMenuOpen && (
+        <div className='md:hidden'>
+          <div className='px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t'>
+            <a
+              href='/'
+              className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                isActive('/')
+                  ? 'text-blue-600 bg-blue-50'
+                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+              }`}
+            >
+              首页
+            </a>
+            <a
+              href='/features'
+              className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                isActive('/features')
+                  ? 'text-blue-600 bg-blue-50'
+                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+              }`}
+            >
+              功能特色
+            </a>
+            <a
+              href='/pricing'
+              className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                isActive('/pricing')
+                  ? 'text-blue-600 bg-blue-50'
+                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+              }`}
+            >
+              价格方案
+            </a>
+            <a
+              href='/blog'
+              className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                isActive('/blog')
+                  ? 'text-blue-600 bg-blue-50'
+                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+              }`}
+            >
+              博客
+            </a>
+            <a
+              href='/contact'
+              className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                isActive('/contact')
+                  ? 'text-blue-600 bg-blue-50'
+                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+              }`}
+            >
+              联系我们
+            </a>
 
-              {/* 移动端登录按钮 */}
+            {/* Mobile Auth Buttons */}
+            <div className='pt-4 pb-3 border-t border-gray-200'>
               {isLoggedIn ? (
-                <>
-                  <div className='px-3 py-2 text-sm text-gray-600'>
-                    欢迎，{user?.username || user?.email || '用户'}
+                <div className='flex items-center px-4'>
+                  <div className='flex-shrink-0'>
+                    <div className='h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center'>
+                      <span className='text-sm font-medium text-white'>
+                        {user?.name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className='ml-3'>
+                    <div className='text-base font-medium text-gray-800'>
+                      {user?.name || user?.email || '用户'}
+                    </div>
                   </div>
                   <button
                     onClick={handleLogout}
-                    className='w-full bg-gray-600 text-white px-6 py-2 rounded-lg mt-2 text-center block hover:bg-gray-700'
+                    className='ml-auto bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors'
                   >
                     退出
                   </button>
-                </>
+                </div>
               ) : (
-                <>
+                <div className='space-y-2'>
                   <a
                     href='/login'
-                    className='w-full bg-indigo-600 text-white px-6 py-2 rounded-lg mt-2 text-center block hover:bg-indigo-700'
+                    className='block px-4 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors'
                   >
                     登录
                   </a>
                   <a
                     href='/register'
-                    className='w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-lg mt-2 text-center block'
+                    className='block px-4 py-2 text-base font-medium bg-blue-600 text-white hover:bg-blue-700 rounded-md transition-colors'
                   >
                     注册
                   </a>
-                </>
+                </div>
               )}
-=======
-              
-              {/* 移动端按钮 - 移除登录注册 */}
-              <a href="/dashboard" className="w-full bg-indigo-600 text-white px-6 py-2 rounded-lg mt-2 text-center block hover:bg-indigo-700">
-                后台管理
-              </a>
->>>>>>> 61e6974 (✨ 修复博客图片显示问题 - 使用hero-image.png替代default.png)
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </nav>
   );
 };
