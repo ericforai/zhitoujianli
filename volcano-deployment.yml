@@ -13,11 +13,11 @@ services:
       - "80:80"
     environment:
       - NODE_ENV=production
-      - REACT_APP_API_URL=http://115.190.182.95/api
-      - REACT_APP_AUTHING_DOMAIN=http://115.190.182.95/authing
+      - REACT_APP_API_URL=/api
+      - REACT_APP_AUTHING_DOMAIN=https://zhitoujianli.authing.cn
       - REACT_APP_AUTHING_APP_ID=68db6e4e85de9cb8daf2b3d2
       - REACT_APP_AUTHING_USER_POOL_ID=68db6e4c4f248dd866413bc2
-      - SITE_URL=http://115.190.182.95
+      - SITE_URL=https://zhitoujianli.com
     depends_on:
       - backend
     networks:
