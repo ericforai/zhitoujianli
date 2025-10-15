@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- AI岗位智能匹配博客文章 -->
+  <url>
+    <loc>https://zhitoujianli.com/blog/ai-job-matching-intelligent-resume-delivery</loc>
+
+    <!-- 多语言版本 -->
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://zhitoujianli.com/zh/blog/ai-job-matching-intelligent-resume-delivery" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://zhitoujianli.com/en/blog/ai-job-matching-intelligent-resume-delivery" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://zhitoujianli.com/blog/ai-job-matching-intelligent-resume-delivery" />
+
+    <!-- 最后修改时间 -->
+    <lastmod>2025-10-10T00:00:00+08:00</lastmod>
+
+    <!-- 更新频率（每月更新内容） -->
+    <changefreq>monthly</changefreq>
+
+    <!-- 优先级（0.0-1.0，核心产品功能文章设置为高优先级） -->
+    <priority>0.9</priority>
+
+    <!-- 图片信息 -->
+    <image:image>
+      <image:loc>https://zhitoujianli.com/images/blog/ai-job-matching-hero.jpg</image:loc>
+      <image:caption>智投简历AI岗位匹配系统界面展示</image:caption>
+      <image:title>AI岗位智能匹配系统</image:title>
+      <image:geo_location>中国</image:geo_location>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://zhitoujianli.com/images/blog/ai-job-matching-dashboard.jpg</image:loc>
+      <image:caption>投递历史仪表盘和匹配度分析</image:caption>
+      <image:title>投递历史仪表盘</image:title>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://zhitoujianli.com/images/blog/ai-greeting-comparison.jpg</image:loc>
+      <image:caption>AI个性化打招呼语 vs 通用模板对比</image:caption>
+      <image:title>AI打招呼语效果对比</image:title>
+    </image:image>
+
+    <!-- 新闻扩展（如果作为新闻发布） -->
+    <news:news>
+      <news:publication>
+        <news:name>智投简历博客</news:name>
+        <news:language>zh-CN</news:language>
+      </news:publication>
+      <news:publication_date>2025-10-10T00:00:00+08:00</news:publication_date>
+      <news:title>AI岗位智能匹配：让每一次简历投递成功率提升3倍的秘密武器</news:title>
+      <news:keywords>AI简历投递,智能岗位匹配,DeepSeek应用,求职效率</news:keywords>
+    </news:news>
+  </url>
+
+</urlset>
+
+
+

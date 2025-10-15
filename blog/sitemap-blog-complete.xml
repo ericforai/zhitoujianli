@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- ============================================
+       智投简历博客 - 完整Sitemap
+       最后更新：2025-10-10
+       ============================================ -->
+
+  <!-- 1. AI岗位智能匹配功能（新）- 最高优先级 -->
+  <url>
+    <loc>https://zhitoujianli.com/blog/ai-job-matching-intelligent-resume-delivery</loc>
+    <lastmod>2025-10-10T00:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://zhitoujianli.com/images/blog/ai-job-matching-hero.jpg</image:loc>
+      <image:caption>AI岗位智能匹配系统界面展示</image:caption>
+    </image:image>
+  </url>
+
+  <!-- 2. AI职位匹配技术深度解析 - 核心技术文章 -->
+  <url>
+    <loc>https://zhitoujianli.com/blog/ai-job-matching-technology</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://zhitoujianli.com/zh/blog/ai-job-matching-technology" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://zhitoujianli.com/en/blog/ai-job-matching-technology" />
+    <lastmod>2025-10-10T00:00:00+08:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://zhitoujianli.com/images/blog/ai-job-matching-technology.jpg</image:loc>
+      <image:caption>BERT算法和深度学习架构图</image:caption>
+    </image:image>
+  </url>
+
+  <!-- 3. AI智能打招呼语深度解析 - 核心功能文章 -->
+  <url>
+    <loc>https://zhitoujianli.com/blog/ai-smart-greeting-deep-dive</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://zhitoujianli.com/zh/blog/ai-smart-greeting-deep-dive" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://zhitoujianli.com/en/blog/ai-smart-greeting-deep-dive" />
+    <lastmod>2025-10-10T00:00:00+08:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://zhitoujianli.com/images/blog/ai-smart-greeting-hero.jpg</image:loc>
+      <image:caption>AI智能打招呼语生成流程图</image:caption>
+    </image:image>
+  </url>
+
+  <!-- 4. 智能打招呼语功能介绍 -->
+  <url>
+    <loc>https://zhitoujianli.com/blog/intelligent-greeting-feature</loc>
+    <lastmod>2025-10-10T00:00:00+08:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zhitoujianli.com/images/blog/intelligent-greeting-feature.jpg</image:loc>
+      <image:caption>3种风格打招呼语对比</image:caption>
+    </image:image>
+  </url>
+
+  <!-- 5. 2025年就业市场趋势分析 - 行业报告 -->
+  <url>
+    <loc>https://zhitoujianli.com/blog/industry-trends-analysis</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://zhitoujianli.com/zh/blog/industry-trends-analysis" />
+    <lastmod>2025-10-10T00:00:00+08:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://zhitoujianli.com/images/blog/industry-trends-2025.jpg</image:loc>
+      <image:caption>2025年就业市场趋势数据可视化</image:caption>
+    </image:image>
+  </url>
+
+  <!-- 6. 职场发展完全指南 -->
+  <url>
+    <loc>https://zhitoujianli.com/blog/career-development-guide</loc>
+    <lastmod>2025-10-10T00:00:00+08:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zhitoujianli.com/images/blog/career-development-guide.jpg</image:loc>
+      <image:caption>职场发展5阶段路径图</image:caption>
+    </image:image>
+  </url>
+
+  <!-- 7. 简历优化技巧指南 -->
+  <url>
+    <loc>https://zhitoujianli.com/blog/resume-optimization-tips</loc>
+    <lastmod>2025-10-10T00:00:00+08:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zhitoujianli.com/images/blog/resume-optimization-tips.jpg</image:loc>
+      <image:caption>简历优化前后对比示例</image:caption>
+    </image:image>
+  </url>
+
+  <!-- 8. 面试准备完全指南 -->
+  <url>
+    <loc>https://zhitoujianli.com/blog/interview-preparation-guide</loc>
+    <lastmod>2025-10-10T00:00:00+08:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zhitoujianli.com/images/blog/interview-preparation-guide.jpg</image:loc>
+      <image:caption>面试准备7步流程图</image:caption>
+    </image:image>
+  </url>
+
+  <!-- 9. 智投简历产品介绍 -->
+  <url>
+    <loc>https://zhitoujianli.com/blog/zhitoujianli-introduction</loc>
+    <lastmod>2025-10-10T00:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://zhitoujianli.com/images/blog/zhitoujianli-product-hero.jpg</image:loc>
+      <image:caption>智投简历产品功能展示</image:caption>
+    </image:image>
+  </url>
+
+  <!-- 博客首页 -->
+  <url>
+    <loc>https://zhitoujianli.com/blog</loc>
+    <lastmod>2025-10-10T00:00:00+08:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 博客分类页面 -->
+  <url>
+    <loc>https://zhitoujianli.com/blog/category/技术深度</loc>
+    <lastmod>2025-10-10T00:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://zhitoujianli.com/blog/category/产品功能</loc>
+    <lastmod>2025-10-10T00:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://zhitoujianli.com/blog/category/求职指南</loc>
+    <lastmod>2025-10-10T00:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://zhitoujianli.com/blog/category/职场建议</loc>
+    <lastmod>2025-10-10T00:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://zhitoujianli.com/blog/category/行业分析</loc>
+    <lastmod>2025-10-10T00:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- 博客标签页面 -->
+  <url>
+    <loc>https://zhitoujianli.com/blog/tag/AI技术</loc>
+    <lastmod>2025-10-10T00:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://zhitoujianli.com/blog/tag/求职技巧</loc>
+    <lastmod>2025-10-10T00:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://zhitoujianli.com/blog/tag/职业规划</loc>
+    <lastmod>2025-10-10T00:00:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+</urlset>
+
+
+

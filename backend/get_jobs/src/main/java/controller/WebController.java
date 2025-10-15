@@ -1,24 +1,37 @@
 package controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import lombok.extern.slf4j.Slf4j;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import service.UserDataService;
-import util.UserContextUtil;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import lombok.extern.slf4j.Slf4j;
 import service.BossExecutionService;
+import service.UserDataService;
+import util.UserContextUtil;
 
 @Controller
 @Slf4j
@@ -42,7 +55,7 @@ public class WebController {
     public String index(Model model, HttpServletRequest request, HttpServletResponse response) {
         try {
             // 移除登录检查 - 无需认证即可访问
-            /* 
+            /*
             if (!UserContextUtil.isAuthenticated()) {
                 log.warn("未登录用户试图访问后台管理页面，重定向到登录页面");
 
@@ -77,13 +90,11 @@ public class WebController {
 
 =======
             */
-            
+
             // 无需登录，直接显示后台管理页面
             String userId = "anonymous";
             String userEmail = "anonymous@example.com";
             log.info("访客访问后台管理: userId={}, email={}", userId, userEmail);
-            
->>>>>>> 61e6974 (✨ 修复博客图片显示问题 - 使用hero-image.png替代default.png)
             // 加载当前配置
             Map<String, Object> config = loadConfig();
             model.addAttribute("config", config);

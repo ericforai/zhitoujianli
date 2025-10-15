@@ -1,0 +1,14 @@
+{
+  "skills" : [ ],
+  "core_strengths" : [ ],
+  "education" : null,
+  "years_experience" : 0,
+  "confidence" : {
+    "skills" : 0.0,
+    "name" : 0.0,
+    "experience" : 0.0
+  },
+  "name" : null,
+  "company" : null,
+  "current_title" : null
+}

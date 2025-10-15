@@ -1,0 +1,21 @@
+{
+    "timestamp": "2025-10-15T13:20:51+08:00",
+    "git": {
+        "hash": "a4d9bb0b51b80da4141e666bb2ecfea849996722",
+        "branch": "main",
+        "commit_date": "2025-10-11 23:06:40 +0800",
+        "commit_message": "refactor(frontend): 系统性代码质量改进"
+    },
+    "frontend": {
+        "build_time": 1760496339,
+        "production_time": 1760501690,
+        "build_js": "main.045a2d10.js",
+        "production_js": "main.045a2d10.js",
+        "synchronized": "true"
+    },
+    "backend": {
+        "build_time": ,
+        "is_running": true,
+        "pid_file": "/root/zhitoujianli/backend.pid"
+    }
+}

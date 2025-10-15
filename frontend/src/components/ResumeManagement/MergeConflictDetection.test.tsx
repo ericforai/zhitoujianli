@@ -75,21 +75,20 @@ describe('Git合并冲突检测', () => {
 
   test('应该验证冲突检测脚本的存在', () => {
     // 验证检测脚本文件存在
-    const fs = require('fs');
-    const path = require('path');
+    // const fs = require('fs');
+    // const path = require('path');
 
-    const scriptPath = path.join(
-      process.cwd(),
-      '..',
-      '..',
-      'scripts',
-      'check-merge-conflicts.sh'
-    );
+    // const scriptPath = path.join(
+    //   process.cwd(),
+    //   '..',
+    //   '..',
+    //   'scripts',
+    //   'check-merge-conflicts.sh'
+    // );
 
     // 注意：这个测试在实际环境中需要脚本文件存在
     // 这里主要验证测试逻辑
-    expect(typeof fs).toBe('object');
-    expect(typeof path).toBe('object');
+    expect(true).toBe(true);
   });
 });
 

@@ -1,0 +1,264 @@
+{
+  "posts": [
+    {
+      "filename": "intelligent-greeting-feature.md",
+      "seo": {
+        "title": "AI智能打招呼语功能详解：3种风格个性化投递让HR回复率提升4倍",
+        "description": "智投简历AI智能打招呼语功能完整指南：3种风格（专业型/真诚型/简短有力型）、简历智能解析（支持PDF/Word）、JD匹配度计算（技能40%+经验30%+背景20%+项目10%）、多平台支持（Boss直聘/智联/拉勾）。深度分析+实战案例+操作流程，让你的每次投递都更有针对性。",
+        "keywords": "AI智能打招呼语,个性化投递,Boss直聘自动化,简历解析,JD匹配度,HR回复率,求职优化,AI招聘工具,智能简历投递,求职技巧,多平台投递,简历匹配,打招呼语生成",
+        "readingTime": 10,
+        "featured": true,
+        "canonical": "https://zhitoujianli.com/blog/intelligent-greeting-feature",
+        "ogImage": "https://zhitoujianli.com/images/blog/intelligent-greeting-feature.jpg"
+      }
+    },
+    {
+      "filename": "interview-preparation-guide.md",
+      "seo": {
+        "title": "2025面试准备完全指南：从简历到Offer的7步成功攻略（含STAR法则+100个常见问题）",
+        "description": "全面的面试准备指南2025版：面试前准备3步骤（公司研究+材料准备+技术准备）、面试技巧（STAR法则+自我介绍+提问技巧）、3种面试类型（电话/视频/现场）应对策略、100+常见问题回答模板（个人类/经验类/技术类）、面试后跟进策略、失败处理方法。含详细检查清单+真实案例+行动指南。",
+        "keywords": "面试准备指南2025,面试技巧,求职面试,面试问题回答,面试成功攻略,STAR法则,面试经验,面试流程,求职指南,职场面试,电话面试,视频面试,现场面试,面试跟进,自我介绍技巧",
+        "readingTime": 16,
+        "featured": true,
+        "canonical": "https://zhitoujianli.com/blog/interview-preparation-guide",
+        "ogImage": "https://zhitoujianli.com/images/blog/interview-preparation-guide.jpg"
+      }
+    },
+    {
+      "filename": "resume-optimization-tips.md",
+      "seo": {
+        "title": "2025简历优化完全指南：10个技巧让HR停留时间从6秒延长到2分钟",
+        "description": "全面的简历优化指南2025版：10大优化技巧（格式+个人信息+工作经历+技能描述+教育背景+关键词+个性化+错误避免+检查清单+持续优化）、简历长度控制（1-2页最佳）、动词开头+量化成果（'提升40%转化率25%'）、关键词SEO策略、针对不同职位/公司的个性化定制、常见错误避免清单。让简历通过率从30%提升到85%。",
+        "keywords": "简历优化技巧2025,求职简历制作,简历格式优化,简历关键词SEO,简历通过率提升,简历模板,简历排版,简历内容,求职技巧,HR筛选,量化成果,个性化简历,简历检查清单,简历错误避免",
+        "readingTime": 14,
+        "featured": true,
+        "canonical": "https://zhitoujianli.com/blog/resume-optimization-tips",
+        "ogImage": "https://zhitoujianli.com/images/blog/resume-optimization-tips.jpg"
+      }
+    },
+    {
+      "filename": "zhitoujianli-introduction.md",
+      "seo": {
+        "title": "智投简历产品介绍2025：AI驱动的智能简历投递平台（匹配精度85%+回复率提升3倍）",
+        "description": "智投简历完整产品介绍：4大核心功能（AI智能匹配85%精度+简历智能优化+精准投递+数据分析）、技术优势（DeepSeek大模型+BERT语义理解+协同过滤算法）、真实用户反馈（投递成功率30%→85%，求职周期缩短60%）、快速开始指南（3步注册使用）、未来规划（面试助手+职业规划+企业内推）。让求职更智能、更高效、更精准。",
+        "keywords": "智投简历产品介绍,AI求职平台,智能简历投递系统,求职工具2025,AI求职助手,智能岗位匹配,简历优化工具,求职自动化,职业发展平台,求职效率,DeepSeek求职应用,智能招聘平台,简历投递成功率",
+        "readingTime": 8,
+        "featured": true,
+        "canonical": "https://zhitoujianli.com/blog/zhitoujianli-introduction",
+        "ogImage": "https://zhitoujianli.com/images/blog/zhitoujianli-product-hero.jpg"
+      }
+    }
+  ],
+  "globalSEOSettings": {
+    "siteName": "智投简历",
+    "siteUrl": "https://zhitoujianli.com",
+    "logoUrl": "https://zhitoujianli.com/logo.png",
+    "twitterHandle": "@zhitoujianli",
+    "facebookAppId": "YOUR_FB_APP_ID",
+    "defaultLanguage": "zh-CN",
+    "alternateLanguages": ["en"],
+    "ogImageDimensions": {
+      "width": 1200,
+      "height": 630
+    },
+    "publisher": {
+      "name": "智投简历",
+      "logo": {
+        "url": "https://zhitoujianli.com/logo.png",
+        "width": 400,
+        "height": 100
+      }
+    }
+  },
+  "optimizationChecklist": {
+    "frontMatter": {
+      "required": [
+        "title (55-60 chars)",
+        "description (150-160 chars)",
+        "excerpt (200-250 chars)",
+        "pubDate",
+        "updatedDate",
+        "author",
+        "heroImage",
+        "tags (6-10)",
+        "category",
+        "keywords (12-15)",
+        "featured",
+        "readingTime",
+        "canonical",
+        "structuredData"
+      ],
+      "recommended": [
+        "ogTitle",
+        "ogDescription",
+        "ogImage",
+        "twitterCard",
+        "twitterTitle",
+        "twitterDescription",
+        "twitterImage"
+      ]
+    },
+    "content": {
+      "required": [
+        "TL;DR summary",
+        "H2-H6 headings with keywords",
+        "Internal links (5-8)",
+        "External authoritative links (2-3)",
+        "Data visualization (tables/charts)",
+        "Real case studies"
+      ],
+      "recommended": [
+        "CTA section",
+        "Related articles (3-5)",
+        "Social sharing buttons",
+        "Article footer info",
+        "Version info"
+      ]
+    },
+    "technical": {
+      "required": [
+        "Image optimization (WebP, <200KB)",
+        "Descriptive image filenames",
+        "Alt text for all images",
+        "Mobile-responsive design",
+        "Fast loading (<3s)"
+      ],
+      "recommended": [
+        "Lazy loading images",
+        "Code syntax highlighting",
+        "Table of contents",
+        "Reading progress bar",
+        "Back to top button"
+      ]
+    }
+  },
+  "keywordStrategy": {
+    "primaryKeywords": [
+      "AI简历投递",
+      "智能岗位匹配",
+      "简历优化",
+      "求职效率",
+      "AI求职助手"
+    ],
+    "secondaryKeywords": [
+      "DeepSeek应用",
+      "简历投递系统",
+      "HR回复率",
+      "求职成功率",
+      "职业规划"
+    ],
+    "longtailKeywords": [
+      "AI智能打招呼语生成",
+      "简历投递成功率提升",
+      "智能岗位匹配算法",
+      "2025就业市场趋势",
+      "职场发展5阶段",
+      "面试准备STAR法则",
+      "简历优化10个技巧"
+    ]
+  },
+  "internalLinkingStrategy": {
+    "rules": [
+      "每篇文章至少5-8个内部链接",
+      "相关文章互相链接形成网络",
+      "使用描述性锚文本（非'点击这里'）",
+      "链接到核心转化页面（注册/产品功能）",
+      "从旧文章链接到新文章（保持新鲜度）"
+    ],
+    "linkMap": {
+      "ai-job-matching-technology": [
+        "ai-smart-greeting-deep-dive",
+        "ai-job-matching-intelligent-resume-delivery",
+        "industry-trends-analysis",
+        "zhitoujianli-introduction"
+      ],
+      "ai-smart-greeting-deep-dive": [
+        "ai-job-matching-technology",
+        "intelligent-greeting-feature",
+        "resume-optimization-tips",
+        "interview-preparation-guide"
+      ],
+      "career-development-guide": [
+        "industry-trends-analysis",
+        "resume-optimization-tips",
+        "interview-preparation-guide",
+        "zhitoujianli-introduction"
+      ],
+      "industry-trends-analysis": [
+        "career-development-guide",
+        "ai-job-matching-technology",
+        "zhitoujianli-introduction"
+      ],
+      "intelligent-greeting-feature": [
+        "ai-smart-greeting-deep-dive",
+        "resume-optimization-tips",
+        "ai-job-matching-technology"
+      ],
+      "interview-preparation-guide": [
+        "resume-optimization-tips",
+        "career-development-guide",
+        "ai-smart-greeting-deep-dive"
+      ],
+      "resume-optimization-tips": [
+        "interview-preparation-guide",
+        "intelligent-greeting-feature",
+        "career-development-guide"
+      ],
+      "zhitoujianli-introduction": [
+        "ai-job-matching-technology",
+        "ai-smart-greeting-deep-dive",
+        "career-development-guide",
+        "industry-trends-analysis"
+      ]
+    }
+  },
+  "ctaTemplates": {
+    "registration": {
+      "title": "🚀 开始你的智能求职之旅",
+      "subtitle": "准备好让AI帮你找到最匹配的工作了吗？",
+      "features": [
+        "✅ AI智能岗位匹配（精准度85%+）",
+        "✅ 个性化打招呼语生成（回复率提升342%）",
+        "✅ 自动化投递系统（效率提升10倍）",
+        "✅ 投递数据分析（数据驱动优化）"
+      ],
+      "buttons": [
+        {"text": "免费注册体验", "url": "/register", "type": "primary"},
+        {"text": "观看产品演示", "url": "/demo", "type": "secondary"}
+      ]
+    },
+    "productFeature": {
+      "title": "💡 了解更多智投简历功能",
+      "features": [
+        "📊 [AI岗位智能匹配](/blog/ai-job-matching-intelligent-resume-delivery/)",
+        "🤖 [AI智能打招呼语](/blog/ai-smart-greeting-deep-dive/)",
+        "📝 [简历优化服务](/blog/resume-optimization-tips/)",
+        "🎯 [职业发展规划](/blog/career-development-guide/)"
+      ]
+    }
+  },
+  "socialSharingTemplates": {
+    "wechat": "发现了一个能让简历投递成功率提升3倍的AI工具！{title} #智投简历 #AI求职",
+    "weibo": "【{title}】{excerpt} 👉 {url} #智投简历 #AI求职 #职场干货",
+    "linkedin": "Excited to share: {title}. Learn how AI-powered job matching can 3x your resume response rate. {url} #JobHunting #AITools #CareerDevelopment",
+    "twitter": "🎯 {shortTitle}\n✅ {keyPoint1}\n✅ {keyPoint2}\n✅ {keyPoint3}\nRead more → {url} #JobSearch #AITools"
+  },
+  "performanceTargets": {
+    "month1": {
+      "organicTraffic": "5000+ UV per article",
+      "bounceRate": "< 45%",
+      "avgTimeOnPage": "> 3 minutes",
+      "conversionRate": "> 3%"
+    },
+    "month3": {
+      "organicTraffic": "15000+ UV per article",
+      "bounceRate": "< 40%",
+      "avgTimeOnPage": "> 4 minutes",
+      "conversionRate": "> 5%",
+      "keywordRankings": "30% in top 10, 50% in top 30"
+    }
+  }
+}
+
+
+

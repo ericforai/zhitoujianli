@@ -1,0 +1,32 @@
+{
+  "userId" : "user1_1760440478559_6880@test.example.com",
+  "boss" : {
+    "debugger" : false,
+    "sayHi" : "你好，我是40的专属打招呼语",
+    "keywords" : [ "软件工程师", "Java开发" ],
+    "cityCode" : [ "北京" ],
+    "experience" : [ "5-10年" ],
+    "jobType" : "全职",
+    "salary" : "20K-30K",
+    "degree" : [ "本科" ],
+    "scale" : [ "100-500人" ],
+    "stage" : [ "C轮" ],
+    "expectedSalary" : [ 20, 30 ],
+    "waitTime" : 5,
+    "filterDeadHR" : true,
+    "enableAI" : true,
+    "sendImgResume" : false,
+    "deadStatus" : [ "2周内活跃", "本月活跃" ]
+  },
+  "ai" : {
+    "introduce" : "我是40，这是我的AI自我介绍",
+    "prompt" : "用户40的AI提示词"
+  },
+  "bot" : {
+    "is_send" : false
+  },
+  "userEmail" : "user1_1760440478559_6880@test.example.com",
+  "username" : "user1_1760440478559",
+  "lastModified" : 1760440478825,
+  "securityEnabled" : true
+}

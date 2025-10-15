@@ -1,0 +1,66 @@
+name: Security Test
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'backend/get_jobs/src/**'
+      - 'frontend/src/**'
+      - 'security_test.sh'
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  security-test:
+    name: Security Validation
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: zhitoujianli
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build backend
+        run: |
+          cd backend/get_jobs
+          mvn clean package -DskipTests
+
+      - name: Start backend service
+        run: |
+          cd backend/get_jobs
+          nohup java -jar target/get_jobs-1.0-SNAPSHOT.jar > ../../logs/backend.log 2>&1 &
+          sleep 15
+
+      - name: Run security tests
+        run: |
+          chmod +x security_test.sh
+          ./security_test.sh
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-test-results
+          path: logs/
+
+      - name: Stop backend service
+        if: always()
+        run: |
+          pkill -f "java.*get_jobs" || true

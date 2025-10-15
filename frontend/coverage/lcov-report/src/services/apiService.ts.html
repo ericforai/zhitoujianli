@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/22</span>
+                <span class='fraction'>0/17</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>0/12</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/22</span>
+                <span class='fraction'>0/17</span>
             </div>
         
             
@@ -136,18 +136,7 @@
 <a name='L71'></a><a href='#L71'>71</a>
 <a name='L72'></a><a href='#L72'>72</a>
 <a name='L73'></a><a href='#L73'>73</a>
-<a name='L74'></a><a href='#L74'>74</a>
-<a name='L75'></a><a href='#L75'>75</a>
-<a name='L76'></a><a href='#L76'>76</a>
-<a name='L77'></a><a href='#L77'>77</a>
-<a name='L78'></a><a href='#L78'>78</a>
-<a name='L79'></a><a href='#L79'>79</a>
-<a name='L80'></a><a href='#L80'>80</a>
-<a name='L81'></a><a href='#L81'>81</a>
-<a name='L82'></a><a href='#L82'>82</a>
-<a name='L83'></a><a href='#L83'>83</a>
-<a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L74'></a><a href='#L74'>74</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -157,7 +146,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -178,6 +166,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -212,18 +201,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -232,23 +210,22 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import axios, { AxiosInstance } from 'axios';
+import config, { CONFIG_CONSTANTS, getLoginUrl } from '../config/environment';
 &nbsp;
 /**
  * API服务配置
  *
  * @author ZhiTouJianLi Team
  * @since 2025-09-30
+ * @updated 2025-10-11 - 使用统一配置管理
  */
-&nbsp;
-// 获取API基础URL
-const API_BASE_URL = <span class="cstat-no" title="statement not covered" >process.env.REACT_APP_API_URL || '/api';</span>
 &nbsp;
 /**
  * 创建axios实例
  */
 const apiClient: AxiosInstance = <span class="cstat-no" title="statement not covered" >axios.create({</span>
-  baseURL: API_BASE_URL,
-  timeout: 10000,
+  baseURL: config.apiBaseUrl,
+  timeout: config.requestTimeout,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -258,16 +235,17 @@ const apiClient: AxiosInstance = <span class="cstat-no" title="statement not cov
  * 请求拦截器：添加认证Token
  */
 <span class="cstat-no" title="statement not covered" >apiClient.interceptors.request.use(</span>
-<span class="fstat-no" title="function not covered" >  co</span>nfig =&gt; {
+<span class="fstat-no" title="function not covered" >  re</span>questConfig =&gt; {
     // 从localStorage获取token
     const token =
-<span class="cstat-no" title="statement not covered" >      localStorage.getItem('token') || localStorage.getItem('authToken');</span>
+<span class="cstat-no" title="statement not covered" >      localStorage.getItem(CONFIG_CONSTANTS.TOKEN_KEY) ||</span>
+      localStorage.getItem(CONFIG_CONSTANTS.AUTH_TOKEN_KEY);
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    if (token) {</span>
-<span class="cstat-no" title="statement not covered" >      config.headers.Authorization = `Bearer ${token}`;</span>
+<span class="cstat-no" title="statement not covered" >      requestConfig.headers.Authorization = `Bearer ${token}`;</span>
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return config;</span>
+<span class="cstat-no" title="statement not covered" >    return requestConfig;</span>
   },
 <span class="fstat-no" title="function not covered" >  er</span>ror =&gt; {
 <span class="cstat-no" title="statement not covered" >    return Promise.reject(error);</span>
@@ -290,24 +268,13 @@ const apiClient: AxiosInstance = <span class="cstat-no" title="statement not cov
 <span class="cstat-no" title="statement not covered" >      console.log('🔐 检测到认证错误，清除本地存储并重定向到登录页');</span>
 &nbsp;
       // Token过期或无效，清除本地存储
-<span class="cstat-no" title="statement not covered" >      localStorage.removeItem('token');</span>
-<span class="cstat-no" title="statement not covered" >      localStorage.removeItem('authToken');</span>
-<span class="cstat-no" title="statement not covered" >      localStorage.removeItem('user');</span>
+<span class="cstat-no" title="statement not covered" >      localStorage.removeItem(CONFIG_CONSTANTS.TOKEN_KEY);</span>
+<span class="cstat-no" title="statement not covered" >      localStorage.removeItem(CONFIG_CONSTANTS.AUTH_TOKEN_KEY);</span>
+<span class="cstat-no" title="statement not covered" >      localStorage.removeItem(CONFIG_CONSTANTS.USER_KEY);</span>
 &nbsp;
       // 如果不在登录页，跳转到登录页
 <span class="cstat-no" title="statement not covered" >      if (window.location.pathname !== '/login') {</span>
-        // 动态检测环境并跳转
-<span class="cstat-no" title="statement not covered" >        if (window.location.hostname === 'localhost') {</span>
-          // 本地开发环境
-<span class="cstat-no" title="statement not covered" >          if (window.location.port === '3000') {</span>
-<span class="cstat-no" title="statement not covered" >            window.location.href = 'http://115.190.182.95:3000/login';</span>
-          } else {
-<span class="cstat-no" title="statement not covered" >            window.location.href = '/login';</span>
-          }
-        } else {
-          // 生产环境
-<span class="cstat-no" title="statement not covered" >          window.location.href = '/login';</span>
-        }
+<span class="cstat-no" title="statement not covered" >        window.location.href = getLoginUrl();</span>
       }
     }
 <span class="cstat-no" title="statement not covered" >    return Promise.reject(error);</span>
@@ -322,7 +289,7 @@ export default apiClient;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-05T15:02:11.343Z
+                at 2025-10-15T05:38:38.954Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

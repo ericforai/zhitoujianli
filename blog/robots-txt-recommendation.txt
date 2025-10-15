@@ -1,0 +1,196 @@
+# robots.txt优化建议
+# 用于智投简历博客SEO优化
+
+# ==================================================
+# 通用爬虫规则
+# ==================================================
+
+User-agent: *
+# 允许爬取所有博客内容
+Allow: /blog/
+Allow: /images/blog/
+
+# 不允许爬取的路径（保护隐私和服务器资源）
+Disallow: /api/
+Disallow: /admin/
+Disallow: /user/
+Disallow: /private/
+Disallow: /temp/
+Disallow: /cache/
+Disallow: /*.json$
+Disallow: /*?*utm_source=
+Disallow: /*?*session_id=
+
+# 允许CSS、JS和图片爬取（重要！）
+Allow: /css/
+Allow: /js/
+Allow: /images/
+Allow: /*.css
+Allow: /*.js
+Allow: /*.jpg
+Allow: /*.jpeg
+Allow: /*.png
+Allow: /*.gif
+Allow: /*.webp
+Allow: /*.svg
+
+# ==================================================
+# Google爬虫特定规则
+# ==================================================
+
+User-agent: Googlebot
+Allow: /blog/
+Allow: /images/blog/
+Crawl-delay: 0
+
+User-agent: Googlebot-Image
+Allow: /images/blog/
+Allow: /*.jpg
+Allow: /*.jpeg
+Allow: /*.png
+Allow: /*.webp
+
+# ==================================================
+# Bing爬虫规则
+# ==================================================
+
+User-agent: Bingbot
+Allow: /blog/
+Crawl-delay: 1
+
+User-agent: BingPreview
+Allow: /blog/
+Allow: /images/blog/
+
+# ==================================================
+# 百度爬虫规则（中文市场重要）
+# ==================================================
+
+User-agent: Baiduspider
+Allow: /blog/
+Allow: /images/blog/
+Crawl-delay: 2
+
+User-agent: Baiduspider-image
+Allow: /images/blog/
+Allow: /*.jpg
+Allow: /*.png
+
+# ==================================================
+# 其他主流搜索引擎
+# ==================================================
+
+# 360搜索
+User-agent: 360Spider
+Allow: /blog/
+Crawl-delay: 2
+
+# 搜狗
+User-agent: Sogou
+Allow: /blog/
+Crawl-delay: 2
+
+# Yandex（俄罗斯）
+User-agent: YandexBot
+Allow: /blog/
+Crawl-delay: 1
+
+# DuckDuckGo
+User-agent: DuckDuckBot
+Allow: /blog/
+
+# ==================================================
+# 社交媒体爬虫（用于生成分享预览）
+# ==================================================
+
+# Facebook
+User-agent: facebookexternalhit
+Allow: /blog/
+Allow: /images/blog/
+
+# Twitter
+User-agent: Twitterbot
+Allow: /blog/
+Allow: /images/blog/
+
+# LinkedIn
+User-agent: LinkedInBot
+Allow: /blog/
+Allow: /images/blog/
+
+# WhatsApp
+User-agent: WhatsApp
+Allow: /blog/
+Allow: /images/blog/
+
+# ==================================================
+# 阻止不良爬虫和采集器
+# ==================================================
+
+User-agent: MJ12bot
+User-agent: AhrefsBot
+User-agent: SemrushBot
+User-agent: DotBot
+User-agent: BLEXBot
+User-agent: MegaIndex
+User-agent: PetalBot
+Disallow: /
+
+# ==================================================
+# Sitemap位置（重要！）
+# ==================================================
+
+Sitemap: https://zhitoujianli.com/sitemap.xml
+Sitemap: https://zhitoujianli.com/sitemap-blog.xml
+Sitemap: https://zhitoujianli.com/sitemap-images.xml
+
+# ==================================================
+# 使用说明
+# ==================================================
+
+# 1. 将此文件保存为 robots.txt
+# 2. 放置在网站根目录（https://zhitoujianli.com/robots.txt）
+# 3. 确保文件可公开访问
+# 4. 在Google Search Console中验证
+# 5. 定期检查和更新
+
+# ==================================================
+# 注意事项
+# ==================================================
+
+# ✅ DO（推荐做法）：
+# - 允许所有博客内容被爬取
+# - 允许CSS/JS/图片被爬取（影响渲染）
+# - 为不同爬虫设置合理的Crawl-delay
+# - 明确指定Sitemap位置
+# - 保护敏感路径（API、管理后台）
+
+# ❌ DON'T（避免做法）：
+# - 不要阻止CSS/JS/图片（影响SEO）
+# - 不要设置过大的Crawl-delay（>10秒）
+# - 不要阻止所有爬虫（除非维护期）
+# - 不要忘记更新Sitemap
+# - 不要使用相对路径的Sitemap URL
+
+# ==================================================
+# 验证和测试
+# ==================================================
+
+# 在发布前使用以下工具验证：
+# 1. Google Search Console → robots.txt测试工具
+# 2. Bing Webmaster Tools → robots.txt分析器
+# 3. 在线robots.txt验证器
+
+# 测试命令：
+# curl https://zhitoujianli.com/robots.txt
+
+# ==================================================
+# 维护日志
+# ==================================================
+
+# 2025-10-10: 初始版本，优化博客爬取规则
+# 下次更新：2025-11-10（每月检查一次）
+
+
+
+

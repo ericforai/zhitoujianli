@@ -1,663 +1,1139 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI找工作助手 - 可视化配置</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
     <style>
-        .config-section {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
+      .config-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+      }
+      .status-running {
+        background-color: #28a745;
+        animation: pulse 2s infinite;
+      }
+      .status-stopped {
+        background-color: #dc3545;
+      }
+      @keyframes pulse {
+        0% {
+          opacity: 1;
         }
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
+        50% {
+          opacity: 0.5;
         }
-        .status-running {
-            background-color: #28a745;
-            animation: pulse 2s infinite;
+        100% {
+          opacity: 1;
         }
-        .status-stopped {
-            background-color: #dc3545;
-        }
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        .log-container {
-            background: #1e1e1e;
-            color: #ffffff;
-            border-radius: 8px;
-            padding: 15px;
-            height: 400px;
-            overflow-y: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-        }
-        .keyword-tag {
-            background: #007bff;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            margin: 2px;
-            display: inline-block;
-        }
-        .keyword-input {
-            border: 2px dashed #dee2e6;
-            border-radius: 8px;
-            padding: 10px;
-            min-height: 50px;
-        }
-        .nav-tabs .nav-link {
-            border-radius: 8px 8px 0 0;
-        }
-        .nav-tabs .nav-link.active {
-            background-color: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
+      }
+      .log-container {
+        background: #1e1e1e;
+        color: #ffffff;
+        border-radius: 8px;
+        padding: 15px;
+        height: 400px;
+        overflow-y: auto;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+      }
+      .keyword-tag {
+        background: #007bff;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        margin: 2px;
+        display: inline-block;
+      }
+      .keyword-input {
+        border: 2px dashed #dee2e6;
+        border-radius: 8px;
+        padding: 10px;
+        min-height: 50px;
+      }
+      .nav-tabs .nav-link {
+        border-radius: 8px 8px 0 0;
+      }
+      .nav-tabs .nav-link.active {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container-fluid">
-        <div class="row">
-            <!-- 侧边栏 -->
-            <div class="col-md-3 bg-light p-3">
-                <h4 class="mb-4">
-                    <i class="bi bi-robot"></i> AI找工作助手
-                </h4>
-                
-                <!-- 程序状态 -->
-                <div class="card mb-3">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0">投递状态</h6>
-                        <a href="/resume-manager" class="btn btn-sm btn-primary">
-                            <i class="bi bi-person-badge"></i> 简历管理
-                        </a>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-2">
-                            <span class="status-indicator" id="statusIndicator"></span>
-                            <span id="statusText">已停止</span>
-                        </div>
-                        <div class="mb-2">
-                            <small class="text-muted">投递统计: </small>
-                            <span id="deliveryCount" class="badge bg-primary">0</span>
-                        </div>
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-success btn-lg" id="startBossTaskBtn" onclick="startBossTask()">
-                                <i class="bi bi-play-fill"></i> 启动投递
-                            </button>
-                            <button class="btn btn-danger btn-sm" id="stopBtn" onclick="stopProgram()" disabled>
-                                <i class="bi bi-stop-fill"></i> 停止投递
-                            </button>
-                        </div>
-                    </div>
-                </div>
+      <div class="row">
+        <!-- 侧边栏 -->
+        <div class="col-md-3 bg-light p-3">
+          <h4 class="mb-4"><i class="bi bi-robot"></i> AI找工作助手</h4>
 
-                <!-- 平台选择 -->
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <h6 class="mb-0">选择平台</h6>
-                    </div>
-                    <div class="card-body">
-                        <select class="form-select form-select-sm" id="platformSelect">
-                            <option value="boss.Boss">Boss直聘</option>
-                            <option value="job51.Job51">前程无忧</option>
-                            <option value="lagou.Lagou">拉勾网</option>
-                            <option value="liepin.Liepin">猎聘网</option>
-                            <option value="zhilian.ZhiLian">智联招聘</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- 操作按钮 -->
-                <div class="d-grid gap-2">
-                    <button class="btn btn-primary" onclick="saveConfig()">
-                        <i class="bi bi-save"></i> 保存配置
-                    </button>
-                    <button class="btn btn-outline-secondary" onclick="loadConfig()">
-                        <i class="bi bi-arrow-clockwise"></i> 重新加载
-                    </button>
-                </div>
+          <!-- 程序状态 -->
+          <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">投递状态</h6>
+              <a href="/resume-manager" class="btn btn-sm btn-primary">
+                <i class="bi bi-person-badge"></i> 简历管理
+              </a>
             </div>
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-2">
+                <span class="status-indicator" id="statusIndicator"></span>
+                <span id="statusText">已停止</span>
+              </div>
+              <div class="mb-2">
+                <small class="text-muted">投递统计: </small>
+                <span id="deliveryCount" class="badge bg-primary">0</span>
+              </div>
+              <div class="d-grid gap-2">
+                <button
+                  class="btn btn-success btn-lg"
+                  id="startBossTaskBtn"
+                  onclick="startBossTask()"
+                >
+                  <i class="bi bi-play-fill"></i> 启动投递
+                </button>
+                <button class="btn btn-danger btn-sm" id="stopBtn" onclick="stopProgram()" disabled>
+                  <i class="bi bi-stop-fill"></i> 停止投递
+                </button>
+              </div>
+            </div>
+          </div>
 
-            <!-- 主内容区 -->
-            <div class="col-md-9 p-3">
-                <!-- 配置标签页 -->
-                <ul class="nav nav-tabs" id="configTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="boss-tab" data-bs-toggle="tab" data-bs-target="#boss" type="button">
-                            <i class="bi bi-briefcase"></i> Boss直聘
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="ai-tab" data-bs-toggle="tab" data-bs-target="#ai" type="button">
-                            <i class="bi bi-cpu"></i> AI配置
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logs" type="button">
-                            <i class="bi bi-journal-text"></i> 运行日志
-                        </button>
-                    </li>
-                </ul>
+          <!-- 平台选择 -->
+          <div class="card mb-3">
+            <div class="card-header">
+              <h6 class="mb-0">选择平台</h6>
+            </div>
+            <div class="card-body">
+              <select class="form-select form-select-sm" id="platformSelect">
+                <option value="boss.Boss">Boss直聘</option>
+                <option value="job51.Job51">前程无忧</option>
+                <option value="lagou.Lagou">拉勾网</option>
+                <option value="liepin.Liepin">猎聘网</option>
+                <option value="zhilian.ZhiLian">智联招聘</option>
+              </select>
+            </div>
+          </div>
 
-                <div class="tab-content" id="configTabContent">
-                    <!-- Boss直聘配置 -->
-                    <div class="tab-pane fade show active" id="boss" role="tabpanel">
-                        <div class="config-section">
-                            <h5><i class="bi bi-gear"></i> Boss直聘配置</h5>
-                            
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">搜索关键词</label>
-                                        <div class="keyword-input" id="bossKeywords" contenteditable="true" data-placeholder="输入关键词，用逗号分隔"></div>
-                                        <small class="text-muted">例如：市场总监,市场营销,品牌营销</small>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <label class="form-label">工作城市</label>
-                                        <select class="form-select" id="bossCityCode" multiple>
-                                            <option value="全国">全国</option>
-                                            <option value="北京">北京</option>
-                                            <option value="上海" selected>上海</option>
-                                            <option value="杭州">杭州</option>
-                                            <option value="广州">广州</option>
-                                            <option value="深圳">深圳</option>
-                                            <option value="成都">成都</option>
-                                            <option value="天津">天津</option>
-                                        </select>
-                                    </div>
+          <!-- 操作按钮 -->
+          <div class="d-grid gap-2">
+            <button class="btn btn-primary" onclick="saveConfig()">
+              <i class="bi bi-save"></i> 保存配置
+            </button>
+            <button class="btn btn-outline-secondary" onclick="loadConfig()">
+              <i class="bi bi-arrow-clockwise"></i> 重新加载
+            </button>
+          </div>
+        </div>
 
-                                    <div class="mb-3">
-                                        <label class="form-label">工作经验</label>
-                                        <select class="form-select" id="bossExperience" multiple>
-                                            <option value="应届毕业生">应届毕业生</option>
-                                            <option value="1年以下">1年以下</option>
-                                            <option value="1-3年">1-3年</option>
-                                            <option value="3-5年">3-5年</option>
-                                            <option value="5-10年">5-10年</option>
-                                            <option value="10年以上" selected>10年以上</option>
-                                        </select>
-                                    </div>
+        <!-- 主内容区 -->
+        <div class="col-md-9 p-3">
+          <!-- 配置标签页 -->
+          <ul class="nav nav-tabs" id="configTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link active"
+                id="boss-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#boss"
+                type="button"
+              >
+                <i class="bi bi-briefcase"></i> Boss直聘
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                id="resume-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#resume"
+                type="button"
+              >
+                <i class="bi bi-file-earmark-person"></i> 简历管理
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                id="logs-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#logs"
+                type="button"
+              >
+                <i class="bi bi-journal-text"></i> 运行日志
+              </button>
+            </li>
+          </ul>
 
-                                    <div class="mb-3">
-                                        <label class="form-label">薪资要求</label>
-                                        <select class="form-select" id="bossSalary">
-                                            <option value="3K以下">3K以下</option>
-                                            <option value="3-5K">3-5K</option>
-                                            <option value="5-10K">5-10K</option>
-                                            <option value="10-20K">10-20K</option>
-                                            <option value="20-50K">20-50K</option>
-                                            <option value="30K以上" selected>30K以上</option>
-                                            <option value="50K以上">50K以上</option>
-                                        </select>
-                                    </div>
-                                </div>
+          <div class="tab-content" id="configTabContent">
+            <!-- Boss直聘配置 -->
+            <div class="tab-pane fade show active" id="boss" role="tabpanel">
+              <div class="config-section">
+                <h5><i class="bi bi-gear"></i> Boss直聘配置</h5>
 
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">期望薪资范围 (K)</label>
-                                        <div class="row">
-                                            <div class="col-6">
-                                                <input type="number" class="form-control" id="expectedSalaryMin" placeholder="最低" value="30">
-                                            </div>
-                                            <div class="col-6">
-                                                <input type="number" class="form-control" id="expectedSalaryMax" placeholder="最高" value="50">
-                                            </div>
-                                        </div>
-                                    </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label class="form-label">搜索关键词</label>
+                      <div
+                        class="keyword-input"
+                        id="bossKeywords"
+                        contenteditable="true"
+                        data-placeholder="输入关键词，用逗号分隔"
+                      ></div>
+                      <small class="text-muted">例如：市场总监,市场营销,品牌营销</small>
+                    </div>
 
-                                    <div class="mb-3">
-                                        <label class="form-label">投递间隔 (秒)</label>
-                                        <input type="number" class="form-control" id="bossWaitTime" value="10" min="1" max="60">
-                                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">工作城市</label>
+                      <select class="form-select" id="bossCityCode" multiple>
+                        <option value="全国">全国</option>
+                        <option value="北京">北京</option>
+                        <option value="上海" selected>上海</option>
+                        <option value="杭州">杭州</option>
+                        <option value="广州">广州</option>
+                        <option value="深圳">深圳</option>
+                        <option value="成都">成都</option>
+                        <option value="天津">天津</option>
+                      </select>
+                    </div>
 
-                                    <div class="mb-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="filterDeadHR" checked>
-                                            <label class="form-check-label" for="filterDeadHR">
-                                                过滤不活跃HR
-                                            </label>
-                                        </div>
-                                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">工作经验</label>
+                      <select class="form-select" id="bossExperience" multiple>
+                        <option value="应届毕业生">应届毕业生</option>
+                        <option value="1年以下">1年以下</option>
+                        <option value="1-3年">1-3年</option>
+                        <option value="3-5年">3-5年</option>
+                        <option value="5-10年">5-10年</option>
+                        <option value="10年以上" selected>10年以上</option>
+                      </select>
+                    </div>
 
-                                    <div class="mb-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="enableAI">
-                                            <label class="form-check-label" for="enableAI">
-                                                启用AI智能打招呼（旧版）
-                                            </label>
-                                        </div>
-                                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">薪资要求</label>
+                      <select class="form-select" id="bossSalary">
+                        <option value="3K以下">3K以下</option>
+                        <option value="3-5K">3-5K</option>
+                        <option value="5-10K">5-10K</option>
+                        <option value="10-20K">10-20K</option>
+                        <option value="20-50K">20-50K</option>
+                        <option value="30K以上" selected>30K以上</option>
+                        <option value="50K以上">50K以上</option>
+                      </select>
+                    </div>
+                  </div>
 
-                                    <div class="mb-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="enableSmartGreeting">
-                                            <label class="form-check-label" for="enableSmartGreeting">
-                                                <strong>启用智能打招呼语生成（基于简历+JD）</strong>
-                                            </label>
-                                            <small class="form-text text-muted d-block mt-1">
-                                                <i class="bi bi-info-circle"></i> 需先在"简历管理"页面上传简历
-                                            </small>
-                                        </div>
-                                    </div>
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label class="form-label">期望薪资范围 (K)</label>
+                      <div class="row">
+                        <div class="col-6">
+                          <input
+                            type="number"
+                            class="form-control"
+                            id="expectedSalaryMin"
+                            placeholder="最低"
+                            value="30"
+                          />
+                        </div>
+                        <div class="col-6">
+                          <input
+                            type="number"
+                            class="form-control"
+                            id="expectedSalaryMax"
+                            placeholder="最高"
+                            value="50"
+                          />
+                        </div>
+                      </div>
+                    </div>
 
-                                    <div class="mb-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="sendImgResume">
-                                            <label class="form-check-label" for="sendImgResume">
-                                                发送图片简历
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="mb-3">
+                      <label class="form-label">投递间隔 (秒)</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="bossWaitTime"
+                        value="10"
+                        min="1"
+                        max="60"
+                      />
+                    </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">打招呼语</label>
-                                <textarea class="form-control" id="bossSayHi" rows="8" placeholder="输入您的打招呼语...">您好！
+                    <div class="mb-3">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="filterDeadHR" checked />
+                        <label class="form-check-label" for="filterDeadHR"> 过滤不活跃HR </label>
+                      </div>
+                    </div>
+
+                    <div class="mb-3">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="enableAI" />
+                        <label class="form-check-label" for="enableAI">
+                          启用AI智能打招呼（旧版）
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="mb-3">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="enableSmartGreeting" />
+                        <label class="form-check-label" for="enableSmartGreeting">
+                          <strong>启用智能打招呼语生成（基于简历+JD）</strong>
+                        </label>
+                        <small class="form-text text-muted d-block mt-1">
+                          <i class="bi bi-info-circle"></i> 需先在"简历管理"页面上传简历
+                        </small>
+                      </div>
+                    </div>
+
+                    <div class="mb-3">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="sendImgResume" />
+                        <label class="form-check-label" for="sendImgResume"> 发送图片简历 </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">打招呼语</label>
+                  <textarea
+                    class="form-control"
+                    id="bossSayHi"
+                    rows="8"
+                    placeholder="输入您的打招呼语..."
+                  >
+您好！
 我对这个岗位非常感兴趣。我简单介绍一下：过往18年的职业生涯中，我始终专注于B2B领域的市场增长与品牌构建。在泛微网络（股票代码：603039）担任网络营销总监期间，我成功主导构建了一套融合销售与营销的数字化增长体系，助力公司营收在6年内实现了从7亿到近24亿的跨越，其中市场营销部门直接贡献了超过10亿的销售额 。
 
 我深信，我在全链路营销策略、大规模市场活动策划（年度活动报名超6万人次） 以及高效能团队管理方面的深度实践，能够为贵公司在品牌影响力提升、业务增长方面带来切实的价值。
 
-期待有机会能与您进一步交流，探讨我如何为团队贡献力量。</textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- AI配置 -->
-                    <div class="tab-pane fade" id="ai" role="tabpanel">
-                        <div class="config-section">
-                            <h5><i class="bi bi-cpu"></i> AI配置</h5>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">个人介绍</label>
-                                <textarea class="form-control" id="aiIntroduce" rows="6" placeholder="输入您的个人介绍，用于AI生成打招呼语...">拥有18年经验的复合型增长负责人，精通B2B领域的市场营销与销售管理。核心优势在于构建"销营一体"的数字化增长体系。
-
-具备从0到1搭建营销体系、内容生态（创作10K+文章）及高效能团队的管理经验 。不仅能策划并执行年度超6万人报名的大规模市场活动 ，也熟悉上市公司市值管理与品牌声誉管理 ，并已将AIGC成功应用于品牌推广实践。</textarea>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">AI提示词</label>
-                                <textarea class="form-control" id="aiPrompt" rows="8" placeholder="AI提示词模板...">我目前在找工作,%s,我期望的的岗位方向是【市场营销】,目前我需要投递的岗位名称是【市场总监】,这个岗位的要求是【%s】,如果这个岗位和我的期望与经历基本符合，注意是基本符合，那么请帮我写一个给HR打招呼的文本发给我，如果这个岗位和我的期望经历完全不相干，直接返回false给我，注意只要返回我需要的内容即可，不要有其他的语气助词，重点要突出我和岗位的匹配度以及我的优势，我自己写的招呼语是：【%s】,你可以参照我自己写的根据岗位情况进行适当调整</textarea>
-                            </div>
-
-                            <div class="mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="botIsSend">
-                                    <label class="form-check-label" for="botIsSend">
-                                        启用企业微信消息推送
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 运行日志 -->
-                    <div class="tab-pane fade" id="logs" role="tabpanel">
-                        <div class="config-section">
-                            <h5><i class="bi bi-journal-text"></i> 运行日志</h5>
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div>
-                                    <button class="btn btn-outline-primary btn-sm" onclick="refreshLogs()">
-                                        <i class="bi bi-arrow-clockwise"></i> 刷新日志
-                                    </button>
-                                    <button class="btn btn-outline-secondary btn-sm" onclick="clearLogs()">
-                                        <i class="bi bi-trash"></i> 清空显示
-                                    </button>
-                                </div>
-                                <div>
-                                    <small class="text-muted">自动刷新: </small>
-                                    <div class="form-check form-switch d-inline-block">
-                                        <input class="form-check-input" type="checkbox" id="autoRefresh" checked>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="log-container" id="logContainer">
-                                <div class="text-muted">等待程序启动...</div>
-                            </div>
-                        </div>
-                    </div>
+期待有机会能与您进一步交流，探讨我如何为团队贡献力量。</textarea
+                  >
                 </div>
+              </div>
             </div>
+
+             <!-- 简历管理 -->
+             <div class="tab-pane fade" id="resume" role="tabpanel">
+               <div class="config-section">
+                 <h5><i class="bi bi-file-earmark-person"></i> 简历管理</h5>
+
+                 <!-- 简历上传区域 -->
+                 <div class="card border-0 shadow-sm mb-4">
+                   <div class="card-body p-4">
+                     <h5 class="card-title mb-4">
+                       <i class="bi bi-cloud-upload"></i> 上传简历
+                     </h5>
+
+                     <!-- 文件上传 -->
+                     <div class="upload-area" id="uploadArea" style="border: 3px dashed #dee2e6; border-radius: 15px; padding: 60px 40px; text-align: center; transition: all 0.3s ease; cursor: pointer; background: #f8f9fa;">
+                       <i class="bi bi-file-earmark-arrow-up fs-1 text-primary"></i>
+                       <h4 class="mt-3">拖拽文件到此处或点击上传</h4>
+                       <p class="text-muted">
+                         <strong class="text-success">✅ 支持 TXT、PDF、DOC、DOCX 格式</strong><br>
+                         <small>文件大小不超过 10MB | AI自动提取文本内容</small>
+                       </p>
+                       <input type="file" id="fileInput" class="d-none" accept=".txt,.pdf,.doc,.docx">
+                     </div>
+
+                     <!-- 文本输入 -->
+                     <div class="mt-4">
+                       <label for="resumeText" class="form-label fw-bold">
+                         <i class="bi bi-pencil-square"></i> 或直接粘贴简历文本：
+                       </label>
+                       <textarea class="form-control" id="resumeText" rows="12"
+                         placeholder="请粘贴您的简历内容...&#10;&#10;建议包含：&#10;- 个人信息（姓名、职位）&#10;- 工作经历（公司、职位、年限）&#10;- 核心技能&#10;- 主要成就&#10;- 教育背景"></textarea>
+                     </div>
+
+                     <div class="mt-4 d-flex gap-3">
+                       <button class="btn btn-primary btn-lg" id="parseBtn" onclick="parseResume()">
+                         <i class="bi bi-cpu"></i> AI解析简历
+                       </button>
+                       <button class="btn btn-outline-danger" id="deleteBtn" onclick="deleteResume()" style="display:none;">
+                         <i class="bi bi-trash"></i> 删除简历
+                       </button>
+                     </div>
+                   </div>
+                 </div>
+
+                 <!-- 解析结果展示 -->
+                 <div id="parseResult" style="display: none;">
+                   <div class="candidate-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px; padding: 30px; margin-bottom: 30px;">
+                     <h4 class="mb-3">
+                       <i class="bi bi-person-check-fill"></i>
+                       解析结果
+                     </h4>
+                     <div id="candidateInfo">
+                       <!-- 候选人信息将在这里显示 -->
+                     </div>
+                   </div>
+
+                   <!-- AI生成默认打招呼语 -->
+                   <div class="card border-0 shadow-sm">
+                     <div class="card-body p-4">
+                       <h5 class="card-title mb-3">
+                         <i class="bi bi-chat-heart-fill text-success"></i>
+                         AI生成的默认打招呼语
+                       </h5>
+                       <div class="alert alert-info">
+                         <i class="bi bi-info-circle"></i>
+                         <strong>说明：</strong>基于您的简历，AI已生成一段通用的打招呼语。您可以直接使用，也可以根据需要修改。
+                       </div>
+                       <div class="mb-3">
+                         <label for="defaultGreeting" class="form-label fw-bold">默认打招呼语：</label>
+                         <textarea class="form-control" id="defaultGreeting" rows="6"
+                           placeholder="AI正在生成中..."></textarea>
+                       </div>
+                       <div class="d-flex gap-2">
+                         <button class="btn btn-primary" onclick="saveDefaultGreeting()">
+                           <i class="bi bi-save"></i> 保存为默认招呼语
+                         </button>
+                         <button class="btn btn-outline-primary" onclick="regenerateGreeting()">
+                           <i class="bi bi-arrow-clockwise"></i> 重新生成
+                         </button>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+             </div>
+
+            <!-- 运行日志 -->
+            <div class="tab-pane fade" id="logs" role="tabpanel">
+              <div class="config-section">
+                <h5><i class="bi bi-journal-text"></i> 运行日志</h5>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div>
+                    <button class="btn btn-outline-primary btn-sm" onclick="refreshLogs()">
+                      <i class="bi bi-arrow-clockwise"></i> 刷新日志
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="clearLogs()">
+                      <i class="bi bi-trash"></i> 清空显示
+                    </button>
+                  </div>
+                  <div>
+                    <small class="text-muted">自动刷新: </small>
+                    <div class="form-check form-switch d-inline-block">
+                      <input class="form-check-input" type="checkbox" id="autoRefresh" checked />
+                    </div>
+                  </div>
+                </div>
+                <div class="log-container" id="logContainer">
+                  <div class="text-muted">等待程序启动...</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 
-    <!-- 消息提示 -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="messageToast" class="toast" role="alert">
-            <div class="toast-header">
-                <i class="bi bi-info-circle text-primary me-2"></i>
-                <strong class="me-auto">系统消息</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
-            </div>
-            <div class="toast-body" id="toastMessage">
-                消息内容
-            </div>
-        </div>
-    </div>
+     <!-- 消息提示 -->
+     <div class="toast-container position-fixed bottom-0 end-0 p-3">
+       <div id="messageToast" class="toast" role="alert">
+         <div class="toast-header">
+           <i class="bi bi-info-circle text-primary me-2"></i>
+           <strong class="me-auto">系统消息</strong>
+           <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+         </div>
+         <div class="toast-body" id="toastMessage">消息内容</div>
+       </div>
+     </div>
+
+     <!-- 加载提示 -->
+     <div class="loading" id="loading" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999;">
+       <div class="loading-content" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white;">
+         <div class="spinner-border text-light mb-3" role="status" style="width: 3rem; height: 3rem;">
+           <span class="visually-hidden">处理中...</span>
+         </div>
+         <h4 id="loadingText">AI正在处理中，请稍候...</h4>
+         <p class="text-light">这可能需要10-30秒</p>
+       </div>
+     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let autoRefreshInterval;
-        let isRunning = false;
+      let autoRefreshInterval;
+      let isRunning = false;
 
-        // 页面加载完成后初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            loadConfig();
+      // 页面加载完成后初始化
+      document.addEventListener('DOMContentLoaded', function () {
+        loadConfig();
+        updateStatus();
+        startAutoRefresh();
+      });
+
+      // 加载配置
+      async function loadConfig() {
+        try {
+          const response = await fetch('/');
+          const text = await response.text();
+          // 这里需要解析HTML中的配置数据，实际项目中应该通过API获取
+          console.log('配置加载完成');
+        } catch (error) {
+          showMessage('加载配置失败: ' + error.message, 'error');
+        }
+      }
+
+      // 保存配置
+      async function saveConfig() {
+        const config = {
+          boss: {
+            debugger: false,
+            sayHi: document.getElementById('bossSayHi').value,
+            keywords: document
+              .getElementById('bossKeywords')
+              .textContent.split(',')
+              .map(k => k.trim())
+              .filter(k => k),
+            industry: ['不限'], // 添加行业字段
+            cityCode: Array.from(document.getElementById('bossCityCode').selectedOptions).map(
+              o => o.value
+            ),
+            experience: Array.from(document.getElementById('bossExperience').selectedOptions).map(
+              o => o.value
+            ),
+            jobType: '不限',
+            salary: document.getElementById('bossSalary').value,
+            degree: ['不限'],
+            scale: ['不限'],
+            stage: ['不限'],
+            expectedSalary: [
+              parseInt(document.getElementById('expectedSalaryMin').value),
+              parseInt(document.getElementById('expectedSalaryMax').value),
+            ],
+            waitTime: parseInt(document.getElementById('bossWaitTime').value),
+            filterDeadHR: document.getElementById('filterDeadHR').checked,
+            enableAI: document.getElementById('enableAI').checked,
+            enableSmartGreeting: document.getElementById('enableSmartGreeting').checked,
+            sendImgResume: document.getElementById('sendImgResume').checked,
+            deadStatus: ['2周内活跃', '本月活跃', '2月内活跃', '半年前活跃'],
+          },
+          ai: {
+            introduce: document.getElementById('aiIntroduce').value,
+            prompt: document.getElementById('aiPrompt').value,
+          },
+          bot: {
+            is_send: document.getElementById('botIsSend').checked,
+          },
+        };
+
+        try {
+          const response = await fetch('/save-config', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(config),
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            showMessage('配置保存成功', 'success');
+          } else {
+            showMessage('保存失败: ' + result.message, 'error');
+          }
+        } catch (error) {
+          showMessage('保存配置失败: ' + error.message, 'error');
+        }
+      }
+
+      // 启动程序
+      async function startProgram() {
+        const platform = document.getElementById('platformSelect').value;
+
+        try {
+          const response = await fetch('/start-program', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'platform=' + encodeURIComponent(platform),
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            showMessage('程序启动成功', 'success');
+            isRunning = true;
             updateStatus();
-            startAutoRefresh();
-        });
-
-        // 加载配置
-        async function loadConfig() {
-            try {
-                const response = await fetch('/');
-                const text = await response.text();
-                // 这里需要解析HTML中的配置数据，实际项目中应该通过API获取
-                console.log('配置加载完成');
-            } catch (error) {
-                showMessage('加载配置失败: ' + error.message, 'error');
-            }
+          } else {
+            showMessage('启动失败: ' + result.message, 'error');
+          }
+        } catch (error) {
+          showMessage('启动程序失败: ' + error.message, 'error');
         }
+      }
 
-        // 保存配置
-        async function saveConfig() {
-            const config = {
-                boss: {
-                    debugger: false,
-                    sayHi: document.getElementById('bossSayHi').value,
-                    keywords: document.getElementById('bossKeywords').textContent.split(',').map(k => k.trim()).filter(k => k),
-                    industry: ["不限"],  // 添加行业字段
-                    cityCode: Array.from(document.getElementById('bossCityCode').selectedOptions).map(o => o.value),
-                    experience: Array.from(document.getElementById('bossExperience').selectedOptions).map(o => o.value),
-                    jobType: "不限",
-                    salary: document.getElementById('bossSalary').value,
-                    degree: ["不限"],
-                    scale: ["不限"],
-                    stage: ["不限"],
-                    expectedSalary: [
-                        parseInt(document.getElementById('expectedSalaryMin').value),
-                        parseInt(document.getElementById('expectedSalaryMax').value)
-                    ],
-                    waitTime: parseInt(document.getElementById('bossWaitTime').value),
-                    filterDeadHR: document.getElementById('filterDeadHR').checked,
-                    enableAI: document.getElementById('enableAI').checked,
-                    enableSmartGreeting: document.getElementById('enableSmartGreeting').checked,
-                    sendImgResume: document.getElementById('sendImgResume').checked,
-                    deadStatus: ["2周内活跃", "本月活跃", "2月内活跃", "半年前活跃"]
-                },
-                ai: {
-                    introduce: document.getElementById('aiIntroduce').value,
-                    prompt: document.getElementById('aiPrompt').value
-                },
-                bot: {
-                    is_send: document.getElementById('botIsSend').checked
-                }
-            };
+      // 启动投递任务
+      async function startBossTask() {
+        try {
+          const response = await fetch('/start-boss-task', {
+            method: 'POST',
+          });
 
-            try {
-                const response = await fetch('/save-config', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(config)
-                });
-
-                const result = await response.json();
-                if (result.success) {
-                    showMessage('配置保存成功', 'success');
-                } else {
-                    showMessage('保存失败: ' + result.message, 'error');
-                }
-            } catch (error) {
-                showMessage('保存配置失败: ' + error.message, 'error');
-            }
-        }
-
-        // 启动程序
-        async function startProgram() {
-            const platform = document.getElementById('platformSelect').value;
-            
-            try {
-                const response = await fetch('/start-program', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: 'platform=' + encodeURIComponent(platform)
-                });
-
-                const result = await response.json();
-                if (result.success) {
-                    showMessage('程序启动成功', 'success');
-                    isRunning = true;
-                    updateStatus();
-                } else {
-                    showMessage('启动失败: ' + result.message, 'error');
-                }
-            } catch (error) {
-                showMessage('启动程序失败: ' + error.message, 'error');
-            }
-        }
-
-        // 启动投递任务
-        async function startBossTask() {
-            try {
-                const response = await fetch('/start-boss-task', {
-                    method: 'POST'
-                });
-
-                const result = await response.json();
-                if (result.success) {
-                    showMessage('投递任务启动成功！开始自动投递简历...', 'success');
-                    isRunning = true;
-                    updateStatus();
-                } else {
-                    showMessage('启动投递失败: ' + result.message, 'error');
-                }
-            } catch (error) {
-                showMessage('启动投递失败: ' + error.message, 'error');
-            }
-        }
-
-        // 停止程序
-        async function stopProgram() {
-            try {
-                const response = await fetch('/stop-program', {
-                    method: 'POST'
-                });
-
-                const result = await response.json();
-                if (result.success) {
-                    showMessage('投递已停止', 'success');
-                    isRunning = false;
-                    updateStatus();
-                } else {
-                    showMessage('停止失败: ' + result.message, 'error');
-                }
-            } catch (error) {
-                showMessage('停止程序失败: ' + error.message, 'error');
-            }
-        }
-
-        // 更新状态
-        async function updateStatus() {
-            try {
-                const token = localStorage.getItem('authToken');
-                const response = await fetch('/status', {
-                    headers: {
-                        'Authorization': 'Bearer ' + token
-                    }
-                });
-                
-                if (response.status === 401) {
-                    logout();
-                    return;
-                }
-                
-                const status = await response.json();
-                
-                isRunning = status.isRunning;
-                const statusIndicator = document.getElementById('statusIndicator');
-                const statusText = document.getElementById('statusText');
-                const deliveryCount = document.getElementById('deliveryCount');
-                const startBtn = document.getElementById('startBossTaskBtn');
-                const stopBtn = document.getElementById('stopBtn');
-
-                if (isRunning) {
-                    statusIndicator.className = 'status-indicator status-running';
-                    statusText.textContent = '运行中';
-                    startBtn.disabled = true;
-                    stopBtn.disabled = false;
-                } else {
-                    statusIndicator.className = 'status-indicator status-stopped';
-                    statusText.textContent = '已停止';
-                    startBtn.disabled = false;
-                    stopBtn.disabled = true;
-                }
-
-                // 更新投递统计
-                const count = status.deliveryCount || 0;
-                deliveryCount.textContent = count;
-                console.log('投递统计更新:', count);
-            } catch (error) {
-                console.error('更新状态失败:', error);
-            }
-        }
-
-        // 刷新日志
-        async function refreshLogs() {
-            try {
-                const token = localStorage.getItem('authToken');
-                const response = await fetch('/logs?lines=100', {
-                    headers: {
-                        'Authorization': 'Bearer ' + token
-                    }
-                });
-                
-                if (response.status === 401) {
-                    logout();
-                    return;
-                }
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    const logContainer = document.getElementById('logContainer');
-                    logContainer.innerHTML = result.logs.map(log => 
-                        `<div class="log-line">${escapeHtml(log)}</div>`
-                    ).join('');
-                    logContainer.scrollTop = logContainer.scrollHeight;
-                }
-            } catch (error) {
-                console.error('刷新日志失败:', error);
-            }
-        }
-
-        // 清空日志显示
-        function clearLogs() {
-            document.getElementById('logContainer').innerHTML = '<div class="text-muted">日志已清空</div>';
-        }
-
-        // 开始自动刷新
-        function startAutoRefresh() {
-            if (autoRefreshInterval) {
-                clearInterval(autoRefreshInterval);
-            }
-            
-            autoRefreshInterval = setInterval(() => {
-                updateStatus();
-                if (document.getElementById('autoRefresh').checked) {
-                    refreshLogs();
-                }
-            }, 3000);
-        }
-
-        // 显示消息
-        function showMessage(message, type = 'info') {
-            const toast = document.getElementById('messageToast');
-            const toastMessage = document.getElementById('toastMessage');
-            const toastHeader = toast.querySelector('.toast-header i');
-            
-            toastMessage.textContent = message;
-            
-            // 设置图标和颜色
-            toastHeader.className = 'bi me-2';
-            if (type === 'success') {
-                toastHeader.classList.add('bi-check-circle', 'text-success');
-            } else if (type === 'error') {
-                toastHeader.classList.add('bi-exclamation-triangle', 'text-danger');
-            } else {
-                toastHeader.classList.add('bi-info-circle', 'text-primary');
-            }
-            
-            const bsToast = new bootstrap.Toast(toast);
-            bsToast.show();
-        }
-
-        // HTML转义
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // 关键词输入处理
-        document.getElementById('bossKeywords').addEventListener('input', function() {
-            const text = this.textContent;
-            const keywords = text.split(',').map(k => k.trim()).filter(k => k);
-            
-            // 可以在这里添加关键词标签显示
-            console.log('关键词:', keywords);
-        });
-
-        // 检查登录状态 - 已禁用认证，直接返回true
-        async function checkAuth() {
-            console.log('认证已禁用，允许所有访问');
-            return true;
-        }
-
-        // 退出登录 - 已禁用
-        function logout() {
-            console.log('登录功能已禁用');
-            // 不执行任何操作
-        }
-
-        // 页面加载完成后初始化
-        document.addEventListener('DOMContentLoaded', async function() {
-            console.log('主页面开始加载');
-            
-            // 检查登录状态
-            const authResult = await checkAuth();
-            if (!authResult) {
-                console.log('认证检查失败，页面将重定向到登录页');
-                return;
-            }
-
-            console.log('认证检查通过，开始初始化页面');
+          const result = await response.json();
+          if (result.success) {
+            showMessage('投递任务启动成功！开始自动投递简历...', 'success');
+            isRunning = true;
             updateStatus();
+          } else {
+            showMessage('启动投递失败: ' + result.message, 'error');
+          }
+        } catch (error) {
+          showMessage('启动投递失败: ' + error.message, 'error');
+        }
+      }
+
+      // 停止程序
+      async function stopProgram() {
+        try {
+          const response = await fetch('/stop-program', {
+            method: 'POST',
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            showMessage('投递已停止', 'success');
+            isRunning = false;
+            updateStatus();
+          } else {
+            showMessage('停止失败: ' + result.message, 'error');
+          }
+        } catch (error) {
+          showMessage('停止程序失败: ' + error.message, 'error');
+        }
+      }
+
+      // 更新状态
+      async function updateStatus() {
+        try {
+          const token = localStorage.getItem('authToken');
+          const response = await fetch('/status', {
+            headers: {
+              Authorization: 'Bearer ' + token,
+            },
+          });
+
+          if (response.status === 401) {
+            logout();
+            return;
+          }
+
+          const status = await response.json();
+
+          isRunning = status.isRunning;
+          const statusIndicator = document.getElementById('statusIndicator');
+          const statusText = document.getElementById('statusText');
+          const deliveryCount = document.getElementById('deliveryCount');
+          const startBtn = document.getElementById('startBossTaskBtn');
+          const stopBtn = document.getElementById('stopBtn');
+
+          if (isRunning) {
+            statusIndicator.className = 'status-indicator status-running';
+            statusText.textContent = '运行中';
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+          } else {
+            statusIndicator.className = 'status-indicator status-stopped';
+            statusText.textContent = '已停止';
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+          }
+
+          // 更新投递统计
+          const count = status.deliveryCount || 0;
+          deliveryCount.textContent = count;
+          console.log('投递统计更新:', count);
+        } catch (error) {
+          console.error('更新状态失败:', error);
+        }
+      }
+
+      // 刷新日志
+      async function refreshLogs() {
+        try {
+          const token = localStorage.getItem('authToken');
+          const response = await fetch('/logs?lines=100', {
+            headers: {
+              Authorization: 'Bearer ' + token,
+            },
+          });
+
+          if (response.status === 401) {
+            logout();
+            return;
+          }
+
+          const result = await response.json();
+
+          if (result.success) {
+            const logContainer = document.getElementById('logContainer');
+            logContainer.innerHTML = result.logs
+              .map(log => `<div class="log-line">${escapeHtml(log)}</div>`)
+              .join('');
+            logContainer.scrollTop = logContainer.scrollHeight;
+          }
+        } catch (error) {
+          console.error('刷新日志失败:', error);
+        }
+      }
+
+      // 清空日志显示
+      function clearLogs() {
+        document.getElementById('logContainer').innerHTML =
+          '<div class="text-muted">日志已清空</div>';
+      }
+
+      // 开始自动刷新
+      function startAutoRefresh() {
+        if (autoRefreshInterval) {
+          clearInterval(autoRefreshInterval);
+        }
+
+        autoRefreshInterval = setInterval(() => {
+          updateStatus();
+          if (document.getElementById('autoRefresh').checked) {
             refreshLogs();
-            
-            // 每5秒更新一次状态
-            setInterval(updateStatus, 5000);
-            
-            // 每2秒刷新一次日志
-            setInterval(refreshLogs, 2000);
-        });
+          }
+        }, 3000);
+      }
+
+      // 显示消息
+      function showMessage(message, type = 'info') {
+        const toast = document.getElementById('messageToast');
+        const toastMessage = document.getElementById('toastMessage');
+        const toastHeader = toast.querySelector('.toast-header i');
+
+        toastMessage.textContent = message;
+
+        // 设置图标和颜色
+        toastHeader.className = 'bi me-2';
+        if (type === 'success') {
+          toastHeader.classList.add('bi-check-circle', 'text-success');
+        } else if (type === 'error') {
+          toastHeader.classList.add('bi-exclamation-triangle', 'text-danger');
+        } else {
+          toastHeader.classList.add('bi-info-circle', 'text-primary');
+        }
+
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+      }
+
+      // HTML转义
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // 关键词输入处理
+      document.getElementById('bossKeywords').addEventListener('input', function () {
+        const text = this.textContent;
+        const keywords = text
+          .split(',')
+          .map(k => k.trim())
+          .filter(k => k);
+
+        // 可以在这里添加关键词标签显示
+        console.log('关键词:', keywords);
+      });
+
+      // 检查登录状态 - 已禁用认证，直接返回true
+      async function checkAuth() {
+        console.log('认证已禁用，允许所有访问');
+        return true;
+      }
+
+      // 退出登录 - 已禁用
+      function logout() {
+        console.log('登录功能已禁用');
+        // 不执行任何操作
+      }
+
+      // 页面加载完成后初始化
+      document.addEventListener('DOMContentLoaded', async function () {
+        console.log('主页面开始加载');
+
+        // 检查登录状态
+        const authResult = await checkAuth();
+        if (!authResult) {
+          console.log('认证检查失败，页面将重定向到登录页');
+          return;
+        }
+
+        console.log('认证检查通过，开始初始化页面');
+        updateStatus();
+        refreshLogs();
+
+        // 每5秒更新一次状态
+        setInterval(updateStatus, 5000);
+
+        // 每2秒刷新一次日志
+        setInterval(refreshLogs, 2000);
+
+         // 初始化简历管理功能
+         initializeResumeEventListeners();
+         checkExistingResume();
+      });
+
+       // 简历管理相关函数 - 完全移植自resume-manager页面
+       let candidateData = null;
+
+       // 初始化简历管理事件监听器
+       function initializeResumeEventListeners() {
+         console.log('初始化简历管理事件监听器...');
+
+         // 文件上传点击事件
+         const uploadArea = document.getElementById('uploadArea');
+         if (uploadArea) {
+           uploadArea.addEventListener('click', function() {
+             console.log('点击上传区域');
+             document.getElementById('fileInput').click();
+           });
+         }
+
+         // 文件选择事件
+         const fileInput = document.getElementById('fileInput');
+         if (fileInput) {
+           fileInput.addEventListener('change', function(event) {
+             console.log('文件选择事件触发');
+             handleFileUpload(event);
+           });
+         }
+
+         // 拖拽事件
+         if (uploadArea) {
+           uploadArea.addEventListener('dragover', function(e) {
+             e.preventDefault();
+             console.log('拖拽中...');
+             uploadArea.classList.add('dragover');
+           });
+
+           uploadArea.addEventListener('dragleave', function() {
+             console.log('拖拽离开');
+             uploadArea.classList.remove('dragover');
+           });
+
+           uploadArea.addEventListener('drop', function(e) {
+             e.preventDefault();
+             console.log('文件拖放');
+             uploadArea.classList.remove('dragover');
+             const files = e.dataTransfer.files;
+             if (files.length > 0) {
+               console.log('拖放文件:', files[0].name);
+               handleFileUpload({ target: { files: files } });
+             }
+           });
+         }
+
+         console.log('简历管理事件监听器初始化完成');
+       }
+
+       // 检查是否已有简历
+       function checkExistingResume() {
+         fetch('/api/candidate-resume/check')
+           .then(response => response.json())
+           .then(data => {
+             if (data.success && data.hasResume) {
+               // 加载已有简历
+               loadExistingResume();
+             }
+           })
+           .catch(error => {
+             console.error('Error:', error);
+           });
+       }
+
+       // 加载已有简历
+       function loadExistingResume() {
+         console.log('加载已有简历...');
+         fetch('/api/candidate-resume/load')
+           .then(response => response.json())
+           .then(data => {
+             console.log('简历加载结果:', data);
+             if (data.success) {
+               candidateData = data.data;
+               displayCandidateInfo(candidateData);
+               document.getElementById('deleteBtn').style.display = 'inline-block';
+             }
+           })
+           .catch(error => {
+             console.error('加载简历错误:', error);
+           });
+       }
+
+       // 处理文件上传
+       function handleFileUpload(event) {
+         const file = event.target.files[0];
+         if (!file) {
+           console.log('没有选择文件');
+           return;
+         }
+
+         console.log('选择的文件:', file.name, '大小:', file.size, '类型:', file.type);
+
+         // 检查文件大小（10MB）
+         if (file.size > 10 * 1024 * 1024) {
+           alert('文件过大，请上传小于10MB的文件');
+           return;
+         }
+
+         // 检查文件类型
+         const fileName = file.name.toLowerCase();
+         if (!fileName.endsWith('.txt') && !fileName.endsWith('.pdf') &&
+             !fileName.endsWith('.doc') && !fileName.endsWith('.docx')) {
+           alert('❌ 不支持的文件格式\n\n支持的格式：TXT、PDF、DOC、DOCX\n请上传正确格式的简历文件');
+           return;
+         }
+
+         const formData = new FormData();
+         formData.append('file', file);
+
+         console.log('开始上传文件...');
+         showLoading('正在上传文件并解析简历...');
+
+         fetch('/api/candidate-resume/upload', {
+           method: 'POST',
+           body: formData
+         })
+         .then(response => {
+           console.log('收到响应，状态:', response.status);
+           return response.json();
+         })
+         .then(data => {
+           console.log('解析响应数据:', data);
+           hideLoading();
+           if (data.success) {
+             candidateData = data.data;
+             displayCandidateInfo(candidateData);
+             document.getElementById('deleteBtn').style.display = 'inline-block';
+
+             // 生成默认打招呼语
+             generateDefaultGreeting(candidateData);
+
+             alert('简历解析成功！');
+           } else {
+             alert('文件解析失败：' + data.message);
+           }
+         })
+         .catch(error => {
+           hideLoading();
+           console.error('上传错误:', error);
+           alert('文件上传失败：' + error.message);
+         });
+
+         // 重置文件输入，允许重新选择相同文件
+         event.target.value = '';
+       }
+
+       // 解析简历文本
+       function parseResume() {
+         const resumeText = document.getElementById('resumeText').value.trim();
+         if (!resumeText) {
+           alert('请输入简历文本');
+           return;
+         }
+
+         showLoading('AI正在解析简历...');
+
+         fetch('/api/candidate-resume/parse', {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json',
+           },
+           body: JSON.stringify({ resume_text: resumeText })
+         })
+         .then(response => response.json())
+         .then(data => {
+           hideLoading();
+           if (data.success) {
+             candidateData = data.data;
+             displayCandidateInfo(candidateData);
+             document.getElementById('deleteBtn').style.display = 'inline-block';
+
+             // 生成默认打招呼语
+             generateDefaultGreeting(candidateData);
+           } else {
+             alert('简历解析失败：' + data.message);
+           }
+         })
+         .catch(error => {
+           hideLoading();
+           console.error('Error:', error);
+           alert('简历解析失败：' + error.message);
+         });
+       }
+
+       // 删除简历
+       function deleteResume() {
+         if (!confirm('确定要删除已保存的简历吗？')) {
+           return;
+         }
+
+         fetch('/api/candidate-resume/delete', {
+           method: 'POST'
+         })
+         .then(response => response.json())
+         .then(data => {
+           if (data.success) {
+             alert('简历已删除');
+             candidateData = null;
+             document.getElementById('parseResult').style.display = 'none';
+             document.getElementById('deleteBtn').style.display = 'none';
+             document.getElementById('resumeText').value = '';
+           } else {
+             alert('删除失败：' + data.message);
+           }
+         })
+         .catch(error => {
+           console.error('Error:', error);
+           alert('删除失败：' + error.message);
+         });
+       }
+
+       // 显示候选人信息
+       function displayCandidateInfo(candidate) {
+         console.log('显示候选人信息:', candidate);
+         const candidateInfo = document.getElementById('candidateInfo');
+         if (!candidateInfo) {
+           console.error('未找到candidateInfo元素');
+           return;
+         }
+         console.log('开始渲染候选人信息...');
+         candidateInfo.innerHTML = `
+           <div class="row">
+             <div class="col-md-6">
+               <h5><i class="bi bi-person-circle"></i> 候选人信息</h5>
+               <p class="mb-2"><i class="bi bi-briefcase"></i> <strong>当前职位：</strong>${candidate.current_title || '未知'}</p>
+               <p class="mb-2"><i class="bi bi-calendar-check"></i> <strong>工作年限：</strong>${candidate.years_experience || 0}年</p>
+               <p class="mb-2"><i class="bi bi-mortarboard"></i> <strong>学历：</strong>${candidate.education || '未知'}</p>
+               <p class="mb-2"><i class="bi bi-building"></i> <strong>公司：</strong>${candidate.company || '未知'}</p>
+             </div>
+             <div class="col-md-6">
+               <h6><i class="bi bi-stars"></i> 核心优势：</h6>
+               <div class="mb-3">
+                 ${(candidate.core_strengths || []).map(strength =>
+                   `<span class="strength-tag" style="display: inline-block; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; margin: 5px; font-size: 0.9em; backdrop-filter: blur(10px);">${strength}</span>`
+                 ).join('')}
+               </div>
+               <h6><i class="bi bi-tools"></i> 技能：</h6>
+               <div>
+                 ${(candidate.skills || []).map(skill =>
+                   `<span class="skill-badge" style="background: white; color: #667eea; padding: 6px 12px; border-radius: 15px; margin: 3px; font-size: 0.85em; display: inline-block;">${skill}</span>`
+                 ).join('')}
+               </div>
+             </div>
+           </div>
+         `;
+         console.log('候选人信息已渲染');
+         const parseResult = document.getElementById('parseResult');
+         if (parseResult) {
+           parseResult.style.display = 'block';
+           console.log('解析结果区域已显示');
+         } else {
+           console.error('未找到parseResult元素');
+         }
+       }
+
+       // 生成默认打招呼语
+       function generateDefaultGreeting(candidate) {
+         showLoading('AI正在生成默认打招呼语...');
+
+         fetch('/api/candidate-resume/generate-default-greeting', {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json',
+           },
+           body: JSON.stringify({ candidate: candidate })
+         })
+         .then(response => response.json())
+         .then(data => {
+           hideLoading();
+           if (data.success) {
+             document.getElementById('defaultGreeting').value = data.greeting;
+           } else {
+             console.error('生成默认打招呼语失败:', data.message);
+             document.getElementById('defaultGreeting').value = '生成失败，请稍后重试';
+           }
+         })
+         .catch(error => {
+           hideLoading();
+           console.error('Error:', error);
+           document.getElementById('defaultGreeting').value = '生成失败，请稍后重试';
+         });
+       }
+
+       // 重新生成打招呼语
+       function regenerateGreeting() {
+         if (!candidateData) {
+           alert('请先解析简历');
+           return;
+         }
+         generateDefaultGreeting(candidateData);
+       }
+
+       // 保存默认打招呼语到配置
+       function saveDefaultGreeting() {
+         const greeting = document.getElementById('defaultGreeting').value.trim();
+         if (!greeting) {
+           alert('请先生成打招呼语');
+           return;
+         }
+
+         fetch('/api/candidate-resume/save-default-greeting', {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json',
+           },
+           body: JSON.stringify({ greeting: greeting })
+         })
+         .then(response => response.json())
+         .then(data => {
+           if (data.success) {
+             alert('默认打招呼语已保存到Boss配置！');
+           } else {
+             alert('保存失败：' + data.message);
+           }
+         })
+         .catch(error => {
+           console.error('Error:', error);
+           alert('保存失败：' + error.message);
+         });
+       }
+
+       // 显示/隐藏加载状态
+       function showLoading(text) {
+         document.getElementById('loadingText').textContent = text || 'AI正在处理中...';
+         document.getElementById('loading').style.display = 'block';
+       }
+
+       function hideLoading() {
+         document.getElementById('loading').style.display = 'none';
+       }
     </script>
-</body>
+  </body>
 </html>
