@@ -51,10 +51,10 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
-    authService.logout();
-    navigate('/login');
-  };
+  // const handleLogout = () => {
+  //   authService.logout();
+  //   navigate('/login');
+  // };
 
   if (loading) {
     return (

@@ -17,7 +17,11 @@ import StandaloneApiTest from './components/StandaloneApiTest';
 import TestLogin from './components/TestLogin';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
+import BlogPage from './pages/BlogPage';
+import ContactPage from './pages/ContactPage';
 import Dashboard from './pages/Dashboard';
+import FeaturesPage from './pages/FeaturesPage';
+import PricingPage from './pages/PricingPage';
 
 // 主页组件
 const HomePage: React.FC = () => {
@@ -54,6 +58,12 @@ function App() {
             <Route path='/' element={<HomePage />} />
             <Route path='/login' element={<Login />} />
             <Route path='/register' element={<Register />} />
+
+            {/* 页面路由 - 修复菜单点击问题 */}
+            <Route path='/features' element={<FeaturesPage />} />
+            <Route path='/pricing' element={<PricingPage />} />
+            <Route path='/blog' element={<BlogPage />} />
+            <Route path='/contact' element={<ContactPage />} />
 
             {/* 受保护的路由 - 需要登录 */}
             <Route
