@@ -1,0 +1,10 @@
+{
+  "userId" : "user2_1760440483219_7952@test.example.com",
+  "BASE_URL" : "http://localhost:11434",
+  "API_KEY" : "user_b_key_1760440483493",
+  "MODEL" : "qwen2:7b",
+  "HOOK_URL" : "https://webhook.example.com/49",
+  "BARK_URL" : "https://bark.example.com/49",
+  "lastModified" : 1760440483497,
+  "securityEnabled" : true
+}

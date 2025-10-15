@@ -1,0 +1,93 @@
+# ============================================
+# 智投简历后端 - 生产环境Dockerfile
+# ============================================
+
+# 构建阶段
+FROM maven:3.8-openjdk-21-slim AS builder
+
+WORKDIR /app
+
+# 复制pom.xml并下载依赖（利用Docker缓存）
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# 复制源代码
+COPY src ./src
+
+# 构建应用（跳过测试以加快构建）
+RUN mvn clean package -DskipTests -B
+
+# 运行阶段
+FROM openjdk:21-jdk-slim
+
+WORKDIR /app
+
+# 安装必要的工具和Chrome（用于Selenium）
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    gnupg \
+    ca-certificates \
+    fonts-liberation \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libc6 \
+    libcairo2 \
+    libcups2 \
+    libdbus-1-3 \
+    libexpat1 \
+    libfontconfig1 \
+    libgbm1 \
+    libgcc1 \
+    libglib2.0-0 \
+    libgtk-3-0 \
+    libnspr4 \
+    libnss3 \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
+    libstdc++6 \
+    libx11-6 \
+    libx11-xcb1 \
+    libxcb1 \
+    libxcomposite1 \
+    libxcursor1 \
+    libxdamage1 \
+    libxext6 \
+    libxfixes3 \
+    libxi6 \
+    libxrandr2 \
+    libxrender1 \
+    libxss1 \
+    libxtst6 \
+    lsb-release \
+    xdg-utils \
+    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable \
+    && rm -rf /var/lib/apt/lists/*
+
+# 复制构建的jar文件
+COPY --from=builder /app/target/*.jar app.jar
+
+# 创建日志目录
+RUN mkdir -p /app/logs
+
+# 创建非root用户
+RUN addgroup --system spring && adduser --system --group spring
+RUN chown -R spring:spring /app
+USER spring:spring
+
+# 暴露端口
+EXPOSE 8080
+
+# JVM优化参数
+ENV JAVA_OPTS="-Xms512m -Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/logs"
+
+# 启动应用
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app/app.jar"]
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:8080/api/auth/health || exit 1

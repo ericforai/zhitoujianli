@@ -1,0 +1,71 @@
+spring:
+  application:
+    name: zhitoujianli-backend
+  # H2数据库配置（MVP版本）
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+# 安全认证开关
+# false: 禁用认证（测试用）
+# true: 启用认证（生产环境）
+security:
+  enabled: ${SECURITY_ENABLED:true}
+
+# Authing身份认证配置
+authing:
+  userPoolId: ${AUTHING_USER_POOL_ID:}
+  appId: ${AUTHING_APP_ID:}
+  appSecret: ${AUTHING_APP_SECRET:}
+  appHost: ${AUTHING_APP_HOST:https://your-domain.authing.cn}
+
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+# 微信支付配置（可选）
+wechat:
+  pay:
+    merchantId: ${WECHAT_PAY_MERCHANT_ID:}
+    apiKey: ${WECHAT_PAY_API_KEY:}
+    certPath: ${WECHAT_PAY_CERT_PATH:src/main/resources/apiclient_cert.p12}
+    notifyUrl: ${WECHAT_PAY_NOTIFY_URL:https://yourdomain.com/api/payment/wechat/notify}
+
+# 支付宝配置（可选）
+alipay:
+  appId: ${ALIPAY_APP_ID:}
+  privateKey: ${ALIPAY_PRIVATE_KEY:}
+  publicKey: ${ALIPAY_PUBLIC_KEY:}
+  notifyUrl: ${ALIPAY_NOTIFY_URL:https://yourdomain.com/api/payment/alipay/notify}
+
+# 服务器配置
+server:
+  port: ${SERVER_PORT:8080}
+  # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+      file-size-threshold: 2KB
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    controller: DEBUG
+    security: DEBUG
+    config: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

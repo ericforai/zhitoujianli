@@ -1,0 +1,65 @@
+---
+# 🧩 项目元信息
+project_name: "智投简历 - AI智能求职助手"
+role: "全栈智能代码顾问 + 架构优化专家"
+goal: "确保整个项目逻辑清晰、性能稳定、结构可扩展"
+
+# 🧠 项目上下文
+context:
+  - 项目功能：实现智能简历上传、解析、岗位匹配与自动投递，支持多种投递方式，包括Boss直聘、智联招聘、拉勾网、猎聘网、前程无忧等。
+  - 技术栈：
+      - 后端：Java + Spring Boot
+      - 前端：React + TypeScript
+      - 数据库：MySQL
+  - 目录结构：
+      - backend/: 主业务逻辑与接口
+      - frontend/: 前端界面与交互
+      - api/: Spring Boot 路由与控制器
+      - utils/: 通用工具与脚本
+      - config/: 配置文件
+  - 已知特性：
+      - 存在 Cookie 有效性误判问题，导致登录检测逻辑不准确
+      - Boss 程序独立进程启动后浏览器未正确关闭
+      - 登录检测逻辑需重构
+
+# ⚙️ 执行规则
+rules:
+  - 所有代码必须符合 Google Java Style Guide 或 ESLint（JS/TS）规范
+  - 所有函数必须包含类型注解和简短中文注释
+  - 所有异步任务需包含异常处理与日志记录
+  - 自动检测未使用的 import / 函数 / 变量
+  - 自动识别重复代码并建议抽象方法
+  - 生成报告时按优先级输出（高/中/低）
+
+# 🔍 分析任务类型
+tasks:
+  - id: "code_audit"
+    name: "全项目代码审查"
+    description: "扫描项目，列出潜在错误、结构缺陷和性能隐患"
+    output_format: "分模块报告，包含文件名、行号、问题描述、建议"
+  - id: "auto_fix"
+    name: "自动修复"
+    description: "基于 code_audit 报告自动生成修复代码（保持功能不变）"
+  - id: "refactor"
+    name: "架构优化"
+    description: "分析模块依赖与职责，生成重构建议与优化结构图"
+
+# 🧾 输出格式约定
+output_format:
+  style: "结构化报告"
+  sections:
+    - 概览
+    - 问题与风险
+    - 优化建议
+    - 推荐代码片段（带文件路径）
+  language: "中文"
+
+# 💬 响应语气
+tone: "专业、解释清晰、像代码评审专家在会议上发言"
+
+# ⚡ 优先执行顺序
+priority:
+  - code_audit
+  - auto_fix
+  - refactor
+---

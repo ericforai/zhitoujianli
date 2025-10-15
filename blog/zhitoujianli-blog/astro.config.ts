@@ -3,17 +3,17 @@ import { fileURLToPath } from 'url';
 
 import { defineConfig } from 'astro/config';
 
-import sitemap from '@astrojs/sitemap';
-import tailwind from '@astrojs/tailwind';
 import mdx from '@astrojs/mdx';
 import partytown from '@astrojs/partytown';
-import icon from 'astro-icon';
-import compress from 'astro-compress';
+import sitemap from '@astrojs/sitemap';
+import tailwind from '@astrojs/tailwind';
 import type { AstroIntegration } from 'astro';
+import compress from 'astro-compress';
+import icon from 'astro-icon';
 
 import astrowind from './vendor/integration';
 
-import { readingTimeRemarkPlugin, responsiveTablesRehypePlugin, lazyImagesRehypePlugin } from './src/utils/frontmatter';
+import { lazyImagesRehypePlugin, readingTimeRemarkPlugin, responsiveTablesRehypePlugin } from './src/utils/frontmatter';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -23,14 +23,20 @@ const whenExternalScripts = (items: (() => AstroIntegration) | (() => AstroInteg
 
 export default defineConfig({
   output: 'static',
-  site: process.env.NODE_ENV === 'production' ? 'http://115.190.182.95' : 'http://localhost:4321',
-  base: '/blog/',
+  site: process.env.NODE_ENV === 'production' ? 'https://www.zhitoujianli.com/blog' : 'http://localhost:4321',
+  base: '/', // 改为根路径，支持独立域名访问
+  compressHTML: true, // 启用HTML压缩
 
   integrations: [
     tailwind({
       applyBaseStyles: false,
     }),
-    sitemap(),
+    sitemap({
+      filter: (page) => !page.includes('admin') && !page.includes('cms'),
+      changefreq: 'weekly',
+      priority: 0.7,
+      lastmod: new Date(),
+    }),
     mdx(),
     icon({
       include: {
@@ -87,6 +93,14 @@ export default defineConfig({
       alias: {
         '~': path.resolve(__dirname, './src'),
       },
+    },
+    preview: {
+      host: true, // 允许所有主机访问
+      port: 4321,
+    },
+    server: {
+      host: true, // 开发模式也允许所有主机访问
+      port: 4321,
     },
   },
 });

@@ -1,0 +1,329 @@
+# ========================================
+# 智投简历博客 - SEO完全优化配置
+# 最后更新：2025-10-10
+# ========================================
+
+site:
+  name: 智投简历博客
+  site: 'https://zhitoujianli.com' # ✅ 使用HTTPS和正式域名
+  base: '/blog/'
+  trailingSlash: true
+
+  # ✅ SEO优化：Google站点验证
+  googleSiteVerificationId: 'YOUR_GOOGLE_VERIFICATION_ID' # 在Google Search Console获取
+
+  # ✅ SEO优化：Bing站点验证
+  bingSiteVerificationId: 'YOUR_BING_VERIFICATION_ID' # 可选
+
+  # ✅ SEO优化：百度站点验证
+  baiduSiteVerificationId: 'YOUR_BAIDU_VERIFICATION_ID' # 可选
+
+# ========================================
+# Default SEO Metadata - 完全优化
+# ========================================
+metadata:
+  title:
+    default: 智投简历博客 - AI智能求职平台，让求职更精准高效
+    template: '%s | 智投简历博客' # ✅ 统一品牌后缀
+
+  description: '智投简历官方博客：分享AI求职技术深度解析、智能岗位匹配算法、简历优化实战技巧、面试准备完全指南、职场发展5阶段路径、2025就业市场趋势分析。基于DeepSeek大模型的AI求职助手，让简历回复率提升342%，求职效率提升10倍，投递成功率从30%提升到85%。'
+
+  robots:
+    index: true
+    follow: true
+
+  # ✅ SEO优化：Open Graph完整配置
+  openGraph:
+    site_name: 智投简历博客
+    images:
+      - url: 'https://zhitoujianli.com/images/blog/og-default.jpg' # ✅ 使用正式域名
+        width: 1200
+        height: 630
+        alt: '智投简历博客 - AI智能求职平台'
+    type: website
+    locale: zh_CN # ✅ 添加语言地区
+
+  # ✅ SEO优化：Twitter Cards完整配置
+  twitter:
+    handle: '@zhitoujianli'
+    site: '@zhitoujianli'
+    cardType: summary_large_image
+    creator: '@zhitoujianli' # ✅ 添加创建者
+
+  # ✅ SEO优化：额外元数据
+  author: '智投简历团队'
+  copyright: '© 2025 智投简历 All Rights Reserved'
+
+  # ✅ SEO优化：联系信息
+  contact:
+    email: 'contact@zhitoujianli.com'
+    wechat: 'zhitoujianli'
+
+# ========================================
+# i18n Configuration - 多语言支持
+# ========================================
+i18n:
+  language: zh-CN
+  textDirection: ltr
+  alternateLanguages: ['en', 'en-US'] # ✅ 添加英文支持（未来）
+
+  # ✅ SEO优化：多语言URL结构
+  locales:
+    zh-CN:
+      label: '简体中文'
+      path: '' # 默认语言，无前缀
+    en:
+      label: 'English'
+      path: 'en' # /en/blog/...
+
+# ========================================
+# Blog Configuration - 博客设置
+# ========================================
+apps:
+  blog:
+    isEnabled: true
+    postsPerPage: 9 # ✅ 优化：9篇更适合3列布局
+
+    # ✅ SEO优化：启用所有博客功能
+    post:
+      isEnabled: true
+      permalink: '/%slug%' # ✅ SEO友好的URL
+      robots:
+        index: true
+        follow: true
+
+    list:
+      isEnabled: true
+      pathname: '' # 博客首页 /blog/
+      robots:
+        index: true
+        follow: true
+
+    category:
+      isEnabled: true
+      pathname: 'category' # /blog/category/技术深度
+      robots:
+        index: true
+        follow: true
+
+    tag:
+      isEnabled: true
+      pathname: 'tag' # /blog/tag/AI技术
+      robots:
+        index: true
+        follow: true
+
+    # ✅ SEO优化：相关文章推荐
+    isRelatedPostsEnabled: true
+    relatedPostsCount: 4 # 推荐4篇相关文章
+
+    # ✅ SEO优化：文章元数据
+    showReadingTime: true # 显示阅读时间
+    showAuthor: true # 显示作者
+    showDate: true # 显示发布日期
+    showCategory: true # 显示分类
+    showTags: true # 显示标签
+
+    # ✅ SEO优化：社交分享
+    enableSocialShare: true # 启用社交分享
+    socialPlatforms: ['twitter', 'facebook', 'linkedin', 'wechat', 'weibo', 'whatsapp', 'email']
+
+# ========================================
+# Analytics Configuration - 分析追踪
+# ========================================
+analytics:
+  vendors:
+    # Google Analytics 4
+    googleAnalytics:
+      id: 'G-XXXXXXXXXX' # ✅ 替换为实际GA4 ID
+      partytown: true # ✅ 使用Partytown优化性能
+
+      # ✅ SEO优化：自定义配置
+      config:
+        send_page_view: true
+        anonymize_ip: true # 隐私保护
+        cookie_flags: 'SameSite=None;Secure'
+
+    # ✅ 可选：百度统计（中文市场）
+    baiduAnalytics:
+      id: null # 'YOUR_BAIDU_ID'
+
+    # ✅ 可选：其他分析工具
+    plausible:
+      enabled: false
+      domain: 'zhitoujianli.com'
+
+  # ✅ SEO优化：事件追踪配置
+  tracking:
+    pageView: true
+    clicks: true
+    scrollDepth: [25, 50, 75, 90] # 阅读深度追踪
+    outbound: true # 外链点击追踪
+    downloads: true # 下载追踪
+
+# ========================================
+# Performance Optimization - 性能优化
+# ========================================
+performance:
+  # ✅ SEO优化：图片优化
+  images:
+    lazy: true # 懒加载
+    formats: ['webp', 'avif'] # 现代图片格式
+    quality: 80 # 图片质量
+
+  # ✅ SEO优化：代码分割
+  codeSplitting:
+    enabled: true
+    minSize: 20000 # 20KB
+
+  # ✅ SEO优化：缓存策略
+  cache:
+    static: 'max-age=31536000, immutable' # 1年
+    html: 'max-age=3600, must-revalidate' # 1小时
+
+# ========================================
+# Security Headers - 安全头部
+# ========================================
+security:
+  # ✅ SEO优化：内容安全策略
+  contentSecurityPolicy:
+    enabled: true
+    policy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline';"
+
+  # ✅ SEO优化：其他安全头部
+  headers:
+    - X-Frame-Options: DENY
+    - X-Content-Type-Options: nosniff
+    - Referrer-Policy: strict-origin-when-cross-origin
+    - Permissions-Policy: geolocation=(), microphone=(), camera=()
+
+# ========================================
+# UI Configuration - 用户界面
+# ========================================
+ui:
+  theme: 'light:only' # ✅ 浅色主题（更好的可读性）
+
+  # ✅ SEO优化：字体优化
+  fonts:
+    sans: 'Inter, system-ui, -apple-system, sans-serif'
+    serif: 'Georgia, serif'
+    mono: 'Menlo, Monaco, monospace'
+
+  # ✅ SEO优化：颜色配置
+  colors:
+    primary: '#4f46e5' # 主色调
+    accent: '#06b6d4' # 强调色
+
+# ========================================
+# SEO Advanced Settings - 高级SEO设置
+# ========================================
+seo:
+  # ✅ 启用所有SEO功能
+  enableStructuredData: true # 结构化数据
+  enableOpenGraph: true # Open Graph
+  enableTwitterCards: true # Twitter Cards
+  enableCanonical: true # Canonical URL
+  enableRobotsMeta: true # Robots Meta标签
+  enableSitemap: true # Sitemap
+  enableRSS: true # RSS Feed
+
+  # ✅ Schema.org配置
+  schema:
+    organizationType: 'Corporation'
+    organizationName: '智投简历'
+    organizationUrl: 'https://zhitoujianli.com'
+    organizationLogo: 'https://zhitoujianli.com/logo.png'
+    organizationDescription: 'AI智能求职平台，让求职更精准高效'
+
+  # ✅ 默认作者信息
+  defaultAuthor:
+    name: '智投简历团队'
+    url: 'https://zhitoujianli.com/about'
+    email: 'contact@zhitoujianli.com'
+
+  # ✅ 社交媒体账号
+  socialProfiles:
+    - platform: 'Twitter'
+      url: 'https://twitter.com/zhitoujianli'
+    - platform: 'LinkedIn'
+      url: 'https://linkedin.com/company/zhitoujianli'
+    - platform: 'GitHub'
+      url: 'https://github.com/ericforai/zhitoujianli'
+    - platform: 'WeChat'
+      id: 'zhitoujianli'
+    - platform: 'Weibo'
+      url: 'https://weibo.com/zhitoujianli'
+
+# ========================================
+# Content Configuration - 内容配置
+# ========================================
+content:
+  # ✅ 默认阅读时间（字/分钟）
+  readingSpeed: 200 # 中文阅读速度
+
+  # ✅ 摘要长度
+  excerptLength: 200 # 字符
+
+  # ✅ 相关文章算法
+  relatedPosts:
+    algorithm: 'tags' # tags | category | mixed
+    limit: 4
+
+  # ✅ 目录生成
+  tableOfContents:
+    enabled: true
+    minHeadings: 2
+    maxHeadings: 4 # H1-H4
+
+# ========================================
+# External Services - 外部服务
+# ========================================
+externalServices:
+  # ✅ CDN配置
+  cdn:
+    enabled: true
+    url: 'https://cdn.zhitoujianli.com'
+
+  # ✅ 图片服务
+  imageService:
+    provider: 'cloudinary' # cloudinary | cloudflare | vercel
+    baseUrl: 'https://images.zhitoujianli.com'
+
+  # ✅ 评论系统（可选）
+  comments:
+    provider: 'giscus' # giscus | disqus | utterances
+    enabled: false # 根据需求启用
+
+# ========================================
+# Monitoring & Alerts - 监控和告警
+# ========================================
+monitoring:
+  # ✅ 错误监控
+  errorTracking:
+    provider: 'sentry' # 可选
+    enabled: false
+
+  # ✅ 性能监控
+  performanceMonitoring:
+    enabled: true
+    thresholds:
+      FCP: 1800 # First Contentful Paint (ms)
+      LCP: 2500 # Largest Contentful Paint (ms)
+      CLS: 0.1 # Cumulative Layout Shift
+      FID: 100 # First Input Delay (ms)
+
+# ========================================
+# 使用说明
+# ========================================
+# 1. 替换 YOUR_*_VERIFICATION_ID 为实际值
+# 2. 替换 G-XXXXXXXXXX 为实际Google Analytics ID
+# 3. 更新site.site为正式域名
+# 4. 配置CDN和图片服务（可选）
+# 5. 重启Astro服务应用配置
+
+# 验证配置：
+# npm run build
+# npm run preview
+
+
+

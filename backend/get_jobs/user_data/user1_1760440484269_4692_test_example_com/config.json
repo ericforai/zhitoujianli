@@ -1,0 +1,32 @@
+{
+  "userId" : "user1_1760440484269_4692@test.example.com",
+  "boss" : {
+    "debugger" : false,
+    "sayHi" : "综合测试-用户A-1760440484528",
+    "keywords" : [ "软件工程师", "Java开发" ],
+    "cityCode" : [ "北京" ],
+    "experience" : [ "5-10年" ],
+    "jobType" : "全职",
+    "salary" : "20K-30K",
+    "degree" : [ "本科" ],
+    "scale" : [ "100-500人" ],
+    "stage" : [ "C轮" ],
+    "expectedSalary" : [ 20, 30 ],
+    "waitTime" : 5,
+    "filterDeadHR" : true,
+    "enableAI" : true,
+    "sendImgResume" : false,
+    "deadStatus" : [ "2周内活跃", "本月活跃" ]
+  },
+  "ai" : {
+    "introduce" : "用户A的AI介绍",
+    "prompt" : "用户50的AI提示词"
+  },
+  "bot" : {
+    "is_send" : false
+  },
+  "userEmail" : "user1_1760440484269_4692@test.example.com",
+  "username" : "user1_1760440484269",
+  "lastModified" : 1760440484534,
+  "securityEnabled" : true
+}

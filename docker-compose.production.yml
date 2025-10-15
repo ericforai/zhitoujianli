@@ -1,0 +1,116 @@
+# ============================================
+# 智投简历 - 生产环境Docker Compose配置
+# ============================================
+
+version: "3.8"
+
+services:
+  # 后端服务
+  backend:
+    build:
+      context: ./backend/get_jobs
+      dockerfile: Dockerfile.production
+    container_name: zhitoujianli-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=production
+    env_file:
+      - ./backend/get_jobs/.env.production
+    volumes:
+      - ./logs:/app/logs
+      - ./backend/get_jobs/data:/app/data
+    networks:
+      - zhitoujianli-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/auth/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+        reservations:
+          cpus: "1"
+          memory: 1G
+
+  # 前端服务
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.production
+      args:
+        - REACT_APP_API_URL=https://api.zhitoujianli.com
+    container_name: zhitoujianli-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    networks:
+      - zhitoujianli-network
+    depends_on:
+      backend:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+
+  # Blog服务 (Astro)
+  blog:
+    build:
+      context: ./blog/zhitoujianli-blog
+      dockerfile: Dockerfile
+    container_name: zhitoujianli-blog
+    restart: unless-stopped
+    ports:
+      - "4321:4321"
+    networks:
+      - zhitoujianli-network
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+
+  # Nginx反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: zhitoujianli-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx-production.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./frontend/build:/var/www/zhitoujianli/frontend/build:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx
+      - ./certbot/www:/var/www/certbot:ro
+    networks:
+      - zhitoujianli-network
+    depends_on:
+      - backend
+      - frontend
+      - blog
+
+  # Certbot (SSL证书自动续期)
+  certbot:
+    image: certbot/certbot
+    container_name: zhitoujianli-certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+networks:
+  zhitoujianli-network:
+    driver: bridge
+
+volumes:
+  backend-logs:
+  nginx-logs:

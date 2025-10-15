@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>前端后端连接测试</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+      }
+      .test-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      .success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+      }
+      .error {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 10px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .result {
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 4px;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔧 前端后端连接测试</h1>
+
+    <div class="test-section">
+      <h2>1. 后端健康检查</h2>
+      <button onclick="testBackendHealth()">测试后端</button>
+      <div id="healthResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>2. 登录API测试</h2>
+      <button onclick="testLogin()">测试登录</button>
+      <div id="loginResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>3. 前端配置检查</h2>
+      <button onclick="checkFrontendConfig()">检查配置</button>
+      <div id="configResult" class="result"></div>
+    </div>
+
+    <script>
+      const API_BASE = 'http://115.190.182.95:8080/api';
+
+      async function testBackendHealth() {
+        const resultDiv = document.getElementById('healthResult');
+        resultDiv.textContent = '测试中...';
+        resultDiv.className = 'result';
+
+        try {
+          const response = await fetch(`${API_BASE}/auth/health`);
+          const data = await response.json();
+
+          if (response.ok && data.success) {
+            resultDiv.className = 'result success';
+            resultDiv.textContent = `✅ 后端服务正常
+消息: ${data.message}
+认证方法: ${data.authMethod}
+JWT配置: ${data.jwtConfigured ? '已配置' : '未配置'}
+邮件配置: ${data.mailConfigured ? '已配置' : '未配置'}`;
+          } else {
+            throw new Error(`HTTP ${response.status}: ${data.message || '未知错误'}`);
+          }
+        } catch (error) {
+          resultDiv.className = 'result error';
+          resultDiv.textContent = `❌ 后端连接失败: ${error.message}`;
+        }
+      }
+
+      async function testLogin() {
+        const resultDiv = document.getElementById('loginResult');
+        resultDiv.textContent = '测试中...';
+        resultDiv.className = 'result';
+
+        try {
+          const response = await fetch(`${API_BASE}/auth/login/email`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: 'demo@zhitoujianli.com',
+              password: '123456',
+            }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.success) {
+            resultDiv.className = 'result success';
+            resultDiv.textContent = `✅ 登录成功！
+用户: ${data.user.username}
+邮箱: ${data.user.email}
+Token: ${data.token.substring(0, 50)}...`;
+          } else {
+            throw new Error(`HTTP ${response.status}: ${data.message || '登录失败'}`);
+          }
+        } catch (error) {
+          resultDiv.className = 'result error';
+          resultDiv.textContent = `❌ 登录失败: ${error.message}`;
+        }
+      }
+
+      function checkFrontendConfig() {
+        const resultDiv = document.getElementById('configResult');
+
+        // 检查当前页面的URL
+        const currentUrl = window.location.href;
+        const expectedFrontend = '115.190.182.95:3000';
+        const expectedBackend = '115.190.182.95:8080';
+
+        let configInfo = `当前页面URL: ${currentUrl}\n`;
+        configInfo += `期望前端地址: ${expectedFrontend}\n`;
+        configInfo += `期望后端地址: ${expectedBackend}\n`;
+        configInfo += `API基础URL: ${API_BASE}\n\n`;
+
+        // 检查URL是否匹配期望
+        if (currentUrl.includes(expectedFrontend)) {
+          configInfo += `✅ 前端地址正确\n`;
+        } else {
+          configInfo += `❌ 前端地址不匹配\n`;
+        }
+
+        if (API_BASE.includes(expectedBackend)) {
+          configInfo += `✅ 后端地址正确\n`;
+        } else {
+          configInfo += `❌ 后端地址不匹配\n`;
+        }
+
+        if (API_BASE.includes('/api')) {
+          configInfo += `✅ API路径包含/api前缀\n`;
+        } else {
+          configInfo += `❌ API路径缺少/api前缀\n`;
+        }
+
+        resultDiv.textContent = configInfo;
+        resultDiv.className = 'result success';
+      }
+
+      // 页面加载时自动运行所有测试
+      window.onload = function () {
+        testBackendHealth();
+        setTimeout(() => testLogin(), 1000);
+        setTimeout(() => checkFrontendConfig(), 2000);
+      };
+    </script>
+  </body>
+</html>

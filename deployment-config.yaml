@@ -1,0 +1,66 @@
+# 智投简历统一部署配置
+# 确保所有部署脚本使用相同的路径配置
+
+# 基础路径配置
+paths:
+  # 项目根目录
+  project_root: "/root/zhitoujianli"
+  
+  # 前端配置
+  frontend:
+    source_dir: "/root/zhitoujianli/frontend"
+    build_dir: "/root/zhitoujianli/frontend/build"
+    production_dir: "/usr/share/nginx/html"
+    backup_dir: "/var/www/html.backup"
+  
+  # 后端配置
+  backend:
+    source_dir: "/root/zhitoujianli/backend/get_jobs"
+    target_dir: "/root/zhitoujianli/backend/get_jobs"
+    pid_file: "/root/zhitoujianli/backend.pid"
+    log_file: "/tmp/backend.log"
+  
+  # 博客配置
+  blog:
+    source_dir: "/root/zhitoujianli/blog/zhitoujianli-blog"
+    build_dir: "/root/zhitoujianli/blog/zhitoujianli-blog/dist"
+    production_dir: "/usr/share/nginx/html"
+    static_dir: "/usr/share/nginx/html"
+  
+  # Nginx配置
+  nginx:
+    config_dir: "/etc/nginx/sites-available"
+    enabled_dir: "/etc/nginx/sites-enabled"
+    config_file: "zhitoujianli-ssl"
+    log_dir: "/var/log/nginx"
+  
+  # SSL配置
+  ssl:
+    cert_dir: "/etc/letsencrypt/live/www.zhitoujianli.com"
+    certbot_dir: "/root/zhitoujianli/certbot"
+
+# 服务端口配置
+ports:
+  frontend: 3000
+  backend: 8080
+  blog: 4321
+  nginx: 80
+  nginx_ssl: 443
+
+# 环境配置
+environments:
+  development:
+    api_base_url: "http://localhost:8080"
+    frontend_url: "http://localhost:3000"
+    blog_url: "http://localhost:4321"
+  
+  production:
+    api_base_url: "https://www.zhitoujianli.com/api"
+    frontend_url: "https://www.zhitoujianli.com"
+    blog_url: "https://www.zhitoujianli.com/blog"
+
+# 版本控制
+version:
+  current: "2025-10-15-v1.0"
+  git_branch: "main"
+  auto_deploy: true

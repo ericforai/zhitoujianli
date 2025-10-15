@@ -1,31 +1,47 @@
 site:
   name: 智投简历博客
-  site: 'http://115.190.182.95'
-  base: '/blog/'
+  site: 'https://www.zhitoujianli.com/blog'
+  base: '/' # 改为根路径，支持独立域名访问
   trailingSlash: true
 
   googleSiteVerificationId: false
+  # 添加百度验证
+  baiduSiteVerificationId: 'codeva-xGT32pbUMi'
 
 # Default SEO metadata
 metadata:
   title:
-    default: 智投简历博客
+    default: 智投简历博客 - 让求职更智能
     template: '%s — 智投简历博客'
-  description: "智投简历官方博客 - 分享求职技巧、简历优化、面试经验、职场发展等实用内容，助你更快拿到心仪Offer"
+  description: '智投简历官方博客 - 分享求职技巧、简历优化、面试经验、职场发展等实用内容，助你更快拿到心仪Offer。AI驱动的智能求职平台，提供专业求职指导。'
+  keywords: '求职技巧,简历优化,面试经验,职场发展,AI求职,智投简历,求职指导,简历制作,面试准备,职业规划'
   robots:
     index: true
     follow: true
+    googlebot:
+      index: true
+      follow: true
+      'max-video-preview': -1
+      'max-image-preview': large
+      'max-snippet': -1
   openGraph:
     site_name: 智投简历博客
+    locale: 'zh_CN'
+    type: 'website'
     images:
-      - url: '~/assets/images/default.png'
+      - url: 'https://www.zhitoujianli.com/blog/_astro/hero-image.DwIC_L_T.png'
         width: 1200
         height: 628
-    type: website
+        alt: '智投简历博客 - 让求职更智能'
+    title: '智投简历博客 - 让求职更智能'
+    description: '智投简历官方博客 - 分享求职技巧、简历优化、面试经验、职场发展等实用内容，助你更快拿到心仪Offer'
   twitter:
     handle: '@zhitoujianli'
     site: '@zhitoujianli'
     cardType: summary_large_image
+    title: '智投简历博客 - 让求职更智能'
+    description: '智投简历官方博客 - 分享求职技巧、简历优化、面试经验、职场发展等实用内容'
+    image: 'https://www.zhitoujianli.com/blog/_astro/hero-image.DwIC_L_T.png'
 
 i18n:
   language: zh-CN

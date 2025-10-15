@@ -1,0 +1,14 @@
+{
+  "skills" : [ "Java", "Python", "React" ],
+  "core_strengths" : [ ],
+  "education" : null,
+  "years_experience" : 0,
+  "confidence" : {
+    "skills" : 0.9,
+    "name" : 0.95,
+    "experience" : 0.0
+  },
+  "name" : "张三",
+  "company" : null,
+  "current_title" : "软件工程师"
+}
