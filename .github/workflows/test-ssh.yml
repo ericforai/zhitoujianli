@@ -18,7 +18,7 @@ jobs:
   test-ssh:
     name: 测试SSH连接
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,7 +35,7 @@ jobs:
             echo "SSH连接测试开始..."
             echo "时间: $(date)"
             echo "============================================================"
-            
+
             # 基本系统信息
             echo "系统信息："
             echo "用户: $(whoami)"
@@ -43,7 +43,7 @@ jobs:
             echo "主机名: $(hostname)"
             echo "操作系统: $(uname -a)"
             echo ""
-            
+
             # 检查部署目录
             echo "检查部署目录..."
             if [ -d "/var/www/zhitoujianli" ]; then
@@ -57,7 +57,7 @@ jobs:
                 sudo chown $USER:$USER /var/www/zhitoujianli
             fi
             echo ""
-            
+
             # 检查Nginx配置目录
             echo "检查Nginx配置目录..."
             if [ -d "/etc/nginx/conf.d" ]; then
@@ -68,7 +68,7 @@ jobs:
                 echo "❌ Nginx配置目录不存在: /etc/nginx/conf.d"
             fi
             echo ""
-            
+
             # 检查Nginx服务状态
             echo "检查Nginx服务状态..."
             if systemctl is-active --quiet nginx; then
@@ -86,22 +86,22 @@ jobs:
                 fi
             fi
             echo ""
-            
+
             # 检查磁盘空间
             echo "检查磁盘空间..."
             df -h
             echo ""
-            
+
             # 检查内存使用
             echo "检查内存使用..."
             free -h
             echo ""
-            
+
             # 检查网络连接
             echo "检查网络连接..."
             ping -c 3 8.8.8.8
             echo ""
-            
+
             echo "============================================================"
             echo "SSH连接测试完成！"
             echo "时间: $(date)"
