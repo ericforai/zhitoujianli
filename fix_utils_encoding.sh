@@ -8,7 +8,7 @@ echo "🔧 修复utils包中的编码问题..."
 sed -i 's/new String(/new String(/g' backend/get_jobs/src/main/java/utils/PlaywrightUtil.java
 sed -i 's/new FileWriter(/new FileWriter(/g' backend/get_jobs/src/main/java/utils/PlaywrightUtil.java
 
-# SeleniumUtil.java  
+# SeleniumUtil.java
 sed -i 's/new FileWriter(/new FileWriter(/g' backend/get_jobs/src/main/java/utils/SeleniumUtil.java
 
 # 添加StandardCharsets import

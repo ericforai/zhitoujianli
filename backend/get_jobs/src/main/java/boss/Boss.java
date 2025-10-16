@@ -1,34 +1,57 @@
 package boss;
 
-import ai.AiConfig;
-import ai.AiFilter;
-import ai.AiService;
-import ai.CandidateResumeService;
-import ai.SmartGreetingService;
-import com.microsoft.playwright.Locator;
-import com.microsoft.playwright.Page;
-import lombok.SneakyThrows;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import utils.*;
+import static boss.Locators.CHAT_LIST_ITEM;
+import static boss.Locators.COMPANY_NAME_IN_CHAT;
+import static boss.Locators.DIALOG_CON;
+import static boss.Locators.ERROR_PAGE_LOGIN;
+import static boss.Locators.FINISHED_TEXT;
+import static boss.Locators.HR_ACTIVE_TIME;
+import static boss.Locators.JOB_LIST_CONTAINER;
+import static boss.Locators.LAST_MESSAGE;
+import static boss.Locators.LOGIN_BTN;
+import static boss.Locators.LOGIN_BTNS;
+import static boss.Locators.LOGIN_SCAN_SWITCH;
+import static boss.Locators.PAGE_HEADER;
+import static boss.Locators.RECRUITER_INFO;
+import static boss.Locators.SCROLL_LOAD_MORE;
+import static utils.Bot.sendMessageByTime;
+import static utils.JobUtils.formatDuration;
 
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.nio.charset.StandardCharsets;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import static boss.Locators.*;
-import static utils.Bot.sendMessageByTime;
-import static utils.JobUtils.formatDuration;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
+
+import ai.AiConfig;
+import ai.AiFilter;
+import ai.AiService;
+import lombok.SneakyThrows;
+import utils.Job;
+import utils.JobUtils;
+import utils.PlaywrightUtil;
 
 /**
  * @author loks666
