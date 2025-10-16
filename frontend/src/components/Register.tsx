@@ -51,13 +51,53 @@ const Register: React.FC = () => {
       setLoading(true);
       setError('');
 
-      const response = await fetch(`/api/auth/send-verification-code`, {
+      // 获取安全的 API 基础 URL
+      const getApiBaseUrl = () => {
+        // 1. 优先使用生产环境配置
+        const config = (window as any).__PRODUCTION_CONFIG__;
+        if (config?.API_BASE_URL) {
+          return config.API_BASE_URL;
+        }
+
+        // 2. 使用环境变量
+        if (process.env.REACT_APP_API_URL) {
+          return process.env.REACT_APP_API_URL;
+        }
+
+        // 3. 根据当前环境自动判断
+        const isProduction =
+          window.location.hostname === 'zhitoujianli.com' ||
+          window.location.hostname === 'www.zhitoujianli.com';
+
+        if (isProduction) {
+          return 'https://zhitoujianli.com/api';
+        } else {
+          return '/api'; // 开发环境使用相对路径，由代理处理
+        }
+      };
+
+      const baseURL = getApiBaseUrl();
+      const apiUrl = `${baseURL}/auth/send-verification-code`;
+
+      console.log('🔗 发送验证码请求到:', apiUrl);
+      console.log(
+        '🔧 当前环境:',
+        window.location.hostname,
+        'API基础URL:',
+        baseURL
+      );
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email }),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
       const result = await response.json();
 
@@ -73,7 +113,21 @@ const Register: React.FC = () => {
       }
     } catch (err: any) {
       console.error('发送验证码失败:', err);
-      setError('网络错误，请稍后重试');
+      console.error('错误详情:', err);
+
+      // 更详细的错误处理
+      if (err.name === 'TypeError' && err.message.includes('Failed to fetch')) {
+        setError('网络连接失败，请检查网络或稍后重试');
+      } else if (
+        err.name === 'TypeError' &&
+        err.message.includes('Mixed Content')
+      ) {
+        setError('安全错误：请使用 HTTPS 访问');
+      } else if (err.message.includes('HTTP')) {
+        setError(`服务器错误：${err.message}`);
+      } else {
+        setError('网络错误，请稍后重试');
+      }
     } finally {
       setLoading(false);
     }

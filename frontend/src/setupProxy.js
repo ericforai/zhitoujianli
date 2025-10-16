@@ -13,7 +13,8 @@ module.exports = function (app) {
   app.use(
     '/api',
     createProxyMiddleware({
-      target: 'http://localhost:8080',
+      // 优先使用环境变量，否则使用默认的本地后端地址
+      target: process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080',
       changeOrigin: true,
       secure: false,
       logLevel: 'debug',
@@ -21,7 +22,13 @@ module.exports = function (app) {
         console.error('代理错误:', err);
       },
       onProxyReq: function (proxyReq, req) {
-        console.log('代理请求:', req.method, req.url);
+        console.log(
+          '代理请求:',
+          req.method,
+          req.url,
+          '->',
+          process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080'
+        );
       },
       onProxyRes: function (proxyRes, req) {
         console.log('代理响应:', proxyRes.statusCode, req.url);
