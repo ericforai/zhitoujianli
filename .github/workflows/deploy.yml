@@ -70,9 +70,9 @@ jobs:
           NODE_ENV: production
         run: |
           echo "开始构建前端..."
-          npm run build:frontend
+          npm run build
           echo "前端构建完成"
-          ls -lah frontend/dist/
+          ls -lah build/
 
       # ============================================================
       # 6. 准备部署包（仅上传必要文件）
@@ -81,7 +81,7 @@ jobs:
         run: |
           echo "准备部署包..."
           mkdir -p deploy_package
-          cp -r frontend/dist deploy_package/
+          cp -r build deploy_package/
           echo "部署包准备完成"
 
       # ============================================================
@@ -91,7 +91,7 @@ jobs:
         uses: burnett01/rsync-deployments@7.0.1
         with:
           switches: -avzr --delete
-          path: deploy_package/dist/
+          path: deploy_package/build/
           remote_path: ${{ secrets.REMOTE_DEPLOY_DIR }}/releases/dist_${{ github.run_number }}/
           remote_host: ${{ secrets.SSH_HOST }}
           remote_user: ${{ secrets.SSH_USER }}
