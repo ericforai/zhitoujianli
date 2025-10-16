@@ -72,7 +72,7 @@ public class SimpleSecurityConfig {
                 var corsConfig = new org.springframework.web.cors.CorsConfiguration();
                 corsConfig.setAllowedOriginPatterns(java.util.Arrays.asList(
                     "https://zhitoujianli.com",
-                    "https://www.zhitoujianli.com", 
+                    "https://www.zhitoujianli.com",
                     "https://*.zhitoujianli.com",
                     "http://localhost:*"
                 ));

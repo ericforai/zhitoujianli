@@ -13,11 +13,11 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: 检出代码
       uses: actions/checkout@v4
-      
+
     - name: 设置Node.js
       uses: actions/setup-node@v4
       with:
@@ -26,49 +26,49 @@ jobs:
         cache-dependency-path: |
           frontend/package-lock.json
           blog/zhitoujianli-blog/package-lock.json
-    
+
     - name: 设置Java
       uses: actions/setup-java@v4
       with:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: 'temurin'
-    
+
     - name: 安装前端依赖
       run: |
         cd frontend
         npm ci
-    
+
     # - name: 安装博客依赖
     #   run: |
     #     cd blog/zhitoujianli-blog
     #     npm ci
-    
+
     - name: 前端代码质量检查
       run: |
         cd frontend
         npm run lint
         npm run type-check
-    
+
     - name: 前端测试
       run: |
         cd frontend
         npm test -- --coverage --watchAll=false
-    
+
     - name: 前端构建
       run: |
         cd frontend
         npm run build
-    
+
     # - name: 博客构建
     #   run: |
     #     cd blog/zhitoujianli-blog
     #     npm run build
-    
+
     - name: 后端测试
       run: |
         cd backend/get_jobs
         mvn test
-    
+
     - name: 后端构建
       run: |
         cd backend/get_jobs
@@ -78,48 +78,48 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
+
     steps:
     - name: 检出代码
       uses: actions/checkout@v4
-    
+
     - name: 设置部署密钥
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
-    
+
     - name: 部署到生产环境
       run: |
         ssh -o StrictHostKeyChecking=no root@${{ secrets.DEPLOY_HOST }} << 'DEPLOY_SCRIPT'
           cd /root/zhitoujianli
-          
+
           # 拉取最新代码
           git pull origin main
-          
+
           # 执行统一部署
           ./deploy-unified.sh
-          
+
           # 记录部署信息
           echo "部署完成: $(date)" >> /var/log/zhitoujianli-deploy.log
           echo "Git提交: $(git log -1 --oneline)" >> /var/log/zhitoujianli-deploy.log
         DEPLOY_SCRIPT
-    
+
     - name: 部署验证
       run: |
         # 等待服务启动
         sleep 30
-        
+
         # 验证前端
         curl -f https://www.zhitoujianli.com/ || exit 1
-        
+
         # 验证后端API
         curl -f -X POST https://www.zhitoujianli.com/api/auth/send-verification-code \
           -H "Content-Type: application/json" \
           -d '{"email":"test@example.com"}' || exit 1
-        
+
         # 验证博客 (暂时跳过)
         # curl -f https://www.zhitoujianli.com/blog/ || exit 1
-        
+
         echo "✅ 部署验证成功"

@@ -73,7 +73,7 @@
   <body>
     <div class="container">
       <h1>🧪 注册功能快速测试</h1>
-      
+
       <div class="test-section info">
         <h3>📋 测试说明</h3>
         <p>这个页面用于快速测试注册功能的API调用，帮助诊断混合内容错误问题。</p>
@@ -116,10 +116,10 @@
         const envCheck = document.getElementById('env-check');
         const protocol = window.location.protocol;
         const hostname = window.location.hostname;
-        
+
         let status = '';
         let className = '';
-        
+
         if (protocol === 'https:') {
           status = `✅ HTTPS环境正常<br>域名: ${hostname}<br>协议: ${protocol}`;
           className = 'success';
@@ -127,7 +127,7 @@
           status = `❌ HTTP环境，可能存在混合内容问题<br>域名: ${hostname}<br>协议: ${protocol}`;
           className = 'error';
         }
-        
+
         envCheck.innerHTML = status;
         envCheck.className = `result ${className}`;
       }
@@ -137,7 +137,7 @@
         const email = document.getElementById('email-input').value;
         const resultDiv = document.getElementById('send-result');
         const button = event.target;
-        
+
         if (!email) {
           resultDiv.innerHTML = '❌ 请输入邮箱地址';
           resultDiv.className = 'result error';
@@ -199,7 +199,7 @@
 
       // 更新测试结果汇总
       const testResults = {};
-      
+
       function updateSummary(testName, success) {
         testResults[testName] = success;
         updateSummaryDisplay();
@@ -209,7 +209,7 @@
         const summaryDiv = document.getElementById('summary-result');
         const totalTests = Object.keys(testResults).length;
         const passedTests = Object.values(testResults).filter(Boolean).length;
-        
+
         if (totalTests === 0) {
           summaryDiv.innerHTML = '等待测试...';
           summaryDiv.className = 'result info';
@@ -243,3 +243,5 @@
     </script>
   </body>
 </html>
+
+

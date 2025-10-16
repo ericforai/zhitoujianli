@@ -48,7 +48,7 @@
 <body>
     <div class="container">
         <h1>🧪 简单API测试</h1>
-        
+
         <div class="result info">
             <strong>当前环境:</strong><br>
             协议: <span id="protocol"></span><br>
@@ -87,7 +87,7 @@
         async function testSendCode() {
             const email = document.getElementById('email').value;
             const resultDiv = document.getElementById('sendResult');
-            
+
             if (!email) {
                 resultDiv.innerHTML = '❌ 请输入邮箱地址';
                 resultDiv.className = 'result error';
@@ -127,7 +127,7 @@
         // 测试API状态
         async function testApiStatus() {
             const resultDiv = document.getElementById('statusResult');
-            
+
             resultDiv.innerHTML = '🔄 正在检查API状态...';
             resultDiv.className = 'result info';
 
@@ -158,7 +158,7 @@
 
         // 更新测试结果汇总
         const testResults = {};
-        
+
         function updateSummary(testName, success) {
             testResults[testName] = success;
             updateSummaryDisplay();
@@ -168,7 +168,7 @@
             const summaryDiv = document.getElementById('summaryResult');
             const totalTests = Object.keys(testResults).length;
             const passedTests = Object.values(testResults).filter(Boolean).length;
-            
+
             if (totalTests === 0) {
                 summaryDiv.innerHTML = '等待测试...';
                 summaryDiv.className = 'result info';
@@ -202,3 +202,4 @@
     </script>
 </body>
 </html>
+
