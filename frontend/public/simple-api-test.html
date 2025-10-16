@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简单API测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 简单API测试</h1>
+        
+        <div class="result info">
+            <strong>当前环境:</strong><br>
+            协议: <span id="protocol"></span><br>
+            域名: <span id="hostname"></span><br>
+            完整URL: <span id="fullUrl"></span>
+        </div>
+
+        <div>
+            <h3>📧 测试发送验证码</h3>
+            <input type="email" id="email" placeholder="输入邮箱地址" value="test@example.com">
+            <button onclick="testSendCode()">发送验证码</button>
+            <div id="sendResult" class="result"></div>
+        </div>
+
+        <div>
+            <h3>🔍 测试API状态</h3>
+            <button onclick="testApiStatus()">检查API状态</button>
+            <div id="statusResult" class="result"></div>
+        </div>
+
+        <div>
+            <h3>📊 测试结果</h3>
+            <div id="summaryResult" class="result info">等待测试...</div>
+        </div>
+    </div>
+
+    <script>
+        // 显示当前环境信息
+        function showEnvironment() {
+            document.getElementById('protocol').textContent = window.location.protocol;
+            document.getElementById('hostname').textContent = window.location.hostname;
+            document.getElementById('fullUrl').textContent = window.location.href;
+        }
+
+        // 测试发送验证码
+        async function testSendCode() {
+            const email = document.getElementById('email').value;
+            const resultDiv = document.getElementById('sendResult');
+            
+            if (!email) {
+                resultDiv.innerHTML = '❌ 请输入邮箱地址';
+                resultDiv.className = 'result error';
+                return;
+            }
+
+            resultDiv.innerHTML = '🔄 正在发送验证码...';
+            resultDiv.className = 'result info';
+
+            try {
+                const response = await fetch('/api/auth/send-verification-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: email }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `✅ 验证码发送成功！<br>邮箱: ${email}<br>响应: ${JSON.stringify(result)}`;
+                    resultDiv.className = 'result success';
+                    updateSummary('send-code', true);
+                } else {
+                    resultDiv.innerHTML = `⚠️ 验证码发送失败<br>状态码: ${response.status}<br>错误: ${result.message || '未知错误'}`;
+                    resultDiv.className = 'result error';
+                    updateSummary('send-code', false);
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `❌ 网络错误<br>错误信息: ${error.message}<br>可能原因: 混合内容错误或API不可用`;
+                resultDiv.className = 'result error';
+                updateSummary('send-code', false);
+            }
+        }
+
+        // 测试API状态
+        async function testApiStatus() {
+            const resultDiv = document.getElementById('statusResult');
+            
+            resultDiv.innerHTML = '🔄 正在检查API状态...';
+            resultDiv.className = 'result info';
+
+            try {
+                const response = await fetch('/api/status', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    resultDiv.innerHTML = `✅ API状态正常<br>响应: ${JSON.stringify(result)}`;
+                    resultDiv.className = 'result success';
+                    updateSummary('api-status', true);
+                } else {
+                    resultDiv.innerHTML = `⚠️ API状态异常<br>状态码: ${response.status}`;
+                    resultDiv.className = 'result error';
+                    updateSummary('api-status', false);
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `❌ API不可访问<br>错误信息: ${error.message}`;
+                resultDiv.className = 'result error';
+                updateSummary('api-status', false);
+            }
+        }
+
+        // 更新测试结果汇总
+        const testResults = {};
+        
+        function updateSummary(testName, success) {
+            testResults[testName] = success;
+            updateSummaryDisplay();
+        }
+
+        function updateSummaryDisplay() {
+            const summaryDiv = document.getElementById('summaryResult');
+            const totalTests = Object.keys(testResults).length;
+            const passedTests = Object.values(testResults).filter(Boolean).length;
+            
+            if (totalTests === 0) {
+                summaryDiv.innerHTML = '等待测试...';
+                summaryDiv.className = 'result info';
+                return;
+            }
+
+            const percentage = Math.round((passedTests / totalTests) * 100);
+            let status = '';
+            let className = '';
+
+            if (percentage === 100) {
+                status = `🎉 所有测试通过！ (${passedTests}/${totalTests})`;
+                className = 'success';
+            } else if (percentage >= 50) {
+                status = `⚠️ 部分测试通过 (${passedTests}/${totalTests} - ${percentage}%)`;
+                className = 'info';
+            } else {
+                status = `❌ 大部分测试失败 (${passedTests}/${totalTests} - ${percentage}%)`;
+                className = 'error';
+            }
+
+            summaryDiv.innerHTML = status;
+            summaryDiv.className = `result ${className}`;
+        }
+
+        // 页面加载时显示环境信息
+        window.addEventListener('load', () => {
+            showEnvironment();
+            updateSummaryDisplay();
+        });
+    </script>
+</body>
+</html>
