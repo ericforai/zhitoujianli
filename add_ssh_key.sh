@@ -25,7 +25,7 @@ if command -v ssh-copy-id &> /dev/null; then
     ssh-copy-id -i /root/.ssh/id_ed25519.pub $SERVER_USER@$SERVER_HOST
 else
     echo "ssh-copy-id不可用，尝试手动方法..."
-    
+
     # 手动添加公钥
     ssh $SERVER_USER@$SERVER_HOST "mkdir -p ~/.ssh && echo '$PUBLIC_KEY' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && chmod 700 ~/.ssh"
 fi
@@ -51,3 +51,4 @@ else
     echo "2. 添加公钥: echo '$PUBLIC_KEY' >> ~/.ssh/authorized_keys"
     echo "3. 设置权限: chmod 600 ~/.ssh/authorized_keys"
 fi
+
