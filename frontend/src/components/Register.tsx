@@ -70,6 +70,7 @@ const Register: React.FC = () => {
           window.location.hostname === 'www.zhitoujianli.com';
 
         if (isProduction) {
+          // ✅ 修复：统一使用不带 www 的域名，避免跨域问题
           return 'https://zhitoujianli.com/api';
         } else {
           return '/api'; // 开发环境使用相对路径，由代理处理
@@ -77,15 +78,15 @@ const Register: React.FC = () => {
       };
 
       const baseURL = getApiBaseUrl();
-      const apiUrl = `${baseURL}/auth/send-verification-code`;
+      const apiUrl = `${baseURL}/api/auth/send-verification-code`;
 
       console.log('🔗 发送验证码请求到:', apiUrl);
-      console.log(
-        '🔧 当前环境:',
-        window.location.hostname,
-        'API基础URL:',
-        baseURL
-      );
+      console.log('🔧 当前环境:', {
+        hostname: window.location.hostname,
+        protocol: window.location.protocol,
+        apiBaseUrl: baseURL,
+        fullUrl: apiUrl,
+      });
 
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -93,10 +94,22 @@ const Register: React.FC = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email }),
+        // ✅ 添加 credentials 以支持跨域 Cookie 传递
+        credentials: 'include',
+      });
+
+      console.log('📊 响应状态:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const errorText = await response.text();
+        console.error('❌ 请求失败:', errorText);
+        throw new Error(
+          `HTTP ${response.status}: ${errorText || response.statusText}`
+        );
       }
 
       const result = await response.json();

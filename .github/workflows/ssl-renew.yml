@@ -1,0 +1,266 @@
+# ============================================================
+# 智投简历 - SSL 证书自动续签工作流
+# 触发条件: 每周一 UTC 03:00 (北京时间 11:00) 或 手动触发
+# 功能: 远程执行 certbot renew 并自动重载 Nginx
+# ============================================================
+
+name: Renew SSL Certificate
+
+on:
+  # 每周一 UTC 03:00 自动执行
+  schedule:
+    - cron: "0 3 * * 1"
+
+  # 支持手动触发
+  workflow_dispatch:
+    inputs:
+      force_renew:
+        description: "强制续签（即使未到期）"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  renew-ssl:
+    name: SSL 证书续签
+    runs-on: ubuntu-latest
+
+    steps:
+      # ============================================================
+      # 1. 检查证书状态（可选，用于记录）
+      # ============================================================
+      - name: 📋 检查当前证书状态
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            echo "============================================================"
+            echo "检查当前 SSL 证书状态"
+            echo "域名: zhitoujianli.com"
+            echo "时间: $(date)"
+            echo "============================================================"
+
+            # 检查证书信息
+            if sudo certbot certificates --domain zhitoujianli.com 2>/dev/null; then
+              echo "✅ 证书信息获取成功"
+            else
+              echo "⚠️ 无法获取证书信息"
+            fi
+
+            # 检查证书过期时间
+            CERT_PATH="/etc/letsencrypt/live/zhitoujianli.com/fullchain.pem"
+            if [ -f "$CERT_PATH" ]; then
+              EXPIRY_DATE=$(sudo openssl x509 -enddate -noout -in "$CERT_PATH" | cut -d= -f2)
+              echo "📅 证书到期时间: $EXPIRY_DATE"
+
+              # 计算剩余天数
+              EXPIRY_EPOCH=$(date -d "$EXPIRY_DATE" +%s)
+              CURRENT_EPOCH=$(date +%s)
+              DAYS_LEFT=$(( ($EXPIRY_EPOCH - $CURRENT_EPOCH) / 86400 ))
+              echo "⏰ 剩余天数: $DAYS_LEFT 天"
+
+              if [ $DAYS_LEFT -lt 30 ]; then
+                echo "⚠️ 证书将在 30 天内过期，需要续签"
+              else
+                echo "✅ 证书有效期充足"
+              fi
+            else
+              echo "❌ 证书文件不存在: $CERT_PATH"
+            fi
+
+      # ============================================================
+      # 2. 执行证书续签
+      # ============================================================
+      - name: 🔐 执行证书续签
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            set -e
+
+            echo "============================================================"
+            echo "开始证书续签流程"
+            echo "============================================================"
+
+            # 确保 certbot 已安装
+            if ! command -v certbot &> /dev/null; then
+              echo "❌ certbot 未安装，尝试安装..."
+              sudo apt-get update
+              sudo apt-get install -y certbot python3-certbot-nginx
+            fi
+
+            # 确保续签目录存在
+            sudo mkdir -p /var/www/letsencrypt
+            sudo chown -R www-data:www-data /var/www/letsencrypt
+
+            # 检查 Nginx 配置
+            echo "🧪 检查 Nginx 配置..."
+            if ! sudo nginx -t; then
+              echo "❌ Nginx 配置有误，续签前需要修复"
+              exit 1
+            fi
+
+            # 执行续签
+            echo "🔄 执行证书续签..."
+
+            FORCE_FLAG=""
+            if [ "${{ inputs.force_renew }}" == "true" ]; then
+              echo "⚠️ 强制续签模式"
+              FORCE_FLAG="--force-renewal"
+            fi
+
+            # 续签证书（使用 webroot 模式，不中断服务）
+            if sudo certbot renew \
+              --non-interactive \
+              --agree-tos \
+              --webroot \
+              --webroot-path=/var/www/letsencrypt \
+              --deploy-hook "systemctl reload nginx" \
+              $FORCE_FLAG; then
+              echo "✅ 证书续签成功"
+            else
+              RENEW_EXIT_CODE=$?
+              if [ $RENEW_EXIT_CODE -eq 0 ]; then
+                echo "✅ 证书尚未到期，无需续签"
+              else
+                echo "❌ 证书续签失败，退出码: $RENEW_EXIT_CODE"
+                exit $RENEW_EXIT_CODE
+              fi
+            fi
+
+      # ============================================================
+      # 3. 验证续签后的证书
+      # ============================================================
+      - name: ✅ 验证证书有效性
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            echo "============================================================"
+            echo "验证续签后的证书"
+            echo "============================================================"
+
+            # 检查证书文件
+            CERT_PATH="/etc/letsencrypt/live/zhitoujianli.com/fullchain.pem"
+            if [ ! -f "$CERT_PATH" ]; then
+              echo "❌ 证书文件不存在"
+              exit 1
+            fi
+
+            # 验证证书有效性
+            if sudo openssl x509 -in "$CERT_PATH" -noout -checkend 2592000; then
+              echo "✅ 证书有效期超过 30 天"
+            else
+              echo "⚠️ 证书将在 30 天内过期"
+            fi
+
+            # 显示新的过期时间
+            EXPIRY_DATE=$(sudo openssl x509 -enddate -noout -in "$CERT_PATH" | cut -d= -f2)
+            echo "📅 新证书到期时间: $EXPIRY_DATE"
+
+            # 测试 HTTPS 连接
+            echo "🌐 测试 HTTPS 连接..."
+            if curl -fsSL -m 10 https://www.zhitoujianli.com/ > /dev/null; then
+              echo "✅ HTTPS 连接正常"
+            else
+              echo "❌ HTTPS 连接失败"
+              exit 1
+            fi
+
+      # ============================================================
+      # 4. 检查 Nginx 状态
+      # ============================================================
+      - name: 🔍 检查 Nginx 状态
+        if: always()
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            echo "============================================================"
+            echo "检查 Nginx 服务状态"
+            echo "============================================================"
+
+            # 检查 Nginx 运行状态
+            if sudo systemctl is-active --quiet nginx; then
+              echo "✅ Nginx 服务运行正常"
+              sudo systemctl status nginx --no-pager
+            else
+              echo "❌ Nginx 服务未运行"
+              sudo systemctl status nginx --no-pager
+              exit 1
+            fi
+
+            # 检查 Nginx 配置
+            if sudo nginx -t; then
+              echo "✅ Nginx 配置正常"
+            else
+              echo "❌ Nginx 配置有误"
+              exit 1
+            fi
+
+      # ============================================================
+      # 5. 生成续签报告
+      # ============================================================
+      - name: 📊 生成续签报告
+        if: always()
+        run: |
+          echo "## 🔐 SSL 证书续签报告" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **域名**: zhitoujianli.com, www.zhitoujianli.com" >> $GITHUB_STEP_SUMMARY
+          echo "- **执行时间**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "- **触发方式**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **执行者**: @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ inputs.force_renew }}" == "true" ]; then
+            echo "- **模式**: 强制续签" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **模式**: 自动续签" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "### ✅ 续签任务成功" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "证书已成功续签或无需续签（有效期充足）" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ 续签任务失败" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ 请立即检查服务器日志并手动处理" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "💡 **提示**: Let's Encrypt 证书每 90 天过期，建议在到期前 30 天续签" >> $GITHUB_STEP_SUMMARY
+
+      # ============================================================
+      # 6. 发送告警通知（如果失败）
+      # ============================================================
+      - name: 🚨 发送失败告警
+        if: failure()
+        run: |
+          echo "⚠️ SSL 证书续签失败，需要立即处理！" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 故障排查步骤：" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "1. SSH 登录服务器" >> $GITHUB_STEP_SUMMARY
+          echo "2. 执行 \`sudo certbot renew --dry-run\` 测试续签" >> $GITHUB_STEP_SUMMARY
+          echo "3. 检查 \`/var/log/letsencrypt/letsencrypt.log\` 日志" >> $GITHUB_STEP_SUMMARY
+          echo "4. 确认 Nginx 配置中的 \`/.well-known/acme-challenge/\` 路径可访问" >> $GITHUB_STEP_SUMMARY
+          echo "5. 检查防火墙是否允许 80 和 443 端口" >> $GITHUB_STEP_SUMMARY
+
+          # 这里可以添加更多告警通知逻辑
+          # 例如：企业微信、钉钉、Slack、邮件等
