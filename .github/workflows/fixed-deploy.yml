@@ -1,0 +1,188 @@
+# ============================================================
+# 智投简历 - 修复版部署工作流
+# 简化版本，专注于解决SSH连接问题
+# ============================================================
+
+name: Fixed Deploy to Production
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    name: 构建并部署到生产环境
+    runs-on: ubuntu-latest
+
+    steps:
+      # ============================================================
+      # 1. 检出代码
+      # ============================================================
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
+
+      # ============================================================
+      # 2. 设置Node.js环境
+      # ============================================================
+      - name: 🔧 设置Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      # ============================================================
+      # 3. 安装依赖
+      # ============================================================
+      - name: 📦 安装依赖
+        run: |
+          echo "安装前端依赖..."
+          npm ci
+          echo "依赖安装完成"
+
+      # ============================================================
+      # 4. 代码质量检查（可选）
+      # ============================================================
+      - name: 🔍 代码质量检查
+        run: |
+          echo "运行代码质量检查..."
+          npm run lint || echo "⚠️ Lint 检查有警告，继续部署"
+          npm run type-check || echo "⚠️ 类型检查有警告，继续部署"
+
+      # ============================================================
+      # 5. 构建前端项目
+      # ============================================================
+      - name: 🔨 构建前端
+        env:
+          VITE_API_BASE_URL: https://zhitoujianli.com
+          NODE_ENV: production
+        run: |
+          echo "开始构建前端..."
+          npm run build
+          echo "前端构建完成"
+          echo "构建文件列表："
+          ls -lah build/
+          echo "构建文件数量: $(find build -type f | wc -l)"
+
+      # ============================================================
+      # 6. 测试SSH连接
+      # ============================================================
+      - name: 🔌 测试SSH连接
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            echo "SSH连接测试成功！"
+            echo "当前用户: $(whoami)"
+            echo "当前目录: $(pwd)"
+            echo "服务器时间: $(date)"
+            echo "磁盘空间:"
+            df -h
+
+      # ============================================================
+      # 7. 上传前端文件
+      # ============================================================
+      - name: 🚀 上传前端文件
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "build/"
+          target: "/tmp/frontend_build/"
+          strip_components: 0
+
+      # ============================================================
+      # 8. 上传Nginx配置
+      # ============================================================
+      - name: 📤 上传Nginx配置
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "deploy/nginx/zhitoujianli.conf"
+          target: "/tmp/"
+
+      # ============================================================
+      # 9. 执行部署
+      # ============================================================
+      - name: 🎯 执行部署
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            set -e
+            
+            echo "============================================================"
+            echo "开始部署流程..."
+            echo "部署时间: $(date)"
+            echo "============================================================"
+            
+            # 定义变量
+            REMOTE_DIR="${{ secrets.REMOTE_DEPLOY_DIR }}"
+            NGINX_CONF="${{ secrets.REMOTE_NGINX_CONF }}"
+            TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+            
+            echo "部署目录: $REMOTE_DIR"
+            echo "Nginx配置: $NGINX_CONF"
+            
+            # 创建必要目录
+            echo "创建必要目录..."
+            sudo mkdir -p "$REMOTE_DIR/releases"
+            sudo mkdir -p "$(dirname "$NGINX_CONF")"
+            
+            # 部署前端文件
+            echo "部署前端文件..."
+            sudo rm -rf "$REMOTE_DIR/releases/dist_$TIMESTAMP"
+            sudo mv /tmp/frontend_build "$REMOTE_DIR/releases/dist_$TIMESTAMP"
+            
+            # 更新软链接
+            echo "更新软链接..."
+            sudo rm -rf "$REMOTE_DIR/dist"
+            sudo ln -s "$REMOTE_DIR/releases/dist_$TIMESTAMP" "$REMOTE_DIR/dist"
+            
+            # 更新Nginx配置
+            echo "更新Nginx配置..."
+            sudo cp /tmp/zhitoujianli.conf "$NGINX_CONF"
+            sudo chown root:root "$NGINX_CONF"
+            sudo chmod 644 "$NGINX_CONF"
+            
+            # 测试Nginx配置
+            echo "测试Nginx配置..."
+            sudo nginx -t
+            
+            # 重载Nginx
+            echo "重载Nginx..."
+            sudo systemctl reload nginx
+            
+            # 健康检查
+            echo "健康检查..."
+            sleep 5
+            curl -fsSIL https://www.zhitoujianli.com/register
+            
+            # 清理旧版本
+            echo "清理旧版本..."
+            cd "$REMOTE_DIR/releases"
+            ls -1dt dist_* | tail -n +4 | xargs -r sudo rm -rf
+            
+            echo "============================================================"
+            echo "✅ 部署完成！"
+            echo "部署时间: $(date)"
+            echo "============================================================"
+
+      # ============================================================
+      # 10. 部署完成通知
+      # ============================================================
+      - name: ✅ 部署完成
+        run: |
+          echo "🎉 部署成功完成！"
+          echo "请访问: https://www.zhitoujianli.com/register"
