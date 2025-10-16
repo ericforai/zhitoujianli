@@ -10,7 +10,7 @@ echo "=================="
 SSH_HOST="115.190.182.95"
 SSH_USER="root"
 SSH_PORT="22"
-SSH_KEY_PATH="~/.ssh/id_rsa"
+SSH_KEY_PATH="/root/.ssh/id_ed25519"
 
 echo "测试配置："
 echo "SSH_HOST: $SSH_HOST"
