@@ -1,7 +1,9 @@
 package controller;
 
 import java.util.Date;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -476,7 +478,7 @@ public class AuthController {
                 .claim("type", "access_token")
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(SignatureAlgorithm.HS256, jwtConfig.getJwtSecret().getBytes())
+                .signWith(SignatureAlgorithm.HS256, jwtConfig.getJwtSecret().getBytes(StandardCharsets.UTF_8))
                 .compact();
     }
 
@@ -486,7 +488,7 @@ public class AuthController {
     private Long getUserIdFromToken(String token) {
         try {
             var claims = Jwts.parser()
-                    .setSigningKey(jwtConfig.getJwtSecret().getBytes())
+                    .setSigningKey(jwtConfig.getJwtSecret().getBytes(StandardCharsets.UTF_8))
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
@@ -494,7 +496,7 @@ public class AuthController {
             return claims.get("userId", Long.class);
         } catch (Exception e) {
             log.warn("❌ Token解析失败: {}", e.getMessage());
-            return null;
+            return new String[0];
         }
     }
 }

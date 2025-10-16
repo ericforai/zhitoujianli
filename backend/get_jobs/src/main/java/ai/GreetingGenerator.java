@@ -60,7 +60,7 @@ public class GreetingGenerator {
             String systemPrompt = "production".equals(mode) ? PRODUCTION_SYSTEM_PROMPT : DEBUG_SYSTEM_PROMPT;
             
             // 调用AI服务
-            String aiResponse = AiService.sendRequest(systemPrompt + "\n\n" + userPrompt);
+            String aiResponse = AiService.sendRequest(systemPrompt + "%n%n" + userPrompt);
             
             if (aiResponse == null || aiResponse.trim().isEmpty()) {
                 throw new RuntimeException("AI服务返回空响应");
@@ -86,22 +86,22 @@ public class GreetingGenerator {
     private String buildUserPrompt(Map<String, Object> candidate, String jobDescription, String mode) {
         StringBuilder prompt = new StringBuilder();
         
-        prompt.append("参数：\n");
-        prompt.append("candidate = ").append(new JSONObject(candidate).toString()).append("\n");
-        prompt.append("job_description = ").append(jobDescription).append("\n");
-        prompt.append("mode = \"").append(mode).append("\"\n\n");
+        prompt.append("参数：%n");
+        prompt.append("candidate = ").append(new JSONObject(candidate).toString()).append("%n");
+        prompt.append("job_description = ").append(jobDescription).append("%n");
+        prompt.append("mode = \"").append(mode).append("\"%n%n");
         
         if ("production".equals(mode)) {
-            prompt.append("请严格输出 JSON：\n");
-            prompt.append("{\n");
-            prompt.append("  \"greetings\": {\n");
-            prompt.append("    \"professional\": \"...\",\n");
-            prompt.append("    \"sincere\": \"...\",\n");
-            prompt.append("    \"concise\": \"...\"\n");
-            prompt.append("  }\n");
-            prompt.append("}\n");
+            prompt.append("请严格输出 JSON：%n");
+            prompt.append("{%n");
+            prompt.append("  \"greetings\": {%n");
+            prompt.append("    \"professional\": \"...\",%n");
+            prompt.append("    \"sincere\": \"...\",%n");
+            prompt.append("    \"concise\": \"...\"%n");
+            prompt.append("  }%n");
+            prompt.append("}%n");
         } else {
-            prompt.append("请输出详细的匹配分析结果。\n");
+            prompt.append("请输出详细的匹配分析结果。%n");
         }
         
         return prompt.toString();

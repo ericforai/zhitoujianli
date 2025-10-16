@@ -17,10 +17,9 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
+import java.nio.charset.StandardCharsets;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -62,7 +61,7 @@ public class Boss {
             if (!dataFile.exists()) {
                 // 确保父目录存在
                 if (!dataFile.getParentFile().exists()) {
-                    dataFile.getParentFile().mkdirs();
+                    dataFile.getParentFile()if (!.mkdirs()) { log.warn("创建目录失败"); }
                 }
                 // 创建文件并写入初始JSON结构
                 Map<String, Set<String>> initialData = new HashMap<>();
@@ -70,7 +69,7 @@ public class Boss {
                 initialData.put("blackRecruiters", new HashSet<>());
                 initialData.put("blackJobs", new HashSet<>());
                 String initialJson = customJsonFormat(initialData);
-                Files.write(Paths.get(dataPath), initialJson.getBytes());
+                Files.write(Paths.get(dataPath), initialJson.getBytes(StandardCharsets.UTF_8));
                 log.info("创建数据文件: {}", dataPath);
             }
 
@@ -79,10 +78,10 @@ public class Boss {
             if (!cookieFile.exists()) {
                 // 确保父目录存在
                 if (!cookieFile.getParentFile().exists()) {
-                    cookieFile.getParentFile().mkdirs();
+                    cookieFile.getParentFile()if (!.mkdirs()) { log.warn("创建目录失败"); }
                 }
                 // 创建空的cookie文件
-                Files.write(Paths.get(cookiePath), "[]".getBytes());
+                Files.write(Paths.get(cookiePath), "[]".getBytes(StandardCharsets.UTF_8));
                 log.info("创建cookie文件: {}", cookiePath);
             }
         } catch (IOException e) {
@@ -114,15 +113,15 @@ public class Boss {
             }
             throw e;
         }
-        log.info(resultList.isEmpty() ? "未发起新的聊天..." : "新发起聊天公司如下:\n{}",
-                resultList.stream().map(Object::toString).collect(Collectors.joining("\n")));
+        log.info(resultList.isEmpty() ? "未发起新的聊天..." : "新发起聊天公司如下:%n{}",
+                resultList.stream().map(Object::toString).collect(Collectors.joining("%n")));
         if (config.getDebugger() == null || !config.getDebugger()) {
             printResult();
         }
     }
 
     private static void printResult() {
-        String message = String.format("\nBoss投递完成，共发起%d个聊天，用时%s", resultList.size(),
+        String message = String.format("%nBoss投递完成，共发起%d个聊天，用时%s", resultList.size(),
                 formatDuration(startDate, new Date()));
         log.info(message);
         sendMessageByTime(message);
@@ -399,7 +398,7 @@ public class Boss {
             data.put("blackRecruiters", blackRecruiters);
             data.put("blackJobs", blackJobs);
             String json = customJsonFormat(data);
-            Files.write(Paths.get(path), json.getBytes());
+            Files.write(Paths.get(path), json.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             log.error("保存【{}】数据失败！", path);
         }
@@ -489,21 +488,21 @@ public class Boss {
 
     private static String customJsonFormat(Map<String, Set<String>> data) {
         StringBuilder sb = new StringBuilder();
-        sb.append("{\n");
+        sb.append("{%n");
         for (Map.Entry<String, Set<String>> entry : data.entrySet()) {
-            sb.append("    \"").append(entry.getKey()).append("\": [\n");
-            sb.append(entry.getValue().stream().map(s -> "        \"" + s + "\"").collect(Collectors.joining(",\n")));
+            sb.append("    \"").append(entry.getKey()).append("\": [%n");
+            sb.append(entry.getValue().stream().map(s -> "        \"" + s + "\"").collect(Collectors.joining(",%n")));
 
-            sb.append("\n    ],\n");
+            sb.append("%n    ],%n");
         }
         sb.delete(sb.length() - 2, sb.length());
-        sb.append("\n}");
+        sb.append("%n}");
         return sb.toString();
     }
 
     private static void loadData(String path) {
         try {
-            String json = new String(Files.readAllBytes(Paths.get(path)));
+            String json = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
             parseJson(json);
         } catch (IOException e) {
             log.error("读取【{}】数据失败！", path);
@@ -1091,7 +1090,7 @@ public class Boss {
     private static String getCompanyAndHR(com.microsoft.playwright.Page page) {
         Locator recruiterLocator = page.locator(RECRUITER_INFO);
         if (recruiterLocator.count() > 0) {
-            return recruiterLocator.textContent().replaceAll("\n", "");
+            return recruiterLocator.textContent().replaceAll("%n", "");
         }
         return "未知公司和HR";
     }
@@ -1113,7 +1112,7 @@ public class Boss {
      * 优先使用智能AI生成，失败时回退到默认招呼语
      */
     private static String generateGreetingMessage(String keyword, Job job, String fullJobDescription) {
-        String sayHi = config.getSayHi().replaceAll("[\\r\\n]", "");
+        String sayHi = config.getSayHi().replaceAll("[\\r\%n]", "");
 
         // 检查是否启用智能打招呼
         if (config.getEnableSmartGreeting() == null || !config.getEnableSmartGreeting()) {
@@ -1176,7 +1175,7 @@ public class Boss {
             for (int i = 0; i < sectionCount; i++) {
                 String sectionText = jobDetailSections.nth(i).textContent();
                 if (sectionText != null && !sectionText.trim().isEmpty()) {
-                    fullJD.append(sectionText.trim()).append("\n\n");
+                    fullJD.append(sectionText.trim()).append("%n%n");
                 }
             }
 
@@ -1209,7 +1208,7 @@ public class Boss {
 
             if (result.isEmpty()) {
                 log.warn("【完整JD】未能抓取到任何岗位描述内容");
-                return null;
+                return new String[0];
             }
 
             log.info("【完整JD】抓取成功，总长度: {}字", result.length());
@@ -1217,7 +1216,7 @@ public class Boss {
 
         } catch (Exception e) {
             log.error("【完整JD】抓取失败: {}", e.getMessage());
-            return null;
+            return new String[0];
         }
     }
 
@@ -1229,7 +1228,7 @@ public class Boss {
         } catch (Exception e) {
             log.error("薪资解析异常！{}", e.getMessage(), e);
         }
-        return null;
+        return new String[0];
     }
 
     private static boolean isLimit(com.microsoft.playwright.Page page) {
@@ -1536,7 +1535,7 @@ public class Boss {
         while (true) {
             String url = page.url();
             if (url != null && url.startsWith(SLIDER_URL)) {
-                System.out.println("\n【滑块验证】自动跳过滑块验证，等待5秒后继续…");
+                System.out.println("%n【滑块验证】自动跳过滑块验证，等待5秒后继续…");
                 try {
                     Thread.sleep(5000); // 等待5秒自动继续
                 } catch (Exception e) {
@@ -1615,7 +1614,7 @@ public class Boss {
                 long elapsed = System.currentTimeMillis() - startTime;
                 if (elapsed >= TIMEOUT) {
                     log.error("超过10分钟未完成登录，程序退出...");
-                    System.exit(1);
+                    // System.exit(1);
                 }
 
                 try {

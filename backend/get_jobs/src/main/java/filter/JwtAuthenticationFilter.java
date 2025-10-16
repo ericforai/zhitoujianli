@@ -1,8 +1,11 @@
 package filter;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -45,7 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (token != null) {
                 // 2. 验证并解析Token
                 Claims claims = Jwts.parser()
-                        .setSigningKey(jwtConfig.getJwtSecret().getBytes())
+                        .setSigningKey(jwtConfig.getJwtSecret().getBytes(StandardCharsets.UTF_8))
                         .build()
                         .parseClaimsJws(token)
                         .getBody();
@@ -101,7 +104,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        return null;
+        return new String[0];
     }
 }
 

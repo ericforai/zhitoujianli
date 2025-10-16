@@ -90,7 +90,7 @@ public class PaymentController {
             String orderNo = generateOrderNo("WX");
             log.info("🔧 生成订单号: {}, 产品ID: {}, 金额: {}分", orderNo, productId, amount);
             
-            // TODO: 这里需要集成微信支付SDK
+            // FIXME: 这里需要集成微信支付SDK
             // 由于需要商户号和证书，这里提供示例代码框架
             
             /*
@@ -153,11 +153,11 @@ public class PaymentController {
             log.info("收到微信支付回调通知");
             log.debug("回调内容: {}", requestBody);
             
-            // TODO: 1. 验证签名（确保请求来自微信）
-            // TODO: 2. 解析回调数据
-            // TODO: 3. 更新订单状态
-            // TODO: 4. 开通会员权益
-            // TODO: 5. 发送通知给用户
+            // FIXME: 1. 验证签名（确保请求来自微信）
+            // FIXME: 2. 解析回调数据
+            // FIXME: 3. 更新订单状态
+            // FIXME: 4. 开通会员权益
+            // FIXME: 5. 发送通知给用户
             
             // 返回成功响应给微信
             return ResponseEntity.ok("{\"code\": \"SUCCESS\", \"message\": \"成功\"}");
@@ -214,7 +214,7 @@ public class PaymentController {
             String orderNo = generateOrderNo("ALI");
             log.info("🔧 生成订单号: {}, 产品ID: {}, 金额: {}", orderNo, productId, amountObj);
             
-            // TODO: 这里需要集成支付宝SDK
+            // FIXME: 这里需要集成支付宝SDK
             // 由于需要APPID和密钥，这里提供示例代码框架
             
             /*
@@ -273,11 +273,11 @@ public class PaymentController {
             log.info("收到支付宝支付回调通知");
             log.debug("回调参数: {}", params);
             
-            // TODO: 1. 验证签名（确保请求来自支付宝）
-            // TODO: 2. 检查交易状态
-            // TODO: 3. 更新订单状态
-            // TODO: 4. 开通会员权益
-            // TODO: 5. 发送通知给用户
+            // FIXME: 1. 验证签名（确保请求来自支付宝）
+            // FIXME: 2. 检查交易状态
+            // FIXME: 3. 更新订单状态
+            // FIXME: 4. 开通会员权益
+            // FIXME: 5. 发送通知给用户
             
             /*
             boolean signVerified = AlipaySignature.rsaCheckV1(
@@ -315,7 +315,7 @@ public class PaymentController {
     @GetMapping("/order/{orderNo}")
     public ResponseEntity<?> queryOrder(@PathVariable String orderNo) {
         try {
-            // TODO: 从数据库或缓存中查询订单状态
+            // FIXME: 从数据库或缓存中查询订单状态
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

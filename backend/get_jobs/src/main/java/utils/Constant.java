@@ -16,5 +16,5 @@ public class Constant {
     public static WebDriverWait WAIT;
     public static WebDriverWait MOBILE_WAIT;
     public static int WAIT_TIME = 30;
-    public static String UNLIMITED_CODE = "0";
+    public static final String UNLIMITED_CODE = "0";
 }

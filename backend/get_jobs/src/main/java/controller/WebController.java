@@ -1,17 +1,29 @@
 package controller;
 
 import java.io.BufferedReader;
+import java.nio.charset.StandardCharsets;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
+import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -72,7 +84,7 @@ public class WebController {
                         response.getWriter().write(
                             "{\"success\":false,\"message\":\"需要登录认证\",\"redirectTo\":\"" + request.getScheme() + "://" + request.getServerName() + (request.getServerPort() != 80 && request.getServerPort() != 443 ? ":" + request.getServerPort() : "") + "/login\"}"
                         );
-                        return null;
+                        return new String[0];
                     } catch (IOException e) {
                         log.error("返回JSON错误响应失败", e);
                     }
@@ -184,11 +196,11 @@ public class WebController {
             // 确保日志目录存在
             File logsDir = new File("logs");
             if (!logsDir.exists()) {
-                logsDir.mkdirs();
+                logsDirif (!.mkdirs()) { log.warn("创建目录失败"); }
             }
 
             // 创建日志文件
-            java.io.FileWriter logWriter = new java.io.FileWriter(currentLogFile);
+            java.io.FileWriter logWriter = new java.io.FileWriter(currentLogFile, StandardCharsets.UTF_8);
 
             // Boss执行服务已通过@Autowired注入
 
@@ -197,12 +209,12 @@ public class WebController {
                 .whenComplete((result, throwable) -> {
                     try {
                         if (throwable != null) {
-                            logWriter.write(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + " - Boss程序执行异常: " + throwable.getMessage() + "\n");
+                            logWriter.write(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + " - Boss程序执行异常: " + throwable.getMessage() + "%n");
                             log.error("Boss程序执行异常", throwable);
                         } else {
-                            logWriter.write(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + " - Boss程序执行完成\n");
+                            logWriter.write(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + " - Boss程序执行完成%n");
                         }
-                        logWriter.write(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + " - 投递任务结束\n");
+                        logWriter.write(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + " - 投递任务结束%n");
                         logWriter.flush();
                         logWriter.close();
                     } catch (Exception e) {
@@ -315,19 +327,19 @@ public class WebController {
             // 生成日志文件名，确保目录存在
             File logsDir = new File("logs");
             if (!logsDir.exists()) {
-                logsDir.mkdirs();
+                logsDirif (!.mkdirs()) { log.warn("创建目录失败"); }
             }
             currentLogFile = new File("logs", "boss_" +
                 new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".log").getAbsolutePath();
 
             // 异步处理输出和写入日志文件
             CompletableFuture.runAsync(() -> {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(currentProcess.getInputStream()));
-                     java.io.FileWriter writer = new java.io.FileWriter(currentLogFile)) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(currentProcess.getInputStream(), StandardCharsets.UTF_8));
+                     java.io.FileWriter writer = new java.io.FileWriter(currentLogFile, StandardCharsets.UTF_8)) {
                     String line;
                     while ((line = reader.readLine()) != null && isRunning) {
                         // 写入日志文件
-                        writer.write(line + "\n");
+                        writer.write(line + "%n");
                         writer.flush();
                         // 同时输出到控制台日志
                         log.info("程序输出: {}", line);

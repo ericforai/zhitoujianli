@@ -1,63 +1,31 @@
 /**
  * 登录页面组件
  *
- * 支持多种登录方式：
- * 1. 邮箱密码登录
- * 2. 手机号验证码登录
- * 3. 微信扫码登录（通过Authing）
- * 4. 支付宝登录（通过Authing）
+ * 支持邮箱密码登录
  *
  * @author ZhiTouJianLi Team
  * @since 2025-09-30
+ * @updated 2025-10-16 - 简化登录方式，只保留邮箱登录
  */
 
-/**
- * 登录页面组件 - 增强版
- *
- * 🔧 修复：使用AuthContext统一管理认证
- * - 使用useAuth Hook获取login方法
- * - 移除手动跳转逻辑，由AuthContext处理
- * - 保留UI和验证逻辑
- */
-
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { authService } from '../services/authService';
 import logger from '../utils/logger';
 import './Login.css';
 
 const loginLogger = logger.createChild('Login');
 
-type LoginMode = 'email' | 'phone';
-
 const Login: React.FC = () => {
-  const { login: authLogin, loginByPhone: authLoginByPhone } = useAuth();
-  const [mode, setMode] = useState<LoginMode>('email');
+  const { login: authLogin } = useAuth();
 
   // 邮箱登录状态
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // 手机号登录状态
-  const [phone, setPhone] = useState('');
-  const [code, setCode] = useState('');
-  const [countdown, setCountdown] = useState(0);
-
   // 通用状态
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  // 固定使用后端API认证，移除Authing SDK认证选项
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const useAuthing = false;
-
-  // 倒计时效果
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [countdown]);
 
   /**
    * 邮箱密码登录
@@ -87,62 +55,6 @@ const Login: React.FC = () => {
     }
   };
 
-  /**
-   * 发送手机验证码
-   */
-  const handleSendCode = async () => {
-    if (!phone || !/^1[3-9]\d{9}$/.test(phone)) {
-      setError('请输入正确的手机号');
-      return;
-    }
-
-    setError('');
-    setLoading(true);
-
-    try {
-      const result = await authService.sendPhoneCode(phone);
-
-      if (result.success) {
-        setSuccess('验证码已发送，请注意查收');
-        setCountdown(60); // 60秒倒计时
-      } else {
-        setError(result.message || '发送失败');
-      }
-    } catch (err: any) {
-      setError(err.response?.data?.message || '发送失败，请稍后重试');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /**
-   * 手机号验证码登录
-   * 🔧 修复：使用AuthContext的loginByPhone方法
-   */
-  const handlePhoneLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      loginLogger.info('开始手机号登录', { phone });
-
-      // 使用AuthContext的loginByPhone方法
-      // 登录成功后会自动跳转，由AuthContext处理
-      await authLoginByPhone(phone, code);
-
-      setSuccess('登录成功！正在跳转...');
-      loginLogger.info('手机号登录成功');
-    } catch (err: any) {
-      loginLogger.error('登录失败', err);
-      const errorMessage =
-        err.response?.data?.message || err.message || '登录失败，请稍后重试';
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8'>
       <div className='max-w-md w-full space-y-8'>
@@ -154,31 +66,9 @@ const Login: React.FC = () => {
 
         {/* 登录卡片 */}
         <div className='bg-white rounded-lg shadow-lg p-8'>
-          {/* 认证方式切换 */}
-          {/* 已移除认证方式选择菜单，固定使用后端API认证 */}
-
-          {/* 登录方式切换 */}
-          <div className='flex border-b mb-6'>
-            <button
-              className={`flex-1 py-2 text-center ${
-                mode === 'email'
-                  ? 'border-b-2 border-indigo-600 text-indigo-600 font-semibold'
-                  : 'text-gray-500'
-              }`}
-              onClick={() => setMode('email')}
-            >
-              邮箱登录
-            </button>
-            <button
-              className={`flex-1 py-2 text-center ${
-                mode === 'phone'
-                  ? 'border-b-2 border-indigo-600 text-indigo-600 font-semibold'
-                  : 'text-gray-500'
-              }`}
-              onClick={() => setMode('phone')}
-            >
-              手机号登录
-            </button>
+          {/* 登录标题 */}
+          <div className='text-center mb-6'>
+            <h2 className='text-2xl font-bold text-gray-900'>邮箱登录</h2>
           </div>
 
           {/* 错误提示 */}
@@ -196,157 +86,51 @@ const Login: React.FC = () => {
           )}
 
           {/* 邮箱登录表单 */}
-          {mode === 'email' && (
-            <form onSubmit={handleEmailLogin} className='space-y-4'>
-              <div>
-                <label
-                  htmlFor='email'
-                  className='block text-sm font-medium text-gray-700 mb-1'
-                >
-                  邮箱地址
-                </label>
-                <input
-                  id='email'
-                  type='email'
-                  required
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
-                  placeholder='your@email.com'
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor='password'
-                  className='block text-sm font-medium text-gray-700 mb-1'
-                >
-                  密码
-                </label>
-                <input
-                  id='password'
-                  type='password'
-                  required
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
-                  placeholder='至少6位'
-                />
-              </div>
-
-              <button
-                type='submit'
-                disabled={loading}
-                className='w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+          <form onSubmit={handleEmailLogin} className='space-y-4'>
+            <div>
+              <label
+                htmlFor='email'
+                className='block text-sm font-medium text-gray-700 mb-1'
               >
-                {loading ? '登录中...' : '登录'}
-              </button>
-            </form>
-          )}
-
-          {/* 手机号登录表单 */}
-          {mode === 'phone' && (
-            <form onSubmit={handlePhoneLogin} className='space-y-4'>
-              <div>
-                <label
-                  htmlFor='phone'
-                  className='block text-sm font-medium text-gray-700 mb-1'
-                >
-                  手机号
-                </label>
-                <input
-                  id='phone'
-                  type='tel'
-                  required
-                  value={phone}
-                  onChange={e => setPhone(e.target.value)}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
-                  placeholder='13800138000'
-                  pattern='^1[3-9]\d{9}$'
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor='code'
-                  className='block text-sm font-medium text-gray-700 mb-1'
-                >
-                  验证码
-                </label>
-                <div className='flex space-x-2'>
-                  <input
-                    id='code'
-                    type='text'
-                    required
-                    value={code}
-                    onChange={e => setCode(e.target.value)}
-                    className='flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
-                    placeholder='6位验证码'
-                    maxLength={6}
-                  />
-                  <button
-                    type='button'
-                    onClick={handleSendCode}
-                    disabled={countdown > 0 || loading}
-                    className='px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap'
-                  >
-                    {countdown > 0 ? `${countdown}s` : '发送验证码'}
-                  </button>
-                </div>
-              </div>
-
-              <button
-                type='submit'
-                disabled={loading}
-                className='w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
-              >
-                {loading ? '登录中...' : '登录'}
-              </button>
-            </form>
-          )}
-
-          {/* 社交登录分割线 */}
-          <div className='mt-6'>
-            <div className='relative'>
-              <div className='absolute inset-0 flex items-center'>
-                <div className='w-full border-t border-gray-300'></div>
-              </div>
-              <div className='relative flex justify-center text-sm'>
-                <span className='px-2 bg-white text-gray-500'>
-                  或使用以下方式登录
-                </span>
-              </div>
+                邮箱地址
+              </label>
+              <input
+                id='email'
+                type='email'
+                required
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
+                placeholder='your@email.com'
+              />
             </div>
-          </div>
 
-          {/* 社交登录按钮 */}
-          <div className='mt-6 grid grid-cols-2 gap-3'>
-            <button
-              type='button'
-              className='flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors'
-              onClick={() => {
-                alert('请在Authing控制台配置微信登录后使用此功能');
-              }}
-            >
-              <svg className='w-5 h-5 mr-2' viewBox='0 0 24 24' fill='#09BB07'>
-                <path d='M8.5 10c.83 0 1.5-.67 1.5-1.5S9.33 7 8.5 7 7 7.67 7 8.5 7.67 10 8.5 10zm7 0c.83 0 1.5-.67 1.5-1.5S16.33 7 15.5 7 14 7.67 14 8.5s.67 1.5 1.5 1.5z' />
-              </svg>
-              <span className='text-sm font-medium text-gray-700'>微信</span>
-            </button>
+            <div>
+              <label
+                htmlFor='password'
+                className='block text-sm font-medium text-gray-700 mb-1'
+              >
+                密码
+              </label>
+              <input
+                id='password'
+                type='password'
+                required
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
+                placeholder='至少6位'
+              />
+            </div>
 
             <button
-              type='button'
-              className='flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors'
-              onClick={() => {
-                alert('请在Authing控制台配置支付宝登录后使用此功能');
-              }}
+              type='submit'
+              disabled={loading}
+              className='w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
             >
-              <svg className='w-5 h-5 mr-2' viewBox='0 0 24 24' fill='#1677FF'>
-                <path d='M3 3h18v18H3V3zm16 14.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z' />
-              </svg>
-              <span className='text-sm font-medium text-gray-700'>支付宝</span>
+              {loading ? '登录中...' : '登录'}
             </button>
-          </div>
+          </form>
 
           {/* 注册链接 */}
           <div className='mt-6 text-center'>

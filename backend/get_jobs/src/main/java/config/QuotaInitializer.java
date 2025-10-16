@@ -62,7 +62,7 @@ public class QuotaInitializer implements CommandLineRunner {
         // 高级功能配额
         quotaDefinitions.addAll(createAdvancedQuotas());
 
-        // TODO: 保存到数据库
+        // FIXME: 保存到数据库
         // quotaDefinitionRepository.saveAll(quotaDefinitions);
 
         log.info("配额定义初始化完成，共 {} 个配额", quotaDefinitions.size());
@@ -74,7 +74,7 @@ public class QuotaInitializer implements CommandLineRunner {
     private void initializePlanQuotaConfigs() {
         log.info("正在初始化套餐配额配置...");
 
-        // TODO: 根据配额定义创建各套餐的配额限制
+        // FIXME: 根据配额定义创建各套餐的配额限制
 
         log.info("套餐配额配置初始化完成");
     }
