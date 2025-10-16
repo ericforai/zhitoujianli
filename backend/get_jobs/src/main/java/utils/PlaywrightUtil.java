@@ -1,36 +1,33 @@
 package utils;
 
-import com.microsoft.playwright.*;
-import com.microsoft.playwright.options.Cookie;
-import com.microsoft.playwright.options.LoadState;
-import com.microsoft.playwright.options.SelectOption;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileWriter;
-import java.nio.charset.StandardCharsets;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.nio.charset.StandardCharsets;
-import java.util.Random;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.TimeUnit;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
-import java.nio.charset.StandardCharsets;
+import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserContext;
+import com.microsoft.playwright.BrowserType;
+import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.PlaywrightException;
+import com.microsoft.playwright.options.Cookie;
+import com.microsoft.playwright.options.LoadState;
+import com.microsoft.playwright.options.SelectOption;
 
 /**
  * Playwright工具类，提供浏览器自动化相关的功能

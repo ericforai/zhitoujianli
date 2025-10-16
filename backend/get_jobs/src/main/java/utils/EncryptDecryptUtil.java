@@ -1,12 +1,13 @@
 package utils;
 
-import lombok.extern.slf4j.Slf4j;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.util.Base64;
-import java.nio.charset.StandardCharsets;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class EncryptDecryptUtil {

@@ -1,13 +1,13 @@
 package boss;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import lombok.Data;
 import lombok.SneakyThrows;
 import utils.JobUtils;
-
-import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 /**
  * @author loks666
@@ -132,27 +132,27 @@ public class BossConfig {
                     .collect(Collectors.toList());
             config.setCityCode(convertedCityCodes);
         }
-        
+
         // 转换工作经验要求
         if (config.getExperience() != null) {
             config.setExperience(config.getExperience().stream().map(value -> BossEnum.Experience.forValue(value).getCode()).collect(Collectors.toList()));
         }
-        
+
         // 转换学历要求
         if (config.getDegree() != null) {
             config.setDegree(config.getDegree().stream().map(value -> BossEnum.Degree.forValue(value).getCode()).collect(Collectors.toList()));
         }
-        
+
         // 转换公司规模
         if (config.getScale() != null) {
             config.setScale(config.getScale().stream().map(value -> BossEnum.Scale.forValue(value).getCode()).collect(Collectors.toList()));
         }
-        
+
         // 转换公司融资阶段
         if (config.getStage() != null) {
             config.setStage(config.getStage().stream().map(value -> BossEnum.Financing.forValue(value).getCode()).collect(Collectors.toList()));
         }
-        
+
         // 转换行业
         if (config.getIndustry() != null) {
             config.setIndustry(config.getIndustry().stream().map(value -> BossEnum.Industry.forValue(value).getCode()).collect(Collectors.toList()));

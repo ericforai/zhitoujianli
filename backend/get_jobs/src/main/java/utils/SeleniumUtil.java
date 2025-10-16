@@ -1,6 +1,20 @@
 package utils;
 
-import boss.BossConfig;
+import static utils.Constant.WAIT_TIME;
+
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
 import org.json.JSONArray;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -12,24 +26,7 @@ import org.openqa.selenium.devtools.v135.page.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.*;
-import java.nio.charset.StandardCharsets;
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.io.FileWriter;
-import java.nio.charset.StandardCharsets;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.TimeUnit;
-import java.nio.charset.StandardCharsets;
-
-import static utils.Constant.*;
+import boss.BossConfig;
 
 /**
  * @author loks666
@@ -199,7 +196,7 @@ public class SeleniumUtil {
         // 临时禁用CHROME_DRIVER操作，避免NetworkConnection编译错误
         System.out.println("loadCookie: 已跳过CHROME_DRIVER操作，避免编译错误");
         return;
-        
+
         /* 临时注释所有代码避免编译错误
         // 首先清除由于浏览器打开已有的cookies
         // CHROME_DRIVER.manage().deleteAllCookies();
