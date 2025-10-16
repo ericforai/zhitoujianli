@@ -10,7 +10,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - '80:80'
     environment:
       - NODE_ENV=production
       - REACT_APP_API_URL=/api
@@ -30,7 +30,7 @@ services:
       context: ./backend/get_jobs
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - '8080:8080'
     environment:
       - SPRING_PROFILES_ACTIVE=production
       - SERVER_PORT=8080
@@ -52,7 +52,7 @@ services:
       context: ./blog/zhitoujianli-blog
       dockerfile: Dockerfile
     ports:
-      - "4321:4321"
+      - '4321:4321'
     environment:
       - NODE_ENV=production
       - SITE_URL=http://115.190.182.95
@@ -64,7 +64,7 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "443:443"
+      - '443:443'
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
@@ -85,4 +85,3 @@ networks:
 volumes:
   user_data:
     driver: local
-

@@ -95,10 +95,10 @@ if ! command -v mysql &> /dev/null; then
     yum install -y mysql-server
     systemctl start mysqld
     systemctl enable mysqld
-    
+
     # 获取临时密码并配置
     TEMP_PASSWORD=$(grep 'temporary password' /var/log/mysqld.log | awk '{print $NF}')
-    
+
     # 创建MySQL配置
     cat > /tmp/mysql_setup.sql << MYSQL_EOF
 ALTER USER 'root'@'localhost' IDENTIFIED BY 'ZhiTou2025!@#';
@@ -111,7 +111,7 @@ CREATE USER 'zhitoujianli'@'localhost' IDENTIFIED BY 'ZhiTou2025!@#';
 GRANT ALL PRIVILEGES ON zhitoujianli.* TO 'zhitoujianli'@'localhost';
 FLUSH PRIVILEGES;
 MYSQL_EOF
-    
+
     mysql -u root -p"$TEMP_PASSWORD" --connect-expired-password < /tmp/mysql_setup.sql
     echo "✅ MySQL配置完成"
 fi
@@ -143,7 +143,7 @@ server {
     # SSL证书配置将在后续添加
     ssl_certificate /etc/letsencrypt/live/api.zhitoujianli.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/api.zhitoujianli.com/privkey.pem;
-    
+
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384;
     ssl_prefer_server_ciphers off;
@@ -160,7 +160,7 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        
+
         proxy_connect_timeout 60s;
         proxy_send_timeout 60s;
         proxy_read_timeout 60s;

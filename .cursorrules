@@ -20,8 +20,7 @@
 - **前端**: React 18 + TypeScript + Tailwind CSS + Axios
 - **后端**: Spring Boot 3 + Spring Security + JWT + Maven
 - **AI服务**: DeepSeek API
-- **认证**: Authing
-- **数据库**: MySQL
+- **数据库**: PostgreSQL
 - **部署**: Docker + Nginx
 
 ## 代码风格规范
