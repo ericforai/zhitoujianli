@@ -1,6 +1,7 @@
 # 🚀 直接部署方案
 
 ## 📊 当前状态
+
 - ✅ GitHub Secrets已配置
 - ✅ 部署包已准备 (deploy_package.tar.gz)
 - ❌ SSH连接失败（需要手动添加公钥）
@@ -30,6 +31,7 @@ exit
 ```
 
 **添加公钥后，测试SSH连接：**
+
 ```bash
 ssh -i /root/.ssh/id_ed25519 root@115.190.182.95 "echo 'SSH连接成功！'"
 ```
@@ -37,6 +39,7 @@ ssh -i /root/.ssh/id_ed25519 root@115.190.182.95 "echo 'SSH连接成功！'"
 ### 方案2: 使用GitHub Actions测试
 
 1. **访问测试页面**
+
    ```
    https://github.com/ericforai/zhitoujianli/actions/workflows/test-ssh.yml
    ```
@@ -52,6 +55,7 @@ ssh -i /root/.ssh/id_ed25519 root@115.190.182.95 "echo 'SSH连接成功！'"
 **SSH连接成功后：**
 
 1. **访问部署页面**
+
    ```
    https://github.com/ericforai/zhitoujianli/actions/workflows/deploy.yml
    ```
@@ -93,6 +97,7 @@ curl -fsSIL https://www.zhitoujianli.com/register
 ## 🔍 问题诊断
 
 **SSH连接失败的原因：**
+
 1. **公钥未添加到服务器** - 需要手动添加
 2. **服务器SSH配置问题** - 可能需要检查sshd_config
 3. **防火墙阻止连接** - 需要检查防火墙设置
@@ -100,21 +105,26 @@ curl -fsSIL https://www.zhitoujianli.com/register
 ## 📋 下一步操作
 
 **推荐操作顺序：**
+
 1. **先执行方案1** - 手动添加SSH公钥
 2. **然后执行方案2** - 测试SSH连接
 3. **最后执行方案3** - 运行GitHub Actions部署
 
 **如果方案1-3都失败：**
+
 - 使用方案4直接部署
 
 ## ✅ 验证部署
 
 **部署完成后，访问：**
+
 ```
 https://www.zhitoujianli.com/register
 ```
 
 **检查是否显示：**
+
 - ✅ 邮箱验证码输入框
 - ✅ 发送验证码按钮
 - ❌ 不再显示"用户名(可选)"字段
+
