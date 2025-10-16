@@ -1,0 +1,44 @@
+# ============================================================
+# 智投简历 - 简化部署工作流（用于测试）
+# ============================================================
+
+name: Simple Deploy Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: "测试模式"
+        required: false
+        default: "true"
+        type: boolean
+
+jobs:
+  test-build:
+    name: 测试构建
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build frontend
+        run: |
+          echo "开始构建前端..."
+          npm run build
+          echo "前端构建完成"
+          ls -lah build/
+
+      - name: Test file structure
+        run: |
+          echo "检查文件结构..."
+          find build -type f | head -10
+          echo "构建文件数量: $(find build -type f | wc -l)"
