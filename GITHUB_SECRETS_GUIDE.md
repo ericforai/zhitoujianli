@@ -3,6 +3,7 @@
 ## 📋 检查步骤
 
 ### 1. 访问GitHub Secrets页面
+
 ```
 https://github.com/ericforai/zhitoujianli/settings/secrets/actions
 ```
@@ -10,6 +11,7 @@ https://github.com/ericforai/zhitoujianli/settings/secrets/actions
 ### 2. 检查必需的Secrets
 
 **必需的Secrets列表：**
+
 - `SSH_HOST` - 服务器IP地址
 - `SSH_USER` - SSH用户名
 - `SSH_PORT` - SSH端口
@@ -20,12 +22,14 @@ https://github.com/ericforai/zhitoujianli/settings/secrets/actions
 ## 🔧 具体配置值
 
 ### SSH_HOST
+
 ```
 值: 115.190.182.95
 说明: 你的服务器IP地址
 ```
 
 ### SSH_USER
+
 ```
 值: root
 或者: ubuntu
@@ -33,12 +37,14 @@ https://github.com/ericforai/zhitoujianli/settings/secrets/actions
 ```
 
 ### SSH_PORT
+
 ```
 值: 22
 说明: SSH端口，默认是22
 ```
 
 ### SSH_KEY
+
 ```
 值: -----BEGIN OPENSSH PRIVATE KEY-----
      [你的私钥内容]
@@ -47,12 +53,14 @@ https://github.com/ericforai/zhitoujianli/settings/secrets/actions
 ```
 
 ### REMOTE_DEPLOY_DIR
+
 ```
 值: /var/www/zhitoujianli
 说明: 前端文件部署目录
 ```
 
 ### REMOTE_NGINX_CONF
+
 ```
 值: /etc/nginx/conf.d/zhitoujianli.conf
 说明: Nginx配置文件路径
@@ -61,6 +69,7 @@ https://github.com/ericforai/zhitoujianli/settings/secrets/actions
 ## 🛠️ 如何获取SSH私钥
 
 ### 方法1: 从本地获取
+
 ```bash
 # 查看本地SSH私钥
 cat ~/.ssh/id_rsa
@@ -69,6 +78,7 @@ cat ~/.ssh/id_ed25519
 ```
 
 ### 方法2: 从服务器获取
+
 ```bash
 # 登录服务器
 ssh root@115.190.182.95
@@ -80,6 +90,7 @@ cat ~/.ssh/id_ed25519
 ```
 
 ### 方法3: 生成新的SSH密钥对
+
 ```bash
 # 生成新的SSH密钥
 ssh-keygen -t ed25519 -C "your_email@example.com"
@@ -94,13 +105,16 @@ cat ~/.ssh/id_ed25519
 ## 📝 配置步骤
 
 ### 1. 添加/编辑Secrets
+
 1. 点击 "New repository secret"
 2. 输入Name（如SSH_HOST）
 3. 输入Value（如115.190.182.95）
 4. 点击 "Add secret"
 
 ### 2. 验证配置
+
 检查所有Secrets是否都已正确配置：
+
 - ✅ SSH_HOST: 115.190.182.95
 - ✅ SSH_USER: root
 - ✅ SSH_PORT: 22
@@ -111,34 +125,43 @@ cat ~/.ssh/id_ed25519
 ## 🔍 常见问题排查
 
 ### 问题1: SSH连接失败
+
 **可能原因：**
+
 - SSH_HOST配置错误
 - SSH_USER配置错误
 - SSH_PORT配置错误
 - SSH_KEY配置错误
 
 **解决方法：**
+
 1. 检查服务器IP是否正确
 2. 确认SSH用户名（root或ubuntu）
 3. 确认SSH端口（通常是22）
 4. 检查SSH私钥格式是否正确
 
 ### 问题2: 权限不足
+
 **可能原因：**
+
 - SSH用户权限不足
 - 目录权限问题
 
 **解决方法：**
+
 1. 确保SSH用户有sudo权限
 2. 检查部署目录权限
 3. 确保Nginx配置目录可写
 
 ### 问题3: 文件路径错误
+
 **可能原因：**
+
 - REMOTE_DEPLOY_DIR路径错误
 - REMOTE_NGINX_CONF路径错误
 
 **解决方法：**
+
 1. 确认部署目录存在
 2. 确认Nginx配置目录存在
 3. 检查路径权限
@@ -146,6 +169,7 @@ cat ~/.ssh/id_ed25519
 ## 🧪 测试SSH连接
 
 ### 本地测试
+
 ```bash
 # 测试SSH连接
 ssh -i ~/.ssh/id_rsa root@115.190.182.95
@@ -155,7 +179,9 @@ ssh -i ~/.ssh/id_rsa -p 22 root@115.190.182.95
 ```
 
 ### GitHub Actions测试
+
 创建测试工作流：
+
 ```yaml
 name: Test SSH Connection
 on: workflow_dispatch
