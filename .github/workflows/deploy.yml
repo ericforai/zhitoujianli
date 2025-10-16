@@ -110,7 +110,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           source: "deploy/nginx/zhitoujianli.conf"
           target: "/tmp/"
-          strip_components: 2
 
       # ============================================================
       # 9. 远程部署执行
