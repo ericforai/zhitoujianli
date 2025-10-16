@@ -1,11 +1,11 @@
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.ArrayList;
-import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class StartAll {
@@ -32,6 +32,7 @@ public class StartAll {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
         // 定义Liepin任务
+        Runnable liepinTask = () -> {
             try {
                 log.info("正在执行 Liepin 任务，线程名称: {}", Thread.currentThread().getName());
                 executeTask("liepin.Liepin");
@@ -42,6 +43,7 @@ public class StartAll {
         };
 
         // 定义Job51任务
+        Runnable job51Task = () -> {
             try {
                 log.info("正在执行 Job51 任务，线程名称: {}", Thread.currentThread().getName());
                 executeTask("job51.Job51");
@@ -59,7 +61,7 @@ public class StartAll {
         // 添加关闭钩子，优雅地关闭线程池和子进程
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("正在关闭线程池和子进程...");
-            
+
             // 关闭所有子进程
             synchronized (childProcesses) {
                 for (Process process : childProcesses) {
@@ -69,7 +71,7 @@ public class StartAll {
                 }
                 childProcesses.clear();
             }
-            
+
             executorService.shutdown();
             bossScheduler.shutdown();
             try {
@@ -99,19 +101,19 @@ public class StartAll {
         );
         processBuilder.inheritIO(); // 将子进程的输入/输出重定向到当前进程
         Process process = processBuilder.start();
-        
+
         // 将进程添加到管理列表中
         synchronized (childProcesses) {
             childProcesses.add(process);
         }
-        
+
         int exitCode = process.waitFor();
-        
+
         // 进程结束后从列表中移除
         synchronized (childProcesses) {
             childProcesses.remove(process);
         }
-        
+
         if (exitCode != 0) {
             throw new RuntimeException(className + " 执行失败，退出代码: " + exitCode);
         }

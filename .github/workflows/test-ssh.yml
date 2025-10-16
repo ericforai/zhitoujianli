@@ -1,0 +1,145 @@
+# ============================================================
+# SSH连接测试工作流
+# 用于验证GitHub Secrets配置是否正确
+# ============================================================
+
+name: Test SSH Connection
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: "测试模式"
+        required: false
+        default: "true"
+        type: boolean
+
+jobs:
+  test-ssh:
+    name: 测试SSH连接
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Test SSH Connection
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            echo "============================================================"
+            echo "SSH连接测试开始..."
+            echo "时间: $(date)"
+            echo "============================================================"
+            
+            # 基本系统信息
+            echo "系统信息："
+            echo "用户: $(whoami)"
+            echo "目录: $(pwd)"
+            echo "主机名: $(hostname)"
+            echo "操作系统: $(uname -a)"
+            echo ""
+            
+            # 检查部署目录
+            echo "检查部署目录..."
+            if [ -d "/var/www/zhitoujianli" ]; then
+                echo "✅ 部署目录存在: /var/www/zhitoujianli"
+                echo "目录内容:"
+                ls -la /var/www/zhitoujianli/
+            else
+                echo "❌ 部署目录不存在: /var/www/zhitoujianli"
+                echo "创建部署目录..."
+                sudo mkdir -p /var/www/zhitoujianli
+                sudo chown $USER:$USER /var/www/zhitoujianli
+            fi
+            echo ""
+            
+            # 检查Nginx配置目录
+            echo "检查Nginx配置目录..."
+            if [ -d "/etc/nginx/conf.d" ]; then
+                echo "✅ Nginx配置目录存在: /etc/nginx/conf.d"
+                echo "配置文件列表:"
+                ls -la /etc/nginx/conf.d/
+            else
+                echo "❌ Nginx配置目录不存在: /etc/nginx/conf.d"
+            fi
+            echo ""
+            
+            # 检查Nginx服务状态
+            echo "检查Nginx服务状态..."
+            if systemctl is-active --quiet nginx; then
+                echo "✅ Nginx服务正在运行"
+                echo "Nginx状态:"
+                systemctl status nginx --no-pager -l
+            else
+                echo "❌ Nginx服务未运行"
+                echo "尝试启动Nginx..."
+                sudo systemctl start nginx
+                if systemctl is-active --quiet nginx; then
+                    echo "✅ Nginx服务启动成功"
+                else
+                    echo "❌ Nginx服务启动失败"
+                fi
+            fi
+            echo ""
+            
+            # 检查磁盘空间
+            echo "检查磁盘空间..."
+            df -h
+            echo ""
+            
+            # 检查内存使用
+            echo "检查内存使用..."
+            free -h
+            echo ""
+            
+            # 检查网络连接
+            echo "检查网络连接..."
+            ping -c 3 8.8.8.8
+            echo ""
+            
+            echo "============================================================"
+            echo "SSH连接测试完成！"
+            echo "时间: $(date)"
+            echo "============================================================"
+
+      - name: Test File Upload
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "README.md"
+          target: "/tmp/test_upload/"
+          strip_components: 0
+
+      - name: Verify File Upload
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            echo "验证文件上传..."
+            if [ -f "/tmp/test_upload/README.md" ]; then
+                echo "✅ 文件上传成功"
+                echo "文件内容预览:"
+                head -10 /tmp/test_upload/README.md
+                echo ""
+                echo "清理测试文件..."
+                rm -rf /tmp/test_upload/
+            else
+                echo "❌ 文件上传失败"
+            fi
+
+      - name: Test Summary
+        run: |
+          echo "🎉 SSH连接测试完成！"
+          echo "如果所有步骤都成功，说明GitHub Secrets配置正确"
+          echo "可以继续使用GitHub Actions进行部署"
