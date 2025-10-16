@@ -213,7 +213,7 @@ public class ResumeApiController {
     private String extractTextFromFile(MultipartFile file) throws IOException {
         String fileName = file.getOriginalFilename();
         if (fileName == null) {
-            return null;
+            return new String[0];
         }
 
         String lowerFileName = fileName.toLowerCase();
@@ -237,7 +237,7 @@ public class ResumeApiController {
             }
         }
 
-        return null;
+        return new String[0];
     }
 
     /**

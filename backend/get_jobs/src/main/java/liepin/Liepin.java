@@ -75,7 +75,7 @@ public class Liepin {
     }
 
     private static void printResult() {
-        String message = String.format("\n猎聘投递完成，共投递%d个岗位，用时%s", resultList.size(), formatDuration(startDate, new Date()));
+        String message = String.format("%n猎聘投递完成，共投递%d个岗位，用时%s", resultList.size(), formatDuration(startDate, new Date()));
         log.info(message);
         sendMessageByTime(message);
         resultList.clear();
@@ -118,7 +118,7 @@ public class Liepin {
             page.waitForSelector(JOB_CARDS, new Page.WaitForSelectorOptions().setTimeout(10000));
             log.info("正在投递【{}】第【{}】页...", keyword, i + 1);
             submitJob();
-            log.info("已投递第【{}】页所有的岗位...\n", i + 1);
+            log.info("已投递第【{}】页所有的岗位...%n", i + 1);
             
             // 查找下一页按钮
             paginationBox = page.locator(PAGINATION_BOX);
@@ -188,9 +188,9 @@ public class Liepin {
                 continue;
             }
             
-            String jobName = jobTitleElements.nth(i).textContent().replaceAll("\n", " ").replaceAll("【 ", "[").replaceAll(" 】", "]");
-            String companyName = companyNameElements.nth(i).textContent().replaceAll("\n", " ");
-            String salary = salaryElements.nth(i).textContent().replaceAll("\n", " ");
+            String jobName = jobTitleElements.nth(i).textContent().replaceAll("%n", " ").replaceAll("【 ", "[").replaceAll(" 】", "]");
+            String companyName = companyNameElements.nth(i).textContent().replaceAll("%n", " ");
+            String salary = salaryElements.nth(i).textContent().replaceAll("%n", " ");
             String recruiterName = null;
             
             try {

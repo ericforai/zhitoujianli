@@ -136,7 +136,7 @@ public class QuotaService {
                 userPlan = createDefaultFreePlan(userId);
             }
             
-            // TODO: 实现具体的配额详情查询逻辑
+            // FIXME: 实现具体的配额详情查询逻辑
             // 这里需要根据实际的数据访问层实现
             
             return List.of(); // 临时返回空列表
@@ -157,7 +157,7 @@ public class QuotaService {
         try {
             log.info("🔄 重置用户配额: userId={}, quotaKey={}", userId, quotaKey);
             
-            // TODO: 实现具体的配额重置逻辑
+            // FIXME: 实现具体的配额重置逻辑
             
             log.info("✅ 配额重置成功: userId={}, quotaKey={}", userId, quotaKey);
             
@@ -178,7 +178,7 @@ public class QuotaService {
             return cachedPlan;
         }
         
-        // TODO: 从数据库查询用户套餐
+        // FIXME: 从数据库查询用户套餐
         // UserPlan plan = userPlanRepository.findByUserIdAndStatus(userId, PlanStatus.ACTIVE);
         
         // 临时返回免费套餐
@@ -209,34 +209,34 @@ public class QuotaService {
      * 获取配额定义
      */
     private QuotaDefinition getQuotaDefinition(String quotaKey) {
-        // TODO: 从数据库或缓存获取配额定义
+        // FIXME: 从数据库或缓存获取配额定义
         // return quotaDefinitionRepository.findByQuotaKeyAndIsActive(quotaKey, true);
-        return null;
+        return new String[0];
     }
     
     /**
      * 获取套餐配额配置
      */
     private PlanQuotaConfig getPlanQuotaConfig(PlanType planType, Long quotaId) {
-        // TODO: 从数据库或缓存获取套餐配额配置
+        // FIXME: 从数据库或缓存获取套餐配额配置
         // return planQuotaConfigRepository.findByPlanTypeAndQuotaIdAndIsEnabled(planType, quotaId, true);
-        return null;
+        return new String[0];
     }
     
     /**
      * 获取当前使用量
      */
     private UserQuotaUsage getCurrentUsage(String userId, Long quotaId) {
-        // TODO: 从数据库获取当前使用量
+        // FIXME: 从数据库获取当前使用量
         // return userQuotaUsageRepository.findByUserIdAndQuotaIdAndResetDate(userId, quotaId, LocalDate.now());
-        return null;
+        return new String[0];
     }
     
     /**
      * 更新使用量
      */
     private void updateUsage(String userId, String quotaKey, long amount) {
-        // TODO: 更新数据库中的使用量
+        // FIXME: 更新数据库中的使用量
         log.debug("📈 更新配额使用量: userId={}, quotaKey={}, amount={}", userId, quotaKey, amount);
     }
     

@@ -6,6 +6,7 @@ import utils.JobUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 /**
@@ -158,6 +159,27 @@ public class BossConfig {
         }
 
         return config;
+    }
+
+    // 手动添加getter方法以避免内部表示暴露
+    public List<String> getCityCode() {
+        return cityCode != null ? new ArrayList<>(cityCode) : null;
+    }
+
+    public List<String> getKeywords() {
+        return keywords != null ? new ArrayList<>(keywords) : null;
+    }
+
+    public List<String> getSalary() {
+        return salary != null ? new ArrayList<>(salary) : null;
+    }
+
+    public List<String> getStage() {
+        return stage != null ? new ArrayList<>(stage) : null;
+    }
+
+    public List<String> getIndustry() {
+        return industry != null ? new ArrayList<>(industry) : null;
     }
 
 }

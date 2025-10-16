@@ -10,16 +10,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Playwright工具类，提供浏览器自动化相关的功能
@@ -728,7 +739,7 @@ public class PlaywrightUtil {
                 jsonArray.put(jsonObject);
             }
 
-            try (FileWriter file = new FileWriter(path)) {
+            try (FileWriter file = new FileWriter(path, StandardCharsets.UTF_8)) {
                 file.write(jsonArray.toString(4));
                 log.info("Cookie已保存到文件: {} (设备类型: {})", path, deviceType);
             }
@@ -754,7 +765,7 @@ public class PlaywrightUtil {
      */
     public static void loadCookies(String path, DeviceType deviceType) {
         try {
-            String jsonText = new String(Files.readAllBytes(Paths.get(path)));
+            String jsonText = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
             JSONArray jsonArray = new JSONArray(jsonText);
 
             List<com.microsoft.playwright.options.Cookie> cookies = new ArrayList<>();
@@ -1098,7 +1109,7 @@ public class PlaywrightUtil {
         // 如果有stealth.min.js文件，也尝试加载
         try {
             String stealthJs = new String(
-                    Files.readAllBytes(Paths.get("src/main/resources/stealth.min.js")));
+                    Files.readAllBytes(Paths.get("src/main/resources/stealth.min.js")), StandardCharsets.UTF_8);
             page.addInitScript(stealthJs);
             log.info("已加载stealth.min.js文件");
         } catch (IOException e) {
@@ -1478,6 +1489,6 @@ public class PlaywrightUtil {
 
         // 如果都不存在，返回null让Playwright使用默认路径
         log.warn("未找到已安装的浏览器，可能触发下载");
-        return null;
+        return new String[0];
     }
 }

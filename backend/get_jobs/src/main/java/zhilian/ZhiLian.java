@@ -49,12 +49,12 @@ public class ZhiLian {
             submitJobs(keyword);
 
         });
-        log.info(resultList.isEmpty() ? "未投递新的岗位..." : "新投递公司如下:\n{}", resultList.stream().map(Object::toString).collect(Collectors.joining("\n")));
+        log.info(resultList.isEmpty() ? "未投递新的岗位..." : "新投递公司如下:%n{}", resultList.stream().map(Object::toString).collect(Collectors.joining("%n")));
         printResult();
     }
 
     private static void printResult() {
-        String message = String.format("\n智联招聘投递完成，共投递%d个岗位，用时%s", resultList.size(), formatDuration(startDate, new Date()));
+        String message = String.format("%n智联招聘投递完成，共投递%d个岗位，用时%s", resultList.size(), formatDuration(startDate, new Date()));
         log.info(message);
         sendMessageByTime(message);
         resultList.clear();
@@ -209,10 +209,10 @@ public class ZhiLian {
         // jobs.forEach(j -> {
         //     String jobName = j.findElement(By.xpath(".//*[contains(@class, 'recommend-job__position')]")).getText();
         //     String salary = j.findElement(By.xpath(".//span[@class='recommend-job__demand__salary']")).getText();
-        //     String years = j.findElement(By.xpath(".//span[@class='recommend-job__demand__experience']")).getText().replaceAll("\n", " ");
-        //     String education = j.findElement(By.xpath(".//span[@class='recommend-job__demand__educational']")).getText().replaceAll("\n", " ");
+        //     String years = j.findElement(By.xpath(".//span[@class='recommend-job__demand__experience']")).getText().replaceAll("%n", " ");
+        //     String education = j.findElement(By.xpath(".//span[@class='recommend-job__demand__educational']")).getText().replaceAll("%n", " ");
         //     String companyName = j.findElement(By.xpath(".//*[contains(@class, 'recommend-job__cname')]")).getText();
-        //     String companyTag = j.findElement(By.xpath(".//*[contains(@class, 'recommend-job__demand__cinfo')]")).getText().replaceAll("\n", " ");
+        //     String companyTag = j.findElement(By.xpath(".//*[contains(@class, 'recommend-job__demand__cinfo')]")).getText().replaceAll("%n", " ");
         //     Job job = new Job();
         //     job.setJobName(jobName);
         //     job.setSalary(salary);

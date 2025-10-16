@@ -58,7 +58,7 @@ public class SmartGreetingService {
     public static String generateSmartGreeting(Map<String, Object> candidate, String jobName, String fullJobDescription) {
         if (candidate == null || fullJobDescription == null || fullJobDescription.trim().isEmpty()) {
             log.warn("【智能打招呼】候选人信息或岗位描述为空，无法生成");
-            return null;
+            return new String[0];
         }
         
         // 使用ExecutorService实现超时控制
@@ -82,7 +82,7 @@ public class SmartGreetingService {
         } catch (TimeoutException e) {
             log.error("【智能打招呼】AI响应超时（超过{}秒），使用默认招呼语", AI_TIMEOUT_SECONDS);
             future.cancel(true);
-            return null;
+            return new String[0];
             
         } catch (Exception e) {
             log.error("【智能打招呼】生成失败: {}", e.getMessage(), e);
@@ -92,7 +92,7 @@ public class SmartGreetingService {
             } else if (e.getMessage() != null && e.getMessage().contains("401")) {
                 log.error("【智能打招呼】API密钥无效，请检查.env文件中的API_KEY配置");
             }
-            return null;
+            return new String[0];
             
         } finally {
             executor.shutdownNow();
@@ -110,7 +110,7 @@ public class SmartGreetingService {
             log.info("【智能打招呼】调用AI服务，岗位: {}", jobName);
             
             // 调用AI服务
-            String fullPrompt = GREETING_GENERATION_SYSTEM_PROMPT + "\n\n" + userPrompt;
+            String fullPrompt = GREETING_GENERATION_SYSTEM_PROMPT + "%n%n" + userPrompt;
             String aiResponse = AiService.sendRequest(fullPrompt);
             
             if (aiResponse == null || aiResponse.trim().isEmpty()) {
@@ -140,17 +140,17 @@ public class SmartGreetingService {
     private static String buildUserPrompt(Map<String, Object> candidate, String jobName, String fullJobDescription) {
         StringBuilder prompt = new StringBuilder();
         
-        prompt.append("【候选人简历】\n");
-        prompt.append("当前职位：").append(candidate.get("current_title")).append("\n");
-        prompt.append("工作年限：").append(candidate.get("years_experience")).append("年\n");
+        prompt.append("【候选人简历】%n");
+        prompt.append("当前职位：").append(candidate.get("current_title")).append("%n");
+        prompt.append("工作年限：").append(candidate.get("years_experience")).append("年%n");
         
         // 核心优势
         @SuppressWarnings("unchecked")
         List<String> coreStrengths = (List<String>) candidate.get("core_strengths");
         if (coreStrengths != null && !coreStrengths.isEmpty()) {
-            prompt.append("核心优势：\n");
+            prompt.append("核心优势：%n");
             for (String strength : coreStrengths) {
-                prompt.append("- ").append(strength).append("\n");
+                prompt.append("- ").append(strength).append("%n");
             }
         }
         
@@ -158,15 +158,15 @@ public class SmartGreetingService {
         @SuppressWarnings("unchecked")
         List<String> skills = (List<String>) candidate.get("skills");
         if (skills != null && !skills.isEmpty()) {
-            prompt.append("技能：").append(String.join("、", skills)).append("\n");
+            prompt.append("技能：").append(String.join("、", skills)).append("%n");
         }
         
-        prompt.append("\n【目标岗位】\n");
-        prompt.append("职位名称：").append(jobName).append("\n");
-        prompt.append("岗位要求：\n").append(fullJobDescription).append("\n");
+        prompt.append("%n【目标岗位】%n");
+        prompt.append("职位名称：").append(jobName).append("%n");
+        prompt.append("岗位要求：%n").append(fullJobDescription).append("%n");
         
-        prompt.append("\n【任务要求】\n");
-        prompt.append("请生成一段打招呼语（200字内），直接输出文本，不要任何解释。\n");
+        prompt.append("%n【任务要求】%n");
+        prompt.append("请生成一段打招呼语（200字内），直接输出文本，不要任何解释。%n");
         
         return prompt.toString();
     }

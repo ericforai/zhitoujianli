@@ -13,13 +13,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
+import java.nio.charset.StandardCharsets;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
+import java.nio.charset.StandardCharsets;
 
 import static utils.Constant.*;
 
@@ -169,7 +177,7 @@ public class SeleniumUtil {
 
     private static void saveCookieToFile(JSONArray jsonArray, String path) {
         // 将JSONArray写入到一个文件中
-        try (FileWriter file = new FileWriter(path)) {
+        try (FileWriter file = new FileWriter(path, StandardCharsets.UTF_8)) {
             file.write(jsonArray.toString(4));  // 使用4个空格的缩进
             log.info("Cookie已保存到文件：{}", path);
         } catch (IOException e) {
@@ -179,7 +187,7 @@ public class SeleniumUtil {
 
     private static void updateCookieFile(JSONArray jsonArray, String path) {
         // 将JSONArray写入到一个文件中
-        try (FileWriter file = new FileWriter(path)) {
+        try (FileWriter file = new FileWriter(path, StandardCharsets.UTF_8)) {
             file.write(jsonArray.toString(4));  // 使用4个空格的缩进
             log.info("cookie文件更新：{}", path);
         } catch (IOException e) {

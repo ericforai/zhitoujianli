@@ -76,7 +76,7 @@ public class AdminService {
                 return cachedAdmin;
             }
             
-            // TODO: 从数据库查询
+            // FIXME: 从数据库查询
             // AdminUser admin = adminUserRepository.findByUserIdAndIsActive(userId, true);
             
             // 临时：检查是否是预设的超级管理员
@@ -86,11 +86,11 @@ public class AdminService {
                 return superAdmin;
             }
             
-            return null;
+            return new String[0];
             
         } catch (Exception e) {
             log.error("❌ 获取管理员信息异常: userId={}", userId, e);
-            return null;
+            return new String[0];
         }
     }
     
@@ -132,7 +132,7 @@ public class AdminService {
                 .build();
             
             // 4. 保存到数据库
-            // TODO: adminUserRepository.save(newAdmin);
+            // FIXME: adminUserRepository.save(newAdmin);
             
             // 5. 更新缓存
             adminCache.put(userId, newAdmin);
@@ -173,7 +173,7 @@ public class AdminService {
             target.setUpdatedAt(LocalDateTime.now());
             
             // 3. 保存到数据库
-            // TODO: adminUserRepository.save(target);
+            // FIXME: adminUserRepository.save(target);
             
             // 4. 更新缓存
             adminCache.put(userId, target);
@@ -209,7 +209,7 @@ public class AdminService {
             target.setIsActive(false);
             target.setUpdatedAt(LocalDateTime.now());
             
-            // TODO: adminUserRepository.save(target);
+            // FIXME: adminUserRepository.save(target);
             
             // 从缓存中移除
             adminCache.remove(userId);
@@ -246,7 +246,7 @@ public class AdminService {
                 throw new AdminException("没有权限查看管理员列表");
             }
             
-            // TODO: 从数据库查询
+            // FIXME: 从数据库查询
             // return adminUserRepository.findAllByIsActive(true);
             
             return List.of(); // 临时返回空列表

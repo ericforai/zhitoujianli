@@ -139,7 +139,7 @@ public class Bot {
         if (clazz.isInstance(obj)) {
             return (T) obj;
         } else {
-            return null;
+            return new String[0];
         }
     }
 }

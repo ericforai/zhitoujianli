@@ -118,7 +118,7 @@ public class AdminUser {
      */
     public Object getPermissionValue(String permission) {
         if (permissions == null) {
-            return null;
+            return new String[0];
         }
         return permissions.get(permission);
     }

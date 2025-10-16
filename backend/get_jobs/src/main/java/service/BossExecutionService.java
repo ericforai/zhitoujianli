@@ -6,10 +6,15 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
+import java.nio.charset.StandardCharsets;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Boss程序执行服务 - 完全隔离的执行环境
@@ -43,14 +48,14 @@ public class BossExecutionService {
                 File logFile = new File(logFilePath);
                 ensureLogFileExists(logFile);
 
-                try (FileWriter logWriter = new FileWriter(logFile, true)) {
+                try (FileWriter logWriter = new FileWriter(logFile, true, StandardCharsets.UTF_8)) {
 
                     writeLogHeader(logWriter);
 
                     // 创建独立的Boss进程
                     ProcessBuilder pb = createIsolatedBossProcess(headless);
 
-                    logWriter.write(formatTimestamp() + " - 启动独立Boss进程...\n");
+                    logWriter.write(formatTimestamp() + " - 启动独立Boss进程...%n");
                     logWriter.flush();
 
                     // 启动进程
@@ -64,12 +69,12 @@ public class BossExecutionService {
                     // 启动日志捕获线程
                     final FileWriter finalLogWriter = logWriter;
                     Thread outputThread = createLogCaptureThread(
-                        new BufferedReader(new InputStreamReader(process.getInputStream())),
+                        new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8)),
                         finalLogWriter, "OUT", outputLatch
                     );
 
                     Thread errorThread = createLogCaptureThread(
-                        new BufferedReader(new InputStreamReader(process.getErrorStream())),
+                        new BufferedReader(new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8)),
                         finalLogWriter, "ERROR", errorLatch
                     );
 
@@ -84,12 +89,12 @@ public class BossExecutionService {
                     errorLatch.await(5, TimeUnit.SECONDS);
 
                     if (!finished) {
-                        logWriter.write(formatTimestamp() + " - WARNING: Boss程序超时未完成\n");
+                        logWriter.write(formatTimestamp() + " - WARNING: Boss程序超时未完成%n");
                         process.destroyForcibly();
                         log.error("Boss程序超时，强制终止");
                     } else {
                         int exitCode = process.exitValue();
-                        logWriter.write(formatTimestamp() + " - Boss程序完成，退出码: " + exitCode + "\n");
+                        logWriter.write(formatTimestamp() + " - Boss程序完成，退出码: " + exitCode + "%n");
                         log.info("Boss程序执行完成，退出码: {}", exitCode);
                     }
 
@@ -157,7 +162,7 @@ public class BossExecutionService {
         }
 
         try {
-            return new String(java.nio.file.Files.readAllBytes(classpathFile.toPath()));
+            return new String(java.nio.file.Files.readAllBytes(classpathFile.toPath()), StandardCharsets.UTF_8);
         } catch (IOException e) {
             log.warn("读取classpath.txt失败，使用最小classpath");
             return generateMinimalClasspath();
@@ -191,7 +196,7 @@ public class BossExecutionService {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     synchronized (logWriter) {
-                        logWriter.write(line + "\n");
+                        logWriter.write(line + "%n");
                         logWriter.flush();
                     }
                 }
@@ -208,7 +213,7 @@ public class BossExecutionService {
      */
     private void ensureLogFileExists(File logFile) throws IOException {
         if (!logFile.getParentFile().exists()) {
-            logFile.getParentFile().mkdirs();
+            logFile.getParentFile()if (!.mkdirs()) { log.warn("创建目录失败"); }
         }
         if (!logFile.exists()) {
             logFile.createNewFile();
@@ -219,11 +224,11 @@ public class BossExecutionService {
      * 写入日志头部信息
      */
     private void writeLogHeader(FileWriter logWriter) throws IOException {
-        logWriter.write("=== Boss程序隔离执行环境 ===\n");
-        logWriter.write(formatTimestamp() + " - 隔离执行服务启动\n");
-        logWriter.write(formatTimestamp() + " - JVM版本: " + System.getProperty("java.version") + "\n");
-        logWriter.write(formatTimestamp() + " - 工作目录: " + System.getProperty("user.dir") + "\n");
-        logWriter.write(formatTimestamp() + " - 内存限制: 1GB\n");
+        logWriter.write("=== Boss程序隔离执行环境 ===%n");
+        logWriter.write(formatTimestamp() + " - 隔离执行服务启动%n");
+        logWriter.write(formatTimestamp() + " - JVM版本: " + System.getProperty("java.version") + "%n");
+        logWriter.write(formatTimestamp() + " - 工作目录: " + System.getProperty("user.dir") + "%n");
+        logWriter.write(formatTimestamp() + " - 内存限制: 1GB%n");
         logWriter.flush();
     }
 
@@ -231,16 +236,16 @@ public class BossExecutionService {
      * 写入错误日志
      */
     private void writeErrorLog(String logFilePath, Exception e) {
-        try (FileWriter writer = new FileWriter(logFilePath, true)) {
-            writer.write(formatTimestamp() + " - EXCEPTION: " + e.getMessage() + "\n");
-            writer.write(formatTimestamp() + " - EXCEPTION_TYPE: " + e.getClass().getSimpleName() + "\n");
+        try (FileWriter writer = new FileWriter(logFilePath, true, StandardCharsets.UTF_8)) {
+            writer.write(formatTimestamp() + " - EXCEPTION: " + e.getMessage() + "%n");
+            writer.write(formatTimestamp() + " - EXCEPTION_TYPE: " + e.getClass().getSimpleName() + "%n");
 
             if (e.getMessage().contains("Playwright")) {
-                writer.write(formatTimestamp() + " - TROUBLESHOOTING: Playwright浏览器初始化失败\n");
+                writer.write(formatTimestamp() + " - TROUBLESHOOTING: Playwright浏览器初始化失败%n");
             } else if (e.getMessage().contains("port")) {
-                writer.write(formatTimestamp() + " - TROUBLESHOOTING: 端口冲突检测\n");
+                writer.write(formatTimestamp() + " - TROUBLESHOOTING: 端口冲突检测%n");
             } else if (e.getMessage().contains("memory")) {
-                writer.write(formatTimestamp() + " - TROUBLESHOOTING: 内存不足检测\n");
+                writer.write(formatTimestamp() + " - TROUBLESHOOTING: 内存不足检测%n");
             }
 
             writer.flush();

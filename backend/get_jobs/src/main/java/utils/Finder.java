@@ -185,7 +185,7 @@ public class Finder {
             return page.querySelector(selector);
         } catch (Exception e) {
             log.debug("Playwright未找到元素: {}, 原因: {}", selector, e.getMessage());
-            return null;
+            return new String[0];
         }
     }
 

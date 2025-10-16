@@ -46,10 +46,10 @@ public class ResumeParser {
             log.info("开始解析简历，文本长度: {}", resumeText.length());
             
             // 构建用户提示词
-            String userPrompt = String.format("简历文本：\n%s\n\n请输出JSON格式的解析结果。", resumeText);
+            String userPrompt = String.format("简历文本：%n%s%n%n请输出JSON格式的解析结果。", resumeText);
             
             // 调用AI服务
-            String aiResponse = AiService.sendRequest(SYSTEM_PROMPT + "\n\n" + userPrompt);
+            String aiResponse = AiService.sendRequest(SYSTEM_PROMPT + "%n%n" + userPrompt);
             
             if (aiResponse == null || aiResponse.trim().isEmpty()) {
                 throw new RuntimeException("AI服务返回空响应");

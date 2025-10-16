@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -85,10 +86,10 @@ public class CandidateResumeService {
             log.info("【简历解析】开始解析简历，文本长度: {}", resumeText.length());
 
             // 构建User Prompt
-            String userPrompt = String.format("简历文本：\n%s\n\n请输出JSON格式的解析结果。", resumeText);
+            String userPrompt = String.format("简历文本：%n%s%n%n请输出JSON格式的解析结果。", resumeText);
 
             // 调用AI服务，temperature=0.3保证稳定性
-            String fullPrompt = RESUME_PARSE_SYSTEM_PROMPT + "\n\n" + userPrompt;
+            String fullPrompt = RESUME_PARSE_SYSTEM_PROMPT + "%n%n" + userPrompt;
             String aiResponse = AiService.sendRequest(fullPrompt);
 
             if (aiResponse == null || aiResponse.trim().isEmpty()) {
@@ -123,7 +124,7 @@ public class CandidateResumeService {
             // 确保目录存在
             File file = new File(userResumePath);
             if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
+                if (!file.getParentFile().mkdirs()) { log.warn("创建目录失败: {}", file.getParentFile().getPath()); }
             }
 
             // 转换为格式化的JSON
@@ -131,7 +132,7 @@ public class CandidateResumeService {
             String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(candidate);
 
             // 写入文件
-            try (FileWriter writer = new FileWriter(file)) {
+            try (FileWriter writer = new FileWriter(file, StandardCharsets.UTF_8)) {
                 writer.write(jsonString);
             }
 
@@ -154,7 +155,7 @@ public class CandidateResumeService {
             File file = new File(userResumePath);
             if (!file.exists()) {
                 log.warn("【简历解析】用户简历文件不存在: {}", userResumePath);
-                return null;
+                return new String[0];
             }
 
             String jsonString = Files.readString(Paths.get(userResumePath));
@@ -167,7 +168,7 @@ public class CandidateResumeService {
 
         } catch (Exception e) {
             log.error("【简历解析】加载候选人信息失败", e);
-            return null;
+            return new String[0];
         }
     }
 
@@ -193,7 +194,7 @@ public class CandidateResumeService {
             String userResumePath = getCurrentUserResumePath();
             File file = new File(userResumePath);
             if (file.exists()) {
-                file.delete();
+                if (!file.delete()) { log.warn("删除文件失败: {}", file.getPath()); }
                 log.info("【简历解析】已删除用户简历: {}", userResumePath);
             }
         } catch (Exception e) {

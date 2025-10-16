@@ -32,7 +32,6 @@ public class StartAll {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
         // 定义Liepin任务
-        Runnable liepinTask = () -> {
             try {
                 log.info("正在执行 Liepin 任务，线程名称: {}", Thread.currentThread().getName());
                 executeTask("liepin.Liepin");
@@ -43,7 +42,6 @@ public class StartAll {
         };
 
         // 定义Job51任务
-        Runnable job51Task = () -> {
             try {
                 log.info("正在执行 Job51 任务，线程名称: {}", Thread.currentThread().getName());
                 executeTask("job51.Job51");

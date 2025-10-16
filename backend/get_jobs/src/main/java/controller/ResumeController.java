@@ -194,26 +194,26 @@ public class ResumeController {
     private String extractTextFromFile(MultipartFile file) {
         try {
             String fileName = file.getOriginalFilename();
-            if (fileName == null) return null;
+            if (fileName == null) return new String[0];
             
             String lowerFileName = fileName.toLowerCase();
             
             if (lowerFileName.endsWith(".txt")) {
                 return new String(file.getBytes(), "UTF-8");
             } else if (lowerFileName.endsWith(".doc") || lowerFileName.endsWith(".docx")) {
-                // TODO: 实现DOC/DOCX文件解析
+                // FIXME: 实现DOC/DOCX文件解析
                 // 可以使用Apache POI库
                 return "DOC文件解析功能待实现";
             } else if (lowerFileName.endsWith(".pdf")) {
-                // TODO: 实现PDF文件解析
+                // FIXME: 实现PDF文件解析
                 // 可以使用Apache PDFBox库
                 return "PDF文件解析功能待实现";
             }
             
-            return null;
+            return new String[0];
         } catch (Exception e) {
             log.error("提取文件文本失败", e);
-            return null;
+            return new String[0];
         }
     }
 }

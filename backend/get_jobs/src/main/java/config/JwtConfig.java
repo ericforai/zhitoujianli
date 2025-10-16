@@ -37,20 +37,20 @@ public class JwtConfig {
         // 1. 验证JWT_SECRET是否配置
         jwtSecret = dotenv.get("JWT_SECRET");
         if (jwtSecret == null || jwtSecret.isEmpty()) {
-            String errorMsg = "❌ 致命错误：JWT_SECRET未配置！应用无法启动。\n" +
-                            "请在.env文件中配置JWT_SECRET，例如：\n" +
+            String errorMsg = "❌ 致命错误：JWT_SECRET未配置！应用无法启动。%n" +
+                            "请在.env文件中配置JWT_SECRET，例如：%n" +
                             "JWT_SECRET=your-256-bit-secret-key-here";
             log.error(errorMsg);
             throw new IllegalStateException("JWT_SECRET未配置");
         }
 
         // 2. 验证JWT_SECRET长度（至少32字节，256位）
-        if (jwtSecret.getBytes().length < 32) {
+        if (jwtSecret.getBytes(StandardCharsets.UTF_8).length < 32) {
             String errorMsg = String.format(
-                "❌ 安全警告：JWT_SECRET长度不足！当前长度：%d字节，建议至少32字节（256位）\n" +
-                "建议使用以下命令生成安全的密钥：\n" +
+                "❌ 安全警告：JWT_SECRET长度不足！当前长度：%d字节，建议至少32字节（256位）%n" +
+                "建议使用以下命令生成安全的密钥：%n" +
                 "openssl rand -base64 32",
-                jwtSecret.getBytes().length
+                jwtSecret.getBytes(StandardCharsets.UTF_8).length
             );
             log.error(errorMsg);
             throw new IllegalStateException("JWT_SECRET长度不足，安全性低");
@@ -79,7 +79,7 @@ public class JwtConfig {
         }
 
         log.info("✅ JWT配置验证通过");
-        log.info("JWT密钥长度: {}字节", jwtSecret.getBytes().length);
+        log.info("JWT密钥长度: {}字节", jwtSecret.getBytes(StandardCharsets.UTF_8).length);
         log.info("JWT过期时间: {}毫秒 ({}小时)", jwtExpiration, jwtExpiration / 3600000.0);
     }
 
@@ -100,8 +100,8 @@ public class JwtConfig {
 
         for (String unsafeSecret : unsafeSecrets) {
             if (jwtSecret.toLowerCase().contains(unsafeSecret)) {
-                String errorMsg = "❌ 生产环境检测到不安全的JWT_SECRET！\n" +
-                                "密钥包含常见词汇或测试值，严禁在生产环境使用！\n" +
+                String errorMsg = "❌ 生产环境检测到不安全的JWT_SECRET！%n" +
+                                "密钥包含常见词汇或测试值，严禁在生产环境使用！%n" +
                                 "请立即更换为安全的随机密钥。";
                 log.error(errorMsg);
                 throw new IllegalStateException("生产环境JWT_SECRET不安全");

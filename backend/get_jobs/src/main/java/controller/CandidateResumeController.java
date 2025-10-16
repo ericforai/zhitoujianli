@@ -276,30 +276,30 @@ public class CandidateResumeController {
             """;
 
         StringBuilder userPrompt = new StringBuilder();
-        userPrompt.append("【候选人信息】\n");
-        userPrompt.append("姓名：").append(candidate.get("name")).append("\n");
-        userPrompt.append("当前职位：").append(candidate.get("current_title")).append("\n");
-        userPrompt.append("工作年限：").append(candidate.get("years_experience")).append("年\n");
+        userPrompt.append("【候选人信息】%n");
+        userPrompt.append("姓名：").append(candidate.get("name")).append("%n");
+        userPrompt.append("当前职位：").append(candidate.get("current_title")).append("%n");
+        userPrompt.append("工作年限：").append(candidate.get("years_experience")).append("年%n");
 
         @SuppressWarnings("unchecked")
         List<String> coreStrengths = (List<String>) candidate.get("core_strengths");
         if (coreStrengths != null && !coreStrengths.isEmpty()) {
-            userPrompt.append("核心优势：\n");
+            userPrompt.append("核心优势：%n");
             for (String strength : coreStrengths) {
-                userPrompt.append("- ").append(strength).append("\n");
+                userPrompt.append("- ").append(strength).append("%n");
             }
         }
 
         @SuppressWarnings("unchecked")
         List<String> skills = (List<String>) candidate.get("skills");
         if (skills != null && !skills.isEmpty()) {
-            userPrompt.append("技能：").append(String.join("、", skills)).append("\n");
+            userPrompt.append("技能：").append(String.join("、", skills)).append("%n");
         }
 
-        userPrompt.append("\n请生成通用的打招呼语。\n");
+        userPrompt.append("%n请生成通用的打招呼语。%n");
 
         // 调用AI服务
-        String fullPrompt = systemPrompt + "\n\n" + userPrompt.toString();
+        String fullPrompt = systemPrompt + "%n%n" + userPrompt.toString();
         String aiResponse = AiService.sendRequest(fullPrompt);
 
         if (aiResponse == null || aiResponse.trim().isEmpty()) {

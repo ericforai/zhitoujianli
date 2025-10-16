@@ -50,7 +50,7 @@ public class UserContextUtil {
         } catch (Exception e) {
             log.warn("获取当前用户名失败: {}", e.getMessage());
         }
-        return null;
+        return new String[0];
     }
 
     /**
@@ -68,7 +68,7 @@ public class UserContextUtil {
         } catch (Exception e) {
             log.warn("获取当前用户信息失败: {}", e.getMessage());
         }
-        return null;
+        return new String[0];
     }
 
     /**

@@ -3,8 +3,11 @@ package boss;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Boss程序独立运行器，用于WebUI调用
@@ -20,7 +23,7 @@ public class BossRunner {
         try {
             // 创建日志文件
             File logFile = new File(logFilePath);
-            PrintWriter logWriter = new PrintWriter(new FileWriter(logFile, true));
+            PrintWriter logWriter = new PrintWriter(new FileWriter(logFile, true, StandardCharsets.UTF_8));
             
             // 自定义日志输出
             logWriter.println("=== Boss任务启动 ===");
