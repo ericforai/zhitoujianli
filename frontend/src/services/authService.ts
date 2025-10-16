@@ -232,10 +232,13 @@ export const authService = {
     email: string,
     password: string
   ): Promise<LoginResponse> => {
-    const response = await apiClient.post<LoginResponse>('/auth/login/email', {
-      email,
-      password,
-    });
+    const response = await apiClient.post<LoginResponse>(
+      '/api/auth/login/email',
+      {
+        email,
+        password,
+      }
+    );
 
     return handleLoginResponse(response.data);
   },
@@ -254,10 +257,13 @@ export const authService = {
    * 手机号验证码登录
    */
   loginByPhone: async (phone: string, code: string): Promise<LoginResponse> => {
-    const response = await apiClient.post<LoginResponse>('/auth/login/phone', {
-      phone,
-      code,
-    });
+    const response = await apiClient.post<LoginResponse>(
+      '/api/auth/login/phone',
+      {
+        phone,
+        code,
+      }
+    );
 
     return handleLoginResponse(response.data);
   },
@@ -269,7 +275,7 @@ export const authService = {
     email: string,
     verificationCode: string
   ): Promise<{ success: boolean; message: string }> => {
-    const response = await apiClient.post('/auth/verify-code', {
+    const response = await apiClient.post('/api/auth/verify-code', {
       email,
       code: verificationCode,
     });
@@ -298,7 +304,7 @@ export const authService = {
     password: string,
     username?: string
   ): Promise<{ success: boolean; message: string; userId?: string }> => {
-    const response = await apiClient.post('/auth/register', {
+    const response = await apiClient.post('/api/auth/register', {
       email,
       password,
       username,
@@ -314,7 +320,7 @@ export const authService = {
     password: string,
     username?: string
   ): Promise<{ success: boolean; message: string; userId?: string }> => {
-    const response = await apiClient.post('/auth/register/phone', {
+    const response = await apiClient.post('/api/auth/register/phone', {
       phone,
       password,
       username,
