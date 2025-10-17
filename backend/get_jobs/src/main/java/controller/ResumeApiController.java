@@ -8,9 +8,8 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.extractor.WordExtractor;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import ai.CandidateResumeService;
 import ai.ResumeParser;
-import ai.SmartGreetingService;
 import dto.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 
@@ -213,7 +211,7 @@ public class ResumeApiController {
     private String extractTextFromFile(MultipartFile file) throws IOException {
         String fileName = file.getOriginalFilename();
         if (fileName == null) {
-            return new String[0];
+            return "";
         }
 
         String lowerFileName = fileName.toLowerCase();
@@ -237,7 +235,7 @@ public class ResumeApiController {
             }
         }
 
-        return new String[0];
+        return "";
     }
 
     /**

@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * 智能简历解析与岗位打招呼语生成控制器
- * 
+ *
  * @author AI Assistant
  */
 @RestController
@@ -31,12 +31,12 @@ public class ResumeController {
 
     /**
      * Stage A - 简历解析接口
-     * 
+     *
      * @param resumeText 简历文本
      * @return 解析后的候选人信息
      */
     @PostMapping("/parse_resume")
-    @CheckQuota(quotaKey = "ai_resume_optimize_monthly", amount = 1, 
+    @CheckQuota(quotaKey = "ai_resume_optimize_monthly", amount = 1,
                 message = "AI简历优化配额已用完，请升级套餐或等待下月重置")
     public ResponseEntity<Map<String, Object>> parseResume(@RequestBody Map<String, String> request) {
         try {
@@ -49,18 +49,18 @@ public class ResumeController {
             }
 
             log.info("开始解析简历，文本长度: {}", resumeText.length());
-            
+
             // 调用AI解析简历
             Map<String, Object> candidateInfo = resumeParser.parseResume(resumeText);
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("data", candidateInfo);
             response.put("message", "简历解析成功");
-            
+
             log.info("简历解析完成: {}", candidateInfo.get("name"));
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             log.error("简历解析失败", e);
             Map<String, Object> response = new HashMap<>();
@@ -72,7 +72,7 @@ public class ResumeController {
 
     /**
      * Stage B - JD匹配与打招呼语生成
-     * 
+     *
      * @param request 包含候选人信息和岗位JD的请求
      * @return 生成的打招呼语
      */
@@ -94,18 +94,18 @@ public class ResumeController {
             }
 
             log.info("开始生成打招呼语，候选人: {}, 模式: {}", candidate.get("name"), mode);
-            
+
             // 调用AI生成打招呼语
             Map<String, Object> greetings = greetingGenerator.generateGreetings(candidate, jobDescription, mode);
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("data", greetings);
             response.put("message", "打招呼语生成成功");
-            
+
             log.info("打招呼语生成完成");
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             log.error("打招呼语生成失败", e);
             Map<String, Object> response = new HashMap<>();
@@ -117,7 +117,7 @@ public class ResumeController {
 
     /**
      * 文件上传接口（支持txt/doc/pdf）
-     * 
+     *
      * @param file 上传的简历文件
      * @return 解析后的候选人信息
      */
@@ -135,7 +135,7 @@ public class ResumeController {
 
             String fileName = file.getOriginalFilename();
             String contentType = file.getContentType();
-            
+
             log.info("上传简历文件: {}, 类型: {}, 大小: {} bytes", fileName, contentType, file.getSize());
 
             // 检查文件类型
@@ -157,15 +157,15 @@ public class ResumeController {
 
             // 调用简历解析
             Map<String, Object> candidateInfo = resumeParser.parseResume(resumeText);
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("data", candidateInfo);
             response.put("message", "简历文件解析成功");
-            
+
             log.info("简历文件解析完成: {}", candidateInfo.get("name"));
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             log.error("简历文件上传解析失败", e);
             Map<String, Object> response = new HashMap<>();
@@ -180,11 +180,11 @@ public class ResumeController {
      */
     private boolean isValidResumeFile(String fileName, String contentType) {
         if (fileName == null) return false;
-        
+
         String lowerFileName = fileName.toLowerCase();
-        return lowerFileName.endsWith(".txt") || 
-               lowerFileName.endsWith(".doc") || 
-               lowerFileName.endsWith(".docx") || 
+        return lowerFileName.endsWith(".txt") ||
+               lowerFileName.endsWith(".doc") ||
+               lowerFileName.endsWith(".docx") ||
                lowerFileName.endsWith(".pdf");
     }
 
@@ -194,10 +194,10 @@ public class ResumeController {
     private String extractTextFromFile(MultipartFile file) {
         try {
             String fileName = file.getOriginalFilename();
-            if (fileName == null) return new String[0];
-            
+            if (fileName == null) return "";
+
             String lowerFileName = fileName.toLowerCase();
-            
+
             if (lowerFileName.endsWith(".txt")) {
                 return new String(file.getBytes(), "UTF-8");
             } else if (lowerFileName.endsWith(".doc") || lowerFileName.endsWith(".docx")) {
@@ -209,11 +209,11 @@ public class ResumeController {
                 // 可以使用Apache PDFBox库
                 return "PDF文件解析功能待实现";
             }
-            
-            return new String[0];
+
+            return "";
         } catch (Exception e) {
             log.error("提取文件文本失败", e);
-            return new String[0];
+            return "";
         }
     }
 }

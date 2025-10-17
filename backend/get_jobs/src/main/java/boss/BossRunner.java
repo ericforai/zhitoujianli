@@ -24,7 +24,7 @@ public class BossRunner {
         try {
             // 创建日志文件
             File logFile = new File(logFilePath);
-            PrintWriter logWriter = new PrintWriter(new FileWriter(logFile, true, StandardCharsets.UTF_8));
+            PrintWriter logWriter = new PrintWriter(new FileWriter(logFile, StandardCharsets.UTF_8, true));
 
             // 自定义日志输出
             logWriter.println("=== Boss任务启动 ===");

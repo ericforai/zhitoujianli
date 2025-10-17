@@ -48,6 +48,8 @@ import com.microsoft.playwright.Page;
 import ai.AiConfig;
 import ai.AiFilter;
 import ai.AiService;
+import ai.CandidateResumeService;
+import ai.SmartGreetingService;
 import lombok.SneakyThrows;
 import utils.Job;
 import utils.JobUtils;
@@ -83,8 +85,11 @@ public class Boss {
             File dataFile = new File(dataPath);
             if (!dataFile.exists()) {
                 // 确保父目录存在
-                if (!dataFile.getParentFile().exists()) {
-                    dataFile.getParentFile()if (!.mkdirs()) { log.warn("创建目录失败"); }
+                File parentDir = dataFile.getParentFile();
+                if (parentDir != null && !parentDir.exists()) {
+                    if (!parentDir.mkdirs()) {
+                        log.warn("创建目录失败");
+                    }
                 }
                 // 创建文件并写入初始JSON结构
                 Map<String, Set<String>> initialData = new HashMap<>();
@@ -100,8 +105,11 @@ public class Boss {
             File cookieFile = new File(cookiePath);
             if (!cookieFile.exists()) {
                 // 确保父目录存在
-                if (!cookieFile.getParentFile().exists()) {
-                    cookieFile.getParentFile()if (!.mkdirs()) { log.warn("创建目录失败"); }
+                File parentDir = cookieFile.getParentFile();
+                if (parentDir != null && !parentDir.exists()) {
+                    if (!parentDir.mkdirs()) {
+                        log.warn("创建目录失败");
+                    }
                 }
                 // 创建空的cookie文件
                 Files.write(Paths.get(cookiePath), "[]".getBytes(StandardCharsets.UTF_8));
@@ -405,7 +413,7 @@ public class Boss {
     private static String getSearchUrl(String cityCode) {
         return baseUrl + JobUtils.appendParam("city", cityCode) +
                 JobUtils.appendParam("jobType", config.getJobType()) +
-                JobUtils.appendParam("salary", config.getSalary()) +
+                JobUtils.appendListParam("salary", config.getSalary()) +
                 JobUtils.appendListParam("experience", config.getExperience()) +
                 JobUtils.appendListParam("degree", config.getDegree()) +
                 JobUtils.appendListParam("scale", config.getScale()) +
@@ -1135,7 +1143,7 @@ public class Boss {
      * 优先使用智能AI生成，失败时回退到默认招呼语
      */
     private static String generateGreetingMessage(String keyword, Job job, String fullJobDescription) {
-        String sayHi = config.getSayHi().replaceAll("[\\r\%n]", "");
+        String sayHi = config.getSayHi().replaceAll("[\\r\\n]", "");
 
         // 检查是否启用智能打招呼
         if (config.getEnableSmartGreeting() == null || !config.getEnableSmartGreeting()) {
@@ -1231,7 +1239,7 @@ public class Boss {
 
             if (result.isEmpty()) {
                 log.warn("【完整JD】未能抓取到任何岗位描述内容");
-                return new String[0];
+                return "";
             }
 
             log.info("【完整JD】抓取成功，总长度: {}字", result.length());
@@ -1239,7 +1247,7 @@ public class Boss {
 
         } catch (Exception e) {
             log.error("【完整JD】抓取失败: {}", e.getMessage());
-            return new String[0];
+            return "";
         }
     }
 
@@ -1251,7 +1259,7 @@ public class Boss {
         } catch (Exception e) {
             log.error("薪资解析异常！{}", e.getMessage(), e);
         }
-        return new String[0];
+        return new Integer[0];
     }
 
     private static boolean isLimit(com.microsoft.playwright.Page page) {

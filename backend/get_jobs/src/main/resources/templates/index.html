@@ -90,9 +90,6 @@
           <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
               <h6 class="mb-0">投递状态</h6>
-              <a href="/resume-manager" class="btn btn-sm btn-primary">
-                <i class="bi bi-person-badge"></i> 简历管理
-              </a>
             </div>
             <div class="card-body">
               <div class="d-flex align-items-center mb-2">
@@ -336,90 +333,130 @@
               </div>
             </div>
 
-             <!-- 简历管理 -->
-             <div class="tab-pane fade" id="resume" role="tabpanel">
-               <div class="config-section">
-                 <h5><i class="bi bi-file-earmark-person"></i> 简历管理</h5>
+            <!-- 简历管理 -->
+            <div class="tab-pane fade" id="resume" role="tabpanel">
+              <div class="config-section">
+                <h5><i class="bi bi-file-earmark-person"></i> 简历管理</h5>
 
-                 <!-- 简历上传区域 -->
-                 <div class="card border-0 shadow-sm mb-4">
-                   <div class="card-body p-4">
-                     <h5 class="card-title mb-4">
-                       <i class="bi bi-cloud-upload"></i> 上传简历
-                     </h5>
+                <!-- 简历上传区域 -->
+                <div class="card border-0 shadow-sm mb-4">
+                  <div class="card-body p-4">
+                    <h5 class="card-title mb-4"><i class="bi bi-cloud-upload"></i> 上传简历</h5>
 
-                     <!-- 文件上传 -->
-                     <div class="upload-area" id="uploadArea" style="border: 3px dashed #dee2e6; border-radius: 15px; padding: 60px 40px; text-align: center; transition: all 0.3s ease; cursor: pointer; background: #f8f9fa;">
-                       <i class="bi bi-file-earmark-arrow-up fs-1 text-primary"></i>
-                       <h4 class="mt-3">拖拽文件到此处或点击上传</h4>
-                       <p class="text-muted">
-                         <strong class="text-success">✅ 支持 TXT、PDF、DOC、DOCX 格式</strong><br>
-                         <small>文件大小不超过 10MB | AI自动提取文本内容</small>
-                       </p>
-                       <input type="file" id="fileInput" class="d-none" accept=".txt,.pdf,.doc,.docx">
-                     </div>
+                    <!-- 文件上传 -->
+                    <div
+                      class="upload-area"
+                      id="uploadArea"
+                      style="
+                        border: 3px dashed #dee2e6;
+                        border-radius: 15px;
+                        padding: 60px 40px;
+                        text-align: center;
+                        transition: all 0.3s ease;
+                        cursor: pointer;
+                        background: #f8f9fa;
+                      "
+                    >
+                      <i class="bi bi-file-earmark-arrow-up fs-1 text-primary"></i>
+                      <h4 class="mt-3">拖拽文件到此处或点击上传</h4>
+                      <p class="text-muted">
+                        <strong class="text-success">✅ 支持 TXT、PDF、DOC、DOCX 格式</strong><br />
+                        <small>文件大小不超过 10MB | AI自动提取文本内容</small>
+                      </p>
+                      <input
+                        type="file"
+                        id="fileInput"
+                        class="d-none"
+                        accept=".txt,.pdf,.doc,.docx"
+                      />
+                    </div>
 
-                     <!-- 文本输入 -->
-                     <div class="mt-4">
-                       <label for="resumeText" class="form-label fw-bold">
-                         <i class="bi bi-pencil-square"></i> 或直接粘贴简历文本：
-                       </label>
-                       <textarea class="form-control" id="resumeText" rows="12"
-                         placeholder="请粘贴您的简历内容...&#10;&#10;建议包含：&#10;- 个人信息（姓名、职位）&#10;- 工作经历（公司、职位、年限）&#10;- 核心技能&#10;- 主要成就&#10;- 教育背景"></textarea>
-                     </div>
+                    <!-- 文本输入 -->
+                    <div class="mt-4">
+                      <label for="resumeText" class="form-label fw-bold">
+                        <i class="bi bi-pencil-square"></i> 或直接粘贴简历文本：
+                      </label>
+                      <textarea
+                        class="form-control"
+                        id="resumeText"
+                        rows="12"
+                        placeholder="请粘贴您的简历内容...&#10;&#10;建议包含：&#10;- 个人信息（姓名、职位）&#10;- 工作经历（公司、职位、年限）&#10;- 核心技能&#10;- 主要成就&#10;- 教育背景"
+                      ></textarea>
+                    </div>
 
-                     <div class="mt-4 d-flex gap-3">
-                       <button class="btn btn-primary btn-lg" id="parseBtn" onclick="parseResume()">
-                         <i class="bi bi-cpu"></i> AI解析简历
-                       </button>
-                       <button class="btn btn-outline-danger" id="deleteBtn" onclick="deleteResume()" style="display:none;">
-                         <i class="bi bi-trash"></i> 删除简历
-                       </button>
-                     </div>
-                   </div>
-                 </div>
+                    <div class="mt-4 d-flex gap-3">
+                      <button class="btn btn-primary btn-lg" id="parseBtn" onclick="parseResume()">
+                        <i class="bi bi-cpu"></i> AI解析简历
+                      </button>
+                      <button
+                        class="btn btn-outline-danger"
+                        id="deleteBtn"
+                        onclick="deleteResume()"
+                        style="display: none"
+                      >
+                        <i class="bi bi-trash"></i> 删除简历
+                      </button>
+                    </div>
+                  </div>
+                </div>
 
-                 <!-- 解析结果展示 -->
-                 <div id="parseResult" style="display: none;">
-                   <div class="candidate-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px; padding: 30px; margin-bottom: 30px;">
-                     <h4 class="mb-3">
-                       <i class="bi bi-person-check-fill"></i>
-                       解析结果
-                     </h4>
-                     <div id="candidateInfo">
-                       <!-- 候选人信息将在这里显示 -->
-                     </div>
-                   </div>
+                <!-- 解析结果展示 -->
+                <div id="parseResult" style="display: none">
+                  <div
+                    class="candidate-card"
+                    style="
+                      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                      color: white;
+                      border-radius: 15px;
+                      padding: 30px;
+                      margin-bottom: 30px;
+                    "
+                  >
+                    <h4 class="mb-3">
+                      <i class="bi bi-person-check-fill"></i>
+                      解析结果
+                    </h4>
+                    <div id="candidateInfo">
+                      <!-- 候选人信息将在这里显示 -->
+                    </div>
+                  </div>
 
-                   <!-- AI生成默认打招呼语 -->
-                   <div class="card border-0 shadow-sm">
-                     <div class="card-body p-4">
-                       <h5 class="card-title mb-3">
-                         <i class="bi bi-chat-heart-fill text-success"></i>
-                         AI生成的默认打招呼语
-                       </h5>
-                       <div class="alert alert-info">
-                         <i class="bi bi-info-circle"></i>
-                         <strong>说明：</strong>基于您的简历，AI已生成一段通用的打招呼语。您可以直接使用，也可以根据需要修改。
-                       </div>
-                       <div class="mb-3">
-                         <label for="defaultGreeting" class="form-label fw-bold">默认打招呼语：</label>
-                         <textarea class="form-control" id="defaultGreeting" rows="6"
-                           placeholder="AI正在生成中..."></textarea>
-                       </div>
-                       <div class="d-flex gap-2">
-                         <button class="btn btn-primary" onclick="saveDefaultGreeting()">
-                           <i class="bi bi-save"></i> 保存为默认招呼语
-                         </button>
-                         <button class="btn btn-outline-primary" onclick="regenerateGreeting()">
-                           <i class="bi bi-arrow-clockwise"></i> 重新生成
-                         </button>
-                       </div>
-                     </div>
-                   </div>
-                 </div>
-               </div>
-             </div>
+                  <!-- AI生成默认打招呼语 -->
+                  <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                      <h5 class="card-title mb-3">
+                        <i class="bi bi-chat-heart-fill text-success"></i>
+                        AI生成的默认打招呼语
+                      </h5>
+                      <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>说明：</strong
+                        >基于您的简历，AI已生成一段通用的打招呼语。您可以直接使用，也可以根据需要修改。
+                      </div>
+                      <div class="mb-3">
+                        <label for="defaultGreeting" class="form-label fw-bold"
+                          >默认打招呼语：</label
+                        >
+                        <textarea
+                          class="form-control"
+                          id="defaultGreeting"
+                          rows="6"
+                          placeholder="AI正在生成中..."
+                        ></textarea>
+                      </div>
+                      <div class="d-flex gap-2">
+                        <button class="btn btn-primary" onclick="saveDefaultGreeting()">
+                          <i class="bi bi-save"></i> 保存为默认招呼语
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="regenerateGreeting()">
+                          <i class="bi bi-arrow-clockwise"></i> 重新生成
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <!-- 运行日志 -->
             <div class="tab-pane fade" id="logs" role="tabpanel">
@@ -451,28 +488,51 @@
       </div>
     </div>
 
-     <!-- 消息提示 -->
-     <div class="toast-container position-fixed bottom-0 end-0 p-3">
-       <div id="messageToast" class="toast" role="alert">
-         <div class="toast-header">
-           <i class="bi bi-info-circle text-primary me-2"></i>
-           <strong class="me-auto">系统消息</strong>
-           <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
-         </div>
-         <div class="toast-body" id="toastMessage">消息内容</div>
-       </div>
-     </div>
+    <!-- 消息提示 -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+      <div id="messageToast" class="toast" role="alert">
+        <div class="toast-header">
+          <i class="bi bi-info-circle text-primary me-2"></i>
+          <strong class="me-auto">系统消息</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body" id="toastMessage">消息内容</div>
+      </div>
+    </div>
 
-     <!-- 加载提示 -->
-     <div class="loading" id="loading" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999;">
-       <div class="loading-content" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white;">
-         <div class="spinner-border text-light mb-3" role="status" style="width: 3rem; height: 3rem;">
-           <span class="visually-hidden">处理中...</span>
-         </div>
-         <h4 id="loadingText">AI正在处理中，请稍候...</h4>
-         <p class="text-light">这可能需要10-30秒</p>
-       </div>
-     </div>
+    <!-- 加载提示 -->
+    <div
+      class="loading"
+      id="loading"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 9999;
+      "
+    >
+      <div
+        class="loading-content"
+        style="
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          text-align: center;
+          color: white;
+        "
+      >
+        <div class="spinner-border text-light mb-3" role="status" style="width: 3rem; height: 3rem">
+          <span class="visually-hidden">处理中...</span>
+        </div>
+        <h4 id="loadingText">AI正在处理中，请稍候...</h4>
+        <p class="text-light">这可能需要10-30秒</p>
+      </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -795,236 +855,240 @@
         // 每2秒刷新一次日志
         setInterval(refreshLogs, 2000);
 
-         // 初始化简历管理功能
-         initializeResumeEventListeners();
-         checkExistingResume();
+        // 初始化简历管理功能
+        initializeResumeEventListeners();
+        checkExistingResume();
       });
 
-       // 简历管理相关函数 - 完全移植自resume-manager页面
-       let candidateData = null;
+      // 简历管理相关函数 - 完全移植自resume-manager页面
+      let candidateData = null;
 
-       // 初始化简历管理事件监听器
-       function initializeResumeEventListeners() {
-         console.log('初始化简历管理事件监听器...');
+      // 初始化简历管理事件监听器
+      function initializeResumeEventListeners() {
+        console.log('初始化简历管理事件监听器...');
 
-         // 文件上传点击事件
-         const uploadArea = document.getElementById('uploadArea');
-         if (uploadArea) {
-           uploadArea.addEventListener('click', function() {
-             console.log('点击上传区域');
-             document.getElementById('fileInput').click();
-           });
-         }
+        // 文件上传点击事件
+        const uploadArea = document.getElementById('uploadArea');
+        if (uploadArea) {
+          uploadArea.addEventListener('click', function () {
+            console.log('点击上传区域');
+            document.getElementById('fileInput').click();
+          });
+        }
 
-         // 文件选择事件
-         const fileInput = document.getElementById('fileInput');
-         if (fileInput) {
-           fileInput.addEventListener('change', function(event) {
-             console.log('文件选择事件触发');
-             handleFileUpload(event);
-           });
-         }
+        // 文件选择事件
+        const fileInput = document.getElementById('fileInput');
+        if (fileInput) {
+          fileInput.addEventListener('change', function (event) {
+            console.log('文件选择事件触发');
+            handleFileUpload(event);
+          });
+        }
 
-         // 拖拽事件
-         if (uploadArea) {
-           uploadArea.addEventListener('dragover', function(e) {
-             e.preventDefault();
-             console.log('拖拽中...');
-             uploadArea.classList.add('dragover');
-           });
+        // 拖拽事件
+        if (uploadArea) {
+          uploadArea.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            console.log('拖拽中...');
+            uploadArea.classList.add('dragover');
+          });
 
-           uploadArea.addEventListener('dragleave', function() {
-             console.log('拖拽离开');
-             uploadArea.classList.remove('dragover');
-           });
+          uploadArea.addEventListener('dragleave', function () {
+            console.log('拖拽离开');
+            uploadArea.classList.remove('dragover');
+          });
 
-           uploadArea.addEventListener('drop', function(e) {
-             e.preventDefault();
-             console.log('文件拖放');
-             uploadArea.classList.remove('dragover');
-             const files = e.dataTransfer.files;
-             if (files.length > 0) {
-               console.log('拖放文件:', files[0].name);
-               handleFileUpload({ target: { files: files } });
-             }
-           });
-         }
+          uploadArea.addEventListener('drop', function (e) {
+            e.preventDefault();
+            console.log('文件拖放');
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+              console.log('拖放文件:', files[0].name);
+              handleFileUpload({ target: { files: files } });
+            }
+          });
+        }
 
-         console.log('简历管理事件监听器初始化完成');
-       }
+        console.log('简历管理事件监听器初始化完成');
+      }
 
-       // 检查是否已有简历
-       function checkExistingResume() {
-         fetch('/api/candidate-resume/check')
-           .then(response => response.json())
-           .then(data => {
-             if (data.success && data.hasResume) {
-               // 加载已有简历
-               loadExistingResume();
-             }
-           })
-           .catch(error => {
-             console.error('Error:', error);
-           });
-       }
+      // 检查是否已有简历
+      function checkExistingResume() {
+        fetch('/api/candidate-resume/check')
+          .then(response => response.json())
+          .then(data => {
+            if (data.success && data.hasResume) {
+              // 加载已有简历
+              loadExistingResume();
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+      }
 
-       // 加载已有简历
-       function loadExistingResume() {
-         console.log('加载已有简历...');
-         fetch('/api/candidate-resume/load')
-           .then(response => response.json())
-           .then(data => {
-             console.log('简历加载结果:', data);
-             if (data.success) {
-               candidateData = data.data;
-               displayCandidateInfo(candidateData);
-               document.getElementById('deleteBtn').style.display = 'inline-block';
-             }
-           })
-           .catch(error => {
-             console.error('加载简历错误:', error);
-           });
-       }
+      // 加载已有简历
+      function loadExistingResume() {
+        console.log('加载已有简历...');
+        fetch('/api/candidate-resume/load')
+          .then(response => response.json())
+          .then(data => {
+            console.log('简历加载结果:', data);
+            if (data.success) {
+              candidateData = data.data;
+              displayCandidateInfo(candidateData);
+              document.getElementById('deleteBtn').style.display = 'inline-block';
+            }
+          })
+          .catch(error => {
+            console.error('加载简历错误:', error);
+          });
+      }
 
-       // 处理文件上传
-       function handleFileUpload(event) {
-         const file = event.target.files[0];
-         if (!file) {
-           console.log('没有选择文件');
-           return;
-         }
+      // 处理文件上传
+      function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) {
+          console.log('没有选择文件');
+          return;
+        }
 
-         console.log('选择的文件:', file.name, '大小:', file.size, '类型:', file.type);
+        console.log('选择的文件:', file.name, '大小:', file.size, '类型:', file.type);
 
-         // 检查文件大小（10MB）
-         if (file.size > 10 * 1024 * 1024) {
-           alert('文件过大，请上传小于10MB的文件');
-           return;
-         }
+        // 检查文件大小（10MB）
+        if (file.size > 10 * 1024 * 1024) {
+          alert('文件过大，请上传小于10MB的文件');
+          return;
+        }
 
-         // 检查文件类型
-         const fileName = file.name.toLowerCase();
-         if (!fileName.endsWith('.txt') && !fileName.endsWith('.pdf') &&
-             !fileName.endsWith('.doc') && !fileName.endsWith('.docx')) {
-           alert('❌ 不支持的文件格式\n\n支持的格式：TXT、PDF、DOC、DOCX\n请上传正确格式的简历文件');
-           return;
-         }
+        // 检查文件类型
+        const fileName = file.name.toLowerCase();
+        if (
+          !fileName.endsWith('.txt') &&
+          !fileName.endsWith('.pdf') &&
+          !fileName.endsWith('.doc') &&
+          !fileName.endsWith('.docx')
+        ) {
+          alert('❌ 不支持的文件格式\n\n支持的格式：TXT、PDF、DOC、DOCX\n请上传正确格式的简历文件');
+          return;
+        }
 
-         const formData = new FormData();
-         formData.append('file', file);
+        const formData = new FormData();
+        formData.append('file', file);
 
-         console.log('开始上传文件...');
-         showLoading('正在上传文件并解析简历...');
+        console.log('开始上传文件...');
+        showLoading('正在上传文件并解析简历...');
 
-         fetch('/api/candidate-resume/upload', {
-           method: 'POST',
-           body: formData
-         })
-         .then(response => {
-           console.log('收到响应，状态:', response.status);
-           return response.json();
-         })
-         .then(data => {
-           console.log('解析响应数据:', data);
-           hideLoading();
-           if (data.success) {
-             candidateData = data.data;
-             displayCandidateInfo(candidateData);
-             document.getElementById('deleteBtn').style.display = 'inline-block';
+        fetch('/api/candidate-resume/upload', {
+          method: 'POST',
+          body: formData,
+        })
+          .then(response => {
+            console.log('收到响应，状态:', response.status);
+            return response.json();
+          })
+          .then(data => {
+            console.log('解析响应数据:', data);
+            hideLoading();
+            if (data.success) {
+              candidateData = data.data;
+              displayCandidateInfo(candidateData);
+              document.getElementById('deleteBtn').style.display = 'inline-block';
 
-             // 生成默认打招呼语
-             generateDefaultGreeting(candidateData);
+              // 生成默认打招呼语
+              generateDefaultGreeting(candidateData);
 
-             alert('简历解析成功！');
-           } else {
-             alert('文件解析失败：' + data.message);
-           }
-         })
-         .catch(error => {
-           hideLoading();
-           console.error('上传错误:', error);
-           alert('文件上传失败：' + error.message);
-         });
+              alert('简历解析成功！');
+            } else {
+              alert('文件解析失败：' + data.message);
+            }
+          })
+          .catch(error => {
+            hideLoading();
+            console.error('上传错误:', error);
+            alert('文件上传失败：' + error.message);
+          });
 
-         // 重置文件输入，允许重新选择相同文件
-         event.target.value = '';
-       }
+        // 重置文件输入，允许重新选择相同文件
+        event.target.value = '';
+      }
 
-       // 解析简历文本
-       function parseResume() {
-         const resumeText = document.getElementById('resumeText').value.trim();
-         if (!resumeText) {
-           alert('请输入简历文本');
-           return;
-         }
+      // 解析简历文本
+      function parseResume() {
+        const resumeText = document.getElementById('resumeText').value.trim();
+        if (!resumeText) {
+          alert('请输入简历文本');
+          return;
+        }
 
-         showLoading('AI正在解析简历...');
+        showLoading('AI正在解析简历...');
 
-         fetch('/api/candidate-resume/parse', {
-           method: 'POST',
-           headers: {
-             'Content-Type': 'application/json',
-           },
-           body: JSON.stringify({ resume_text: resumeText })
-         })
-         .then(response => response.json())
-         .then(data => {
-           hideLoading();
-           if (data.success) {
-             candidateData = data.data;
-             displayCandidateInfo(candidateData);
-             document.getElementById('deleteBtn').style.display = 'inline-block';
+        fetch('/api/candidate-resume/parse', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ resume_text: resumeText }),
+        })
+          .then(response => response.json())
+          .then(data => {
+            hideLoading();
+            if (data.success) {
+              candidateData = data.data;
+              displayCandidateInfo(candidateData);
+              document.getElementById('deleteBtn').style.display = 'inline-block';
 
-             // 生成默认打招呼语
-             generateDefaultGreeting(candidateData);
-           } else {
-             alert('简历解析失败：' + data.message);
-           }
-         })
-         .catch(error => {
-           hideLoading();
-           console.error('Error:', error);
-           alert('简历解析失败：' + error.message);
-         });
-       }
+              // 生成默认打招呼语
+              generateDefaultGreeting(candidateData);
+            } else {
+              alert('简历解析失败：' + data.message);
+            }
+          })
+          .catch(error => {
+            hideLoading();
+            console.error('Error:', error);
+            alert('简历解析失败：' + error.message);
+          });
+      }
 
-       // 删除简历
-       function deleteResume() {
-         if (!confirm('确定要删除已保存的简历吗？')) {
-           return;
-         }
+      // 删除简历
+      function deleteResume() {
+        if (!confirm('确定要删除已保存的简历吗？')) {
+          return;
+        }
 
-         fetch('/api/candidate-resume/delete', {
-           method: 'POST'
-         })
-         .then(response => response.json())
-         .then(data => {
-           if (data.success) {
-             alert('简历已删除');
-             candidateData = null;
-             document.getElementById('parseResult').style.display = 'none';
-             document.getElementById('deleteBtn').style.display = 'none';
-             document.getElementById('resumeText').value = '';
-           } else {
-             alert('删除失败：' + data.message);
-           }
-         })
-         .catch(error => {
-           console.error('Error:', error);
-           alert('删除失败：' + error.message);
-         });
-       }
+        fetch('/api/candidate-resume/delete', {
+          method: 'POST',
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              alert('简历已删除');
+              candidateData = null;
+              document.getElementById('parseResult').style.display = 'none';
+              document.getElementById('deleteBtn').style.display = 'none';
+              document.getElementById('resumeText').value = '';
+            } else {
+              alert('删除失败：' + data.message);
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('删除失败：' + error.message);
+          });
+      }
 
-       // 显示候选人信息
-       function displayCandidateInfo(candidate) {
-         console.log('显示候选人信息:', candidate);
-         const candidateInfo = document.getElementById('candidateInfo');
-         if (!candidateInfo) {
-           console.error('未找到candidateInfo元素');
-           return;
-         }
-         console.log('开始渲染候选人信息...');
-         candidateInfo.innerHTML = `
+      // 显示候选人信息
+      function displayCandidateInfo(candidate) {
+        console.log('显示候选人信息:', candidate);
+        const candidateInfo = document.getElementById('candidateInfo');
+        if (!candidateInfo) {
+          console.error('未找到candidateInfo元素');
+          return;
+        }
+        console.log('开始渲染候选人信息...');
+        candidateInfo.innerHTML = `
            <div class="row">
              <div class="col-md-6">
                <h5><i class="bi bi-person-circle"></i> 候选人信息</h5>
@@ -1036,104 +1100,110 @@
              <div class="col-md-6">
                <h6><i class="bi bi-stars"></i> 核心优势：</h6>
                <div class="mb-3">
-                 ${(candidate.core_strengths || []).map(strength =>
-                   `<span class="strength-tag" style="display: inline-block; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; margin: 5px; font-size: 0.9em; backdrop-filter: blur(10px);">${strength}</span>`
-                 ).join('')}
+                 ${(candidate.core_strengths || [])
+                   .map(
+                     strength =>
+                       `<span class="strength-tag" style="display: inline-block; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; margin: 5px; font-size: 0.9em; backdrop-filter: blur(10px);">${strength}</span>`
+                   )
+                   .join('')}
                </div>
                <h6><i class="bi bi-tools"></i> 技能：</h6>
                <div>
-                 ${(candidate.skills || []).map(skill =>
-                   `<span class="skill-badge" style="background: white; color: #667eea; padding: 6px 12px; border-radius: 15px; margin: 3px; font-size: 0.85em; display: inline-block;">${skill}</span>`
-                 ).join('')}
+                 ${(candidate.skills || [])
+                   .map(
+                     skill =>
+                       `<span class="skill-badge" style="background: white; color: #667eea; padding: 6px 12px; border-radius: 15px; margin: 3px; font-size: 0.85em; display: inline-block;">${skill}</span>`
+                   )
+                   .join('')}
                </div>
              </div>
            </div>
          `;
-         console.log('候选人信息已渲染');
-         const parseResult = document.getElementById('parseResult');
-         if (parseResult) {
-           parseResult.style.display = 'block';
-           console.log('解析结果区域已显示');
-         } else {
-           console.error('未找到parseResult元素');
-         }
-       }
+        console.log('候选人信息已渲染');
+        const parseResult = document.getElementById('parseResult');
+        if (parseResult) {
+          parseResult.style.display = 'block';
+          console.log('解析结果区域已显示');
+        } else {
+          console.error('未找到parseResult元素');
+        }
+      }
 
-       // 生成默认打招呼语
-       function generateDefaultGreeting(candidate) {
-         showLoading('AI正在生成默认打招呼语...');
+      // 生成默认打招呼语
+      function generateDefaultGreeting(candidate) {
+        showLoading('AI正在生成默认打招呼语...');
 
-         fetch('/api/candidate-resume/generate-default-greeting', {
-           method: 'POST',
-           headers: {
-             'Content-Type': 'application/json',
-           },
-           body: JSON.stringify({ candidate: candidate })
-         })
-         .then(response => response.json())
-         .then(data => {
-           hideLoading();
-           if (data.success) {
-             document.getElementById('defaultGreeting').value = data.greeting;
-           } else {
-             console.error('生成默认打招呼语失败:', data.message);
-             document.getElementById('defaultGreeting').value = '生成失败，请稍后重试';
-           }
-         })
-         .catch(error => {
-           hideLoading();
-           console.error('Error:', error);
-           document.getElementById('defaultGreeting').value = '生成失败，请稍后重试';
-         });
-       }
+        fetch('/api/candidate-resume/generate-default-greeting', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ candidate: candidate }),
+        })
+          .then(response => response.json())
+          .then(data => {
+            hideLoading();
+            if (data.success) {
+              document.getElementById('defaultGreeting').value = data.greeting;
+            } else {
+              console.error('生成默认打招呼语失败:', data.message);
+              document.getElementById('defaultGreeting').value = '生成失败，请稍后重试';
+            }
+          })
+          .catch(error => {
+            hideLoading();
+            console.error('Error:', error);
+            document.getElementById('defaultGreeting').value = '生成失败，请稍后重试';
+          });
+      }
 
-       // 重新生成打招呼语
-       function regenerateGreeting() {
-         if (!candidateData) {
-           alert('请先解析简历');
-           return;
-         }
-         generateDefaultGreeting(candidateData);
-       }
+      // 重新生成打招呼语
+      function regenerateGreeting() {
+        if (!candidateData) {
+          alert('请先解析简历');
+          return;
+        }
+        generateDefaultGreeting(candidateData);
+      }
 
-       // 保存默认打招呼语到配置
-       function saveDefaultGreeting() {
-         const greeting = document.getElementById('defaultGreeting').value.trim();
-         if (!greeting) {
-           alert('请先生成打招呼语');
-           return;
-         }
+      // 保存默认打招呼语到配置
+      function saveDefaultGreeting() {
+        const greeting = document.getElementById('defaultGreeting').value.trim();
+        if (!greeting) {
+          alert('请先生成打招呼语');
+          return;
+        }
 
-         fetch('/api/candidate-resume/save-default-greeting', {
-           method: 'POST',
-           headers: {
-             'Content-Type': 'application/json',
-           },
-           body: JSON.stringify({ greeting: greeting })
-         })
-         .then(response => response.json())
-         .then(data => {
-           if (data.success) {
-             alert('默认打招呼语已保存到Boss配置！');
-           } else {
-             alert('保存失败：' + data.message);
-           }
-         })
-         .catch(error => {
-           console.error('Error:', error);
-           alert('保存失败：' + error.message);
-         });
-       }
+        fetch('/api/candidate-resume/save-default-greeting', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ greeting: greeting }),
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              alert('默认打招呼语已保存到Boss配置！');
+            } else {
+              alert('保存失败：' + data.message);
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('保存失败：' + error.message);
+          });
+      }
 
-       // 显示/隐藏加载状态
-       function showLoading(text) {
-         document.getElementById('loadingText').textContent = text || 'AI正在处理中...';
-         document.getElementById('loading').style.display = 'block';
-       }
+      // 显示/隐藏加载状态
+      function showLoading(text) {
+        document.getElementById('loadingText').textContent = text || 'AI正在处理中...';
+        document.getElementById('loading').style.display = 'block';
+      }
 
-       function hideLoading() {
-         document.getElementById('loading').style.display = 'none';
-       }
+      function hideLoading() {
+        document.getElementById('loading').style.display = 'none';
+      }
     </script>
   </body>
 </html>

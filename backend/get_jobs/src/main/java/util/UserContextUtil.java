@@ -1,15 +1,16 @@
 package util;
 
+import java.util.Map;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import lombok.extern.slf4j.Slf4j;
 
-import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 用户上下文工具类
  * 用于获取当前登录用户的信息
- * 
+ *
  * @author ZhiTouJianLi Team
  * @since 2025-10-01
  */
@@ -50,7 +51,7 @@ public class UserContextUtil {
         } catch (Exception e) {
             log.warn("获取当前用户名失败: {}", e.getMessage());
         }
-        return new String[0];
+        return null;
     }
 
     /**
@@ -68,7 +69,7 @@ public class UserContextUtil {
         } catch (Exception e) {
             log.warn("获取当前用户信息失败: {}", e.getMessage());
         }
-        return new String[0];
+        return null;
     }
 
     /**
@@ -77,7 +78,7 @@ public class UserContextUtil {
     public static boolean hasCurrentUser() {
         return true;
     }
-    
+
     /**
      * 检查当前用户是否已认证 - 已禁用认证，总是返回true
      */

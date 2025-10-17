@@ -141,11 +141,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           authLogger.info('✅ 已设置auth_token Cookie用于后端认证');
         }
 
-        // 跳转到后端8080
+        // 跳转到后端管理系统
         const backendUrl =
           window.location.hostname === 'localhost'
-            ? 'http://localhost:8080'
-            : window.location.origin.replace('3000', '8080');
+            ? 'http://localhost:8080' // 本地开发环境
+            : `${window.location.origin}/admin`; // 生产环境使用 /admin 路径
         authLogger.info('🚀 跳转到后端管理界面:', backendUrl);
         window.location.href = backendUrl;
       } else {
@@ -184,11 +184,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           authLogger.info('✅ 已设置auth_token Cookie用于后端认证');
         }
 
-        // 跳转到后端8080
+        // 跳转到后端管理系统
         const backendUrl =
           window.location.hostname === 'localhost'
-            ? 'http://localhost:8080'
-            : window.location.origin.replace('3000', '8080');
+            ? 'http://localhost:8080' // 本地开发环境
+            : `${window.location.origin}/admin`; // 生产环境使用 /admin 路径
         authLogger.info('🚀 跳转到后端管理界面:', backendUrl);
         window.location.href = backendUrl;
       } else {

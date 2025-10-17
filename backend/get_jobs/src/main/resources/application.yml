@@ -3,10 +3,10 @@ spring:
     name: zhitoujianli-backend
   # PostgreSQL数据库配置（生产版本）
   datasource:
-    url: jdbc:postgresql://localhost:5432/zhitoujianli
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/zhitoujianli}
     driverClassName: org.postgresql.Driver
-    username: zhitoujianli
-    password: zhitoujianli123
+    username: ${DB_USERNAME:zhitoujianli}
+    password: ${DB_PASSWORD:zhitoujianli123}
     # HikariCP连接池配置（性能最优）
     hikari:
       # 连接池中允许的最小连接数

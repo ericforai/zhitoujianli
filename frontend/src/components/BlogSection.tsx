@@ -1,5 +1,3 @@
-import React from 'react';
-
 const BlogSection = () => {
   return (
     <section className='py-20 bg-gray-50'>
@@ -42,7 +40,9 @@ const BlogSection = () => {
                 学习如何打造一份脱颖而出的简历，提高面试邀请率
               </p>
               <a
-                href='/blog/resume-optimization-tips/'
+                href='https://blog.zhitoujianli.com/resume-optimization-tips/'
+                target='_blank'
+                rel='noopener noreferrer'
                 className='text-indigo-600 hover:text-indigo-800 font-medium'
               >
                 阅读更多 →
@@ -77,7 +77,9 @@ const BlogSection = () => {
                 从准备到成功的全流程指导，助你自信应对面试
               </p>
               <a
-                href='/blog/interview-preparation-guide/'
+                href='https://blog.zhitoujianli.com/interview-preparation-guide/'
+                target='_blank'
+                rel='noopener noreferrer'
                 className='text-indigo-600 hover:text-indigo-800 font-medium'
               >
                 阅读更多 →
@@ -112,7 +114,9 @@ const BlogSection = () => {
                 了解智投简历的AI技术，让求职更智能高效
               </p>
               <a
-                href='/blog/zhitoujianli-introduction/'
+                href='https://blog.zhitoujianli.com/zhitoujianli-introduction/'
+                target='_blank'
+                rel='noopener noreferrer'
                 className='text-indigo-600 hover:text-indigo-800 font-medium'
               >
                 阅读更多 →
@@ -123,7 +127,9 @@ const BlogSection = () => {
 
         <div className='text-center'>
           <a
-            href='/blog/'
+            href='https://blog.zhitoujianli.com'
+            target='_blank'
+            rel='noopener noreferrer'
             className='bg-gradient-primary text-white px-8 py-3 rounded-lg text-lg font-semibold hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg inline-flex items-center space-x-2'
           >
             <span>访问博客</span>

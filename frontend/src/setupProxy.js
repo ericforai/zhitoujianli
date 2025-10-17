@@ -21,7 +21,7 @@ module.exports = function (app) {
     '/api',
     createProxyMiddleware({
       // 优先使用环境变量，否则使用默认的本地后端地址
-      target: process.env.REACT_APP_BACKEND_URL || 'http://115.190.182.95:8080',
+      target: process.env.REACT_APP_BACKEND_URL || 'https://zhitoujianli.com',
       changeOrigin: true, // ✅ 修改 Origin 头部为目标 URL
       secure: false, // ✅ 支持自签名 SSL 证书
       logLevel: 'debug',
@@ -44,7 +44,7 @@ module.exports = function (app) {
       // ✅ 请求日志
       onProxyReq: function (proxyReq, req) {
         const target =
-          process.env.REACT_APP_BACKEND_URL || 'http://115.190.182.95:8080';
+          process.env.REACT_APP_BACKEND_URL || 'https://zhitoujianli.com';
         console.log(
           '🔄 代理请求:',
           req.method,

@@ -34,7 +34,9 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href='/blog/'
+                  href='https://blog.zhitoujianli.com'
+                  target='_blank'
+                  rel='noopener noreferrer'
                   className='text-gray-400 hover:text-white transition-colors'
                 >
                   博客

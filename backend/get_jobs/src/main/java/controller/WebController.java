@@ -185,7 +185,9 @@ public class WebController {
             // 确保日志目录存在
             File logsDir = new File("logs");
             if (!logsDir.exists()) {
-                logsDirif (!.mkdirs()) { log.warn("创建目录失败"); }
+                if (!logsDir.mkdirs()) {
+                    log.warn("创建目录失败");
+                }
             }
 
             // 创建日志文件
@@ -316,7 +318,9 @@ public class WebController {
             // 生成日志文件名，确保目录存在
             File logsDir = new File("logs");
             if (!logsDir.exists()) {
-                logsDirif (!.mkdirs()) { log.warn("创建目录失败"); }
+                if (!logsDir.mkdirs()) {
+                    log.warn("创建目录失败");
+                }
             }
             currentLogFile = new File("logs", "boss_" +
                 new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".log").getAbsolutePath();
