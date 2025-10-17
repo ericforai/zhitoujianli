@@ -1,9 +1,8 @@
 package controller;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +42,13 @@ import util.RequestUtil;
 @RestController
 @RequestMapping("/api/auth")
 @Slf4j
-@CrossOrigin(origins = {"http://localhost:3000", "http://115.190.182.95:3000", "http://115.190.182.95"})
+@CrossOrigin(origins = {
+    "https://zhitoujianli.com",
+    "https://www.zhitoujianli.com",
+    "http://localhost:3000",
+    "http://115.190.182.95:3000",
+    "http://115.190.182.95"
+})
 public class AuthController {
 
     @Autowired
@@ -184,7 +189,7 @@ public class AuthController {
     }
 
     /**
-     * 用户注册
+     * 用户注册（简化版，不需要验证码）
      */
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> request, HttpServletRequest httpRequest) {
@@ -195,7 +200,6 @@ public class AuthController {
         try {
             String password = request.get("password");
             String username = request.get("username");
-            String verificationCode = request.get("verificationCode");
 
             // 参数验证
             if (email == null || password == null) {
@@ -212,19 +216,9 @@ public class AuthController {
                         .body(Map.of("success", false, "message", "密码长度至少6位"));
             }
 
-            // 检查验证码是否已验证
-            if (!verificationCodeService.isVerified(email)) {
-                auditService.logFailure(null, email, entity.UserAuditLog.ActionType.REGISTER,
-                    "邮箱未验证", clientIp, userAgent, "/api/auth/register");
-                return ResponseEntity.badRequest()
-                        .body(Map.of("success", false, "message", "请先验证邮箱"));
-            }
-
+            // 简化版注册：不需要验证码验证
             // 注册用户
             User user = userService.registerUser(email, password, username);
-
-            // 清理验证码
-            verificationCodeService.removeCode(email);
 
             // 生成JWT Token
             String token = generateJwtToken(user);
@@ -441,7 +435,7 @@ public class AuthController {
             }
 
             // 从数据库获取用户信息
-            User user = userService.findByEmail(String.valueOf(userId))
+            User user = userService.findById(userId)
                     .orElseThrow(() -> new IllegalArgumentException("用户不存在"));
 
             return ResponseEntity.ok(Map.of(
@@ -496,7 +490,7 @@ public class AuthController {
             return claims.get("userId", Long.class);
         } catch (Exception e) {
             log.warn("❌ Token解析失败: {}", e.getMessage());
-            return new String[0];
+            return null;
         }
     }
 }

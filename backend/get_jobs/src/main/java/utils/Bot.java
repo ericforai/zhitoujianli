@@ -1,12 +1,5 @@
 package utils;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import io.github.cdimascio.dotenv.Dotenv;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.hc.client5.http.fluent.Request;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -14,6 +7,15 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+
+import org.apache.hc.client5.http.fluent.Request;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+
+import io.github.cdimascio.dotenv.Dotenv;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author loks666
@@ -139,7 +141,7 @@ public class Bot {
         if (clazz.isInstance(obj)) {
             return (T) obj;
         } else {
-            return new String[0];
+            return null;
         }
     }
 }

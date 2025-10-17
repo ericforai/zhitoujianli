@@ -8,6 +8,8 @@ import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * JWT配置类
  * 🔐 安全修复：在应用启动时验证JWT_SECRET配置

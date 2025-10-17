@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: zhitoujianli-backend
+  # PostgreSQL数据库配置（生产环境）
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/zhitoujianli}
+    driverClassName: org.postgresql.Driver
+    username: ${DB_USERNAME:zhitoujianli}
+    password: ${DB_PASSWORD:zhitoujianli123}
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      connection-timeout: 30000
+      max-lifetime: 1800000
+      idle-timeout: 600000
+      connection-test-query: SELECT 1
+      pool-name: ZhiTouJianLi-Production-Pool
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+# 安全认证开关
+security:
+  enabled: false
+
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET:temporary_secret_key_for_testing_12345678901234567890}
+  expiration: 86400000
+
+# 服务器配置
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  compression:
+    enabled: true
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.superxiang: INFO
+    org.springframework.web: INFO
+    org.hibernate: WARN
+
+# DeepSeek AI配置
+ai:
+  base-url: ${BASE_URL:https://api.deepseek.com}
+  api-key: ${API_KEY:}
+  model: ${MODEL:deepseek-chat}

@@ -8,6 +8,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import config from '../config/environment';
 import { authService } from '../services/authService';
 
 const Register: React.FC = () => {
@@ -51,40 +52,14 @@ const Register: React.FC = () => {
       setLoading(true);
       setError('');
 
-      // 获取安全的 API 基础 URL
-      const getApiBaseUrl = () => {
-        // 1. 优先使用生产环境配置
-        const config = (window as any).__PRODUCTION_CONFIG__;
-        if (config?.API_BASE_URL) {
-          return config.API_BASE_URL;
-        }
-
-        // 2. 使用环境变量
-        if (process.env.REACT_APP_API_URL) {
-          return process.env.REACT_APP_API_URL;
-        }
-
-        // 3. 根据当前环境自动判断
-        const isProduction =
-          window.location.hostname === 'zhitoujianli.com' ||
-          window.location.hostname === 'www.zhitoujianli.com';
-
-        if (isProduction) {
-          // ✅ 修复：统一使用不带 www 的域名，避免跨域问题
-          return 'https://zhitoujianli.com/api';
-        } else {
-          return '/api'; // 开发环境使用相对路径，由代理处理
-        }
-      };
-
-      const baseURL = getApiBaseUrl();
-      const apiUrl = `${baseURL}/api/auth/send-verification-code`;
+      // 使用统一的环境配置
+      const apiUrl = `${config.apiBaseUrl}/auth/send-verification-code`;
 
       console.log('🔗 发送验证码请求到:', apiUrl);
       console.log('🔧 当前环境:', {
         hostname: window.location.hostname,
         protocol: window.location.protocol,
-        apiBaseUrl: baseURL,
+        apiBaseUrl: config.apiBaseUrl,
         fullUrl: apiUrl,
       });
 
@@ -166,7 +141,19 @@ const Register: React.FC = () => {
       console.log('  codeSent:', codeSent);
       console.log('  emailVerified:', emailVerified);
 
-      const result = await authService.verifyEmailCode(email, verificationCode);
+      // 使用统一的环境配置
+      const verifyUrl = `${config.apiBaseUrl}/auth/verify-code`;
+
+      const response = await fetch(verifyUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, code: verificationCode }),
+        credentials: 'include',
+      });
+
+      const result = await response.json();
 
       if (result.success) {
         setEmailVerified(true);

@@ -76,7 +76,12 @@ public class BossCookieController {
 
             // 确保目录存在
             File cookieFile = new File(COOKIE_FILE_PATH);
-            cookieFile.getParentFile()if (!.mkdirs()) { log.warn("创建目录失败"); }
+            File parentDir = cookieFile.getParentFile();
+            if (parentDir != null && !parentDir.exists()) {
+                if (!parentDir.mkdirs()) {
+                    log.warn("创建目录失败");
+                }
+            }
 
             // 写入Cookie文件
             try (FileWriter writer = new FileWriter(cookieFile, StandardCharsets.UTF_8)) {

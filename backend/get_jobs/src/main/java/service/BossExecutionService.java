@@ -46,7 +46,7 @@ public class BossExecutionService {
                 File logFile = new File(logFilePath);
                 ensureLogFileExists(logFile);
 
-                try (FileWriter logWriter = new FileWriter(logFile, true, StandardCharsets.UTF_8)) {
+                try (FileWriter logWriter = new FileWriter(logFile, StandardCharsets.UTF_8, true)) {
 
                     writeLogHeader(logWriter);
 
@@ -210,8 +210,11 @@ public class BossExecutionService {
      * 确保日志文件存在
      */
     private void ensureLogFileExists(File logFile) throws IOException {
-        if (!logFile.getParentFile().exists()) {
-            logFile.getParentFile()if (!.mkdirs()) { log.warn("创建目录失败"); }
+        File parentDir = logFile.getParentFile();
+        if (parentDir != null && !parentDir.exists()) {
+            if (!parentDir.mkdirs()) {
+                log.warn("创建目录失败");
+            }
         }
         if (!logFile.exists()) {
             logFile.createNewFile();
@@ -234,7 +237,7 @@ public class BossExecutionService {
      * 写入错误日志
      */
     private void writeErrorLog(String logFilePath, Exception e) {
-        try (FileWriter writer = new FileWriter(logFilePath, true, StandardCharsets.UTF_8)) {
+        try (FileWriter writer = new FileWriter(logFilePath, StandardCharsets.UTF_8, true)) {
             writer.write(formatTimestamp() + " - EXCEPTION: " + e.getMessage() + "%n");
             writer.write(formatTimestamp() + " - EXCEPTION_TYPE: " + e.getClass().getSimpleName() + "%n");
 

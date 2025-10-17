@@ -84,6 +84,24 @@ const Navigation = () => {
               功能特色
             </a>
             <a
+              href='/#auto-delivery'
+              className='px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+            >
+              自动投递
+            </a>
+            <a
+              href='/#jd-matching'
+              className='px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+            >
+              JD匹配
+            </a>
+            <a
+              href='/#smart-greeting'
+              className='px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+            >
+              智能打招呼
+            </a>
+            <a
               href='/pricing'
               className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                 isActive('/pricing')
@@ -94,12 +112,10 @@ const Navigation = () => {
               价格方案
             </a>
             <a
-              href='/blog'
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive('/blog')
-                  ? 'text-blue-600 bg-blue-50'
-                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-              }`}
+              href='https://blog.zhitoujianli.com'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors'
             >
               博客
             </a>
@@ -196,6 +212,24 @@ const Navigation = () => {
               功能特色
             </a>
             <a
+              href='/#auto-delivery'
+              className='block px-3 py-2 rounded-md text-base font-medium transition-colors text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+            >
+              自动投递
+            </a>
+            <a
+              href='/#jd-matching'
+              className='block px-3 py-2 rounded-md text-base font-medium transition-colors text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+            >
+              JD匹配
+            </a>
+            <a
+              href='/#smart-greeting'
+              className='block px-3 py-2 rounded-md text-base font-medium transition-colors text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+            >
+              智能打招呼
+            </a>
+            <a
               href='/pricing'
               className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
                 isActive('/pricing')
@@ -206,12 +240,10 @@ const Navigation = () => {
               价格方案
             </a>
             <a
-              href='/blog'
-              className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                isActive('/blog')
-                  ? 'text-blue-600 bg-blue-50'
-                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-              }`}
+              href='https://blog.zhitoujianli.com'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors'
             >
               博客
             </a>

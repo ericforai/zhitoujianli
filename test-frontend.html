@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>前端功能测试</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .test-section {
+        background: white;
+        margin: 20px 0;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .status {
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+      }
+      .success {
+        background-color: #d4edda;
+        color: #155724;
+      }
+      .error {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+      .info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+      }
+      iframe {
+        width: 100%;
+        height: 600px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      .feature-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+      .feature-card {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #007bff;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🧪 智投简历前端功能测试</h1>
+
+    <div class="test-section">
+      <h2>📊 测试状态</h2>
+      <div id="status" class="status info">正在检测...</div>
+    </div>
+
+    <div class="test-section">
+      <h2>🎯 三大核心功能验证</h2>
+      <div class="feature-list">
+        <div class="feature-card">
+          <h3>1. 自动化投递简历</h3>
+          <p>✅ 一键批量投递，节省宝贵时间</p>
+          <p>📍 页面ID: #auto-delivery</p>
+        </div>
+        <div class="feature-card">
+          <h3>2. JD智能匹配度分析</h3>
+          <p>✅ 精准解析简历与JD的契合度</p>
+          <p>📍 页面ID: #jd-matching</p>
+        </div>
+        <div class="feature-card">
+          <h3>3. 智能化打招呼语</h3>
+          <p>✅ 基于JD和简历生成个性化开场白</p>
+          <p>📍 页面ID: #smart-greeting</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>🌐 网站预览</h2>
+      <iframe src="http://localhost:3000" id="websiteFrame"></iframe>
+    </div>
+
+    <div class="test-section">
+      <h2>🔗 快速访问链接</h2>
+      <ul>
+        <li><a href="http://localhost:3000" target="_blank">主网站</a></li>
+        <li><a href="http://localhost:3000#auto-delivery" target="_blank">自动化投递功能</a></li>
+        <li><a href="http://localhost:3000#jd-matching" target="_blank">JD匹配分析功能</a></li>
+        <li><a href="http://localhost:3000#smart-greeting" target="_blank">智能打招呼功能</a></li>
+        <li><a href="http://localhost:8080" target="_blank">后台管理系统</a></li>
+      </ul>
+    </div>
+
+    <script>
+      // 检测网站是否可访问
+      async function checkWebsiteStatus() {
+        const statusDiv = document.getElementById('status');
+
+        try {
+          const response = await fetch('http://localhost:3000');
+          if (response.ok) {
+            statusDiv.className = 'status success';
+            statusDiv.textContent = '✅ 前端网站运行正常 - http://localhost:3000';
+          } else {
+            statusDiv.className = 'status error';
+            statusDiv.textContent = '❌ 网站响应异常: ' + response.status;
+          }
+        } catch (error) {
+          statusDiv.className = 'status error';
+          statusDiv.textContent = '❌ 无法连接到网站: ' + error.message;
+        }
+      }
+
+      // 页面加载完成后检测
+      window.addEventListener('load', checkWebsiteStatus);
+
+      // 定期检测网站状态
+      setInterval(checkWebsiteStatus, 30000);
+    </script>
+  </body>
+</html>
+

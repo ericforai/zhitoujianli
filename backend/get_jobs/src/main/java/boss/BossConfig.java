@@ -58,7 +58,7 @@ public class BossConfig {
     /**
      * 薪资范围
      */
-    private String salary;
+    private List<String> salary;
 
     /**
      * 学历要求列表
@@ -117,7 +117,10 @@ public class BossConfig {
         // 转换工作类型
         config.setJobType(BossEnum.JobType.forValue(config.getJobType()).getCode());
         // 转换薪资范围
-        config.setSalary(BossEnum.Salary.forValue(config.getSalary()).getCode());
+        if (config.getSalary() != null && !config.getSalary().isEmpty()) {
+            String salaryValue = config.getSalary().get(0);
+            config.setSalary(List.of(BossEnum.Salary.forValue(salaryValue).getCode()));
+        }
         // 转换城市编码
         if (config.getCityCode() != null) {
             List<String> convertedCityCodes = config.getCityCode().stream()
@@ -171,7 +174,7 @@ public class BossConfig {
     }
 
     public List<String> getSalary() {
-        return salary != null ? new ArrayList<>(salary) : null;
+        return salary != null ? new ArrayList<String>(salary) : null;
     }
 
     public List<String> getStage() {

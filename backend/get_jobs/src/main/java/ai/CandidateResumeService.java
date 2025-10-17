@@ -160,7 +160,7 @@ public class CandidateResumeService {
             File file = new File(userResumePath);
             if (!file.exists()) {
                 log.warn("【简历解析】用户简历文件不存在: {}", userResumePath);
-                return new String[0];
+                return null;
             }
 
             String jsonString = Files.readString(Paths.get(userResumePath));
@@ -173,7 +173,7 @@ public class CandidateResumeService {
 
         } catch (Exception e) {
             log.error("【简历解析】加载候选人信息失败", e);
-            return new String[0];
+            return null;
         }
     }
 

@@ -14,7 +14,7 @@
 - 🤖 **AI智能打招呼语生成** - 基于DeepSeek API的个性化内容生成
 - 📄 **智能简历解析** - 支持PDF、Word、TXT格式自动解析
 - 🎯 **自动化投递** - 支持Boss直聘等主流招聘平台
-- 👥 **用户管理系统** - 基于Authing的身份认证和权限控制
+- 👥 **用户管理系统** - Spring Security + JWT身份认证和权限控制
 - 📊 **数据统计分析** - 投递成功率、面试邀请率等数据可视化
 - 🔐 **企业级安全** - Spring Security + JWT + CORS保护
 
@@ -42,21 +42,21 @@
 │                             │                                │
 │                   ┌─────────┼─────────┐                     │
 │                   ▼         ▼         ▼                      │
-│            ┌─────────┐ ┌────────┐ ┌────────┐              │
-│            │ Authing │ │DeepSeek│ │ MySQL  │              │
-│            │  认证    │ │  AI    │ │ (计划) │              │
-│            └─────────┘ └────────┘ └────────┘              │
+│            ┌─────────┐ ┌────────┐ ┌──────────┐            │
+│            │Security │ │DeepSeek│ │PostgreSQL│            │
+│            │ + JWT   │ │  AI    │ │  数据库  │            │
+│            └─────────┘ └────────┘ └──────────┘            │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ### 端口分配
 
-| 端口 | 服务 | 用途 | 环境 |
-|------|------|------|------|
-| **80** | Nginx | 生产环境Web服务器 | 生产 |
-| **3000** | React Dev Server | 前端开发服务器（热重载） | 开发 |
-| **8080** | Spring Boot | 后端API服务器 | 开发/生产 |
+| 端口     | 服务             | 用途                     | 环境      |
+| -------- | ---------------- | ------------------------ | --------- |
+| **80**   | Nginx            | 生产环境Web服务器        | 生产      |
+| **3000** | React Dev Server | 前端开发服务器（热重载） | 开发      |
+| **8080** | Spring Boot      | 后端API服务器            | 开发/生产 |
 
 ### 项目结构
 
@@ -149,26 +149,31 @@ zhitoujianli/
 ## 核心功能
 
 ### 🤖 AI智能打招呼语
+
 - 基于岗位要求生成个性化打招呼语
 - 支持多种AI模型 (DeepSeek, OpenAI, Ollama)
 - 智能匹配求职者经历与岗位需求
 
 ### 📄 简历解析与优化
+
 - 支持PDF、Word格式简历解析
 - 自动提取关键信息
 - 简历内容优化建议
 
 ### 🎯 智能投递系统
+
 - 支持Boss直聘、智联招聘等平台
 - 自动化投递流程
 - 投递状态跟踪
 
 ### 👥 用户管理系统
-- 基于Authing的身份认证
+
+- Spring Security + JWT身份认证
 - 用户配额管理
 - 多层级权限控制
 
 ### 📊 数据统计与分析
+
 - 投递成功率统计
 - 面试邀请率分析
 - 用户行为数据追踪
@@ -177,41 +182,42 @@ zhitoujianli/
 
 ### 前端技术栈
 
-| 技术 | 版本 | 用途 |
-|------|------|------|
-| **React** | 19.1.1 | 用户界面框架 |
-| **TypeScript** | 4.9.5 | 类型安全的JavaScript超集 |
-| **Tailwind CSS** | 3.4.17 | 实用优先的CSS框架 |
-| **Axios** | 1.12.2 | HTTP客户端（API调用） |
-| **React Router** | 7.9.3 | 前端路由管理 |
-| **React Dropzone** | 14.3.8 | 文件上传组件 |
-| **Authing JS SDK** | 4.23.55 | 身份认证SDK |
+| 技术               | 版本   | 用途                     |
+| ------------------ | ------ | ------------------------ |
+| **React**          | 19.1.1 | 用户界面框架             |
+| **TypeScript**     | 4.9.5  | 类型安全的JavaScript超集 |
+| **Tailwind CSS**   | 3.4.17 | 实用优先的CSS框架        |
+| **Axios**          | 1.12.2 | HTTP客户端（API调用）    |
+| **React Router**   | 7.9.3  | 前端路由管理             |
+| **React Dropzone** | 14.3.8 | 文件上传组件             |
 
 **开发工具:**
+
 - ESLint + Prettier - 代码检查和格式化
 - React Testing Library - 组件测试
 - Jest - 单元测试框架
 
 ### 后端技术栈
 
-| 技术 | 版本 | 用途 |
-|------|------|------|
-| **Spring Boot** | 3.2.0 | Java后端框架 |
-| **Java** | 21 | 编程语言 |
-| **Spring Security** | 6.x | 安全认证框架 |
-| **Spring WebSocket** | 6.x | WebSocket实时通信 |
-| **JWT (jjwt)** | 0.12.5 | Token生成和验证 |
-| **Maven** | 3.8+ | 依赖管理和构建工具 |
-| **Lombok** | 1.18.30 | 减少样板代码 |
-| **Authing Java SDK** | 3.1.19 | 身份认证SDK |
+| 技术                 | 版本    | 用途               |
+| -------------------- | ------- | ------------------ |
+| **Spring Boot**      | 3.2.0   | Java后端框架       |
+| **Java**             | 21      | 编程语言           |
+| **Spring Security**  | 6.x     | 安全认证框架       |
+| **Spring WebSocket** | 6.x     | WebSocket实时通信  |
+| **JWT (jjwt)**       | 0.12.5  | Token生成和验证    |
+| **Maven**            | 3.8+    | 依赖管理和构建工具 |
+| **Lombok**           | 1.18.30 | 减少样板代码       |
 
 **第三方集成:**
+
 - Selenium 4.31.0 - Web自动化
 - Microsoft Playwright 1.51.0 - 浏览器自动化
 - Apache PDFBox 2.0.29 - PDF解析
 - Apache POI 5.2.5 - Office文档解析
 
 **代码质量工具:**
+
 - Checkstyle - 代码风格检查
 - SpotBugs - 静态代码分析
 - PMD - 代码质量分析
@@ -219,28 +225,28 @@ zhitoujianli/
 
 ### AI 技术
 
-| 服务 | 用途 |
-|------|------|
+| 服务             | 用途                                 |
+| ---------------- | ------------------------------------ |
 | **DeepSeek API** | 主要AI服务（简历解析、打招呼语生成） |
-| **OpenAI API** | 备用AI服务 |
-| **Ollama** | 本地AI模型支持（可选） |
+| **OpenAI API**   | 备用AI服务                           |
+| **Ollama**       | 本地AI模型支持（可选）               |
 
 ### 数据库与缓存
 
-| 技术 | 状态 | 用途 |
-|------|------|------|
-| **MySQL** | 8.0+ (计划中) | 主数据库 |
-| **Redis** | (计划中) | 缓存数据库、会话存储 |
+| 技术           | 状态     | 用途                 |
+| -------------- | -------- | -------------------- |
+| **PostgreSQL** | 已启用   | 主数据库             |
+| **Redis**      | (计划中) | 缓存数据库、会话存储 |
 
 ### 部署技术
 
-| 技术 | 用途 |
-|------|------|
-| **火山云** | 云服务器部署 |
-| **Docker** | 容器化部署 |
-| **Docker Compose** | 多容器编排 |
-| **Nginx** | 反向代理和负载均衡 |
-| **SSL/TLS** | HTTPS加密通信 |
+| 技术               | 用途               |
+| ------------------ | ------------------ |
+| **火山云**         | 云服务器部署       |
+| **Docker**         | 容器化部署         |
+| **Docker Compose** | 多容器编排         |
+| **Nginx**          | 反向代理和负载均衡 |
+| **SSL/TLS**        | HTTPS加密通信      |
 
 ### 架构特点
 
@@ -255,15 +261,15 @@ zhitoujianli/
 
 ### 环境要求
 
-| 环境 | 版本要求 | 说明 |
-|------|----------|------|
-| **Node.js** | 18.0.0+ | 前端开发环境 |
-| **npm** | 8.0.0+ | 包管理器（**注意：项目使用npm，不是pnpm**） |
-| **Java** | 21+ | 后端开发环境 |
-| **Maven** | 3.8+ | Java依赖管理 |
-| **Git** | 2.x | 版本控制 |
-| **MySQL** | 8.0+ (可选) | 数据库（未来版本） |
-| **Docker** | 20.x+ (可选) | 容器化部署 |
+| 环境           | 版本要求     | 说明                                        |
+| -------------- | ------------ | ------------------------------------------- |
+| **Node.js**    | 18.0.0+      | 前端开发环境                                |
+| **npm**        | 8.0.0+       | 包管理器（**注意：项目使用npm，不是pnpm**） |
+| **Java**       | 21+          | 后端开发环境                                |
+| **Maven**      | 3.8+         | Java依赖管理                                |
+| **Git**        | 2.x          | 版本控制                                    |
+| **PostgreSQL** | 12+          | 主数据库                                    |
+| **Docker**     | 20.x+ (可选) | 容器化部署                                  |
 
 ### 安装步骤
 
@@ -324,11 +330,6 @@ vim .env
 REACT_APP_API_URL=http://localhost:8080/api
 REACT_APP_ENV=development
 
-# Authing配置（身份认证）
-AUTHING_USER_POOL_ID=your_user_pool_id
-AUTHING_APP_ID=your_app_id
-AUTHING_APP_SECRET=your_app_secret
-
 # DeepSeek AI配置
 BASE_URL=https://api.deepseek.com
 API_KEY=your_deepseek_api_key
@@ -385,24 +386,19 @@ docker-compose -f volcano-deployment.yml up -d
 ```json
 {
   "success": true,
-  "appId": "68db6e4e85de9cb8daf2b3d2",
-  "message": "✅ Authing配置正常",
-  "authingConfigured": true
+  "message": "✅ 服务运行正常",
+  "timestamp": "2025-10-17T12:00:00Z"
 }
 ```
 
 ## 配置说明
 
 ### 环境变量配置
+
 ```bash
 # API配置
 REACT_APP_API_URL=http://localhost:8080/api
 REACT_APP_ENV=development
-
-# Authing配置
-AUTHING_USER_POOL_ID=your_user_pool_id
-AUTHING_APP_ID=your_app_id
-AUTHING_APP_SECRET=your_app_secret
 
 # AI配置
 BASE_URL=https://api.deepseek.com
@@ -411,39 +407,50 @@ MODEL=deepseek-chat
 ```
 
 ### 数据库配置
+
 ```yaml
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/zhitoujianli
-    username: your_username
+    url: jdbc:postgresql://localhost:5432/zhitoujianli
+    username: zhitoujianli
     password: your_password
+    driverClassName: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 ```
 
 ## 部署指南
 
 ### 生产环境部署
+
 详细的部署指南请参考：
+
 - [火山云部署指南](VOLCANO_DEPLOYMENT_GUIDE.md)
 - [部署指南](docs/deployment/DEPLOYMENT_GUIDE.md)
 
 ### 安全配置
+
 安全相关配置请参考：
+
 - [安全审计报告](docs/security/SECURITY_AUDIT_REPORT.md)
 - [安全系统文档](docs/security/BLOG_SECURITY_SYSTEM_DOCUMENTATION.md)
 
 ## 文档目录
 
 ### 技术文档
+
 - [API文档](docs/technical/API_DOCUMENTATION.md)
 - [系统技术文档](docs/technical/ADMIN_SYSTEM_TECHNICAL_DOCUMENTATION.md)
 - [博客服务文档](docs/technical/BLOG_SERVICE_DOCUMENTATION.md)
 
 ### 用户指南
+
 - [快速开始指南](docs/user-guides/QUICK_START_GUIDE.md)
 - [配额管理系统用户指南](docs/user-guides/QUOTA_MANAGEMENT_SYSTEM_USER_GUIDE.md)
 - [管理员登录指南](docs/user-guides/ADMIN_LOGIN_GUIDE.md)
 
 ### 安全文档
+
 - [安全审计报告](docs/security/SECURITY_AUDIT_REPORT.md)
 - [三层访问控制系统](docs/security/THREE_TIER_ACCESS_CONTROL_SYSTEM.md)
 
@@ -577,6 +584,7 @@ npm run deploy:volcano                 # 部署到火山云
 - ✅ 导入顺序：React → 第三方库 → 本地组件 → 工具函数
 
 **示例：**
+
 ```typescript
 // ✅ 正确示例
 interface UserProfileProps {
@@ -586,7 +594,7 @@ interface UserProfileProps {
 
 const UserProfile: React.FC<UserProfileProps> = ({ userId, onUpdate }) => {
   const [user, setUser] = useState<User | null>(null);
-  
+
   const handleUpdate = useCallback((data: User) => {
     // 更新用户信息
     setUser(data);
@@ -614,6 +622,7 @@ export default UserProfile;
 - ✅ 异常处理使用 **全局异常处理器**
 
 **示例：**
+
 ```java
 // ✅ 正确示例
 @Service
@@ -655,21 +664,21 @@ public class UserService {
 
 #### 提交类型
 
-| 类型 | 说明 | 示例 |
-|------|------|------|
-| **feat** | 新功能 | `feat(auth): 添加用户登录功能` |
-| **fix** | Bug修复 | `fix(api): 修复用户信息返回空值问题` |
-| **docs** | 文档更新 | `docs: 更新API文档和部署指南` |
-| **style** | 代码格式（不影响功能） | `style: 格式化代码` |
-| **refactor** | 代码重构 | `refactor(frontend): 重构用户组件` |
-| **perf** | 性能优化 | `perf: 优化API响应时间` |
-| **test** | 测试相关 | `test: 添加用户服务单元测试` |
-| **build** | 构建系统或依赖变动 | `build: 升级React到19.1.1` |
-| **ci** | CI/CD相关 | `ci: 添加GitHub Actions配置` |
-| **chore** | 其他修改 | `chore: 更新.gitignore` |
-| **security** | 安全相关 | `security: 修复XSS漏洞` |
-| **config** | 配置文件修改 | `config: 更新CORS配置` |
-| **deps** | 依赖更新 | `deps: 更新Spring Boot到3.2.0` |
+| 类型         | 说明                   | 示例                                 |
+| ------------ | ---------------------- | ------------------------------------ |
+| **feat**     | 新功能                 | `feat(auth): 添加用户登录功能`       |
+| **fix**      | Bug修复                | `fix(api): 修复用户信息返回空值问题` |
+| **docs**     | 文档更新               | `docs: 更新API文档和部署指南`        |
+| **style**    | 代码格式（不影响功能） | `style: 格式化代码`                  |
+| **refactor** | 代码重构               | `refactor(frontend): 重构用户组件`   |
+| **perf**     | 性能优化               | `perf: 优化API响应时间`              |
+| **test**     | 测试相关               | `test: 添加用户服务单元测试`         |
+| **build**    | 构建系统或依赖变动     | `build: 升级React到19.1.1`           |
+| **ci**       | CI/CD相关              | `ci: 添加GitHub Actions配置`         |
+| **chore**    | 其他修改               | `chore: 更新.gitignore`              |
+| **security** | 安全相关               | `security: 修复XSS漏洞`              |
+| **config**   | 配置文件修改           | `config: 更新CORS配置`               |
+| **deps**     | 依赖更新               | `deps: 更新Spring Boot到3.2.0`       |
 
 #### 作用域示例
 
@@ -714,6 +723,7 @@ xdg-open coverage/lcov-report/index.html  # Linux
 ```
 
 **测试要求：**
+
 - ✅ 测试覆盖率 ≥ **60%**
 - ✅ 使用 **React Testing Library**
 - ✅ 工具函数使用 **Jest**
@@ -733,6 +743,7 @@ open target/site/jacoco/index.html  # macOS
 ```
 
 **测试要求：**
+
 - ✅ 测试覆盖率 ≥ **60%**（JaCoCo强制检查）
 - ✅ 单元测试使用 **JUnit 5**
 - ✅ 集成测试使用 **Spring Boot Test**
@@ -761,21 +772,25 @@ open target/site/jacoco/index.html  # macOS
 ### v2.0.3 (2025-10-07) - 当前版本
 
 **架构优化**
+
 - ✅ 更新包管理器配置：确认使用 npm (不是 pnpm)
 - ✅ 完善项目架构文档：详细的端口分配、服务说明
 - ✅ 更新技术栈版本信息：React 19.1.1, Spring Boot 3.2.0
 - ✅ 优化 Cursor 规则配置：修正执行命令
 
 **CORS 跨域修复**
+
 - ✅ 修复开发环境 CORS 问题：添加 http://115.190.182.95:3000 到白名单
 - ✅ 更新 CorsConfig.java 和 SecurityConfig.java
 - ✅ 支持开发环境与生产环境隔离
 
 **功能移除**
+
 - ✅ 移除所有价格相关内容（Pricing组件、导航链接、页脚链接）
 - ✅ 优化用户界面，更聚焦核心功能
 
 **文档完善**
+
 - ✅ 重写 README.md：完整的架构说明、开发指南
 - ✅ 添加详细的命令列表和使用说明
 - ✅ 完善 Git 提交规范和代码规范文档
@@ -783,6 +798,7 @@ open target/site/jacoco/index.html  # macOS
 ### v2.0.2 (2025-01-27)
 
 **火山云部署**
+
 - ✅ 从 火山云 迁移到火山云部署
 - ✅ 清理所有 火山云 相关配置和文档
 - ✅ 创建完整的 Docker 容器化部署方案
@@ -790,20 +806,23 @@ open target/site/jacoco/index.html  # macOS
 - ✅ 编写详细的火山云部署指南文档
 
 **Docker 化**
+
 - ✅ 创建 volcano-deployment.yml 配置
 - ✅ 配置前端、后端、博客 Dockerfile
-- ✅ 配置 MySQL 和 Redis 容器
+- ✅ 配置 PostgreSQL 和 Redis 容器
 - ✅ 实现一键部署脚本
 
 ### v2.0.1 (2025-10-02)
 
 **管理员系统**
+
 - ✅ 实现超级管理员系统（ID: 68dba0e3d9c27ebb0d93aa42）
 - ✅ 创建三层权限体系（SUPER_ADMIN / PLATFORM_ADMIN / CUSTOMER_ADMIN）
 - ✅ 开发管理员前端界面和后端API
 - ✅ 集成 Spring Security 权限控制
 
 **安全增强**
+
 - ✅ 实现三层访问控制系统
 - ✅ 配置 JWT Token 认证
 - ✅ 添加 API 限流保护
@@ -812,13 +831,15 @@ open target/site/jacoco/index.html  # macOS
 ### v2.0.0 (2025-09-30) - 首次发布
 
 **核心功能**
+
 - 🎉 AI 智能打招呼语生成（DeepSeek API）
 - 🎉 简历解析与优化（PDF/Word支持）
 - 🎉 Boss 直聘自动化投递
-- 🎉 用户管理系统（Authing V3 集成）
+- 🎉 用户管理系统（Spring Security + JWT）
 - 🎉 博客系统（Astro）
 
 **技术实现**
+
 - ✅ React 19 + TypeScript 前端框架
 - ✅ Spring Boot 3 + Java 21 后端框架
 - ✅ WebSocket 实时通信
@@ -828,13 +849,15 @@ open target/site/jacoco/index.html  # macOS
 ### 近期计划 (Roadmap)
 
 #### v2.1.0 (计划中)
-- 🔜 MySQL 数据库集成
+
+- ✅ PostgreSQL 数据库集成
 - 🔜 Redis 缓存系统
 - 🔜 用户配额管理系统
 - 🔜 数据统计与分析仪表板
 - 🔜 支持更多招聘平台（智联招聘、拉勾网）
 
 #### v2.2.0 (规划中)
+
 - 🔜 移动端适配（响应式设计）
 - 🔜 微信小程序版本
 - 🔜 AI 简历优化建议
@@ -865,6 +888,7 @@ open target/site/jacoco/index.html  # macOS
 ### 报告问题
 
 发现 Bug 或有功能建议？请：
+
 1. 检查 [Issues](https://github.com/ericforai/zhitoujianli/issues) 是否已有类似问题
 2. 创建新 Issue 并提供详细信息：
    - 问题描述
@@ -890,7 +914,7 @@ open target/site/jacoco/index.html  # macOS
 
 - [React](https://reactjs.org/) - 用户界面框架
 - [Spring Boot](https://spring.io/projects/spring-boot) - Java 应用框架
-- [Authing](https://www.authing.cn/) - 身份认证服务
+- [Spring Security](https://spring.io/projects/spring-security) - 安全认证框架
 - [DeepSeek](https://www.deepseek.com/) - AI 服务
 - [Tailwind CSS](https://tailwindcss.com/) - CSS 框架
 - [火山云](https://www.volcengine.com/) - 云服务

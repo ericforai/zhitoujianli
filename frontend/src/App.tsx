@@ -1,6 +1,7 @@
 import React from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import ApiTestPage from './components/ApiTestPage';
+import AutoDelivery from './components/AutoDelivery';
 import BlogSection from './components/BlogSection';
 import Contact from './components/Contact';
 import Demo from './components/Demo';
@@ -8,11 +9,13 @@ import DirectResumeEntry from './components/DirectResumeEntry';
 import Features from './components/Features';
 import Footer from './components/Footer';
 import HeroSection from './components/HeroSection';
+import JDMatching from './components/JDMatching';
 import Login from './components/Login';
 import Navigation from './components/Navigation';
 import PrivateRoute from './components/PrivateRoute';
 import Register from './components/Register';
 import ResumeDelivery from './components/ResumeDelivery';
+import SmartGreeting from './components/SmartGreeting';
 import StandaloneApiTest from './components/StandaloneApiTest';
 import TestLogin from './components/TestLogin';
 import ErrorBoundary from './components/common/ErrorBoundary';
@@ -31,6 +34,9 @@ const HomePage: React.FC = () => {
       <HeroSection />
       <Features />
       <Demo />
+      <AutoDelivery />
+      <JDMatching />
+      <SmartGreeting />
       <BlogSection />
       <Contact />
       <Footer />

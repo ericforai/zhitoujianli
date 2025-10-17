@@ -1486,6 +1486,6 @@ public class PlaywrightUtil {
 
         // 如果都不存在，返回null让Playwright使用默认路径
         log.warn("未找到已安装的浏览器，可能触发下载");
-        return new String[0];
+        return null;
     }
 }
