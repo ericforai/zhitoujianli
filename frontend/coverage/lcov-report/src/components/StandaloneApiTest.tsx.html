@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/19</span>
+                <span class='fraction'>0/18</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>0/12</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/19</span>
+                <span class='fraction'>0/18</span>
             </div>
         
             
@@ -264,11 +264,8 @@
 <a name='L199'></a><a href='#L199'>199</a>
 <a name='L200'></a><a href='#L200'>200</a>
 <a name='L201'></a><a href='#L201'>201</a>
-<a name='L202'></a><a href='#L202'>202</a>
-<a name='L203'></a><a href='#L203'>203</a>
-<a name='L204'></a><a href='#L204'>204</a>
-<a name='L205'></a><a href='#L205'>205</a>
-<a name='L206'></a><a href='#L206'>206</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L202'></a><a href='#L202'>202</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -287,17 +284,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -306,11 +295,14 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -479,6 +471,7 @@
  */
 &nbsp;
 import React, { useState } from 'react';
+import apiClient from '../services/apiService';
 &nbsp;
 const StandaloneApiTest: React.FC = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
   const [testResult, setTestResult] = <span class="cstat-no" title="statement not covered" >useState&lt;string&gt;('点击按钮开始测试');</span>
@@ -489,36 +482,31 @@ const StandaloneApiTest: React.FC = <span class="cstat-no" title="statement not 
 <span class="cstat-no" title="statement not covered" >    setTestResult('正在测试API连接...');</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
-      // 直接使用fetch，不依赖任何服务
-      const response = <span class="cstat-no" title="statement not covered" >await fetch('/api/candidate-resume/check', {</span>
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        mode: 'cors',
-      });
+      // 使用apiService，自动包含JWT认证
+      const response = <span class="cstat-no" title="statement not covered" >await apiClient.get('/candidate-resume/check');</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      console.log('Response status:', response.status);</span>
 <span class="cstat-no" title="statement not covered" >      console.log('Response headers:', response.headers);</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      if (response.ok) {</span>
-        const data = <span class="cstat-no" title="statement not covered" >await response.json();</span>
-<span class="cstat-no" title="statement not covered" >        setTestResult(`✅ API测试成功！</span>
+<span class="cstat-no" title="statement not covered" >      setTestResult(`✅ API测试成功！</span>
 状态码: ${response.status}
-响应数据: ${JSON.stringify(data, null, 2)}
-URL: ${response.url}`);
-      } else {
-<span class="cstat-no" title="statement not covered" >        setTestResult(`❌ API测试失败！</span>
-状态码: ${response.status}
-状态文本: ${response.statusText}
-URL: ${response.url}`);
-      }
+响应数据: ${JSON.stringify(response.data, null, 2)}
+URL: ${response.config.url}`);
     } catch (error: any) {
 <span class="cstat-no" title="statement not covered" >      console.error('API测试错误:', error);</span>
-<span class="cstat-no" title="statement not covered" >      setTestResult(`❌ API测试错误！</span>
+&nbsp;
+      // 检查是否是认证错误
+<span class="cstat-no" title="statement not covered" >      if (error.response?.status === 401) {</span>
+<span class="cstat-no" title="statement not covered" >        setTestResult(`🔐 认证失败！</span>
+状态码: ${error.response.status}
+错误信息: ${error.response.data?.message || '需要登录认证'}
+请先登录后再测试API`);
+      } else {
+<span class="cstat-no" title="statement not covered" >        setTestResult(`❌ API测试错误！</span>
+状态码: ${error.response?.status || 'N/A'}
 错误类型: ${error.name}
-错误信息: ${error.message}
-错误堆栈: ${error.stack}`);
+错误信息: ${error.message}`);
+      }
     } finally {
 <span class="cstat-no" title="statement not covered" >      setIsLoading(false);</span>
     }
@@ -685,7 +673,7 @@ export default StandaloneApiTest;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-17T08:59:57.120Z
+                at 2025-10-19T13:16:41.922Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
