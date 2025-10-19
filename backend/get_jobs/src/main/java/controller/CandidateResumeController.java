@@ -1,25 +1,28 @@
 package controller;
 
-import ai.CandidateResumeService;
-import ai.AiService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
-import org.apache.poi.hwpf.HWPFDocument;
-import org.apache.poi.hwpf.extractor.WordExtractor;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.poi.hwpf.extractor.WordExtractor;
+import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import ai.AiService;
+import ai.CandidateResumeService;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 候选人简历管理控制器
@@ -31,8 +34,6 @@ import java.util.Map;
 @Slf4j
 public class CandidateResumeController {
 
-    private final String CONFIG_PATH = "src/main/resources/config.yaml";
-    private final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
     /**
      * 检查是否已上传简历
@@ -228,22 +229,14 @@ public class CandidateResumeController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            // 加载当前配置
-            Map<String, Object> config = loadConfig();
-
-            // 更新boss.sayHi字段
-            @SuppressWarnings("unchecked")
-            Map<String, Object> bossConfig = (Map<String, Object>) config.get("boss");
-            bossConfig.put("sayHi", greeting);
-
-            // 保存配置
-            saveConfig(config);
+            // ✅ 新方案：保存到用户数据目录
+            CandidateResumeService.saveDefaultGreeting(greeting);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "默认打招呼语已保存");
 
-            log.info("【默认打招呼语】已保存到配置文件");
+            log.info("【默认打招呼语】已保存到用户数据目录");
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -251,6 +244,28 @@ public class CandidateResumeController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", "保存失败: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    /**
+     * 加载默认打招呼语
+     */
+    @GetMapping("/load-default-greeting")
+    public ResponseEntity<Map<String, Object>> loadDefaultGreeting() {
+        try {
+            String greeting = CandidateResumeService.loadDefaultGreeting();
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("greeting", greeting);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("【默认打招呼语】加载失败", e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "加载失败: " + e.getMessage());
             return ResponseEntity.status(500).body(response);
         }
     }
@@ -393,21 +408,4 @@ public class CandidateResumeController {
         }
     }
 
-    /**
-     * 加载配置文件
-     */
-    @SuppressWarnings("unchecked")
-    private Map<String, Object> loadConfig() throws Exception {
-        File configFile = new File(CONFIG_PATH);
-        return yamlMapper.readValue(configFile, Map.class);
-    }
-
-    /**
-     * 保存配置文件
-     */
-    private void saveConfig(Map<String, Object> config) throws Exception {
-        File configFile = new File(CONFIG_PATH);
-        yamlMapper.writeValue(configFile, config);
-        log.info("【简历管理】配置文件已更新");
-    }
 }

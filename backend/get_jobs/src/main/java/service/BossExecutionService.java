@@ -28,7 +28,7 @@ public class BossExecutionService {
      * 使用独立的JVM进程避免线程和资源冲突
      */
     public CompletableFuture<Void> executeBossProgram(String logFilePath) {
-        return executeBossProgram(logFilePath, false); // 默认无头模式
+        return executeBossProgram(logFilePath, false); // false=有头模式（用于调试投递问题）
     }
 
     /**
@@ -132,6 +132,7 @@ public class BossExecutionService {
             "-Djava.awt.headless=" + headless, // 动态头模式
             "-Dfile.encoding=UTF-8",   // 设置文件编码
             "-Dsun.java.command=boss.IsolatedBossRunner", // 设置主类
+            "-Dboss.user.id=default_user", // 传递用户ID给Boss程序
             "-cp", fullClasspath,      // 设置classpath
             "boss.IsolatedBossRunner"               // Boss隔离运行器
         };

@@ -1,12 +1,16 @@
 package boss;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.Data;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import utils.JobUtils;
 
 /**
@@ -14,6 +18,7 @@ import utils.JobUtils;
  * 项目链接: <a href="https://github.com/loks666/get_jobs">https://github.com/loks666/get_jobs</a>
  */
 @Data
+@Slf4j
 public class BossConfig {
     /**
      * 用于打招呼的语句
@@ -110,9 +115,65 @@ public class BossConfig {
      */
     private List<String> deadStatus;
 
+    /**
+     * 尝试加载用户配置
+     * 优先从用户数据目录读取配置，如果不存在则返回null
+     */
+    @SneakyThrows
+    private static BossConfig tryLoadUserConfig() {
+        try {
+            // 检查是否有用户ID环境变量（由BossExecutionService传递）
+            String userId = System.getProperty("boss.user.id");
+            if (userId == null) {
+                // 如果没有用户ID，尝试从默认用户配置读取
+                userId = "default_user";
+            }
+
+            String userConfigPath = "user_data/" + userId + "/config.json";
+            File userConfigFile = new File(userConfigPath);
+
+            if (!userConfigFile.exists()) {
+                log.info("用户配置文件不存在: {}", userConfigPath);
+                return null;
+            }
+
+            // 读取用户配置
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> userConfig = mapper.readValue(userConfigFile, Map.class);
+
+            // 提取boss配置部分
+            @SuppressWarnings("unchecked")
+            Map<String, Object> bossConfigMap = (Map<String, Object>) userConfig.get("boss");
+            if (bossConfigMap == null) {
+                log.warn("用户配置中没有boss部分");
+                return null;
+            }
+
+            // 转换为BossConfig对象
+            BossConfig config = mapper.convertValue(bossConfigMap, BossConfig.class);
+            log.info("✅ 成功加载用户配置: userId={}", userId);
+            log.info("📋 配置详情: keywords={}, salary={}, cityCode={}, experience={}, waitTime={}",
+                    config.getKeywords(), config.getSalary(), config.getCityCode(),
+                    config.getExperience(), config.getWaitTime());
+            return config;
+
+        } catch (Exception e) {
+            log.warn("加载用户配置失败: {}", e.getMessage());
+            return null;
+        }
+    }
+
     @SneakyThrows
     public static BossConfig init() {
-        BossConfig config = JobUtils.getConfig(BossConfig.class);
+        // 优先尝试读取用户配置
+        BossConfig config = tryLoadUserConfig();
+        if (config == null) {
+            // 如果用户配置不存在，使用默认配置
+            log.info("用户配置不存在，使用默认配置");
+            config = JobUtils.getConfig(BossConfig.class);
+        } else {
+            log.info("使用用户自定义配置");
+        }
 
         // 转换工作类型
         config.setJobType(BossEnum.JobType.forValue(config.getJobType()).getCode());
@@ -123,11 +184,12 @@ public class BossConfig {
         }
         // 转换城市编码
         if (config.getCityCode() != null) {
+            final BossConfig finalConfig = config; // 创建final引用
             List<String> convertedCityCodes = config.getCityCode().stream()
                     .map(city -> {
                         // 优先从自定义映射中获取
-                        if (config.getCustomCityCode() != null && config.getCustomCityCode().containsKey(city)) {
-                            return config.getCustomCityCode().get(city);
+                        if (finalConfig.getCustomCityCode() != null && finalConfig.getCustomCityCode().containsKey(city)) {
+                            return finalConfig.getCustomCityCode().get(city);
                         }
                         // 否则从枚举中获取
                         return BossEnum.CityCode.forValue(city).getCode();

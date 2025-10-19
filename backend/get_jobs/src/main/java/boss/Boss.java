@@ -26,6 +26,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -636,8 +638,9 @@ public class Boss {
 
         // 5. 等待聊天对话框出现
         log.info("等待聊天对话框加载...");
+        log.info("当前页面URL: {}", detailPage.url());
         boolean dialogReady = false;
-        for (int i = 0; i < 20; i++) {  // 增加等待次数
+        for (int i = 0; i < 30; i++) {  // 增加等待次数到30次
             // 检查多种可能的聊天对话框选择器
             String[] dialogSelectors = {
                 ".dialog-container",
@@ -758,7 +761,7 @@ public class Boss {
         Locator inputLocator = null;
         boolean inputReady = false;
 
-        for (int i = 0; i < 15; i++) {  // 增加等待次数
+        for (int i = 0; i < 25; i++) {  // 增加等待次数到25次
             for (String selector : inputSelectors) {
                 Locator testLocator = detailPage.locator(selector);
                 if (testLocator.count() > 0) {
@@ -771,11 +774,26 @@ public class Boss {
                                 String contentEditable = testLocator.nth(j).evaluate("el => el.contentEditable").toString();
                                 String inputType = testLocator.nth(j).evaluate("el => el.type || ''").toString();
 
+                                // 检查是否是搜索框（排除）
+                                String className = testLocator.nth(j).evaluate("el => el.className || ''").toString();
+                                String name = testLocator.nth(j).evaluate("el => el.name || ''").toString();
+                                String placeholder = testLocator.nth(j).evaluate("el => el.placeholder || ''").toString();
+
+                                // 排除搜索框、验证码框和其他非聊天输入框
+                                if (className.contains("ipt-search") || className.contains("search") ||
+                                    className.contains("ipt-sms") ||  // 短信验证码框
+                                    name.equals("query") || name.equals("phoneCode") ||  // query是搜索框，phoneCode是验证码框
+                                    placeholder.contains("搜索") || placeholder.contains("验证码")) {
+                                    log.debug("跳过非聊天输入框: {}, class={}, name={}, placeholder={}",
+                                        selector, className, name, placeholder);
+                                    continue;
+                                }
+
                                 // 如果是input、textarea或contenteditable元素，认为是输入框
                                 if ("input".equals(elementType) || "textarea".equals(elementType) ||
                                     "true".equals(contentEditable) || !inputType.isEmpty()) {
-                                    log.info("找到聊天输入框: {} (第{}个元素, 类型: {}, 可编辑: {})",
-                                        selector, j, elementType, contentEditable);
+                                    log.info("找到聊天输入框: {} (第{}个元素, 类型: {}, 可编辑: {}, class: {})",
+                                        selector, j, elementType, contentEditable, className);
                                     inputLocator = testLocator.nth(j);
                                     inputReady = true;
                                     break;
@@ -1151,17 +1169,22 @@ public class Boss {
             return sayHi;
         }
 
-        // 检查是否有候选人简历
-        if (!CandidateResumeService.hasCandidateResume()) {
-            log.warn("【打招呼语】未找到候选人简历，使用默认招呼语");
+        // 检查是否有候选人简历（直接从文件读取，不依赖Spring Security）
+        String userId = System.getProperty("boss.user.id", "default_user");
+        String resumePath = "user_data/" + userId + "/resume.json";
+        File resumeFile = new File(resumePath);
+
+        if (!resumeFile.exists()) {
+            log.warn("【打招呼语】未找到简历文件: {}，使用默认招呼语", resumePath);
             return sayHi;
         }
 
         try {
-            // 加载候选人信息
-            Map<String, Object> candidate = CandidateResumeService.loadCandidateInfo();
+            // 直接从文件加载候选人信息
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> candidate = mapper.readValue(resumeFile, Map.class);
             if (candidate == null) {
-                log.warn("【打招呼语】加载候选人信息失败，使用默认招呼语");
+                log.warn("【打招呼语】简历文件为空，使用默认招呼语");
                 return sayHi;
             }
 
@@ -1277,6 +1300,34 @@ public class Boss {
     }
 
     /**
+     * 检查页面是否存在登录弹窗
+     * @param page 页面对象
+     * @return 是否存在登录弹窗
+     */
+    private static boolean checkLoginDialogPresent(com.microsoft.playwright.Page page) {
+        try {
+            // 检查是否存在登录弹窗遮罩
+            Locator loginMask = page.locator(Locators.LOGIN_DIALOG_MASK);
+            if (loginMask.count() > 0 && loginMask.first().isVisible()) {
+                log.info("检测到登录弹窗存在");
+                return true;
+            }
+
+            // 检查是否存在登录对话框
+            Locator loginDialog = page.locator(Locators.LOGIN_DIALOG);
+            if (loginDialog.count() > 0 && loginDialog.first().isVisible()) {
+                log.info("检测到登录对话框存在");
+                return true;
+            }
+
+            return false;
+        } catch (Exception e) {
+            log.debug("检查登录弹窗失败: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    /**
      * 检查并关闭登录弹窗
      * @param page 页面对象
      * @return 是否关闭了弹窗
@@ -1316,6 +1367,19 @@ public class Boss {
                     log.info("登录弹窗已关闭");
                     return true;
                 }
+
+                // 尝试使用JavaScript强制移除弹窗
+                log.info("尝试使用JavaScript强制移除登录弹窗");
+                page.evaluate("() => { " +
+                    "const mask = document.querySelector('.boss-login-dialog-mask'); " +
+                    "const dialog = document.querySelector('.boss-login-dialog'); " +
+                    "if (mask) mask.remove(); " +
+                    "if (dialog) dialog.remove(); " +
+                "}");
+                PlaywrightUtil.sleep(1);
+
+                log.info("已强制移除登录弹窗元素");
+                return true;
             }
             return false;
         } catch (Exception e) {
@@ -1543,11 +1607,36 @@ public class Boss {
         if (!needLogin) {
             PlaywrightUtil.loadCookies(cookiePath);
             page.reload();
-            PlaywrightUtil.sleep(1);
+            PlaywrightUtil.sleep(2);
             waitForSliderVerify(page);
-            // 启用反检测模式
-            PlaywrightUtil.initStealth();
-            log.info("Cookie已加载，登录状态正常，继续执行...");
+
+            // 检查是否出现强制登录弹窗（运行时Cookie失效）
+            boolean hasLoginDialog = checkLoginDialogPresent(page);
+            if (hasLoginDialog) {
+                log.warn("⚠️ Cookie文件存在但运行时失效（检测到登录弹窗），需要重新登录");
+                needLogin = true;
+
+                // 切换到有头模式进行重新登录
+                log.info("切换到有头模式进行重新登录...");
+                PlaywrightUtil.switchToHeaded();
+
+                // 重新导航到首页并登录
+                page.navigate(homeUrl);
+                PlaywrightUtil.sleep(1);
+                scanLogin();
+
+                // 登录成功后切换回无头模式
+                log.info("重新登录成功，切换到无头模式...");
+                PlaywrightUtil.switchToHeadless();
+
+                // 重新加载页面
+                page.navigate(homeUrl);
+                PlaywrightUtil.sleep(1);
+            } else {
+                // 启用反检测模式
+                PlaywrightUtil.initStealth();
+                log.info("Cookie已加载，登录状态正常，继续执行...");
+            }
         } else {
             // Cookie无效，需要登录
             log.info("需要登录，启动登录流程...");

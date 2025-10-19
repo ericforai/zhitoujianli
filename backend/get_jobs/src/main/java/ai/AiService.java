@@ -1,10 +1,5 @@
 package ai;
 
-import io.github.cdimascio.dotenv.Dotenv;
-import lombok.extern.slf4j.Slf4j;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -14,7 +9,18 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import io.github.cdimascio.dotenv.Dotenv;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author loks666
@@ -93,7 +99,7 @@ public class AiService {
                     JSONObject messageObject = choices.getJSONObject(0).getJSONObject("message");
                     responseContent = messageObject.getString("content");
                 } else {
-                    log.error("AI响应中没有choices数据");
+                    log.error("AI响应中没有choices数据，完整响应: {}", response.body());
                     return "";
                 }
 
@@ -119,12 +125,19 @@ public class AiService {
 
                 return responseContent;
             } else {
-                log.error("AI请求失败！状态码: {}, 响应: {}", response.statusCode(), response.body());
-        }
+                log.error("AI请求失败！状态码: {}, URL: {}, API_KEY前缀: {}, 响应: {}",
+                    response.statusCode(), apiEndpoint,
+                    API_KEY.substring(0, Math.min(10, API_KEY.length())) + "...",
+                    response.body());
+            }
     } catch (TimeoutException e) {
-        log.error("请求超时！超时设置为 {} 秒", timeoutInSeconds);
+        log.error("AI请求超时！超时设置为 {} 秒，URL: {}, API_KEY前缀: {}",
+            timeoutInSeconds, apiEndpoint,
+            API_KEY.substring(0, Math.min(10, API_KEY.length())) + "...");
     } catch (Exception e) {
-        log.error("AI请求异常！", e);
+        log.error("AI请求异常！URL: {}, API_KEY前缀: {}, 错误: {}",
+            apiEndpoint,
+            API_KEY.substring(0, Math.min(10, API_KEY.length())) + "...", e);
     } finally {
         executor.shutdownNow();  // 关闭线程池
     }

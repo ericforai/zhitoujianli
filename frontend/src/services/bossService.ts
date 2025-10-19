@@ -1,5 +1,5 @@
 import axios from 'axios';
-import config from '../config/environment';
+import config, { CONFIG_CONSTANTS } from '../config/environment';
 
 /**
  * Boss直聘投递功能服务
@@ -13,12 +13,33 @@ import config from '../config/environment';
  * 创建Boss服务专用的axios实例
  */
 const bossApiClient = axios.create({
-  baseURL: config.apiBaseUrl.replace('/api', ''), // Boss服务不在 /api 路径下
+  baseURL: config.apiBaseUrl, // 使用 /api 路径
   timeout: config.requestTimeout,
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+/**
+ * 请求拦截器：添加认证Token
+ */
+bossApiClient.interceptors.request.use(
+  requestConfig => {
+    // 从localStorage获取token
+    const token =
+      localStorage.getItem(CONFIG_CONSTANTS.TOKEN_KEY) ||
+      localStorage.getItem(CONFIG_CONSTANTS.AUTH_TOKEN_KEY);
+
+    if (token) {
+      requestConfig.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return requestConfig;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
 
 export interface BossStatus {
   isRunning: boolean;
@@ -48,7 +69,7 @@ export const bossService = {
   startBossTask: async (): Promise<BossTaskResponse> => {
     try {
       const response =
-        await bossApiClient.post<BossTaskResponse>('/start-boss-task');
+        await bossApiClient.post<BossTaskResponse>('/boss/start-task');
       return response.data;
     } catch (error: any) {
       console.error('启动Boss任务失败:', error);
@@ -62,7 +83,7 @@ export const bossService = {
   stopBossTask: async (): Promise<BossTaskResponse> => {
     try {
       const response =
-        await bossApiClient.post<BossTaskResponse>('/stop-program');
+        await bossApiClient.post<BossTaskResponse>('/boss/stop-task');
       return response.data;
     } catch (error: any) {
       console.error('停止Boss任务失败:', error);
@@ -75,7 +96,7 @@ export const bossService = {
    */
   getBossStatus: async (): Promise<BossStatus> => {
     try {
-      const response = await bossApiClient.get<BossStatus>('/status');
+      const response = await bossApiClient.get<BossStatus>('/boss/status');
       return response.data;
     } catch (error: any) {
       console.error('获取Boss状态失败:', error);
@@ -89,7 +110,7 @@ export const bossService = {
   getBossLogs: async (lines: number = 50): Promise<LogsResponse> => {
     try {
       const response = await bossApiClient.get<LogsResponse>(
-        `/logs?lines=${lines}`
+        `/boss/logs?lines=${lines}`
       );
       return response.data;
     } catch (error: any) {
@@ -103,7 +124,7 @@ export const bossService = {
    */
   getUserConfig: async (): Promise<any> => {
     try {
-      const response = await bossApiClient.get('/api/config');
+      const response = await bossApiClient.get('/boss/config');
       return response.data;
     } catch (error: any) {
       console.error('获取用户配置失败:', error);
@@ -116,7 +137,10 @@ export const bossService = {
    */
   saveUserConfig: async (configData: any): Promise<any> => {
     try {
-      const response = await bossApiClient.post('/save-config', configData);
+      const response = await bossApiClient.post(
+        '/boss/save-config',
+        configData
+      );
       return response.data;
     } catch (error: any) {
       console.error('保存用户配置失败:', error);

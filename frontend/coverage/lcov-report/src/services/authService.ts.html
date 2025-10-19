@@ -483,13 +483,7 @@
 <a name='L418'></a><a href='#L418'>418</a>
 <a name='L419'></a><a href='#L419'>419</a>
 <a name='L420'></a><a href='#L420'>420</a>
-<a name='L421'></a><a href='#L421'>421</a>
-<a name='L422'></a><a href='#L422'>422</a>
-<a name='L423'></a><a href='#L423'>423</a>
-<a name='L424'></a><a href='#L424'>424</a>
-<a name='L425'></a><a href='#L425'>425</a>
-<a name='L426'></a><a href='#L426'>426</a>
-<a name='L427'></a><a href='#L427'>427</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L421'></a><a href='#L421'>421</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -728,9 +722,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -749,9 +740,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1149,13 +1137,10 @@ export const authService = <span class="cstat-no" title="statement not covered" 
     email: string,
     password: string
   ): Promise&lt;LoginResponse&gt; =&gt; {
-    const response = <span class="cstat-no" title="statement not covered" >await apiClient.post&lt;LoginResponse&gt;(</span>
-      '/api/auth/login/email',
-      {
-        email,
-        password,
-      }
-    );
+    const response = <span class="cstat-no" title="statement not covered" >await apiClient.post&lt;LoginResponse&gt;('/auth/login/email', {</span>
+      email,
+      password,
+    });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    return handleLoginResponse(response.data);</span>
   },
@@ -1174,13 +1159,10 @@ export const authService = <span class="cstat-no" title="statement not covered" 
    * 手机号验证码登录
    */
   loginByPhone: <span class="fstat-no" title="function not covered" >as</span>ync (phone: string, code: string): Promise&lt;LoginResponse&gt; =&gt; {
-    const response = <span class="cstat-no" title="statement not covered" >await apiClient.post&lt;LoginResponse&gt;(</span>
-      '/api/auth/login/phone',
-      {
-        phone,
-        code,
-      }
-    );
+    const response = <span class="cstat-no" title="statement not covered" >await apiClient.post&lt;LoginResponse&gt;('/auth/login/phone', {</span>
+      phone,
+      code,
+    });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    return handleLoginResponse(response.data);</span>
   },
@@ -1192,7 +1174,7 @@ export const authService = <span class="cstat-no" title="statement not covered" 
     email: string,
     verificationCode: string
   ): Promise&lt;{ success: boolean; message: string }&gt; =&gt; {
-    const response = <span class="cstat-no" title="statement not covered" >await apiClient.post('/api/auth/verify-code', {</span>
+    const response = <span class="cstat-no" title="statement not covered" >await apiClient.post('/auth/verify-code', {</span>
       email,
       code: verificationCode,
     });
@@ -1221,7 +1203,7 @@ export const authService = <span class="cstat-no" title="statement not covered" 
     password: string,
     username?: string
   ): Promise&lt;{ success: boolean; message: string; userId?: string }&gt; =&gt; {
-    const response = <span class="cstat-no" title="statement not covered" >await apiClient.post('/api/auth/register', {</span>
+    const response = <span class="cstat-no" title="statement not covered" >await apiClient.post('/auth/register', {</span>
       email,
       password,
       username,
@@ -1237,7 +1219,7 @@ export const authService = <span class="cstat-no" title="statement not covered" 
     password: string,
     username?: string
   ): Promise&lt;{ success: boolean; message: string; userId?: string }&gt; =&gt; {
-    const response = <span class="cstat-no" title="statement not covered" >await apiClient.post('/api/auth/register/phone', {</span>
+    const response = <span class="cstat-no" title="statement not covered" >await apiClient.post('/auth/register/phone', {</span>
       phone,
       password,
       username,
@@ -1348,7 +1330,7 @@ export default apiClient;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-16T04:32:40.253Z
+                at 2025-10-17T08:59:57.120Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
