@@ -42,14 +42,21 @@ apiClient.interceptors.request.use(
 );
 
 /**
- * 响应拦截器：处理401错误（Token过期或无效）
+ * 响应拦截器：处理401错误和302重定向
  */
 apiClient.interceptors.response.use(
   response => response,
   error => {
+    // 处理网络错误或者无响应的情况
+    if (!error.response) {
+      console.error('网络错误或服务器无响应:', error.message);
+      return Promise.reject(error);
+    }
+
     // 检查是否是认证相关的错误
     if (
       error.response?.status === 401 ||
+      error.response?.status === 302 ||
       (error.response?.data?.message &&
         (error.response.data.message.includes('需要登录认证') ||
           error.response.data.message.includes('用户未登录')))

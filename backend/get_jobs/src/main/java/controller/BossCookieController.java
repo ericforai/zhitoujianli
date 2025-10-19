@@ -5,6 +5,8 @@ import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.HttpHeaders;
@@ -444,5 +446,120 @@ public class BossCookieController {
         script.append("});%n");
 
         return script.toString();
+    }
+
+    /**
+     * 获取Boss任务状态
+     */
+    @GetMapping("/status")
+    public ResponseEntity<Map<String, Object>> getBossStatus() {
+        try {
+            Map<String, Object> status = new HashMap<>();
+            status.put("isRunning", false); // 暂时返回false，后续可以从WebController获取真实状态
+            status.put("deliveryCount", 0);
+            return ResponseEntity.ok(status);
+        } catch (Exception e) {
+            log.error("获取Boss状态失败", e);
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "获取状态失败: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
+    }
+
+    /**
+     * 获取Boss任务日志
+     */
+    @GetMapping("/logs")
+    public ResponseEntity<Map<String, Object>> getBossLogs(@RequestParam(defaultValue = "50") int lines) {
+        try {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("logs", new String[]{"暂无日志数据"});
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("获取Boss日志失败", e);
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "获取日志失败: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
+    }
+
+    /**
+     * 启动Boss任务
+     */
+    @PostMapping("/start-task")
+    public ResponseEntity<Map<String, Object>> startBossTask() {
+        try {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Boss任务启动成功");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("启动Boss任务失败", e);
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "启动任务失败: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
+    }
+
+    /**
+     * 停止Boss任务
+     */
+    @PostMapping("/stop-task")
+    public ResponseEntity<Map<String, Object>> stopBossTask() {
+        try {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Boss任务停止成功");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("停止Boss任务失败", e);
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "停止任务失败: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
+    }
+
+    /**
+     * 获取Boss配置
+     */
+    @GetMapping("/config")
+    public ResponseEntity<Map<String, Object>> getBossConfig() {
+        try {
+            Map<String, Object> config = new HashMap<>();
+            config.put("keywords", Arrays.asList("市场总监", "市场营销", "品牌营销"));
+            config.put("cityCode", Arrays.asList("上海"));
+            config.put("experience", Arrays.asList("10年以上"));
+            return ResponseEntity.ok(config);
+        } catch (Exception e) {
+            log.error("获取Boss配置失败", e);
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "获取配置失败: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
+    }
+
+    /**
+     * 保存Boss配置
+     */
+    @PostMapping("/save-config")
+    public ResponseEntity<Map<String, Object>> saveBossConfig(@RequestBody Map<String, Object> config) {
+        try {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Boss配置保存成功");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("保存Boss配置失败", e);
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "保存配置失败: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
     }
 }

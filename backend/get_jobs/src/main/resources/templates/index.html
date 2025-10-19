@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI找工作助手 - 可视化配置</title>
+    <title>智投简历 - 找工作更轻松</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -135,6 +135,9 @@
           <div class="d-grid gap-2">
             <button class="btn btn-primary" onclick="saveConfig()">
               <i class="bi bi-save"></i> 保存配置
+            </button>
+            <button class="btn btn-success" onclick="testToast()">
+              <i class="bi bi-check"></i> 测试Toast
             </button>
             <button class="btn btn-outline-secondary" onclick="loadConfig()">
               <i class="bi bi-arrow-clockwise"></i> 重新加载
@@ -286,16 +289,12 @@
 
                     <div class="mb-3">
                       <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="enableAI" />
-                        <label class="form-check-label" for="enableAI">
-                          启用AI智能打招呼（旧版）
-                        </label>
-                      </div>
-                    </div>
-
-                    <div class="mb-3">
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="enableSmartGreeting" />
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="enableSmartGreeting"
+                          checked
+                        />
                         <label class="form-check-label" for="enableSmartGreeting">
                           <strong>启用智能打招呼语生成（基于简历+JD）</strong>
                         </label>
@@ -321,14 +320,7 @@
                     id="bossSayHi"
                     rows="8"
                     placeholder="输入您的打招呼语..."
-                  >
-您好！
-我对这个岗位非常感兴趣。我简单介绍一下：过往18年的职业生涯中，我始终专注于B2B领域的市场增长与品牌构建。在泛微网络（股票代码：603039）担任网络营销总监期间，我成功主导构建了一套融合销售与营销的数字化增长体系，助力公司营收在6年内实现了从7亿到近24亿的跨越，其中市场营销部门直接贡献了超过10亿的销售额 。
-
-我深信，我在全链路营销策略、大规模市场活动策划（年度活动报名超6万人次） 以及高效能团队管理方面的深度实践，能够为贵公司在品牌影响力提升、业务增长方面带来切实的价值。
-
-期待有机会能与您进一步交流，探讨我如何为团队贡献力量。</textarea
-                  >
+                  ></textarea>
                 </div>
               </div>
             </div>
@@ -539,27 +531,261 @@
       let autoRefreshInterval;
       let isRunning = false;
 
-      // 页面加载完成后初始化
-      document.addEventListener('DOMContentLoaded', function () {
-        loadConfig();
-        updateStatus();
-        startAutoRefresh();
-      });
+      // 定时器引用，用于清除
+      let statusTimer = null;
+      let logsTimer = null;
+
+      /**
+       * 验证Token是否有效
+       */
+      async function checkTokenValidity() {
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+        if (!token) {
+          console.warn('⚠️ 未找到Token');
+          return false;
+        }
+
+        try {
+          // 直接使用fetch验证Token，避免循环依赖
+          const response = await fetch('/api/config', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'X-Requested-With': 'XMLHttpRequest',
+            },
+            redirect: 'manual',
+          });
+
+          // 检查响应状态
+          if (
+            response.type === 'opaqueredirect' ||
+            response.status === 302 ||
+            response.status === 401
+          ) {
+            console.warn('⚠️ Token已过期');
+            return false;
+          }
+
+          return response.ok;
+        } catch (error) {
+          console.error('❌ Token验证失败:', error);
+          return false;
+        }
+      }
+
+      /**
+       * 清除所有定时器
+       */
+      function clearAllTimers() {
+        if (statusTimer) {
+          clearInterval(statusTimer);
+          statusTimer = null;
+        }
+        if (logsTimer) {
+          clearInterval(logsTimer);
+          logsTimer = null;
+        }
+        console.log('✅ 已清除所有定时器');
+      }
+
+      // 通用认证请求函数
+      function fetchWithAuth(url, options = {}) {
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+        if (!token) {
+          console.log('🔓 未检测到认证token，使用普通请求（安全认证可能已禁用）');
+          // 添加 X-Requested-With 头，确保后端识别为AJAX请求
+          options.headers = options.headers || {};
+          options.headers['X-Requested-With'] = 'XMLHttpRequest';
+          return fetch(url, options);
+        } else {
+          // 如果有token，添加到请求头
+          options.headers = options.headers || {};
+          options.headers['Authorization'] = `Bearer ${token}`;
+          options.headers['X-Requested-With'] = 'XMLHttpRequest';
+          return fetch(url, options);
+        }
+
+        // 🔧 关键修复：阻止自动跟随重定向
+        options.redirect = 'manual';
+
+        return fetch(url, options).then(response => {
+          // 现在可以正确检测到302了
+          if (response.type === 'opaqueredirect' || response.status === 0) {
+            console.warn('⚠️ 检测到302重定向，token可能已过期');
+            localStorage.removeItem('authToken');
+            clearAllTimers(); // 清除定时器
+            window.location.href = 'https://zhitoujianli.com/login';
+            throw new Error('登录已过期');
+          }
+
+          // 处理401未授权
+          if (response.status === 401) {
+            console.warn('⚠️ 401未授权，token已过期');
+            localStorage.removeItem('authToken');
+            clearAllTimers(); // 清除定时器
+            window.location.href = 'https://zhitoujianli.com/login';
+            throw new Error('登录已过期');
+          }
+
+          // 处理非JSON响应
+          const contentType = response.headers.get('content-type');
+          if (!contentType || !contentType.includes('application/json')) {
+            console.error('非JSON响应，Content-Type:', contentType);
+            throw new Error('服务器返回了非JSON响应');
+          }
+
+          return response;
+        });
+      }
+
+      // 检查登录状态
+      function checkLoginStatus() {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          window.location.href = 'https://zhitoujianli.com/login';
+          return false;
+        }
+        return true;
+      }
+
+      // 页面加载完成后初始化 - 已删除，使用下面的async版本
 
       // 加载配置
       async function loadConfig() {
         try {
-          const response = await fetch('/');
-          const text = await response.text();
-          // 这里需要解析HTML中的配置数据，实际项目中应该通过API获取
-          console.log('配置加载完成');
+          const response = await fetchWithAuth('/api/config');
+          const result = await response.json();
+
+          if (result.success && result.config) {
+            // 将配置数据填充到表单中
+            const config = result.config;
+
+            // Boss直聘配置
+            if (config.boss) {
+              // 加载关键词
+              if (config.boss.keywords && Array.isArray(config.boss.keywords)) {
+                const keywordsElement = document.getElementById('bossKeywords');
+                if (keywordsElement) {
+                  keywordsElement.textContent = config.boss.keywords.join(', ');
+                }
+              }
+
+              // 加载打招呼语
+              if (config.boss.sayHi) {
+                const sayHiElement = document.getElementById('bossSayHi');
+                if (sayHiElement) {
+                  sayHiElement.value = config.boss.sayHi;
+                }
+              }
+
+              // 加载城市
+              if (config.boss.cityCode && Array.isArray(config.boss.cityCode)) {
+                const citySelect = document.getElementById('bossCityCode');
+                if (citySelect) {
+                  citySelect.value = config.boss.cityCode[0]; // 取第一个城市
+                }
+              }
+
+              // 加载工作经验
+              if (config.boss.experience && Array.isArray(config.boss.experience)) {
+                const expSelect = document.getElementById('bossExperience');
+                if (expSelect) {
+                  expSelect.value = config.boss.experience[0]; // 取第一个经验要求
+                }
+              }
+
+              // 加载薪资
+              if (config.boss.salary && Array.isArray(config.boss.salary)) {
+                const salarySelect = document.getElementById('bossSalary');
+                if (salarySelect) {
+                  salarySelect.value = config.boss.salary[0]; // 取第一个薪资范围
+                }
+              } else if (config.boss.salary) {
+                const salarySelect = document.getElementById('bossSalary');
+                if (salarySelect) {
+                  salarySelect.value = config.boss.salary;
+                }
+              }
+
+              // 加载期望薪资
+              if (config.boss.expectedSalary && Array.isArray(config.boss.expectedSalary)) {
+                const minSalaryElement = document.getElementById('expectedSalaryMin');
+                const maxSalaryElement = document.getElementById('expectedSalaryMax');
+                if (minSalaryElement && config.boss.expectedSalary[0]) {
+                  minSalaryElement.value = config.boss.expectedSalary[0];
+                }
+                if (maxSalaryElement && config.boss.expectedSalary[1]) {
+                  maxSalaryElement.value = config.boss.expectedSalary[1];
+                }
+              }
+
+              // 加载投递间隔
+              if (config.boss.waitTime) {
+                const waitTimeElement = document.getElementById('bossWaitTime');
+                if (waitTimeElement) {
+                  waitTimeElement.value = config.boss.waitTime;
+                }
+              }
+
+              // 加载开关选项
+              if (config.boss.filterDeadHR !== undefined) {
+                const filterDeadHRElement = document.getElementById('filterDeadHR');
+                if (filterDeadHRElement) {
+                  filterDeadHRElement.checked = config.boss.filterDeadHR;
+                }
+              }
+
+              if (config.boss.enableAI !== undefined) {
+                const enableAIElement = document.getElementById('enableAI');
+                if (enableAIElement) {
+                  enableAIElement.checked = config.boss.enableAI;
+                }
+              }
+
+              if (config.boss.enableSmartGreeting !== undefined) {
+                const enableSmartGreetingElement = document.getElementById('enableSmartGreeting');
+                if (enableSmartGreetingElement) {
+                  enableSmartGreetingElement.checked = config.boss.enableSmartGreeting;
+                }
+              }
+
+              if (config.boss.sendImgResume !== undefined) {
+                const sendImgResumeElement = document.getElementById('sendImgResume');
+                if (sendImgResumeElement) {
+                  sendImgResumeElement.checked = config.boss.sendImgResume;
+                }
+              }
+            }
+
+            console.log('配置加载完成');
+          } else {
+            showMessage('加载配置失败: ' + (result.message || '未知错误'), 'error');
+          }
         } catch (error) {
+          console.error('加载配置错误:', error);
           showMessage('加载配置失败: ' + error.message, 'error');
         }
       }
 
       // 保存配置
       async function saveConfig() {
+        console.log('🔄 开始保存配置...');
+
+        // 检查所有必需的元素是否存在
+        const requiredElements = [
+          'bossSayHi', 'bossKeywords', 'bossSalary', 'expectedSalaryMin',
+          'expectedSalaryMax', 'bossWaitTime', 'filterDeadHR', 'enableSmartGreeting', 'sendImgResume'
+        ];
+
+        for (const elementId of requiredElements) {
+          const element = document.getElementById(elementId);
+          if (!element) {
+            console.error(`❌ 元素不存在: ${elementId}`);
+            showMessage(`配置错误：找不到元素 ${elementId}`, 'error');
+            return;
+          }
+          console.log(`✅ 元素存在: ${elementId}`);
+        }
+
         const config = {
           boss: {
             debugger: false,
@@ -577,7 +803,7 @@
               o => o.value
             ),
             jobType: '不限',
-            salary: document.getElementById('bossSalary').value,
+            salary: [document.getElementById('bossSalary').value],
             degree: ['不限'],
             scale: ['不限'],
             stage: ['不限'],
@@ -585,24 +811,25 @@
               parseInt(document.getElementById('expectedSalaryMin').value),
               parseInt(document.getElementById('expectedSalaryMax').value),
             ],
-            waitTime: parseInt(document.getElementById('bossWaitTime').value),
+            waitTime: document.getElementById('bossWaitTime').value,
             filterDeadHR: document.getElementById('filterDeadHR').checked,
-            enableAI: document.getElementById('enableAI').checked,
+            enableAI: document.getElementById('enableAI') ? document.getElementById('enableAI').checked : false,
             enableSmartGreeting: document.getElementById('enableSmartGreeting').checked,
             sendImgResume: document.getElementById('sendImgResume').checked,
-            deadStatus: ['2周内活跃', '本月活跃', '2月内活跃', '半年前活跃'],
+            deadStatus: ['3月前活跃', '半年前活跃', '1年前活跃', '2年前活跃'],
           },
           ai: {
-            introduce: document.getElementById('aiIntroduce').value,
-            prompt: document.getElementById('aiPrompt').value,
+            introduce: document.getElementById('aiIntroduce') ? document.getElementById('aiIntroduce').value : '',
+            prompt: document.getElementById('aiPrompt') ? document.getElementById('aiPrompt').value : '',
           },
           bot: {
-            is_send: document.getElementById('botIsSend').checked,
+            is_send: document.getElementById('botIsSend') ? document.getElementById('botIsSend').checked : false,
           },
         };
 
         try {
-          const response = await fetch('/save-config', {
+          console.log('🔄 开始保存配置...');
+          const response = await fetchWithAuth('/api/config', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -610,13 +837,20 @@
             body: JSON.stringify(config),
           });
 
+          console.log('📡 收到响应:', response.status);
           const result = await response.json();
+          console.log('📋 响应数据:', result);
+
           if (result.success) {
+            console.log('✅ 准备显示成功消息');
             showMessage('配置保存成功', 'success');
+            console.log('✅ showMessage已调用');
           } else {
+            console.log('❌ 准备显示失败消息');
             showMessage('保存失败: ' + result.message, 'error');
           }
         } catch (error) {
+          console.error('❌ 保存配置异常:', error);
           showMessage('保存配置失败: ' + error.message, 'error');
         }
       }
@@ -626,7 +860,7 @@
         const platform = document.getElementById('platformSelect').value;
 
         try {
-          const response = await fetch('/start-program', {
+          const response = await fetchWithAuth('/start-program', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
@@ -650,7 +884,7 @@
       // 启动投递任务
       async function startBossTask() {
         try {
-          const response = await fetch('/start-boss-task', {
+          const response = await fetchWithAuth('/start-boss-task', {
             method: 'POST',
           });
 
@@ -670,7 +904,7 @@
       // 停止程序
       async function stopProgram() {
         try {
-          const response = await fetch('/stop-program', {
+          const response = await fetchWithAuth('/stop-program', {
             method: 'POST',
           });
 
@@ -690,18 +924,7 @@
       // 更新状态
       async function updateStatus() {
         try {
-          const token = localStorage.getItem('authToken');
-          const response = await fetch('/status', {
-            headers: {
-              Authorization: 'Bearer ' + token,
-            },
-          });
-
-          if (response.status === 401) {
-            logout();
-            return;
-          }
-
+          const response = await fetchWithAuth('/status');
           const status = await response.json();
 
           isRunning = status.isRunning;
@@ -728,36 +951,37 @@
           deliveryCount.textContent = count;
           console.log('投递统计更新:', count);
         } catch (error) {
-          console.error('更新状态失败:', error);
+          // 如果是登录过期错误，不显示错误消息（fetchWithAuth已处理）
+          if (!error.message.includes('登录已过期')) {
+            console.error('更新状态失败:', error);
+            showMessage('更新状态失败: ' + error.message, 'error');
+          }
         }
       }
 
       // 刷新日志
       async function refreshLogs() {
         try {
-          const token = localStorage.getItem('authToken');
-          const response = await fetch('/logs?lines=100', {
-            headers: {
-              Authorization: 'Bearer ' + token,
-            },
-          });
-
-          if (response.status === 401) {
-            logout();
-            return;
-          }
-
+          const response = await fetchWithAuth('/logs?lines=100');
           const result = await response.json();
 
-          if (result.success) {
+          if (result.success && result.logs) {
             const logContainer = document.getElementById('logContainer');
-            logContainer.innerHTML = result.logs
-              .map(log => `<div class="log-line">${escapeHtml(log)}</div>`)
-              .join('');
-            logContainer.scrollTop = logContainer.scrollHeight;
+            if (logContainer) {
+              logContainer.innerHTML = result.logs
+                .map(log => `<div class="log-line">${escapeHtml(log)}</div>`)
+                .join('');
+              logContainer.scrollTop = logContainer.scrollHeight;
+            }
+          } else {
+            console.warn('日志加载失败:', result.message);
           }
         } catch (error) {
-          console.error('刷新日志失败:', error);
+          // 如果是登录过期错误，不显示错误消息
+          if (!error.message.includes('登录已过期')) {
+            console.error('刷新日志失败:', error);
+            showMessage('刷新日志失败: ' + error.message, 'error');
+          }
         }
       }
 
@@ -781,26 +1005,50 @@
         }, 3000);
       }
 
+      // 测试Toast功能
+      function testToast() {
+        console.log('🧪 测试Toast功能');
+        showMessage('这是测试消息', 'success');
+      }
+
       // 显示消息
       function showMessage(message, type = 'info') {
-        const toast = document.getElementById('messageToast');
-        const toastMessage = document.getElementById('toastMessage');
-        const toastHeader = toast.querySelector('.toast-header i');
+        console.log('📢 showMessage被调用:', message, type);
+        try {
+          const toast = document.getElementById('messageToast');
+          const toastMessage = document.getElementById('toastMessage');
+          const toastHeader = toast.querySelector('.toast-header i');
 
-        toastMessage.textContent = message;
+          console.log('📢 Toast元素:', toast ? '存在' : '不存在');
+          console.log('📢 ToastMessage元素:', toastMessage ? '存在' : '不存在');
 
-        // 设置图标和颜色
-        toastHeader.className = 'bi me-2';
-        if (type === 'success') {
-          toastHeader.classList.add('bi-check-circle', 'text-success');
-        } else if (type === 'error') {
-          toastHeader.classList.add('bi-exclamation-triangle', 'text-danger');
-        } else {
-          toastHeader.classList.add('bi-info-circle', 'text-primary');
+          toastMessage.textContent = message;
+
+          // 设置图标和颜色
+          toastHeader.className = 'bi me-2';
+          if (type === 'success') {
+            toastHeader.classList.add('bi-check-circle', 'text-success');
+          } else if (type === 'error') {
+            toastHeader.classList.add('bi-exclamation-triangle', 'text-danger');
+          } else {
+            toastHeader.classList.add('bi-info-circle', 'text-primary');
+          }
+
+          // 确保toast容器可见
+          const toastContainer = document.querySelector('.toast-container');
+          toastContainer.style.display = 'block';
+
+          console.log('📢 准备初始化Bootstrap Toast');
+          const bsToast = new bootstrap.Toast(toast, {
+            autohide: true,
+            delay: 3000,
+          });
+          console.log('📢 调用bsToast.show()');
+          bsToast.show();
+          console.log('📢 Toast应该已显示');
+        } catch (error) {
+          console.error('❌ showMessage执行失败:', error);
         }
-
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
       }
 
       // HTML转义
@@ -839,21 +1087,30 @@
         console.log('主页面开始加载');
 
         // 检查登录状态
-        const authResult = await checkAuth();
-        if (!authResult) {
-          console.log('认证检查失败，页面将重定向到登录页');
+        const isLoggedIn = await checkTokenValidity();
+        if (!isLoggedIn) {
+          console.warn('⚠️ 用户未登录或Token已过期，重定向到登录页');
+          window.location.href = '/login';
           return;
         }
 
-        console.log('认证检查通过，开始初始化页面');
+        console.log('✅ 认证检查通过，开始初始化页面');
+
+        // 加载配置
+        await loadConfig();
+
+        // 启动自动刷新
+        startAutoRefresh();
+
+        // 立即执行一次
         updateStatus();
         refreshLogs();
 
-        // 每5秒更新一次状态
-        setInterval(updateStatus, 5000);
+        // 保存定时器引用，每5秒更新一次状态
+        statusTimer = setInterval(updateStatus, 5000);
 
-        // 每2秒刷新一次日志
-        setInterval(refreshLogs, 2000);
+        // 保存定时器引用，每2秒刷新一次日志
+        logsTimer = setInterval(refreshLogs, 2000);
 
         // 初始化简历管理功能
         initializeResumeEventListeners();
@@ -915,7 +1172,7 @@
 
       // 检查是否已有简历
       function checkExistingResume() {
-        fetch('/api/candidate-resume/check')
+        fetchWithAuth('/api/candidate-resume/check')
           .then(response => response.json())
           .then(data => {
             if (data.success && data.hasResume) {
@@ -931,7 +1188,7 @@
       // 加载已有简历
       function loadExistingResume() {
         console.log('加载已有简历...');
-        fetch('/api/candidate-resume/load')
+        fetchWithAuth('/api/candidate-resume/load')
           .then(response => response.json())
           .then(data => {
             console.log('简历加载结果:', data);
@@ -939,6 +1196,9 @@
               candidateData = data.data;
               displayCandidateInfo(candidateData);
               document.getElementById('deleteBtn').style.display = 'inline-block';
+
+              // 加载默认打招呼语
+              loadDefaultGreeting();
             }
           })
           .catch(error => {
@@ -980,7 +1240,7 @@
         console.log('开始上传文件...');
         showLoading('正在上传文件并解析简历...');
 
-        fetch('/api/candidate-resume/upload', {
+        fetchWithAuth('/api/candidate-resume/upload', {
           method: 'POST',
           body: formData,
         })
@@ -1024,7 +1284,7 @@
 
         showLoading('AI正在解析简历...');
 
-        fetch('/api/candidate-resume/parse', {
+        fetchWithAuth('/api/candidate-resume/parse', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -1058,7 +1318,7 @@
           return;
         }
 
-        fetch('/api/candidate-resume/delete', {
+        fetchWithAuth('/api/candidate-resume/delete', {
           method: 'POST',
         })
           .then(response => response.json())
@@ -1133,7 +1393,7 @@
       function generateDefaultGreeting(candidate) {
         showLoading('AI正在生成默认打招呼语...');
 
-        fetch('/api/candidate-resume/generate-default-greeting', {
+        fetchWithAuth('/api/candidate-resume/generate-default-greeting', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -1167,6 +1427,24 @@
       }
 
       // 保存默认打招呼语到配置
+      // 加载默认打招呼语
+      function loadDefaultGreeting() {
+        console.log('加载默认打招呼语...');
+        fetchWithAuth('/api/candidate-resume/load-default-greeting')
+          .then(response => response.json())
+          .then(data => {
+            if (data.success && data.greeting) {
+              console.log('默认打招呼语加载成功');
+              document.getElementById('defaultGreeting').value = data.greeting;
+            } else {
+              console.log('未找到保存的默认打招呼语');
+            }
+          })
+          .catch(error => {
+            console.error('加载默认打招呼语失败:', error);
+          });
+      }
+
       function saveDefaultGreeting() {
         const greeting = document.getElementById('defaultGreeting').value.trim();
         if (!greeting) {
@@ -1174,7 +1452,7 @@
           return;
         }
 
-        fetch('/api/candidate-resume/save-default-greeting', {
+        fetchWithAuth('/api/candidate-resume/save-default-greeting', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -1207,3 +1485,4 @@
     </script>
   </body>
 </html>
+

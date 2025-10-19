@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import apiClient from '../services/apiService';
 
 const StandaloneApiTest: React.FC = () => {
   const [testResult, setTestResult] = useState<string>('点击按钮开始测试');
@@ -14,36 +15,31 @@ const StandaloneApiTest: React.FC = () => {
     setTestResult('正在测试API连接...');
 
     try {
-      // 直接使用fetch，不依赖任何服务
-      const response = await fetch('/api/candidate-resume/check', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        mode: 'cors',
-      });
+      // 使用apiService，自动包含JWT认证
+      const response = await apiClient.get('/candidate-resume/check');
 
       console.log('Response status:', response.status);
       console.log('Response headers:', response.headers);
 
-      if (response.ok) {
-        const data = await response.json();
-        setTestResult(`✅ API测试成功！
+      setTestResult(`✅ API测试成功！
 状态码: ${response.status}
-响应数据: ${JSON.stringify(data, null, 2)}
-URL: ${response.url}`);
-      } else {
-        setTestResult(`❌ API测试失败！
-状态码: ${response.status}
-状态文本: ${response.statusText}
-URL: ${response.url}`);
-      }
+响应数据: ${JSON.stringify(response.data, null, 2)}
+URL: ${response.config.url}`);
     } catch (error: any) {
       console.error('API测试错误:', error);
-      setTestResult(`❌ API测试错误！
+
+      // 检查是否是认证错误
+      if (error.response?.status === 401) {
+        setTestResult(`🔐 认证失败！
+状态码: ${error.response.status}
+错误信息: ${error.response.data?.message || '需要登录认证'}
+请先登录后再测试API`);
+      } else {
+        setTestResult(`❌ API测试错误！
+状态码: ${error.response?.status || 'N/A'}
 错误类型: ${error.name}
-错误信息: ${error.message}
-错误堆栈: ${error.stack}`);
+错误信息: ${error.message}`);
+      }
     } finally {
       setIsLoading(false);
     }

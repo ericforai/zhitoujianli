@@ -92,10 +92,18 @@ public class WebController {
 =======
             */
 
-            // 无需登录，直接显示后台管理页面
-            String userId = "anonymous";
-            String userEmail = "anonymous@example.com";
-            log.info("访客访问后台管理: userId={}, email={}", userId, userEmail);
+            // 获取当前登录用户信息（兼容安全认证禁用的情况）
+            String userId = "default_user";
+            String userEmail = "demo@example.com";
+            try {
+                if (UserContextUtil.hasCurrentUser()) {
+                    userId = UserContextUtil.getCurrentUserId();
+                    userEmail = UserContextUtil.getCurrentUserEmail();
+                }
+            } catch (Exception e) {
+                log.info("安全认证已禁用，使用默认用户");
+            }
+            log.info("已登录用户访问后台管理: userId={}, email={}", userId, userEmail);
             // 加载当前配置
             Map<String, Object> config = loadConfig();
             model.addAttribute("config", config);
@@ -132,21 +140,36 @@ public class WebController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> saveConfig(@RequestBody Map<String, Object> config) {
         try {
-            // 使用用户数据服务保存配置
-            boolean success = userDataService.saveUserConfig(config);
+            log.info("🔍 开始保存配置，接收到的配置: {}", config);
+            // 直接保存配置到默认用户文件，跳过UserDataService
+            String configPath = "user_data/default_user/config.json";
+            config.put("userId", "default_user");
+            config.put("userEmail", "demo@example.com");
+            config.put("username", "Demo User");
+            config.put("lastModified", System.currentTimeMillis());
+            config.put("securityEnabled", false);
+
+            // 确保目录存在
+            java.nio.file.Path path = java.nio.file.Paths.get("user_data/default_user");
+            if (!java.nio.file.Files.exists(path)) {
+                java.nio.file.Files.createDirectories(path);
+            }
+
+            // 保存配置
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            mapper.writerWithDefaultPrettyPrinter().writeValue(new java.io.File(configPath), config);
+
+            boolean success = true;
+            log.info("🔍 保存配置结果: {}", success);
 
             Map<String, Object> response = new HashMap<>();
             if (success) {
                 response.put("success", true);
                 response.put("message", "配置保存成功");
 
-                // 记录用户信息（兼容安全认证禁用的情况）
-                String userId = UserContextUtil.getCurrentUserId();
-                String userEmail = UserContextUtil.getCurrentUserEmail();
-                if (userId == null) {
-                    userId = "default_user";
-                    userEmail = "demo@example.com";
-                }
+                // 使用默认用户信息（安全认证已禁用）
+                String userId = "default_user";
+                String userEmail = "demo@example.com";
                 log.info("✅ 用户配置保存成功: userId={}, email={}", userId, userEmail);
 
                 return ResponseEntity.ok(response);
@@ -469,7 +492,7 @@ public class WebController {
         boss.put("cityCode", Arrays.asList("上海"));
         boss.put("experience", Arrays.asList("10年以上"));
         boss.put("jobType", "不限");
-        boss.put("salary", "30K以上");
+        boss.put("salary", Arrays.asList("30K以上"));
         boss.put("degree", Arrays.asList("不限"));
         boss.put("scale", Arrays.asList("不限"));
         boss.put("stage", Arrays.asList("不限"));
@@ -478,7 +501,7 @@ public class WebController {
         boss.put("filterDeadHR", true);
         boss.put("enableAI", false);
         boss.put("sendImgResume", false);
-        boss.put("deadStatus", Arrays.asList("2周内活跃", "本月活跃", "2月内活跃", "半年前活跃"));
+        boss.put("deadStatus", Arrays.asList("3月前活跃", "半年前活跃", "1年前活跃", "2年前活跃"));
         config.put("boss", boss);
 
         // AI配置
@@ -502,13 +525,29 @@ public class WebController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getUserConfig() {
         try {
-            Map<String, Object> config = userDataService.loadUserConfig();
+            // 直接加载配置，跳过UserDataService
+            String configPath = "user_data/default_user/config.json";
+            Map<String, Object> config;
+
+            if (new java.io.File(configPath).exists()) {
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                config = mapper.readValue(new java.io.File(configPath), Map.class);
+            } else {
+                config = getDefaultConfig();
+            }
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("config", config);
 
-            String userId = UserContextUtil.getCurrentUserId();
+            String userId = "default_user";
+            try {
+                if (UserContextUtil.hasCurrentUser()) {
+                    userId = UserContextUtil.getCurrentUserId();
+                }
+            } catch (Exception e) {
+                log.info("安全认证已禁用，使用默认用户");
+            }
             log.info("✅ 用户配置加载成功: userId={}", userId);
 
             return ResponseEntity.ok(response);
@@ -528,15 +567,34 @@ public class WebController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> saveUserConfig(@RequestBody Map<String, Object> config) {
         try {
-            boolean success = userDataService.saveUserConfig(config);
+            // 直接保存配置到默认用户文件，跳过UserDataService
+            String configPath = "user_data/default_user/config.json";
+            config.put("userId", "default_user");
+            config.put("userEmail", "demo@example.com");
+            config.put("username", "Demo User");
+            config.put("lastModified", System.currentTimeMillis());
+            config.put("securityEnabled", false);
+
+            // 确保目录存在
+            java.nio.file.Path path = java.nio.file.Paths.get("user_data/default_user");
+            if (!java.nio.file.Files.exists(path)) {
+                java.nio.file.Files.createDirectories(path);
+            }
+
+            // 保存配置
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            mapper.writerWithDefaultPrettyPrinter().writeValue(new java.io.File(configPath), config);
+
+            boolean success = true;
 
             Map<String, Object> response = new HashMap<>();
             if (success) {
                 response.put("success", true);
                 response.put("message", "用户配置保存成功");
 
-                String userId = UserContextUtil.getCurrentUserId();
-                String userEmail = UserContextUtil.getCurrentUserEmail();
+                // 使用默认用户信息（安全认证已禁用）
+                String userId = "default_user";
+                String userEmail = "demo@example.com";
                 log.info("✅ 用户配置保存成功: userId={}, email={}", userId, userEmail);
 
                 return ResponseEntity.ok(response);

@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
 
-@SpringBootApplication(scanBasePackages = {"controller", "service", "config", "security", "repository", "entity", "util", "com.superxiang"})
+@SpringBootApplication(scanBasePackages = {"controller", "service", "config", "security", "repository", "entity", "util", "filter", "com.superxiang"})
 @EnableJpaRepositories(basePackages = "repository")
 @EntityScan(basePackages = "entity")
 @EnableAsync

@@ -178,6 +178,50 @@ public class CandidateResumeService {
     }
 
     /**
+     * 保存默认打招呼语到用户数据目录
+     */
+    public static void saveDefaultGreeting(String greeting) throws Exception {
+        String userId = UserContextUtil.getCurrentUserId();
+        String userDataDir = "user_data/" + userId;
+
+        // 确保用户目录存在
+        File userDir = new File(userDataDir);
+        if (!userDir.exists()) {
+            userDir.mkdirs();
+        }
+
+        // 保存到 default_greeting.json
+        File greetingFile = new File(userDataDir + "/default_greeting.json");
+        Map<String, Object> greetingData = new HashMap<>();
+        greetingData.put("greeting", greeting);
+        greetingData.put("updated_at", System.currentTimeMillis());
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writerWithDefaultPrettyPrinter().writeValue(greetingFile, greetingData);
+
+        log.info("✅ 默认打招呼语已保存到用户目录: {}", greetingFile.getAbsolutePath());
+    }
+
+    /**
+     * 从用户数据目录加载默认打招呼语
+     */
+    public static String loadDefaultGreeting() throws Exception {
+        String userId = UserContextUtil.getCurrentUserId();
+        File greetingFile = new File("user_data/" + userId + "/default_greeting.json");
+
+        if (!greetingFile.exists()) {
+            log.warn("⚠️  用户未设置默认打招呼语: {}", userId);
+            return null;
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> greetingData = mapper.readValue(greetingFile, Map.class);
+
+        return (String) greetingData.get("greeting");
+    }
+
+    /**
      * 检查是否已上传简历（用户隔离）
      */
     public static boolean hasCandidateResume() {

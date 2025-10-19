@@ -18,17 +18,64 @@ import lombok.extern.slf4j.Slf4j;
 public class UserContextUtil {
 
     /**
-     * 获取当前登录用户ID - 已禁用认证，返回默认用户
+     * 获取当前登录用户ID
      */
     public static String getCurrentUserId() {
-        return "anonymous";
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.isAuthenticated()
+                && !"anonymousUser".equals(authentication.getPrincipal())) {
+
+                // 1. 优先从Principal中获取Map格式的用户信息
+                if (authentication.getPrincipal() instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> userInfo = (Map<String, Object>) authentication.getPrincipal();
+                    String userId = (String) userInfo.get("userId");
+                    if (userId != null && !userId.isEmpty()) {
+                        log.debug("获取当前用户ID: {}", userId);
+                        return userId;
+                    }
+                }
+
+                // 2. 备选：从Principal的字符串形式获取（通常是用户名或邮箱）
+                String principal = authentication.getName();
+                if (principal != null && !principal.isEmpty() && !"anonymousUser".equals(principal)) {
+                    log.debug("从Principal获取用户标识: {}", principal);
+                    return principal;
+                }
+            }
+        } catch (Exception e) {
+            log.error("获取当前用户ID失败: {}", e.getMessage(), e);
+        }
+
+        // 未登录时的处理逻辑
+        // 注意：生产环境中，Spring Security会在此之前拦截未登录请求
+        // 此处只在SECURITY_ENABLED=false时才会被执行到
+        log.info("未检测到登录用户，使用默认用户（仅在SECURITY_ENABLED=false时生效）");
+        return "default_user";
     }
 
     /**
-     * 获取当前用户邮箱 - 已禁用认证，返回默认邮箱
+     * 获取当前用户邮箱
      */
     public static String getCurrentUserEmail() {
-        return "anonymous@example.com";
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> userInfo = (Map<String, Object>) authentication.getPrincipal();
+                String email = (String) userInfo.get("email");
+                if (email != null && !email.isEmpty()) {
+                    log.debug("获取当前用户邮箱: {}", email);
+                    return email;
+                }
+            }
+        } catch (Exception e) {
+            log.warn("获取当前用户邮箱失败: {}", e.getMessage());
+        }
+        // 返回默认邮箱（仅在SECURITY_ENABLED=false时生效）
+        log.info("未检测到登录用户邮箱，使用默认邮箱（仅在SECURITY_ENABLED=false时生效）");
+        return "demo@example.com";
     }
 
     /**
@@ -51,7 +98,9 @@ public class UserContextUtil {
         } catch (Exception e) {
             log.warn("获取当前用户名失败: {}", e.getMessage());
         }
-        return null;
+        // 返回默认用户名（仅在SECURITY_ENABLED=false时生效）
+        log.info("未检测到登录用户名，使用默认用户名（仅在SECURITY_ENABLED=false时生效）");
+        return "Demo User";
     }
 
     /**
@@ -73,17 +122,25 @@ public class UserContextUtil {
     }
 
     /**
-     * 检查是否有当前登录用户 - 已禁用认证，总是返回true
+     * 检查是否有当前登录用户
      */
     public static boolean hasCurrentUser() {
-        return true;
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            return authentication != null
+                && authentication.isAuthenticated()
+                && !"anonymousUser".equals(authentication.getPrincipal());
+        } catch (Exception e) {
+            log.warn("检查用户登录状态失败: {}", e.getMessage());
+            return false;
+        }
     }
 
     /**
-     * 检查当前用户是否已认证 - 已禁用认证，总是返回true
+     * 检查当前用户是否已认证
      */
     public static boolean isAuthenticated() {
-        return true;
+        return hasCurrentUser();
     }
 
     /**
