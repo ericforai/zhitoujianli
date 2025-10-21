@@ -1,9 +1,13 @@
 package controller;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import util.UserContextUtil;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -232,9 +236,48 @@ public class CandidateResumeController {
             // ✅ 新方案：保存到用户数据目录
             CandidateResumeService.saveDefaultGreeting(greeting);
 
+            // ✅ 同时更新config.json中的boss.sayHi字段
+            try {
+                String userId = UserContextUtil.getCurrentUserId();
+
+                // 更新两个位置的配置文件
+                String[] configPaths = {
+                    "user_data/" + userId + "/config.json",  // 应用程序工作目录
+                    "/root/zhitoujianli/backend/get_jobs/user_data/" + userId + "/config.json"  // 开发目录
+                };
+
+                for (String configPath : configPaths) {
+                    File configFile = new File(configPath);
+
+                    if (configFile.exists()) {
+                        ObjectMapper mapper = new ObjectMapper();
+                        Map<String, Object> config = mapper.readValue(configFile, Map.class);
+
+                        // 确保boss字段存在
+                        Map<String, Object> boss = (Map<String, Object>) config.get("boss");
+                        if (boss == null) {
+                            boss = new HashMap<>();
+                            config.put("boss", boss);
+                        }
+
+                        // 更新sayHi字段
+                        boss.put("sayHi", greeting);
+
+                        // 保存回文件
+                        mapper.writerWithDefaultPrettyPrinter().writeValue(configFile, config);
+                        log.info("【默认打招呼语】已更新到Boss配置: {} -> boss.sayHi", configPath);
+                    } else {
+                        log.warn("【默认打招呼语】配置文件不存在，跳过: {}", configPath);
+                    }
+                }
+            } catch (Exception configException) {
+                log.error("【默认打招呼语】更新Boss配置失败", configException);
+                // 不中断主流程，仅记录错误
+            }
+
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "默认打招呼语已保存");
+            response.put("message", "默认打招呼语已保存到Boss配置");
 
             log.info("【默认打招呼语】已保存到用户数据目录");
             return ResponseEntity.ok(response);

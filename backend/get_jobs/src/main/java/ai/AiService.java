@@ -19,7 +19,6 @@ import java.util.concurrent.TimeoutException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -29,10 +28,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AiService {
 
-    private static final Dotenv dotenv = Dotenv.load();
-    private static final String BASE_URL = dotenv.get("BASE_URL", "https://api.deepseek.com");
-    private static final String API_KEY = dotenv.get("API_KEY", "your_deepseek_api_key_here");
-    private static final String MODEL = dotenv.get("MODEL", "deepseek-chat");
+    // 修复: 使用System.getenv()替代Dotenv,避免运行时依赖缺失
+    private static final String BASE_URL = getEnv("BASE_URL", "https://api.deepseek.com");
+    private static final String API_KEY = getEnv("API_KEY", getEnv("DEEPSEEK_API_KEY", ""));
+    private static final String MODEL = getEnv("MODEL", "deepseek-chat");
+
+    /**
+     * 安全获取环境变量,支持默认值
+     */
+    private static String getEnv(String key, String defaultValue) {
+        String value = System.getenv(key);
+        return (value != null && !value.isEmpty()) ? value : defaultValue;
+    }
 
     public static String sendRequest(String content) {
         // 设置超时时间，单位：秒 - 统一使用60秒

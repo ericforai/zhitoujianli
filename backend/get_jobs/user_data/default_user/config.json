@@ -1,7 +1,6 @@
 {
   "boss" : {
     "debugger" : false,
-    "sayHi" : "",
     "keywords" : [ "市场营销总监" ],
     "industry" : [ "不限" ],
     "cityCode" : [ "上海" ],
@@ -17,7 +16,8 @@
     "enableAI" : false,
     "enableSmartGreeting" : true,
     "sendImgResume" : false,
-    "deadStatus" : [ "3月前活跃", "半年前活跃", "1年前活跃", "2年前活跃" ]
+    "deadStatus" : [ "3月前活跃", "半年前活跃", "1年前活跃", "2年前活跃" ],
+    "sayHi" : "您好！我是一名拥有18年经验的营销领域管理者。我长期致力于构建销营一体的增长体系，曾主导从0到1搭建完整的营销架构，并策划过超6万人的大型市场活动。过往经历中，我通过系统化运营在6年内助力公司营收实现239%的增长，并积极探索AIGC等前沿技术在品牌推广中的实际应用。\n\n我期待能将自己的战略规划、数字化营销与团队管理经验，为您团队的持续增长贡献价值。附件为我的详细简历，希望能有机会与您进一步沟通，探讨我如何能为贵团队的发展助力。\n\n期待您的回复！"
   },
   "ai" : {
     "introduce" : "",
@@ -29,6 +29,6 @@
   "userId" : "default_user",
   "userEmail" : "demo@example.com",
   "username" : "Demo User",
-  "lastModified" : 1760879505889,
+  "lastModified" : 1760880754201,
   "securityEnabled" : false
 }

@@ -3,6 +3,7 @@ import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import ApiTestPage from './components/ApiTestPage';
 import AutoDelivery from './components/AutoDelivery';
 import BlogSection from './components/BlogSection';
+import BossDelivery from './components/BossDelivery';
 import Contact from './components/Contact';
 import Demo from './components/Demo';
 import DirectResumeEntry from './components/DirectResumeEntry';
@@ -77,6 +78,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <ResumeDelivery />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path='/boss-delivery'
+              element={
+                <PrivateRoute>
+                  <BossDelivery />
                 </PrivateRoute>
               }
             />

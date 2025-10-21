@@ -1,0 +1,14 @@
+{
+  "skills" : [ "B2B市场营销", "销售管理", "数字化增长体系", "AIGC品牌推广", "SEO/SEM", "线索转化优化", "团队管理", "市值管理", "数据分析" ],
+  "core_strengths" : [ "18年B2B复合型增长经验", "销营一体数字化增长体系", "6年助力营收增长239%", "从0到1搭建营销体系", "AIGC应用于品牌推广" ],
+  "education" : "本科",
+  "years_experience" : 18,
+  "confidence" : {
+    "skills" : 0.9,
+    "name" : 0.95,
+    "experience" : 0.85
+  },
+  "name" : "卢文融",
+  "company" : "优刻得科技股份有限公司",
+  "current_title" : "营销总监"
+}
