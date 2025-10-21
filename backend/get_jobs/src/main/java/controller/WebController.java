@@ -486,7 +486,7 @@ public class WebController {
         // Boss配置
         Map<String, Object> boss = new HashMap<>();
         boss.put("debugger", false);
-        boss.put("sayHi", "您好！我对这个岗位非常感兴趣...");
+        boss.put("sayHi", ""); // 空字符串，强制用户生成个性化打招呼语
         boss.put("keywords", Arrays.asList("市场总监", "市场营销", "品牌营销"));
         boss.put("industry", Arrays.asList("不限"));
         boss.put("cityCode", Arrays.asList("上海"));

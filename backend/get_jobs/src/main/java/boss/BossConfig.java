@@ -175,6 +175,14 @@ public class BossConfig {
             log.info("使用用户自定义配置");
         }
 
+        // 验证打招呼语是否为空
+        if (config.getSayHi() == null || config.getSayHi().trim().isEmpty()) {
+            log.warn("⚠️ 用户的打招呼语为空，请先生成个性化打招呼语");
+            log.info("💡 建议：1. 上传简历 2. 生成AI默认打招呼语 3. 保存到Boss配置");
+        } else {
+            log.info("✅ 打招呼语已设置，长度: {}字", config.getSayHi().length());
+        }
+
         // 转换工作类型
         config.setJobType(BossEnum.JobType.forValue(config.getJobType()).getCode());
         // 转换薪资范围

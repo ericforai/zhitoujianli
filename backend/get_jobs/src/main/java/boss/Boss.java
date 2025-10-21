@@ -26,6 +26,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.Path;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
@@ -1722,19 +1723,80 @@ public class Boss {
             Locator scanButton = page.locator(LOGIN_SCAN_SWITCH);
             scanButton.click();
 
+            // ===== 新增：等待二维码加载并截图 =====
+            log.info("等待二维码加载...");
+            PlaywrightUtil.sleep(3); // 等待3秒让二维码渲染完成
+
+            try {
+                // 尝试多种选择器定位二维码元素
+                String[] qrcodeSelectors = {
+                    ".login-qrcode",  // CSS选择器
+                    "canvas",         // Boss直聘二维码使用canvas元素
+                    ".qrcode-img",    // 可能的类名
+                    "#qrcode",        // ID选择器
+                    "//div[contains(@class, 'qrcode')]",  // 包含qrcode的div
+                    "//canvas[@width]" // 带width属性的canvas
+                };
+
+                Locator qrcodeElement = null;
+                String successSelector = null;
+
+                for (String selector : qrcodeSelectors) {
+                    try {
+                        Locator temp = page.locator(selector);
+                        if (temp.count() > 0 && temp.first().isVisible()) {
+                            qrcodeElement = temp.first();
+                            successSelector = selector;
+                            log.info("✅ 找到二维码元素，选择器: {}", selector);
+                            break;
+                        }
+                    } catch (Exception e) {
+                        // 忽略，尝试下一个选择器
+                    }
+                }
+
+                if (qrcodeElement != null) {
+                    // 截取二维码图片并保存
+                    String qrcodePath = "/tmp/boss_qrcode.png";
+                    qrcodeElement.screenshot(new Locator.ScreenshotOptions().setPath(Paths.get(qrcodePath)));
+                    log.info("✅ 二维码截图已保存: {} (使用选择器: {})", qrcodePath, successSelector);
+
+                    // 更新登录状态文件为waiting
+                    String statusFile = "/tmp/boss_login_status.txt";
+                    Files.write(Paths.get(statusFile), "waiting".getBytes());
+                    log.info("✅ 登录状态已更新为waiting");
+                } else {
+                    log.warn("⚠️ 尝试了所有选择器都未找到二维码元素");
+                    // 作为备选方案，截取整个页面
+                    log.info("🔄 备选方案：截取整个登录页面");
+                    page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("/tmp/boss_qrcode.png")));
+                    Files.write(Paths.get("/tmp/boss_login_status.txt"), "waiting".getBytes());
+                    log.info("✅ 已截取完整页面作为二维码");
+                }
+            } catch (Exception screenshotEx) {
+                log.error("二维码截图失败", screenshotEx);
+            }
+            // ===== 新增部分结束 =====
+
             // 3. 登录逻辑
             boolean login = false;
 
-            // 4. 记录开始时间，用于判断10分钟超时
+            // 4. 记录开始时间，用于判断15分钟超时
             long startTime = System.currentTimeMillis();
-            final long TIMEOUT = 10 * 60 * 1000; // 10分钟
+            final long TIMEOUT = 15 * 60 * 1000; // 从10分钟改为15分钟
 
             while (!login) {
                 // 判断是否超时
                 long elapsed = System.currentTimeMillis() - startTime;
                 if (elapsed >= TIMEOUT) {
-                    log.error("超过10分钟未完成登录，程序退出...");
-                    // System.exit(1);
+                    log.error("超过15分钟未完成登录，程序退出...");
+                    // 更新登录状态为failed
+                    try {
+                        Files.write(Paths.get("/tmp/boss_login_status.txt"), "failed".getBytes());
+                    } catch (Exception e) {
+                        log.error("更新登录状态失败", e);
+                    }
+                    throw new RuntimeException("等待登录超时（15分钟），请重新启动程序");
                 }
 
                 try {
@@ -1745,6 +1807,16 @@ public class Boss {
                         log.info("用户已登录！");
                         // 登录成功，保存Cookie
                         PlaywrightUtil.saveCookies(cookiePath);
+
+                        // ===== 新增：更新登录状态为success =====
+                        try {
+                            Files.write(Paths.get("/tmp/boss_login_status.txt"), "success".getBytes());
+                            log.info("✅ 登录状态已更新为success");
+                        } catch (Exception e) {
+                            log.error("更新登录状态失败", e);
+                        }
+                        // ===== 新增部分结束 =====
+
                         break;
                     }
                 } catch (Exception e) {

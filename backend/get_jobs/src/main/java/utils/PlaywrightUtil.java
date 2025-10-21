@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1253,10 +1254,27 @@ public class PlaywrightUtil {
      * 检查Cookie文件是否有效（从SeleniumUtil移植）
      *
      * @param cookiePath Cookie文件路径
-     * @return 文件是否存在
+     * @return 文件是否存在且内容有效
      */
     public static boolean isCookieValid(String cookiePath) {
-        return Files.exists(Paths.get(cookiePath));
+        try {
+            Path path = Paths.get(cookiePath);
+            if (!Files.exists(path)) {
+                return false;
+            }
+
+            // 检查文件内容是否有效（不是空的JSON数组）
+            String content = Files.readString(path).trim();
+            if (content.isEmpty() || content.equals("[]") || content.equals("{}")) {
+                log.info("Cookie文件内容无效: {}", content);
+                return false;
+            }
+
+            return true;
+        } catch (Exception e) {
+            log.error("检查Cookie文件有效性失败: {}", e.getMessage());
+            return false;
+        }
     }
 
     /**

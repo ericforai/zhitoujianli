@@ -8,6 +8,8 @@ public class Locators {
     // 主页相关元素
     public static final String LOGIN_BTN = "//li[@class='nav-figure']";
     public static final String LOGIN_SCAN_SWITCH = "//div[@class='btn-sign-switch ewm-switch']";
+    public static final String QR_CODE_CONTAINER = "//div[@class='login-qrcode']"; // 新增：二维码容器
+    public static final String QR_CODE_IMAGE = "//div[@class='login-qrcode']//img"; // 新增：二维码图片
 
     /**
      * 搜索结果页相关元素

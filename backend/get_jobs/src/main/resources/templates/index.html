@@ -310,6 +310,20 @@
                   </div>
                 </div>
 
+                <div class="mb-3">
+                  <label class="form-label">打招呼语</label>
+                  <div class="alert alert-info mb-2" id="sayHiGuide" style="display: none;">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>提示：</strong>
+                    打招呼语为空。请先上传简历，然后在"简历管理"标签中生成AI默认打招呼语，再点击"保存到Boss配置"。
+                  </div>
+                  <textarea
+                    class="form-control"
+                    id="bossSayHi"
+                    rows="8"
+                    placeholder="请先上传简历并生成AI打招呼语..."
+                  ></textarea>
+                </div>
               </div>
             </div>
 
@@ -401,6 +415,56 @@
                     </div>
                   </div>
 
+                  <!-- AI生成默认打招呼语 -->
+                  <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                      <h5 class="card-title mb-3">
+                        <i class="bi bi-chat-heart-fill text-success"></i>
+                        AI生成的默认打招呼语
+                      </h5>
+                      <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>说明：</strong
+                        >基于您的简历，AI已生成一段通用的打招呼语。您可以直接使用，也可以根据需要修改。
+                      </div>
+                      <div class="mb-3">
+                        <label for="defaultGreeting" class="form-label fw-bold"
+                          >默认打招呼语：</label
+                        >
+                        <div class="alert alert-warning mb-2" id="defaultGreetingGuide" style="display: none;">
+                          <i class="bi bi-lightbulb"></i>
+                          <strong>提示：</strong>
+                          尚未生成AI打招呼语。请点击下方"生成默认打招呼语"按钮。
+                        </div>
+                  <textarea
+                    class="form-control"
+                    id="defaultGreeting"
+                    rows="6"
+                    placeholder="点击下方"生成默认打招呼语"按钮，AI将基于您的简历生成个性化打招呼语..."
+                  ></textarea>
+                      </div>
+                      <div class="d-flex gap-2">
+                        <button
+                          class="btn btn-success"
+                          onclick="generateDefaultGreeting(candidateData)"
+                        >
+                          <i class="bi bi-robot"></i> 生成默认打招呼语
+                        </button>
+                        <button
+                          class="btn btn-outline-secondary"
+                          onclick="regenerateGreeting()"
+                        >
+                          <i class="bi bi-arrow-clockwise"></i> 重新生成
+                        </button>
+                        <button
+                          class="btn btn-primary"
+                          onclick="saveDefaultGreeting()"
+                        >
+                          <i class="bi bi-save"></i> 保存到Boss配置
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -624,6 +688,17 @@
                 }
               }
 
+              // 加载打招呼语
+              if (config.boss.sayHi) {
+                const sayHiElement = document.getElementById('bossSayHi');
+                if (sayHiElement) {
+                  sayHiElement.value = config.boss.sayHi;
+                  document.getElementById('sayHiGuide').style.display = 'none';
+                }
+              } else {
+                // 打招呼语为空，显示引导提示
+                document.getElementById('sayHiGuide').style.display = 'block';
+              }
 
               // 加载城市
               if (config.boss.cityCode && Array.isArray(config.boss.cityCode)) {
@@ -720,7 +795,7 @@
 
         // 检查所有必需的元素是否存在
         const requiredElements = [
-          'bossKeywords', 'bossSalary', 'expectedSalaryMin',
+          'bossSayHi', 'bossKeywords', 'bossSalary', 'expectedSalaryMin',
           'expectedSalaryMax', 'bossWaitTime', 'filterDeadHR', 'enableSmartGreeting', 'sendImgResume'
         ];
 
@@ -737,6 +812,7 @@
         const config = {
           boss: {
             debugger: false,
+            sayHi: document.getElementById('bossSayHi').value,
             keywords: document
               .getElementById('bossKeywords')
               .textContent.split(',')
@@ -1138,6 +1214,8 @@
               displayCandidateInfo(candidateData);
               document.getElementById('deleteBtn').style.display = 'inline-block';
 
+              // 加载默认打招呼语
+              loadDefaultGreeting();
             }
           })
           .catch(error => {
@@ -1196,6 +1274,9 @@
               document.getElementById('deleteBtn').style.display = 'inline-block';
 
 
+              // 生成默认打招呼语
+              generateDefaultGreeting(candidateData);
+
               alert('简历解析成功！');
             } else {
               alert('文件解析失败：' + data.message);
@@ -1236,6 +1317,8 @@
               displayCandidateInfo(candidateData);
               document.getElementById('deleteBtn').style.display = 'inline-block';
 
+              // 加载默认打招呼语
+              loadDefaultGreeting();
             } else {
               alert('简历解析失败：' + data.message);
             }
@@ -1327,6 +1410,106 @@
 
 
 
+
+      // 生成默认打招呼语
+      function generateDefaultGreeting(candidate) {
+        showLoading('AI正在生成默认打招呼语...');
+
+        fetchWithAuth('/api/candidate-resume/generate-default-greeting', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ candidate: candidate }),
+        })
+          .then(response => response.json())
+        .then(data => {
+          hideLoading();
+          if (data.success) {
+            document.getElementById('defaultGreeting').value = data.greeting;
+            // 隐藏引导提示
+            document.getElementById('defaultGreetingGuide').style.display = 'none';
+          } else {
+              console.error('生成默认打招呼语失败:', data.message);
+              document.getElementById('defaultGreeting').value = '生成失败，请稍后重试';
+            }
+          })
+          .catch(error => {
+            hideLoading();
+            console.error('Error:', error);
+            document.getElementById('defaultGreeting').value = '生成失败，请稍后重试';
+          });
+      }
+
+      // 重新生成打招呼语
+      function regenerateGreeting() {
+        if (!candidateData) {
+          alert('请先解析简历');
+          return;
+        }
+        generateDefaultGreeting(candidateData);
+      }
+
+      // 保存默认打招呼语到配置
+      // 加载默认打招呼语
+      function loadDefaultGreeting() {
+        console.log('加载默认打招呼语...');
+        fetchWithAuth('/api/candidate-resume/load-default-greeting')
+          .then(response => response.json())
+          .then(data => {
+            if (data.success && data.greeting) {
+              console.log('默认打招呼语加载成功');
+              document.getElementById('defaultGreeting').value = data.greeting;
+              // 隐藏引导提示
+              document.getElementById('defaultGreetingGuide').style.display = 'none';
+      } else {
+        console.log('未找到保存的默认打招呼语，显示引导');
+        document.getElementById('defaultGreeting').value = '';
+        // 显示引导提示
+        document.getElementById('defaultGreetingGuide').style.display = 'block';
+      }
+          })
+          .catch(error => {
+            console.error('加载默认打招呼语失败:', error);
+            // 加载失败也清空图二
+            document.getElementById('defaultGreeting').value = '';
+            document.getElementById('defaultGreetingGuide').style.display = 'block';
+          });
+      }
+
+      function saveDefaultGreeting() {
+        const greeting = document.getElementById('defaultGreeting').value.trim();
+        if (!greeting) {
+          alert('请先生成打招呼语');
+          return;
+        }
+
+        fetchWithAuth('/api/candidate-resume/save-default-greeting', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ greeting: greeting }),
+        })
+          .then(response => response.json())
+        .then(data => {
+      if (data.success) {
+        alert('默认打招呼语已保存到Boss配置！');
+        // 隐藏引导提示
+        document.getElementById('sayHiGuide').style.display = 'none';
+        // 重新加载配置以更新图一
+        loadConfig();
+        // 同时重新加载图二的默认打招呼语显示
+        loadDefaultGreeting();
+      } else {
+            alert('保存失败：' + data.message);
+          }
+        })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('保存失败：' + error.message);
+          });
+      }
 
       // 显示/隐藏加载状态
       function showLoading(text) {

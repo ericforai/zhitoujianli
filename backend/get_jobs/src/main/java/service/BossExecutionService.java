@@ -146,6 +146,13 @@ public class BossExecutionService {
         pb.environment().put("PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD", "true");
         pb.environment().put("NODE_OPTIONS", "--max-old-space-size=512");
 
+        // 【关键修复】设置虚拟显示，让浏览器在Xvfb上运行
+        pb.environment().put("DISPLAY", ":99");
+
+        // 确保Xvfb环境变量正确传递
+        pb.environment().put("XVFB_DISPLAY", ":99");
+        pb.environment().put("SCREEN_RESOLUTION", "1920x1080x24");
+
         return pb;
     }
 
@@ -175,12 +182,16 @@ public class BossExecutionService {
         String mavenHome = System.getProperty("user.home") + "/.m2";
         StringBuilder sb = new StringBuilder();
         sb.append(mavenHome).append("/repository/com/microsoft/playwright/playwright/1.51.0/playwright-1.51.0.jar:");
+        sb.append(mavenHome).append("/repository/com/microsoft/playwright/driver/1.51.0/driver-1.51.0.jar:");
+        sb.append(mavenHome).append("/repository/com/microsoft/playwright/driver-bundle/1.51.0/driver-bundle-1.51.0.jar:");
+        sb.append(mavenHome).append("/repository/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar:");
         sb.append(mavenHome).append("/repository/org/json/json/20231013/json-20231013.jar:");
         sb.append(mavenHome).append("/repository/org/slf4j/slf4j-api/2.0.9/slf4j-api-2.0.9.jar:");
         sb.append(mavenHome).append("/repository/ch/qos/logback/logback-classic/1.4.11/logback-classic-1.4.11.jar:");
         sb.append(mavenHome).append("/repository/ch/qos/logback/logback-core/1.4.11/logback-core-1.4.11.jar:");
         sb.append(mavenHome).append("/repository/com/fasterxml/jackson/dataformat/jackson-dataformat-yaml/2.15.2/jackson-dataformat-yaml-2.15.2.jar:");
         sb.append(mavenHome).append("/repository/com/fasterxml/jackson/core/jackson-databind/2.15.3/jackson-databind-2.15.3.jar:");
+        sb.append(mavenHome).append("/repository/com/fasterxml/jackson/core/jackson-annotations/2.15.3/jackson-annotations-2.15.3.jar:");
         sb.append(mavenHome).append("/repository/com/fasterxml/jackson/core/jackson-core/2.15.3/jackson-core-2.15.3.jar:");
         sb.append(mavenHome).append("/repository/org/yaml/snakeyaml/2.2/snakeyaml-2.2.jar");
         return sb.toString();

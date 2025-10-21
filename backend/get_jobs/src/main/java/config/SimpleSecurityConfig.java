@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import filter.JwtAuthenticationFilter;
 import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -26,6 +27,9 @@ public class SimpleSecurityConfig {
 
     @Autowired
     private Dotenv dotenv;
+
+    @Autowired
+    private CorsConfigurationSource corsConfigurationSource;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -42,23 +46,8 @@ public class SimpleSecurityConfig {
             // 禁用CSRF，因为使用JWT
             .csrf(csrf -> csrf.disable())
 
-            // 配置CORS
-            .cors(cors -> cors.configurationSource(request -> {
-                var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                corsConfig.setAllowedOriginPatterns(java.util.Arrays.asList(
-                    "http://localhost:3000",
-                    "http://localhost:8080",
-                    "http://127.0.0.1:3000",
-                    "https://zhitoujianli.com",
-                    "https://www.zhitoujianli.com",
-                    "https://*.zhitoujianli.com"
-                ));
-                corsConfig.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                corsConfig.setAllowedHeaders(java.util.Arrays.asList("*"));
-                corsConfig.setAllowCredentials(true);
-                corsConfig.setMaxAge(3600L);
-                return corsConfig;
-            }))
+            // 配置CORS - 使用注入的CorsConfig Bean
+            .cors(cors -> cors.configurationSource(corsConfigurationSource))
 
             // 配置会话管理为无状态
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

@@ -334,7 +334,7 @@ public class UserDataService {
         // Boss配置
         Map<String, Object> bossConfig = new HashMap<>();
         bossConfig.put("debugger", false);
-        bossConfig.put("sayHi", "您好！我对这个岗位非常感兴趣...");
+        bossConfig.put("sayHi", ""); // 空字符串，强制用户生成个性化打招呼语
         bossConfig.put("keywords", new String[]{"市场总监", "市场营销", "品牌营销"});
         bossConfig.put("cityCode", new String[]{"上海"});
         bossConfig.put("experience", new String[]{"10年以上"});
