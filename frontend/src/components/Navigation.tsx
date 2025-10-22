@@ -32,11 +32,26 @@ const Navigation = () => {
     };
   }, []);
 
-  const handleLogout = () => {
-    authService.logout();
-    setIsLoggedIn(false);
-    setUser(null);
-    window.location.reload();
+  const handleLogout = async () => {
+    try {
+      // 调用退出服务
+      await authService.logout();
+
+      // 更新本地状态
+      setIsLoggedIn(false);
+      setUser(null);
+
+      // 不需要手动reload，authService.logout()已经处理了页面跳转
+    } catch (error) {
+      console.error('退出登录失败:', error);
+
+      // 即使API调用失败，也要清除本地状态
+      setIsLoggedIn(false);
+      setUser(null);
+
+      // 强制跳转到登录页
+      window.location.href = '/login';
+    }
   };
 
   const toggleMenu = () => {
@@ -135,6 +150,16 @@ const Navigation = () => {
           <div className='hidden md:flex items-center space-x-4'>
             {isLoggedIn ? (
               <div className='flex items-center space-x-4'>
+                <a
+                  href='/dashboard'
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isActive('/dashboard')
+                      ? 'text-blue-600 bg-blue-50'
+                      : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                  }`}
+                >
+                  工作台
+                </a>
                 <span className='text-sm text-gray-700'>
                   欢迎，{user?.name || user?.email || '用户'}
                 </span>
@@ -261,25 +286,37 @@ const Navigation = () => {
             {/* Mobile Auth Buttons */}
             <div className='pt-4 pb-3 border-t border-gray-200'>
               {isLoggedIn ? (
-                <div className='flex items-center px-4'>
-                  <div className='flex-shrink-0'>
-                    <div className='h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center'>
-                      <span className='text-sm font-medium text-white'>
-                        {user?.name?.charAt(0) || user?.email?.charAt(0) || 'U'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className='ml-3'>
-                    <div className='text-base font-medium text-gray-800'>
-                      {user?.name || user?.email || '用户'}
-                    </div>
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className='ml-auto bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors'
+                <div className='space-y-2'>
+                  <a
+                    href='/dashboard'
+                    className={`block px-4 py-2 text-base font-medium transition-colors rounded-md ${
+                      isActive('/dashboard')
+                        ? 'text-blue-600 bg-blue-50'
+                        : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                    }`}
                   >
-                    退出
-                  </button>
+                    工作台
+                  </a>
+                  <div className='flex items-center px-4'>
+                    <div className='flex-shrink-0'>
+                      <div className='h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center'>
+                        <span className='text-sm font-medium text-white'>
+                          {user?.name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className='ml-3'>
+                      <div className='text-base font-medium text-gray-800'>
+                        {user?.name || user?.email || '用户'}
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      className='ml-auto bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors'
+                    >
+                      退出
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div className='space-y-2'>

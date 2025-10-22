@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from '../components/Navigation';
+import WorkflowTimeline, { WorkflowStep } from '../components/WorkflowTimeline';
+import { useBossDelivery } from '../hooks/useBossDelivery';
+import { useQRCodeLogin } from '../hooks/useQRCodeLogin';
 import { authService } from '../services/authService';
 
 /**
@@ -11,12 +14,25 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({
-    totalJobs: 0,
-    appliedJobs: 0,
-    pendingJobs: 0,
-    successRate: 0,
-  });
+
+  // 使用自定义Hooks
+  const {
+    showQRModal,
+    qrCodeUrl,
+    loginStatus,
+    handleQRCodeLogin,
+    closeQRModal,
+    refreshQRCode,
+  } = useQRCodeLogin();
+
+  const {
+    status: bossStatus,
+    message: bossMessage,
+    logs,
+    fetchLogs,
+    handleStart,
+    handleStop,
+  } = useBossDelivery();
 
   useEffect(() => {
     // 检查登录状态
@@ -29,27 +45,67 @@ const Dashboard: React.FC = () => {
       const userData = authService.getCachedUser();
       setUser(userData);
       setLoading(false);
-
-      // 加载统计数据
-      loadStats();
     };
 
     checkAuth();
   }, [navigate]);
 
-  const loadStats = async () => {
-    try {
-      // TODO: 从API加载实际统计数据
-      setStats({
-        totalJobs: 150,
-        appliedJobs: 45,
-        pendingJobs: 105,
-        successRate: 30,
-      });
-    } catch (error) {
-      console.error('加载统计数据失败:', error);
-    }
+  // 定义工作流程步骤
+  const getWorkflowSteps = (): WorkflowStep[] => {
+    const isLoggedIn = loginStatus === 'success';
+    const isRunning = bossStatus.isRunning;
+
+    return [
+      {
+        id: 'config',
+        label: '配置管理',
+        icon: '⚙️',
+        description: '设置投递参数和简历内容',
+        status: 'completed',
+        action: () => navigate('/config'),
+      },
+      {
+        id: 'login',
+        label: '扫码登录Boss',
+        icon: '📱',
+        description: '使用手机App扫描二维码登录',
+        status: isLoggedIn ? 'completed' : 'active',
+        action: handleQRCodeLogin,
+      },
+      {
+        id: 'start',
+        label: '启动自动投递',
+        icon: '▶️',
+        description: '开始智能投递简历',
+        status: isRunning ? 'completed' : isLoggedIn ? 'active' : 'pending',
+        disabled: !isLoggedIn || isRunning,
+        action: handleStart,
+      },
+      {
+        id: 'logs',
+        label: '查看日志',
+        icon: '📋',
+        description: '监控投递状态和结果',
+        status: isRunning ? 'active' : 'pending',
+        action: async () => {
+          await fetchLogs();
+          setShowLogs(true);
+        },
+      },
+      {
+        id: 'stop',
+        label: '停止投递',
+        icon: '⏹️',
+        description: '停止自动投递任务',
+        status: isRunning ? 'active' : 'pending',
+        disabled: !isRunning,
+        action: handleStop,
+      },
+    ];
   };
+
+  // 日志弹窗状态
+  const [showLogs, setShowLogs] = useState(false);
 
   // const handleLogout = () => {
   //   authService.logout();
@@ -84,96 +140,173 @@ const Dashboard: React.FC = () => {
         {/* 统计卡片 */}
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
           <StatCard
-            title='总岗位数'
-            value={stats.totalJobs}
+            title='今日投递'
+            value={bossStatus.deliveryCount || 0}
             icon='📊'
             color='blue'
           />
           <StatCard
-            title='已投递'
-            value={stats.appliedJobs}
+            title='运行状态'
+            value={bossStatus.isRunning ? 1 : 0}
             icon='✅'
             color='green'
           />
           <StatCard
-            title='待处理'
-            value={stats.pendingJobs}
-            icon='⏳'
-            color='yellow'
-          />
-          <StatCard
-            title='成功率'
-            value={`${stats.successRate}%`}
-            icon='📈'
+            title='智能匹配'
+            value='AI'
+            icon='🤖'
             color='purple'
           />
-        </div>
-
-        {/* 功能卡片 */}
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-          <FeatureCard
-            title='简历管理'
-            description='上传和管理您的简历'
-            icon='📄'
-            link='/resume'
-          />
-          <FeatureCard
-            title='岗位投递'
-            description='智能匹配并投递岗位'
-            icon='🎯'
-            link='/resume-delivery'
-          />
-          <FeatureCard
-            title='投递记录'
-            description='查看投递历史和状态'
-            icon='📋'
-            link='/applications'
-          />
-          <FeatureCard
-            title='AI助手'
-            description='AI优化简历和打招呼语'
-            icon='🤖'
-            link='/ai-assistant'
-          />
-          <FeatureCard
-            title='账户设置'
-            description='管理您的个人信息'
-            icon='⚙️'
-            link='/settings'
-          />
-          <FeatureCard
-            title='帮助中心'
-            description='查看使用指南和FAQ'
-            icon='❓'
-            link='/help'
+          <StatCard
+            title='持续运行'
+            value='24/7'
+            icon='⏰'
+            color='yellow'
           />
         </div>
 
-        {/* 最近活动 */}
-        <div className='mt-8 bg-white rounded-lg shadow p-6'>
-          <h2 className='text-xl font-semibold mb-4'>最近活动</h2>
-          <div className='space-y-4'>
-            <ActivityItem
-              action='投递简历'
-              target='前端开发工程师 - 字节跳动'
-              time='2小时前'
-              status='success'
-            />
-            <ActivityItem
-              action='更新简历'
-              target='个人简历.pdf'
-              time='5小时前'
-              status='info'
-            />
-            <ActivityItem
-              action='收到回复'
-              target='React开发工程师 - 腾讯'
-              time='1天前'
-              status='success'
+        {/* 工作流程时间线 */}
+        <div className='mb-8'>
+          <div className='mb-6'>
+            <h2 className='text-2xl font-bold text-gray-900 mb-2'>🚀 智能投递流程</h2>
+            <p className='text-gray-600'>按照以下步骤完成简历投递设置，让AI帮您自动投递</p>
+          </div>
+
+          <div className='bg-white rounded-lg shadow-sm p-6'>
+            <WorkflowTimeline
+              steps={getWorkflowSteps()}
+              currentStep={bossStatus.isRunning ? 3 : loginStatus === 'success' ? 2 : 1}
             />
           </div>
         </div>
+
+        {/* 消息提示 */}
+        {bossMessage && (
+          <div className={`mb-6 p-4 rounded-lg ${
+            bossMessage.includes('成功')
+              ? 'bg-green-50 text-green-700 border border-green-200'
+              : 'bg-red-50 text-red-700 border border-red-200'
+          }`}>
+            <p className='text-sm'>{bossMessage}</p>
+          </div>
+        )}
       </div>
+
+      {/* 日志弹窗 */}
+      {showLogs && (
+        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+          <div className='bg-white rounded-lg p-6 max-w-4xl w-full max-h-[80vh] overflow-hidden'>
+            <div className='flex items-center justify-between mb-4'>
+              <h3 className='text-lg font-semibold'>📋 投递日志</h3>
+              <button
+                onClick={() => setShowLogs(false)}
+                className='text-gray-400 hover:text-gray-600'
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className='bg-gray-900 text-green-400 p-4 rounded-lg h-96 overflow-y-auto font-mono text-sm'>
+              {logs.length > 0 ? (
+                logs.map((log, index) => (
+                  <div key={index} className='mb-1'>
+                    {log}
+                  </div>
+                ))
+              ) : (
+                <div className='text-gray-500'>暂无日志记录</div>
+              )}
+            </div>
+
+            <div className='flex justify-end mt-4'>
+              <button
+                onClick={() => setShowLogs(false)}
+                className='bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors'
+              >
+                关闭
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 二维码登录模态框 */}
+      {showQRModal && (
+        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+          <div className='bg-white rounded-lg p-6 max-w-md w-full mx-4'>
+            <div className='flex justify-between items-center mb-4'>
+              <h3 className='text-lg font-semibold text-gray-900'>
+                扫码登录Boss直聘
+              </h3>
+              <button
+                onClick={closeQRModal}
+                className='text-gray-400 hover:text-gray-600'
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className='text-center'>
+              {!qrCodeUrl && loginStatus === 'waiting' && (
+                <div className='py-8'>
+                  <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4'></div>
+                  <p className='text-gray-600'>正在加载二维码...</p>
+                </div>
+              )}
+
+              {qrCodeUrl && (
+                <div className='mb-4 flex justify-center'>
+                  <img
+                    src={qrCodeUrl}
+                    alt='登录二维码'
+                    className='border-2 border-gray-300 rounded-lg shadow-lg'
+                    style={{
+                      width: '400px',
+                      height: '400px',
+                      minWidth: '400px',
+                      minHeight: '400px',
+                      objectFit: 'contain',
+                    }}
+                  />
+                </div>
+              )}
+
+              <p
+                className={`text-sm mb-4 ${
+                  loginStatus === 'waiting'
+                    ? 'text-gray-600'
+                    : loginStatus === 'success'
+                      ? 'text-green-600 font-semibold'
+                      : loginStatus === 'failed'
+                        ? 'text-red-600'
+                        : 'text-gray-500'
+                }`}
+              >
+                {loginStatus === 'waiting' &&
+                  '请用手机Boss App或微信扫描二维码'}
+                {loginStatus === 'success' && '✅ 登录成功！'}
+                {loginStatus === 'failed' && '❌ 登录失败，请重试'}
+                {loginStatus === 'not_started' && '正在启动登录流程...'}
+              </p>
+
+              <div className='flex gap-3 justify-center'>
+                <button
+                  onClick={closeQRModal}
+                  className='bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors'
+                >
+                  取消
+                </button>
+                <button
+                  onClick={refreshQRCode}
+                  className='bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors'
+                >
+                  刷新二维码
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -209,67 +342,5 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color }) => {
   );
 };
 
-// 功能卡片组件
-interface FeatureCardProps {
-  title: string;
-  description: string;
-  icon: string;
-  link: string;
-}
-
-const FeatureCard: React.FC<FeatureCardProps> = ({
-  title,
-  description,
-  icon,
-  link,
-}) => {
-  const navigate = useNavigate();
-
-  return (
-    <div
-      onClick={() => navigate(link)}
-      className='bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-lg transition-shadow'
-    >
-      <div className='text-4xl mb-4'>{icon}</div>
-      <h3 className='text-lg font-semibold text-gray-900 mb-2'>{title}</h3>
-      <p className='text-gray-600'>{description}</p>
-    </div>
-  );
-};
-
-// 活动项组件
-interface ActivityItemProps {
-  action: string;
-  target: string;
-  time: string;
-  status: 'success' | 'info' | 'warning';
-}
-
-const ActivityItem: React.FC<ActivityItemProps> = ({
-  action,
-  target,
-  time,
-  status,
-}) => {
-  const statusClasses = {
-    success: 'bg-green-100 text-green-800',
-    info: 'bg-blue-100 text-blue-800',
-    warning: 'bg-yellow-100 text-yellow-800',
-  };
-
-  return (
-    <div className='flex items-center justify-between py-3 border-b last:border-b-0'>
-      <div className='flex items-center space-x-4'>
-        <span
-          className={`px-3 py-1 rounded-full text-sm font-medium ${statusClasses[status]}`}
-        >
-          {action}
-        </span>
-        <span className='text-gray-900'>{target}</span>
-      </div>
-      <span className='text-gray-500 text-sm'>{time}</span>
-    </div>
-  );
-};
 
 export default Dashboard;

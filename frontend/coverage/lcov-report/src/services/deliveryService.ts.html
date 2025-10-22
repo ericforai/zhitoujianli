@@ -857,16 +857,16 @@
  */
 &nbsp;
 import {
-  ApiResponse,
-  BlacklistConfig,
-  BossConfig,
-  DeliveryConfig,
-  DeliveryRecord,
-  DeliveryRecordQuery,
-  DeliveryStatistics,
-  DeliveryStatisticsQuery,
-  DeliveryStrategy,
-  GreetingConfig,
+    ApiResponse,
+    BlacklistConfig,
+    BossConfig,
+    DeliveryConfig,
+    DeliveryRecord,
+    DeliveryRecordQuery,
+    DeliveryStatistics,
+    DeliveryStatisticsQuery,
+    DeliveryStrategy,
+    GreetingConfig,
 } from '../types/api';
 import apiClient from './apiService';
 &nbsp;
@@ -878,7 +878,7 @@ export const deliveryConfigService = <span class="cstat-no" title="statement not
    * 获取投递配置
    */
   getDeliveryConfig: <span class="fstat-no" title="function not covered" >as</span>ync (): Promise&lt;ApiResponse&lt;DeliveryConfig&gt;&gt; =&gt; {
-    const response = <span class="cstat-no" title="statement not covered" >await apiClient.get('/api/delivery/config');</span>
+    const response = <span class="cstat-no" title="statement not covered" >await apiClient.get('/api/delivery/config/config');</span>
 <span class="cstat-no" title="statement not covered" >    return response.data;</span>
   },
 &nbsp;
@@ -888,7 +888,7 @@ export const deliveryConfigService = <span class="cstat-no" title="statement not
   updateDeliveryConfig: <span class="fstat-no" title="function not covered" >as</span>ync (
     config: DeliveryConfig
   ): Promise&lt;ApiResponse&lt;DeliveryConfig&gt;&gt; =&gt; {
-    const response = <span class="cstat-no" title="statement not covered" >await apiClient.put('/api/delivery/config', config);</span>
+    const response = <span class="cstat-no" title="statement not covered" >await apiClient.put('/api/delivery/config/config', config);</span>
 <span class="cstat-no" title="statement not covered" >    return response.data;</span>
   },
 &nbsp;
@@ -898,7 +898,7 @@ export const deliveryConfigService = <span class="cstat-no" title="statement not
   testDeliveryConfig: <span class="fstat-no" title="function not covered" >as</span>ync (
     config: DeliveryConfig
   ): Promise&lt;ApiResponse&lt;{ valid: boolean; message: string }&gt;&gt; =&gt; {
-    const response = <span class="cstat-no" title="statement not covered" >await apiClient.post('/api/delivery/config/test', config);</span>
+    const response = <span class="cstat-no" title="statement not covered" >await apiClient.post('/api/delivery/config/config/test', config);</span>
 <span class="cstat-no" title="statement not covered" >    return response.data;</span>
   },
 &nbsp;
@@ -906,7 +906,7 @@ export const deliveryConfigService = <span class="cstat-no" title="statement not
    * 获取Boss直聘配置
    */
   getBossConfig: <span class="fstat-no" title="function not covered" >as</span>ync (): Promise&lt;ApiResponse&lt;BossConfig&gt;&gt; =&gt; {
-    const response = <span class="cstat-no" title="statement not covered" >await apiClient.get('/api/delivery/boss-config');</span>
+    const response = <span class="cstat-no" title="statement not covered" >await apiClient.get('/api/delivery/config/boss-config');</span>
 <span class="cstat-no" title="statement not covered" >    return response.data;</span>
   },
 &nbsp;
@@ -917,7 +917,7 @@ export const deliveryConfigService = <span class="cstat-no" title="statement not
     bossConfig: BossConfig
   ): Promise&lt;ApiResponse&lt;BossConfig&gt;&gt; =&gt; {
     const response = <span class="cstat-no" title="statement not covered" >await apiClient.put(</span>
-      '/api/delivery/boss-config',
+      '/api/delivery/config/boss-config',
       bossConfig
     );
 <span class="cstat-no" title="statement not covered" >    return response.data;</span>
@@ -927,7 +927,7 @@ export const deliveryConfigService = <span class="cstat-no" title="statement not
    * 获取投递策略配置（从完整配置中提取）
    */
   getDeliveryStrategy: <span class="fstat-no" title="function not covered" >as</span>ync (): Promise&lt;ApiResponse&lt;DeliveryStrategy&gt;&gt; =&gt; {
-    const response = <span class="cstat-no" title="statement not covered" >await apiClient.get('/api/delivery/config');</span>
+    const response = <span class="cstat-no" title="statement not covered" >await apiClient.get('/api/delivery/config/config');</span>
     const config = <span class="cstat-no" title="statement not covered" >response.data.data;</span>
 <span class="cstat-no" title="statement not covered" >    return {</span>
       ...response.data,
@@ -944,7 +944,7 @@ export const deliveryConfigService = <span class="cstat-no" title="statement not
     const configResponse = <span class="cstat-no" title="statement not covered" >await apiClient.get('/api/delivery/config');</span>
     const config = <span class="cstat-no" title="statement not covered" >configResponse.data.data;</span>
 <span class="cstat-no" title="statement not covered" >    config.deliveryStrategy = strategy;</span>
-    const response = <span class="cstat-no" title="statement not covered" >await apiClient.put('/api/delivery/config', config);</span>
+    const response = <span class="cstat-no" title="statement not covered" >await apiClient.put('/api/delivery/config/config', config);</span>
 <span class="cstat-no" title="statement not covered" >    return {</span>
       ...response.data,
       data: strategy,
@@ -955,7 +955,7 @@ export const deliveryConfigService = <span class="cstat-no" title="statement not
    * 获取打招呼语配置（从完整配置中提取）
    */
   getGreetingConfig: <span class="fstat-no" title="function not covered" >as</span>ync (): Promise&lt;ApiResponse&lt;GreetingConfig&gt;&gt; =&gt; {
-    const response = <span class="cstat-no" title="statement not covered" >await apiClient.get('/api/delivery/config');</span>
+    const response = <span class="cstat-no" title="statement not covered" >await apiClient.get('/api/delivery/config/config');</span>
     const config = <span class="cstat-no" title="statement not covered" >response.data.data;</span>
 <span class="cstat-no" title="statement not covered" >    return {</span>
       ...response.data,
@@ -972,7 +972,7 @@ export const deliveryConfigService = <span class="cstat-no" title="statement not
     const configResponse = <span class="cstat-no" title="statement not covered" >await apiClient.get('/api/delivery/config');</span>
     const config = <span class="cstat-no" title="statement not covered" >configResponse.data.data;</span>
 <span class="cstat-no" title="statement not covered" >    config.greetingConfig = greetingConfig;</span>
-    const response = <span class="cstat-no" title="statement not covered" >await apiClient.put('/api/delivery/config', config);</span>
+    const response = <span class="cstat-no" title="statement not covered" >await apiClient.put('/api/delivery/config/config', config);</span>
 <span class="cstat-no" title="statement not covered" >    return {</span>
       ...response.data,
       data: greetingConfig,
@@ -983,7 +983,7 @@ export const deliveryConfigService = <span class="cstat-no" title="statement not
    * 获取黑名单配置
    */
   getBlacklistConfig: <span class="fstat-no" title="function not covered" >as</span>ync (): Promise&lt;ApiResponse&lt;BlacklistConfig&gt;&gt; =&gt; {
-    const response = <span class="cstat-no" title="statement not covered" >await apiClient.get('/api/delivery/blacklist');</span>
+    const response = <span class="cstat-no" title="statement not covered" >await apiClient.get('/api/delivery/config/blacklist');</span>
 <span class="cstat-no" title="statement not covered" >    return response.data;</span>
   },
 &nbsp;
@@ -994,7 +994,7 @@ export const deliveryConfigService = <span class="cstat-no" title="statement not
     type: 'company' | 'position' | 'keyword',
     value: string
   ): Promise&lt;ApiResponse&lt;void&gt;&gt; =&gt; {
-    const response = <span class="cstat-no" title="statement not covered" >await apiClient.post('/api/delivery/blacklist', {</span>
+    const response = <span class="cstat-no" title="statement not covered" >await apiClient.post('/api/delivery/config/blacklist', {</span>
       type,
       value,
     });
@@ -1005,7 +1005,7 @@ export const deliveryConfigService = <span class="cstat-no" title="statement not
    * 删除黑名单项
    */
   deleteBlacklistItem: <span class="fstat-no" title="function not covered" >as</span>ync (id: string): Promise&lt;ApiResponse&lt;void&gt;&gt; =&gt; {
-    const response = <span class="cstat-no" title="statement not covered" >await apiClient.delete(`/api/delivery/blacklist/${id}`);</span>
+    const response = <span class="cstat-no" title="statement not covered" >await apiClient.delete(`/api/delivery/config/blacklist/${id}`);</span>
 <span class="cstat-no" title="statement not covered" >    return response.data;</span>
   },
 };
@@ -1249,7 +1249,7 @@ export const deliveryConfigValidator = <span class="cstat-no" title="statement n
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-21T08:29:27.367Z
+                at 2025-10-22T06:45:34.803Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
