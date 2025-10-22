@@ -210,23 +210,30 @@ const BossDelivery: React.FC = () => {
   const loadQRCode = async () => {
     try {
       const timestamp = new Date().getTime();
-      const url = `/api/boss/login/qrcode?t=${timestamp}`;
+      const url = `/api/boss/login/qrcode?format=base64&t=${timestamp}`;
       const exec = async (): Promise<{ success: boolean; data: { qrcodeBase64: string } } | null> => {
-        const response = await fetch(url);
+        const response = await fetch(url, {
+          headers: {
+            Accept: 'application/json',
+          },
+        });
         if (response.status === 404) {
           throw new Error('404');
         }
         if (!response.ok) {
           throw new Error(`status:${response.status}`);
         }
-        // 直接获取blob并转换为base64
-        const blob = await response.blob();
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve({ success: true, data: { qrcodeBase64: reader.result as string } });
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        });
+
+        const json = (await response.json()) as {
+          success?: boolean;
+          data?: { qrcodeBase64?: string };
+        };
+
+        if (json?.success && json?.data?.qrcodeBase64) {
+          return json as { success: boolean; data: { qrcodeBase64: string } };
+        }
+
+        return null;
       };
       const data = await retry(exec, 4).catch(e => {
         if (String(e?.message).includes('404')) {
@@ -237,11 +244,9 @@ const BossDelivery: React.FC = () => {
       });
 
       if (data && data.success && data.data?.qrcodeBase64) {
-        // reader.result 已经是完整的 DataURL，直接使用
-        setQrCodeUrl(data.data.qrcodeBase64);
+        // 后端直接返回Base64字符串，前端无需再次转换
+        setQrCodeUrl(data.data.qrcodeBase64.startsWith('data:') ? data.data.qrcodeBase64 : `data:image/png;base64,${data.data.qrcodeBase64}`);
         console.log('二维码已加载(base64)');
-      } else {
-        // 未生成则继续等待
       }
     } catch (error) {
       console.error('加载二维码失败:', error);
