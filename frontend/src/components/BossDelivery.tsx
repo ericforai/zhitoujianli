@@ -210,23 +210,43 @@ const BossDelivery: React.FC = () => {
   const loadQRCode = async () => {
     try {
       const timestamp = new Date().getTime();
-      const url = `/api/boss/login/qrcode?t=${timestamp}`;
-      const exec = async (): Promise<{ success: boolean; data: { qrcodeBase64: string } } | null> => {
-        const response = await fetch(url);
+      const url = `/api/boss/login/qrcode?format=base64&t=${timestamp}`;
+      const exec = async (): Promise<string | null> => {
+        const response = await fetch(url, {
+          headers: {
+            Accept: 'application/json',
+          },
+        });
         if (response.status === 404) {
           throw new Error('404');
         }
         if (!response.ok) {
           throw new Error(`status:${response.status}`);
         }
-        // 直接获取blob并转换为base64
-        const blob = await response.blob();
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve({ success: true, data: { qrcodeBase64: reader.result as string } });
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        });
+
+        const json = (await response.json()) as {
+          success?: boolean;
+          data?: { qrcodeBase64?: string; image?: string };
+          qrcodeBase64?: string;
+          image?: string;
+        } | string | null;
+
+        if (typeof json === 'string') {
+          return json;
+        }
+
+        const base64 =
+          json?.data?.qrcodeBase64 ||
+          json?.data?.image ||
+          json?.qrcodeBase64 ||
+          json?.image ||
+          null;
+
+        if (base64 && (json?.success ?? true)) {
+          return base64;
+        }
+
+        return null;
       };
       const data = await retry(exec, 4).catch(e => {
         if (String(e?.message).includes('404')) {
@@ -236,12 +256,12 @@ const BossDelivery: React.FC = () => {
         throw e;
       });
 
-      if (data && data.success && data.data?.qrcodeBase64) {
-        // reader.result 已经是完整的 DataURL，直接使用
-        setQrCodeUrl(data.data.qrcodeBase64);
+      if (data) {
+        const normalized = data.startsWith('data:') ? data : `data:image/png;base64,${data}`;
+        setQrCodeUrl(normalized);
         console.log('二维码已加载(base64)');
       } else {
-        // 未生成则继续等待
+        console.debug('二维码未就绪，等待下一次轮询');
       }
     } catch (error) {
       console.error('加载二维码失败:', error);
