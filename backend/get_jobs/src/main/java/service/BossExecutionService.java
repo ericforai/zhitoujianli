@@ -40,7 +40,11 @@ public class BossExecutionService {
         return CompletableFuture.runAsync(() -> {
             Process process = null;
             try {
-                log.info("开始执行Boss程序，使用隔离执行环境，头模式: {}", headless ? "无头" : "有头");
+                // 获取当前用户ID（支持多用户隔离）
+                String userId = util.UserContextUtil.getCurrentUserId();
+                userId = util.UserContextUtil.sanitizeUserId(userId);
+
+                log.info("开始执行Boss程序，用户: {}, 隔离执行环境，头模式: {}", userId, headless ? "无头" : "有头");
 
                 // 确保日志文件存在
                 File logFile = new File(logFilePath);
@@ -53,7 +57,11 @@ public class BossExecutionService {
                     // 创建独立的Boss进程
                     ProcessBuilder pb = createIsolatedBossProcess(headless);
 
-                    logWriter.write(formatTimestamp() + " - 启动独立Boss进程...%n");
+                    // 为Boss程序设置用户ID环境变量（多用户支持）
+                    pb.environment().put("BOSS_USER_ID", userId);
+                    log.info("📋 已设置Boss程序环境变量: BOSS_USER_ID={}", userId);
+
+                    logWriter.write(formatTimestamp() + " - 启动独立Boss进程（用户: " + userId + "）...%n");
                     logWriter.flush();
 
                     // 启动进程

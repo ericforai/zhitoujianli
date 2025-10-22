@@ -161,3 +161,4 @@ tail -50 /tmp/boss_login.log | grep -E "(二维码|screenshot|等待二维码|15
    systemctl start zhitoujianli-backend
    ```
 
+

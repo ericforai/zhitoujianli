@@ -122,18 +122,28 @@ public class BossConfig {
     @SneakyThrows
     private static BossConfig tryLoadUserConfig() {
         try {
-            // 检查是否有用户ID环境变量（由BossExecutionService传递）
-            String userId = System.getProperty("boss.user.id");
-            if (userId == null) {
-                // 如果没有用户ID，尝试从默认用户配置读取
-                userId = "default_user";
+            // 1. 从环境变量获取用户ID（由BossExecutionService传递）
+            String userId = System.getenv("BOSS_USER_ID");
+
+            // 2. 如果未设置环境变量，尝试系统属性（向后兼容）
+            if (userId == null || userId.isEmpty()) {
+                userId = System.getProperty("boss.user.id");
             }
 
+            // 3. 如果仍未设置，则使用默认用户（保持向后兼容）
+            if (userId == null || userId.isEmpty()) {
+                userId = "default_user";
+                log.info("未检测到BOSS_USER_ID环境变量，使用默认用户: {}", userId);
+            } else {
+                log.info("✅ 从环境变量获取用户ID: BOSS_USER_ID={}", userId);
+            }
+
+            // 4. 构建用户配置路径
             String userConfigPath = "user_data/" + userId + "/config.json";
             File userConfigFile = new File(userConfigPath);
 
             if (!userConfigFile.exists()) {
-                log.info("用户配置文件不存在: {}", userConfigPath);
+                log.info("用户配置文件不存在: {} （用户: {}）", userConfigPath, userId);
                 return null;
             }
 

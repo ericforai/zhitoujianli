@@ -1,0 +1,61 @@
+姓名：张三
+职位：高级Java工程师
+工作年限：5年
+技能：Java, Spring Boot, Kubernetes, MySQL, Redis, Docker, Microservices
+教育背景：本科 - 计算机科学与技术
+当前公司：某科技有限公司
+期望薪资：20-30K
+
+工作经历：
+
+某科技有限公司（2020.03 - 至今）
+职位：高级Java工程师
+- 负责公司核心业务系统的架构设计与开发
+- 主导微服务架构改造，将单体应用拆分为10+个微服务
+- 使用Spring Cloud全家桶（Eureka、Feign、Hystrix）实现服务治理
+- 引入Kubernetes进行容器编排，提升系统可用性至99.9%
+- 优化数据库查询性能，将关键接口响应时间从500ms降至50ms
+
+另一科技公司（2018.06 - 2020.02）
+职位：Java开发工程师
+- 参与电商平台后端开发，使用Spring Boot + MyBatis技术栈
+- 负责订单系统模块的开发与维护
+- 实现分布式缓存方案，使用Redis提升系统性能
+- 参与高并发场景的性能优化，支撑618大促百万级流量
+
+核心优势：
+1. 精通Spring Boot微服务架构设计与实现
+2. 具备大型分布式系统的设计与开发经验
+3. 熟悉云原生技术栈（Docker、Kubernetes）
+4. 擅长系统性能优化和高并发场景处理
+5. 有良好的代码规范和文档习惯
+
+项目经验：
+
+智能推荐系统（2021.06 - 2022.12）
+技术栈：Spring Boot, Redis, Elasticsearch, Kafka
+- 设计并实现基于用户行为的个性化推荐算法
+- 使用Elasticsearch实现实时搜索功能
+- 通过Kafka异步处理用户行为数据
+- 系统日均处理数据量达到500万+
+
+微服务架构改造（2020.06 - 2021.05）
+技术栈：Spring Cloud, Docker, Kubernetes
+- 主导单体应用向微服务架构的转型
+- 使用Kubernetes进行容器编排和服务管理
+- 实现服务间通信、服务发现、负载均衡等功能
+- 提升系统可扩展性和可维护性
+
+技能清单：
+- 编程语言：Java（精通）、Python（熟悉）、Go（了解）
+- 框架技术：Spring Boot、Spring Cloud、MyBatis、Hibernate
+- 数据库：MySQL、Redis、MongoDB、Elasticsearch
+- 中间件：Kafka、RabbitMQ、Nginx
+- 容器技术：Docker、Kubernetes
+- 开发工具：IDEA、Git、Maven、Jenkins
+- 其他：Linux、微服务、分布式、高并发
+
+自我评价：
+我是一名拥有5年Java开发经验的工程师，热爱技术，持续学习。擅长微服务架构设计和高并发系统开发，有良好的问题分析和解决能力。注重代码质量和团队协作，能够快速适应新技术和业务需求。
+
+

@@ -53,7 +53,7 @@ public class IsolatedBossRunner {
         System.setProperty("spring.autoconfigure.exclude", "*");
 
         // 设置独立的工作目录
-        System.setProperty("user.dir", "/root/zhitoujianli/backend/get_jobs");
+        System.setProperty("user.dir", "/opt/zhitoujianli/backend");
 
         // Playwright浏览器路径
         System.setProperty("PLAYWRIGHT_BROWSERS_PATH", "/root/.cache/ms-playwright");

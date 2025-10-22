@@ -90,6 +90,17 @@ public class UserService {
     }
 
     /**
+     * 获取用户总数（用于数据迁移判断）
+     *
+     * @return 当前用户总数
+     */
+    public long getUserCount() {
+        long count = userRepository.count();
+        log.debug("当前用户总数: {}", count);
+        return count;
+    }
+
+    /**
      * 软删除用户
      */
     @Transactional

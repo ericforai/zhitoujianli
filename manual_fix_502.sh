@@ -19,3 +19,4 @@ systemctl reload nginx
 # 4. 验证修复结果
 echo "修复完成！请访问 https://zhitoujianli.com 测试登录功能"
 
+

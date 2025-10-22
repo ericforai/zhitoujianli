@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2025-01-03
  */
 @RestController
-@RequestMapping("/api/delivery")
+@RequestMapping("/api/delivery/config")
 @Slf4j
 @CrossOrigin(origins = {"http://localhost:3000", "http://115.190.182.95:3000", "http://115.190.182.95"})
 public class DeliveryConfigController {

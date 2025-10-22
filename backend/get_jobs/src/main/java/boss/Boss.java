@@ -78,9 +78,29 @@ public class Boss {
     static Set<String> blackJobs;
     static List<Job> resultList = new ArrayList<>();
     static String dataPath = "src/main/java/boss/data.json";
-    static String cookiePath = "src/main/java/boss/cookie.json";
+    static String cookiePath = initCookiePath();  // 多用户支持：动态Cookie路径
     static Date startDate;
     static BossConfig config = BossConfig.init();
+
+    /**
+     * 初始化Cookie文件路径（支持多用户隔离）
+     * 根据BOSS_USER_ID环境变量动态生成路径
+     *
+     * @return Cookie文件路径
+     */
+    private static String initCookiePath() {
+        String userId = System.getenv("BOSS_USER_ID");
+        if (userId == null || userId.isEmpty()) {
+            log.info("未检测到BOSS_USER_ID环境变量，使用默认Cookie路径");
+            return "/tmp/boss_cookies.json";  // 默认单用户模式
+        }
+
+        // 清理userId中的非法字符（安全性）
+        String safeUserId = userId.replaceAll("[^a-zA-Z0-9_-]", "_");
+        String cookiePath = "/tmp/boss_cookies_" + safeUserId + ".json";
+        log.info("✅ 多用户模式，Cookie路径: {}", cookiePath);
+        return cookiePath;
+    }
 
     static {
         try {
@@ -104,20 +124,8 @@ public class Boss {
                 log.info("创建数据文件: {}", dataPath);
             }
 
-            // 检查cookiePath文件是否存在，不存在则创建
-            File cookieFile = new File(cookiePath);
-            if (!cookieFile.exists()) {
-                // 确保父目录存在
-                File parentDir = cookieFile.getParentFile();
-                if (parentDir != null && !parentDir.exists()) {
-                    if (!parentDir.mkdirs()) {
-                        log.warn("创建目录失败");
-                    }
-                }
-                // 创建空的cookie文件
-                Files.write(Paths.get(cookiePath), "[]".getBytes(StandardCharsets.UTF_8));
-                log.info("创建cookie文件: {}", cookiePath);
-            }
+            // Cookie文件使用/tmp目录，无需预创建
+            // /tmp目录始终存在且可写，PlaywrightUtil会在需要时自动创建文件
         } catch (IOException e) {
             log.error("创建文件时发生异常: {}", e.getMessage());
         }
@@ -1183,11 +1191,21 @@ public class Boss {
         try {
             // 直接从文件加载候选人信息
             ObjectMapper mapper = new ObjectMapper();
-            Map<String, Object> candidate = mapper.readValue(resumeFile, Map.class);
-            if (candidate == null) {
+            Map<String, Object> resumeData = mapper.readValue(resumeFile, Map.class);
+            if (resumeData == null) {
                 log.warn("【打招呼语】简历文件为空，使用默认招呼语");
                 return sayHi;
             }
+
+            // 转换简历格式以匹配SmartGreetingService的期望格式
+            Map<String, Object> candidate = convertResumeFormat(resumeData);
+
+            log.info("【简历信息】职位: {}, 工作年限: {}, 技能数: {}, 核心优势数: {}",
+                candidate.get("current_title"),
+                candidate.get("years_experience"),
+                candidate.get("skills") != null ? ((List<?>)candidate.get("skills")).size() : 0,
+                candidate.get("core_strengths") != null ? ((List<?>)candidate.get("core_strengths")).size() : 0
+            );
 
             // 使用完整JD生成智能打招呼语
             String smartGreeting = SmartGreetingService.generateSmartGreeting(
@@ -1205,7 +1223,7 @@ public class Boss {
             }
 
         } catch (Exception e) {
-            log.error("【智能打招呼】异常，使用默认招呼语: {}", e.getMessage());
+            log.error("【智能打招呼】异常，使用默认招呼语: {}", e.getMessage(), e);
             return sayHi;
         }
     }
@@ -1856,6 +1874,70 @@ public class Boss {
             PlaywrightUtil.sleep(1);
         }
         return false;
+    }
+
+    /**
+     * 转换简历格式，将resume.json的格式转换为SmartGreetingService期望的格式
+     *
+     * @param resumeData 从resume.json文件读取的原始数据
+     * @return 转换后的候选人信息Map
+     */
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> convertResumeFormat(Map<String, Object> resumeData) {
+        Map<String, Object> candidate = new HashMap<>();
+
+        // 提取resume子对象
+        Map<String, Object> resume = (Map<String, Object>) resumeData.get("resume");
+        if (resume == null) {
+            log.warn("【简历转换】resume字段不存在，返回空候选人信息");
+            return candidate;
+        }
+
+        // 映射字段：position -> current_title
+        String position = (String) resume.get("position");
+        candidate.put("current_title", position != null ? position : "未知职位");
+
+        // 映射字段：experience -> years_experience (提取数字)
+        String experience = (String) resume.get("experience");
+        if (experience != null) {
+            // 从"10年以上"中提取数字
+            String yearsStr = experience.replaceAll("[^0-9]", "");
+            candidate.put("years_experience", yearsStr.isEmpty() ? "10" : yearsStr);
+        } else {
+            candidate.put("years_experience", "10");
+        }
+
+        // 映射字段：skills -> skills (直接复制)
+        List<String> skills = (List<String>) resume.get("skills");
+        candidate.put("skills", skills != null ? skills : new ArrayList<String>());
+
+        // 映射字段：achievements -> core_strengths (成就作为核心优势)
+        List<String> achievements = (List<String>) resume.get("achievements");
+        candidate.put("core_strengths", achievements != null ? achievements : new ArrayList<String>());
+
+        // 添加其他可用字段
+        String name = (String) resume.get("name");
+        if (name != null) {
+            candidate.put("name", name);
+        }
+
+        String education = (String) resume.get("education");
+        if (education != null) {
+            candidate.put("education", education);
+        }
+
+        String location = (String) resume.get("location");
+        if (location != null) {
+            candidate.put("location", location);
+        }
+
+        log.debug("【简历转换】成功转换简历格式: position={}, experience={}, skills={}, achievements={}",
+            position, experience,
+            skills != null ? skills.size() : 0,
+            achievements != null ? achievements.size() : 0
+        );
+
+        return candidate;
     }
 
 }

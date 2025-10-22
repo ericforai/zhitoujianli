@@ -129,6 +129,7 @@ const BossDelivery: React.FC = () => {
       setShowQRModal(true);
       setQrCodeUrl('');
       setLoginStatus('not_started');
+      setMessage('正在启动登录流程...');
 
       // 调用后端启动登录
       const response = await fetch('/api/boss/login/start', {
@@ -141,11 +142,20 @@ const BossDelivery: React.FC = () => {
       if (result.success) {
         console.log('登录流程已启动');
         setLoginStatus('waiting');
+        setMessage('请用手机Boss App扫描二维码');
         // 开始轮询二维码和登录状态
         startQRCodePolling();
       } else {
-        setMessage('启动登录失败：' + result.message);
-        setShowQRModal(false);
+        // 【新增】处理登录进行中的情况
+        if (result.status === 'in_progress') {
+          setMessage('登录流程正在进行中，请稍候...');
+          setLoginStatus('waiting');
+          // 即使返回进行中，也启动轮询以显示二维码
+          startQRCodePolling();
+        } else {
+          setMessage('启动登录失败：' + result.message);
+          setShowQRModal(false);
+        }
       }
     } catch (error: any) {
       console.error('启动登录失败:', error);
@@ -196,22 +206,27 @@ const BossDelivery: React.FC = () => {
     throw lastError;
   };
 
-  // 加载二维码（base64 JSON，更稳健）
+  // 加载二维码（直接获取图片）
   const loadQRCode = async () => {
     try {
       const timestamp = new Date().getTime();
-      const url = `/api/boss/login/qrcode?format=base64&t=${timestamp}`;
-      const exec = async () => {
-        const response = await fetch(url, {
-          headers: { Accept: 'application/json' },
-        });
+      const url = `/api/boss/login/qrcode?t=${timestamp}`;
+      const exec = async (): Promise<{ success: boolean; data: { qrcodeBase64: string } } | null> => {
+        const response = await fetch(url);
         if (response.status === 404) {
           throw new Error('404');
         }
         if (!response.ok) {
           throw new Error(`status:${response.status}`);
         }
-        return response.json();
+        // 直接获取blob并转换为base64
+        const blob = await response.blob();
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve({ success: true, data: { qrcodeBase64: reader.result as string } });
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
       };
       const data = await retry(exec, 4).catch(e => {
         if (String(e?.message).includes('404')) {
@@ -222,8 +237,8 @@ const BossDelivery: React.FC = () => {
       });
 
       if (data && data.success && data.data?.qrcodeBase64) {
-        const src = `data:image/png;base64,${data.data.qrcodeBase64}`;
-        setQrCodeUrl(src);
+        // reader.result 已经是完整的 DataURL，直接使用
+        setQrCodeUrl(data.data.qrcodeBase64);
         console.log('二维码已加载(base64)');
       } else {
         // 未生成则继续等待
@@ -249,6 +264,11 @@ const BossDelivery: React.FC = () => {
     try {
       const response = await fetch('/api/boss/login/status');
       const result = await response.json();
+
+      // 【新增】显示运行进度
+      if (result.isInProgress && result.elapsedSeconds) {
+        console.log(`登录流程进行中: ${result.elapsedSeconds}秒`);
+      }
 
       setLoginStatus(result.status);
 
