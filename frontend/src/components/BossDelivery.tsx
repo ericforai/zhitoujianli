@@ -211,7 +211,7 @@ const BossDelivery: React.FC = () => {
     try {
       const timestamp = new Date().getTime();
       const url = `/api/boss/login/qrcode?format=base64&t=${timestamp}`;
-      const exec = async (): Promise<{ success: boolean; data: { qrcodeBase64: string } } | null> => {
+      const exec = async (): Promise<string | null> => {
         const response = await fetch(url, {
           headers: {
             Accept: 'application/json',
@@ -226,11 +226,24 @@ const BossDelivery: React.FC = () => {
 
         const json = (await response.json()) as {
           success?: boolean;
-          data?: { qrcodeBase64?: string };
-        };
+          data?: { qrcodeBase64?: string; image?: string };
+          qrcodeBase64?: string;
+          image?: string;
+        } | string | null;
 
-        if (json?.success && json?.data?.qrcodeBase64) {
-          return json as { success: boolean; data: { qrcodeBase64: string } };
+        if (typeof json === 'string') {
+          return json;
+        }
+
+        const base64 =
+          json?.data?.qrcodeBase64 ||
+          json?.data?.image ||
+          json?.qrcodeBase64 ||
+          json?.image ||
+          null;
+
+        if (base64 && (json?.success ?? true)) {
+          return base64;
         }
 
         return null;
@@ -243,10 +256,12 @@ const BossDelivery: React.FC = () => {
         throw e;
       });
 
-      if (data && data.success && data.data?.qrcodeBase64) {
-        // 后端直接返回Base64字符串，前端无需再次转换
-        setQrCodeUrl(data.data.qrcodeBase64.startsWith('data:') ? data.data.qrcodeBase64 : `data:image/png;base64,${data.data.qrcodeBase64}`);
+      if (data) {
+        const normalized = data.startsWith('data:') ? data : `data:image/png;base64,${data}`;
+        setQrCodeUrl(normalized);
         console.log('二维码已加载(base64)');
+      } else {
+        console.debug('二维码未就绪，等待下一次轮询');
       }
     } catch (error) {
       console.error('加载二维码失败:', error);
