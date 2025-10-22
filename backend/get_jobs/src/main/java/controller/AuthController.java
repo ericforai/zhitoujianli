@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import service.EmailService;
 import service.UserAuditService;
+import service.UserDataMigrationService;
 import service.UserService;
 import service.VerificationCodeService;
 import util.RequestUtil;
@@ -72,6 +73,9 @@ public class AuthController {
     @Autowired
     private UserAuditService auditService;
 
+    @Autowired
+    private UserDataMigrationService migrationService;
+
     /**
      * 健康检查接口
      */
@@ -108,7 +112,21 @@ public class AuthController {
 
             // 检查邮件服务是否配置
             if (!mailConfig.isConfigured()) {
-                log.warn("⚠️ 邮件服务未配置，使用演示模式");
+                // 🔒 安全检查：生产环境禁用演示模式
+                if (!mailConfig.isDemoModeAllowed()) {
+                    log.error("🚨 生产环境邮件服务未配置，且演示模式已禁用！");
+                    return ResponseEntity.status(503) // Service Unavailable
+                            .body(Map.of(
+                                "success", false,
+                                "message", "邮件服务暂时不可用，请联系管理员配置邮件服务",
+                                "errorCode", "MAIL_SERVICE_UNAVAILABLE"
+                            ));
+                }
+
+                // ⚠️ 演示模式（仅开发/测试环境）
+                log.warn("⚠️ 邮件服务未配置，使用演示模式（环境: {}）",
+                    mailConfig.isProductionEnvironment() ? "生产" : "开发/测试");
+
                 String code = verificationCodeService.generateCode();
                 verificationCodeService.storeCode(email, code);
 
@@ -117,7 +135,8 @@ public class AuthController {
                         "message", "验证码已生成（演示模式）",
                         "code", code, // 演示模式直接返回验证码
                         "expiresIn", 300,
-                        "demoMode", true
+                        "demoMode", true,
+                        "warning", "演示模式仅供开发测试使用，生产环境请配置邮件服务"
                 ));
             }
 
@@ -219,6 +238,26 @@ public class AuthController {
             // 简化版注册：不需要验证码验证
             // 注册用户
             User user = userService.registerUser(email, password, username);
+
+            // 【多用户支持】检查是否是第一个用户，如果是则迁移default_user数据
+            try {
+                long userCount = userService.getUserCount();
+                if (userCount == 1 && migrationService.shouldMigrate()) {
+                    String targetUserId = "user_" + user.getUserId();
+                    log.info("🔄 检测到首个注册用户，开始迁移default_user数据到: {}", targetUserId);
+
+                    boolean migrated = migrationService.migrateDefaultUserData(targetUserId);
+                    if (migrated) {
+                        log.info("✅ 数据迁移成功，用户{}将继承default_user的配置和简历", targetUserId);
+                    } else {
+                        log.warn("⚠️ 数据迁移失败，但不影响注册流程");
+                    }
+                } else {
+                    log.debug("非首个用户或已迁移过，跳过数据迁移（用户数: {}）", userCount);
+                }
+            } catch (Exception e) {
+                log.warn("⚠️ 数据迁移检查失败（不影响注册）: {}", e.getMessage());
+            }
 
             // 生成JWT Token
             String token = generateJwtToken(user);
@@ -452,6 +491,47 @@ public class AuthController {
             log.error("❌ 获取用户信息失败", e);
             return ResponseEntity.internalServerError()
                     .body(Map.of("success", false, "message", "获取用户信息失败"));
+        }
+    }
+
+    /**
+     * 获取当前登录用户信息（多用户支持）
+     */
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.ok(Map.of(
+                    "success", false,
+                    "message", "未登录或Token无效"
+                ));
+            }
+
+            // 从UserContextUtil获取当前用户信息
+            if (!util.UserContextUtil.hasCurrentUser()) {
+                return ResponseEntity.ok(Map.of(
+                    "success", false,
+                    "message", "用户未认证"
+                ));
+            }
+
+            String userId = util.UserContextUtil.getCurrentUserId();
+            String userEmail = util.UserContextUtil.getCurrentUserEmail();
+            String username = util.UserContextUtil.getCurrentUsername();
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "user", Map.of(
+                    "userId", userId,
+                    "email", userEmail,
+                    "username", username
+                )
+            ));
+
+        } catch (Exception e) {
+            log.error("❌ 获取当前用户信息失败", e);
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("success", false, "message", "获取用户信息失败: " + e.getMessage()));
         }
     }
 

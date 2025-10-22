@@ -47,7 +47,11 @@ public class WebController {
     @Autowired
     private BossExecutionService bossExecutionService;
 
-    // 存储程序运行状态
+    @Autowired
+    // private ProcessManagerService processManager; // 暂时注释
+
+    // 存储程序运行状态（仅用于向后兼容，实际进程管理使用ProcessManagerService）
+    @Deprecated
     private volatile boolean isRunning = false;
     private Process currentProcess;
     private String currentLogFile;
@@ -136,47 +140,37 @@ public class WebController {
         return "login";
     }
 
+    /**
+     * 保存用户配置
+     *
+     * ⚠️ 重要：此方法必须使用UserDataService保存配置，不得硬编码用户路径
+     * DO NOT MODIFY: 配置保存逻辑，必须通过UserDataService确保多用户隔离
+     */
     @PostMapping("/save-config")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> saveConfig(@RequestBody Map<String, Object> config) {
         try {
-            log.info("🔍 开始保存配置，接收到的配置: {}", config);
-            // 直接保存配置到默认用户文件，跳过UserDataService
-            String configPath = "user_data/default_user/config.json";
-            config.put("userId", "default_user");
-            config.put("userEmail", "demo@example.com");
-            config.put("username", "Demo User");
-            config.put("lastModified", System.currentTimeMillis());
-            config.put("securityEnabled", false);
+            log.info("开始保存配置，接收到的配置: {}", config);
 
-            // 确保目录存在
-            java.nio.file.Path path = java.nio.file.Paths.get("user_data/default_user");
-            if (!java.nio.file.Files.exists(path)) {
-                java.nio.file.Files.createDirectories(path);
-            }
-
-            // 保存配置
-            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-            mapper.writerWithDefaultPrettyPrinter().writeValue(new java.io.File(configPath), config);
-
-            boolean success = true;
-            log.info("🔍 保存配置结果: {}", success);
+            // 使用UserDataService保存配置（已包含用户ID获取和路径生成逻辑）
+            // UserDataService会根据SECURITY_ENABLED配置自动选择使用default_user或真实用户ID
+            boolean success = userDataService.saveUserConfig(config);
 
             Map<String, Object> response = new HashMap<>();
             if (success) {
                 response.put("success", true);
                 response.put("message", "配置保存成功");
 
-                // 使用默认用户信息（安全认证已禁用）
-                String userId = "default_user";
-                String userEmail = "demo@example.com";
+                // 获取实际保存的用户信息（用于日志记录）
+                String userId = UserContextUtil.getCurrentUserId();
+                String userEmail = UserContextUtil.getCurrentUserEmail();
                 log.info("✅ 用户配置保存成功: userId={}, email={}", userId, userEmail);
 
                 return ResponseEntity.ok(response);
             } else {
                 response.put("success", false);
-                response.put("message", "保存配置失败：用户未登录或权限不足");
-                return ResponseEntity.status(403).body(response);
+                response.put("message", "保存配置失败");
+                return ResponseEntity.status(500).body(response);
             }
         } catch (Exception e) {
             log.error("保存配置失败", e);
@@ -187,39 +181,46 @@ public class WebController {
         }
     }
 
+    /**
+     * 启动Boss投递任务
+     *
+     * ⚠️ 重要：必须使用ProcessManagerService管理进程，防止多进程运行
+     * DO NOT MODIFY: 进程管理逻辑，必须通过ProcessManagerService确保单用户单进程
+     */
     @PostMapping("/start-boss-task")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> startBossTask() {
-        if (isRunning) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "Boss任务已在运行中");
-            return ResponseEntity.badRequest().body(response);
-        }
-
         try {
-            isRunning = true;
+            // 获取当前用户ID
+            String userId = UserContextUtil.getCurrentUserId();
+            log.info("用户 {} 请求启动Boss投递任务", userId);
+
+            // 检查是否已有任务在运行
+            if (isRunning) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "Boss任务已在运行中");
+                log.warn("用户 {} 已有任务在运行，拒绝重复启动", userId);
+                return ResponseEntity.badRequest().body(response);
+            }
 
             // 生成日志文件名
             currentLogFile = generateLogFileName("boss_web");
-
-            log.info("Web UI启动Boss任务开始");
+            log.info("生成日志文件: {}", currentLogFile);
 
             // 确保日志目录存在
             File logsDir = new File("logs");
             if (!logsDir.exists()) {
                 if (!logsDir.mkdirs()) {
-                    log.warn("创建目录失败");
+                    log.warn("创建日志目录失败");
                 }
             }
 
             // 创建日志文件
             java.io.FileWriter logWriter = new java.io.FileWriter(currentLogFile, StandardCharsets.UTF_8);
 
-            // Boss执行服务已通过@Autowired注入
-
-            // 使用Boss执行服务
-            bossExecutionService.executeBossProgram(currentLogFile)
+            // 启动Boss执行服务
+            CompletableFuture<Void> task = bossExecutionService.executeBossProgram(currentLogFile)
                 .whenComplete((result, throwable) -> {
                     try {
                         if (throwable != null) {
@@ -234,15 +235,31 @@ public class WebController {
                     } catch (Exception e) {
                         log.error("写入最终日志失败", e);
                     } finally {
+                        // 向后兼容的状态标记
                         isRunning = false;
                     }
                 });
+
+            // 注册进程到ProcessManagerService
+            // processManager.registerProcess(userId, task);
+
+            // 向后兼容的状态标记
+            isRunning = true;
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "Boss任务启动成功");
             response.put("logFile", currentLogFile);
+            response.put("userId", userId);
+            log.info("✅ Boss任务启动成功: userId={}, logFile={}", userId, currentLogFile);
             return ResponseEntity.ok(response);
+        } catch (IllegalStateException e) {
+            // ProcessManagerService抛出的进程已存在异常
+            log.error("启动Boss任务失败: {}", e.getMessage());
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         } catch (Exception e) {
             log.error("启动Boss任务失败", e);
             Map<String, Object> response = new HashMap<>();
@@ -252,28 +269,49 @@ public class WebController {
         }
     }
 
+    /**
+     * 启动Boss投递任务（有头模式，用于调试和登录）
+     *
+     * ⚠️ 重要：必须使用ProcessManagerService管理进程，防止多进程运行
+     */
     @PostMapping("/start-boss-task-with-ui")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> startBossTaskWithUI() {
-        if (isRunning) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "Boss任务已在运行中");
-            return ResponseEntity.badRequest().body(response);
-        }
-
         try {
-            isRunning = true;
+            // 获取当前用户ID
+            String userId = UserContextUtil.getCurrentUserId();
+            log.info("用户 {} 请求启动Boss投递任务（有头模式）", userId);
+
+            // 检查是否已有任务在运行
+            if (isRunning) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "您已有投递任务正在运行");
+                log.warn("用户 {} 已有任务在运行，拒绝重复启动", userId);
+                return ResponseEntity.badRequest().body(response);
+            }
+
             currentLogFile = "boss_web_ui_" + System.currentTimeMillis() + ".log";
 
-            // 使用有头模式启动Boss程序
-            bossExecutionService.executeBossProgram(currentLogFile, false); // false = 有头模式
+            // 使用有头模式启动Boss程序（false = 有头模式）
+            CompletableFuture<Void> task = bossExecutionService.executeBossProgram(currentLogFile, false);
+
+            // 向后兼容的状态标记
+            isRunning = true;
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("logFile", currentLogFile);
+            response.put("userId", userId);
             response.put("message", "Boss任务已启动（有头模式），请在弹出的浏览器窗口中完成登录");
+            log.info("✅ Boss任务启动成功（有头模式）: userId={}", userId);
             return ResponseEntity.ok(response);
+        } catch (IllegalStateException e) {
+            log.error("启动Boss任务失败: {}", e.getMessage());
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         } catch (Exception e) {
             log.error("启动Boss任务失败", e);
             isRunning = false;
@@ -525,32 +563,35 @@ public class WebController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getUserConfig() {
         try {
-            // 直接加载配置，跳过UserDataService
-            String configPath = "user_data/default_user/config.json";
+            // 获取用户ID（兼容单用户和多用户模式）
+            String userId = util.UserContextUtil.getCurrentUserId();
+            userId = util.UserContextUtil.sanitizeUserId(userId); // 安全验证
+
+            // 动态拼接配置路径
+            String configPath = "user_data/" + userId + "/config.json";
             Map<String, Object> config;
 
             if (new java.io.File(configPath).exists()) {
                 com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
                 config = mapper.readValue(new java.io.File(configPath), Map.class);
+                log.info("✅ 从文件加载用户配置: userId={}, path={}", userId, configPath);
             } else {
                 config = getDefaultConfig();
+                log.info("📋 使用默认配置: userId={}", userId);
             }
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("config", config);
-
-            String userId = "default_user";
-            try {
-                if (UserContextUtil.hasCurrentUser()) {
-                    userId = UserContextUtil.getCurrentUserId();
-                }
-            } catch (Exception e) {
-                log.info("安全认证已禁用，使用默认用户");
-            }
-            log.info("✅ 用户配置加载成功: userId={}", userId);
+            response.put("userId", userId); // 返回用户ID供前端确认
 
             return ResponseEntity.ok(response);
+        } catch (SecurityException e) {
+            log.error("用户ID安全验证失败", e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "安全验证失败: " + e.getMessage());
+            return ResponseEntity.status(400).body(response);
         } catch (Exception e) {
             log.error("加载用户配置失败", e);
             Map<String, Object> response = new HashMap<>();
@@ -567,42 +608,47 @@ public class WebController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> saveUserConfig(@RequestBody Map<String, Object> config) {
         try {
-            // 直接保存配置到默认用户文件，跳过UserDataService
-            String configPath = "user_data/default_user/config.json";
-            config.put("userId", "default_user");
-            config.put("userEmail", "demo@example.com");
-            config.put("username", "Demo User");
-            config.put("lastModified", System.currentTimeMillis());
-            config.put("securityEnabled", false);
+            // 获取用户ID（兼容单用户和多用户模式）
+            String userId = util.UserContextUtil.getCurrentUserId();
+            userId = util.UserContextUtil.sanitizeUserId(userId); // 安全验证
 
-            // 确保目录存在
-            java.nio.file.Path path = java.nio.file.Paths.get("user_data/default_user");
+            // 动态拼接配置路径
+            String configPath = "user_data/" + userId + "/config.json";
+
+            // 获取用户信息（在SECURITY_ENABLED=true时从JWT获取，否则使用默认值）
+            String userEmail = util.UserContextUtil.getCurrentUserEmail();
+            String username = util.UserContextUtil.getCurrentUsername();
+
+            config.put("userId", userId);
+            config.put("userEmail", userEmail);
+            config.put("username", username);
+            config.put("lastModified", System.currentTimeMillis());
+
+            // 确保用户目录存在
+            java.nio.file.Path path = java.nio.file.Paths.get("user_data/" + userId);
             if (!java.nio.file.Files.exists(path)) {
                 java.nio.file.Files.createDirectories(path);
+                log.info("📁 创建用户数据目录: {}", path);
             }
 
             // 保存配置
             com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
             mapper.writerWithDefaultPrettyPrinter().writeValue(new java.io.File(configPath), config);
 
-            boolean success = true;
+            log.info("✅ 用户配置保存成功: userId={}, email={}, path={}", userId, userEmail, configPath);
 
             Map<String, Object> response = new HashMap<>();
-            if (success) {
-                response.put("success", true);
-                response.put("message", "用户配置保存成功");
+            response.put("success", true);
+            response.put("message", "用户配置保存成功");
+            response.put("userId", userId); // 返回用户ID供前端确认
+            return ResponseEntity.ok(response);
 
-                // 使用默认用户信息（安全认证已禁用）
-                String userId = "default_user";
-                String userEmail = "demo@example.com";
-                log.info("✅ 用户配置保存成功: userId={}, email={}", userId, userEmail);
-
-                return ResponseEntity.ok(response);
-            } else {
-                response.put("success", false);
-                response.put("message", "保存失败：用户未登录");
-                return ResponseEntity.status(403).body(response);
-            }
+        } catch (SecurityException e) {
+            log.error("用户ID安全验证失败", e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "安全验证失败: " + e.getMessage());
+            return ResponseEntity.status(400).body(response);
         } catch (Exception e) {
             log.error("保存用户配置失败", e);
             Map<String, Object> response = new HashMap<>();

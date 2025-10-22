@@ -95,3 +95,4 @@ echo "- Nginx错误日志: tail -f /var/log/nginx/zhitoujianli_error.log"
 echo ""
 
 
+

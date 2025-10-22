@@ -7,6 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.MDC;
 import service.BossExecutionService;
@@ -18,6 +19,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Boss直聘登录控制器
@@ -39,15 +41,56 @@ public class BossLoginController {
     // 登录状态标记文件
     private static final String LOGIN_STATUS_FILE = "/tmp/boss_login_status.txt";
 
+    // 【多用户支持】用户级别的登录状态锁（Map<userId, isInProgress>）
+    private static final Map<String, Boolean> userLoginStatus = new ConcurrentHashMap<>();
+    private static final Map<String, Long> userLoginStartTime = new ConcurrentHashMap<>();
+
+    // 登录超时时间 (10分钟)
+    private static final long LOGIN_TIMEOUT_MS = 10 * 60 * 1000;
+
+    // 【向后兼容】全局锁（仅在未启用多用户时使用）
+    private static final Object LOGIN_LOCK = new Object();
+    private static volatile boolean isLoginInProgress = false;
+    private static volatile long loginStartTime = 0;
+
     /**
      * 启动登录流程
      * 触发Boss程序在Xvfb上启动浏览器
      */
     @PostMapping("/start")
     public ResponseEntity<Map<String, Object>> startLogin() {
-        log.info("收到启动登录请求");
+        // 获取当前用户ID（多用户支持）
+        String userId = util.UserContextUtil.getCurrentUserId();
+        log.info("收到启动登录请求，用户: {}", userId);
 
         Map<String, Object> response = new HashMap<>();
+
+        // 【多用户支持】用户级别的锁检查，支持超时自动释放
+        Boolean inProgress = userLoginStatus.getOrDefault(userId, false);
+        if (inProgress) {
+            Long startTime = userLoginStartTime.get(userId);
+            long elapsed = System.currentTimeMillis() - (startTime != null ? startTime : 0);
+
+            if (elapsed < LOGIN_TIMEOUT_MS) {
+                response.put("success", false);
+                response.put("message", "登录流程正在进行中，请稍候...");
+                response.put("status", "in_progress");
+                response.put("elapsedSeconds", elapsed / 1000);
+                response.put("userId", userId);
+                log.warn("用户{}登录流程已在进行中，拒绝重复启动（已进行{}秒）", userId, elapsed / 1000);
+                return ResponseEntity.ok(response);
+            } else {
+                // 超过10分钟，认为上次登录已失效
+                log.warn("用户{}上次登录流程超时（{}秒），强制释放锁并重置状态", userId, elapsed / 1000);
+                userLoginStatus.put(userId, false);
+                cleanupLoginFiles(userId);
+            }
+        }
+
+        // 标记该用户登录开始
+        userLoginStatus.put(userId, true);
+        userLoginStartTime.put(userId, System.currentTimeMillis());
+        log.info("用户{}登录流程开始，已设置锁", userId);
 
         try {
             // 清理旧的登录状态
@@ -95,16 +138,32 @@ public class BossLoginController {
                     } catch (IOException ioException) {
                         log.error("更新失败状态文件失败", ioException);
                     }
+                } finally {
+                    // 【多用户支持】登录流程结束，释放用户锁
+                    userLoginStatus.put(userId, false);
+                    log.info("用户{}登录流程结束，已释放锁", userId);
+
+                    // 【向后兼容】同时释放全局锁
+                    synchronized (LOGIN_LOCK) {
+                        isLoginInProgress = false;
+                        log.debug("全局锁已释放（向后兼容）");
+                    }
                 }
             });
 
             response.put("success", true);
             response.put("message", "登录流程已启动，请稍候...");
+            response.put("status", "started");
 
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             log.error("启动登录失败", e);
+            // 【新增】异常时释放锁
+            synchronized (LOGIN_LOCK) {
+                isLoginInProgress = false;
+                log.info("启动登录异常，已释放全局锁");
+            }
             response.put("success", false);
             response.put("message", "启动登录失败：" + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -176,6 +235,15 @@ public class BossLoginController {
         Map<String, Object> response = new HashMap<>();
 
         try {
+            // 【新增】检查是否有登录流程正在进行
+            if (isLoginInProgress) {
+                long elapsed = System.currentTimeMillis() - loginStartTime;
+                response.put("isInProgress", true);
+                response.put("elapsedSeconds", elapsed / 1000);
+            } else {
+                response.put("isInProgress", false);
+            }
+
             File statusFile = new File(LOGIN_STATUS_FILE);
 
             if (!statusFile.exists()) {
@@ -195,10 +263,20 @@ public class BossLoginController {
                 case "success":
                     response.put("status", "success");
                     response.put("message", "登录成功！");
+                    // 【新增】登录成功后重置进行中状态
+                    synchronized (LOGIN_LOCK) {
+                        isLoginInProgress = false;
+                        log.info("检测到登录成功，已释放全局锁");
+                    }
                     break;
                 case "failed":
                     response.put("status", "failed");
                     response.put("message", "登录失败，请重试");
+                    // 【新增】登录失败后重置进行中状态
+                    synchronized (LOGIN_LOCK) {
+                        isLoginInProgress = false;
+                        log.info("检测到登录失败，已释放全局锁");
+                    }
                     break;
                 default:
                     response.put("status", "unknown");
@@ -218,13 +296,69 @@ public class BossLoginController {
     /**
      * 清理登录相关文件
      */
-    private void cleanupLoginFiles() {
+    /**
+     * 清理登录文件（多用户支持）
+     * @param userId 用户ID，如果为null则清理全局文件
+     */
+    private void cleanupLoginFiles(String userId) {
         try {
+            if (userId != null && !userId.equals("default_user")) {
+                // 多用户模式：清理用户特定的Cookie文件
+                String userCookiePath = "/tmp/boss_cookies_" + userId + ".json";
+                Files.deleteIfExists(Paths.get(userCookiePath));
+                log.info("清理用户{}的Cookie文件: {}", userId, userCookiePath);
+            }
+
+            // 清理全局登录文件（二维码和状态）
             Files.deleteIfExists(Paths.get(QRCODE_PATH));
             Files.deleteIfExists(Paths.get(LOGIN_STATUS_FILE));
-            log.info("清理登录文件完成");
+            log.info("清理登录文件完成（用户: {}）", userId);
         } catch (IOException e) {
             log.warn("清理登录文件失败", e);
+        }
+    }
+
+    /**
+     * 清理登录文件（向后兼容：无用户ID参数）
+     */
+    private void cleanupLoginFiles() {
+        cleanupLoginFiles("default_user");
+    }
+
+    /**
+     * 定时检查登录超时（多用户支持）
+     * 每分钟执行一次，自动释放超时的登录锁
+     */
+    @Scheduled(fixedRate = 60000)
+    public void checkLoginTimeout() {
+        // 检查所有用户的登录状态
+        for (Map.Entry<String, Boolean> entry : userLoginStatus.entrySet()) {
+            String userId = entry.getKey();
+            Boolean inProgress = entry.getValue();
+
+            if (inProgress != null && inProgress) {
+                Long startTime = userLoginStartTime.get(userId);
+                if (startTime != null) {
+                    long elapsed = System.currentTimeMillis() - startTime;
+                    if (elapsed > LOGIN_TIMEOUT_MS) {
+                        log.warn("定时检测到用户{}登录超时（{}秒），自动释放锁", userId, elapsed / 1000);
+                        userLoginStatus.put(userId, false);
+                        cleanupLoginFiles(userId);
+                    }
+                }
+            }
+        }
+
+        // 【向后兼容】检查全局锁
+        synchronized (LOGIN_LOCK) {
+            if (isLoginInProgress) {
+                long elapsed = System.currentTimeMillis() - loginStartTime;
+                if (elapsed > LOGIN_TIMEOUT_MS) {
+                    log.warn("定时检测到全局登录超时（{}秒），自动释放锁", elapsed / 1000);
+                    isLoginInProgress = false;
+                    cleanupLoginFiles();
+                }
+            }
         }
     }
 }

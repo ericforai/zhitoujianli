@@ -20,13 +20,15 @@ module.exports = function (app) {
   app.use(
     '/api',
     createProxyMiddleware({
-      // 优先使用环境变量，否则使用默认的本地后端地址
-      target: process.env.REACT_APP_BACKEND_URL || 'https://zhitoujianli.com',
+      // ✅ 修复：开发环境代理到本地后端服务器
+      target: process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080',
       changeOrigin: true, // ✅ 修改 Origin 头部为目标 URL
       secure: false, // ✅ 支持自签名 SSL 证书
       logLevel: 'debug',
       // ✅ 支持 WebSocket（如果需要）
       ws: true,
+      // ✅ 修复：保持 /api 前缀，不重写路径
+      pathRewrite: false,
       // ✅ 错误处理
       onError: function (err, req, res) {
         console.error('❌ 代理错误:', err.message);
@@ -44,7 +46,7 @@ module.exports = function (app) {
       // ✅ 请求日志
       onProxyReq: function (proxyReq, req) {
         const target =
-          process.env.REACT_APP_BACKEND_URL || 'https://zhitoujianli.com';
+          process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080';
         console.log(
           '🔄 代理请求:',
           req.method,

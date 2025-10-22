@@ -38,9 +38,9 @@ public class SimpleSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        // 强制禁用安全认证，因为.env文件中SECURITY_ENABLED=false
-        boolean securityEnabled = false;
-        log.info("Spring Security配置: securityEnabled=false (强制禁用安全认证)");
+        // 从.env文件读取安全认证开关（支持多用户模式）
+        boolean securityEnabled = Boolean.parseBoolean(dotenv.get("SECURITY_ENABLED", "false"));
+        log.info("Spring Security配置: securityEnabled={} (从.env读取)", securityEnabled);
 
         http
             // 禁用CSRF，因为使用JWT
@@ -64,6 +64,9 @@ public class SimpleSecurityConfig {
                 // 公开访问的端点
                 .requestMatchers(
                     "/api/auth/**",          // 认证接口
+                    "/api/boss/**",          // Boss投递接口（登录、二维码等）
+                    "/api/delivery/**",      // 投递控制接口
+                    "/api/config",           // 配置API（暂时公开，待JWT修复后可移除）
                     "/login",                // 登录页面
                     "/register",             // 注册页面
                     "/",                     // 管理后台首页

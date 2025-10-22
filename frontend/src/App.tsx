@@ -22,6 +22,7 @@ import TestLogin from './components/TestLogin';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
 import BlogPage from './pages/BlogPage';
+import ConfigPage from './pages/ConfigPage';
 import ContactPage from './pages/ContactPage';
 import Dashboard from './pages/Dashboard';
 import FeaturesPage from './pages/FeaturesPage';
@@ -102,6 +103,22 @@ function App() {
               element={
                 <PrivateRoute>
                   <Dashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path='/config'
+              element={
+                <PrivateRoute>
+                  <ConfigPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path='/config/resume-manager'
+              element={
+                <PrivateRoute>
+                  <ConfigPage />
                 </PrivateRoute>
               }
             />
