@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1761210434919" clover="3.2.0">
-  <project timestamp="1761210434919" name="All files">
+<coverage generated="1761212342222" clover="3.2.0">
+  <project timestamp="1761212342222" name="All files">
     <metrics statements="2625" coveredstatements="479" conditionals="1628" coveredconditionals="190" methods="690" coveredmethods="97" elements="4943" coveredelements="766" complexity="0" loc="2625" ncloc="2625" packages="13" files="71" classes="71"/>
     <package name="src">
       <metrics statements="25" coveredstatements="3" conditionals="8" coveredconditionals="0" methods="8" coveredmethods="2"/>
@@ -317,21 +317,21 @@
       <file name="Register.tsx" path="/root/zhitoujianli/frontend/src/components/Register.tsx">
         <metrics statements="115" coveredstatements="39" conditionals="75" coveredconditionals="23" methods="12" coveredmethods="4"/>
         <line num="17" count="2" type="stmt"/>
-        <line num="18" count="268" type="stmt"/>
-        <line num="19" count="268" type="stmt"/>
-        <line num="20" count="268" type="stmt"/>
-        <line num="22" count="268" type="stmt"/>
-        <line num="23" count="268" type="stmt"/>
-        <line num="24" count="268" type="stmt"/>
-        <line num="27" count="268" type="stmt"/>
-        <line num="28" count="268" type="stmt"/>
-        <line num="29" count="268" type="stmt"/>
-        <line num="30" count="268" type="stmt"/>
-        <line num="33" count="268" type="stmt"/>
+        <line num="18" count="272" type="stmt"/>
+        <line num="19" count="272" type="stmt"/>
+        <line num="20" count="272" type="stmt"/>
+        <line num="22" count="272" type="stmt"/>
+        <line num="23" count="272" type="stmt"/>
+        <line num="24" count="272" type="stmt"/>
+        <line num="27" count="272" type="stmt"/>
+        <line num="28" count="272" type="stmt"/>
+        <line num="29" count="272" type="stmt"/>
+        <line num="30" count="272" type="stmt"/>
+        <line num="33" count="272" type="stmt"/>
         <line num="34" count="20" type="cond" truecount="1" falsecount="1"/>
         <line num="35" count="0" type="stmt"/>
         <line num="36" count="0" type="stmt"/>
-        <line num="43" count="268" type="stmt"/>
+        <line num="43" count="272" type="stmt"/>
         <line num="44" count="14" type="cond" truecount="2" falsecount="0"/>
         <line num="45" count="2" type="stmt"/>
         <line num="46" count="2" type="stmt"/>
@@ -360,17 +360,17 @@
         <line num="103" count="0" type="stmt"/>
         <line num="104" count="0" type="stmt"/>
         <line num="106" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="109" count="8" type="stmt"/>
-        <line num="110" count="8" type="stmt"/>
-        <line num="113" count="8" type="cond" truecount="3" falsecount="1"/>
+        <line num="109" count="9" type="stmt"/>
+        <line num="110" count="9" type="stmt"/>
+        <line num="113" count="9" type="cond" truecount="3" falsecount="1"/>
         <line num="114" count="0" type="stmt"/>
-        <line num="115" count="8" type="cond" truecount="1" falsecount="1"/>
+        <line num="115" count="9" type="cond" truecount="1" falsecount="1"/>
         <line num="119" count="0" type="stmt"/>
-        <line num="120" count="8" type="cond" truecount="1" falsecount="1"/>
+        <line num="120" count="9" type="cond" truecount="1" falsecount="1"/>
         <line num="121" count="0" type="stmt"/>
-        <line num="123" count="8" type="stmt"/>
-        <line num="126" count="8" type="stmt"/>
-        <line num="133" count="268" type="stmt"/>
+        <line num="123" count="9" type="stmt"/>
+        <line num="126" count="9" type="stmt"/>
+        <line num="133" count="272" type="stmt"/>
         <line num="134" count="0" type="cond" truecount="0" falsecount="4"/>
         <line num="135" count="0" type="stmt"/>
         <line num="136" count="0" type="stmt"/>
@@ -396,7 +396,7 @@
         <line num="177" count="0" type="stmt"/>
         <line num="179" count="0" type="stmt"/>
         <line num="182" count="0" type="stmt"/>
-        <line num="189" count="268" type="stmt"/>
+        <line num="189" count="272" type="stmt"/>
         <line num="190" count="0" type="stmt"/>
         <line num="191" count="0" type="stmt"/>
         <line num="192" count="0" type="stmt"/>
@@ -426,7 +426,7 @@
         <line num="236" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="237" count="0" type="stmt"/>
         <line num="239" count="0" type="stmt"/>
-        <line num="243" count="268" type="stmt"/>
+        <line num="243" count="272" type="stmt"/>
         <line num="310" count="228" type="stmt"/>
         <line num="339" count="0" type="stmt"/>
         <line num="377" count="0" type="stmt"/>
