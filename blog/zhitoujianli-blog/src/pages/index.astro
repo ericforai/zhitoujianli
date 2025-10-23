@@ -15,18 +15,7 @@ const metadata = {
 
 <Layout metadata={metadata}>
   <!-- Hero Widget ******************* -->
-  <SimpleHero
-    actions={[
-      {
-        variant: 'primary',
-        text: '立即体验',
-        href: 'http://115.190.182.95',
-        target: '_blank',
-        icon: 'tabler:rocket',
-      },
-      { text: '了解更多', href: '#features' },
-    ]}
-  >
+  <SimpleHero>
     <Fragment slot="title">
       智投简历<span class="hidden xl:inline">官方博客</span>
       <span class="text-accent dark:text-white"> 让求职更智能</span>
@@ -35,6 +24,15 @@ const metadata = {
     <Fragment slot="subtitle">
       分享求职技巧、简历优化、面试经验、职场发展等实用内容，助你更快拿到心仪Offer。
       基于AI技术的智能求职平台，为求职者提供全方位的职业发展支持。
+    </Fragment>
+
+    <Fragment slot="actions">
+      <Button variant="primary" href="http://115.190.182.95" target="_blank">
+        立即体验
+      </Button>
+      <Button variant="secondary" href="#features">
+        了解更多
+      </Button>
     </Fragment>
   </SimpleHero>
 
@@ -98,17 +96,7 @@ const metadata = {
   />
 
   <!-- CallToAction Widget *********** -->
-  <CallToAction
-    actions={[
-      {
-        variant: 'primary',
-        text: '立即体验智投简历',
-        href: 'http://115.190.182.95',
-        target: '_blank',
-        icon: 'tabler:rocket',
-      },
-    ]}
-  >
+  <CallToAction>
     <Fragment slot="title">
       智投简历&nbsp;+&nbsp;<br class="block sm:hidden" /><span class="sm:whitespace-nowrap">AI智能匹配</span>
     </Fragment>
@@ -116,6 +104,12 @@ const metadata = {
     <Fragment slot="subtitle">
       让AI为您的求职之路助力，提升投递成功率，更快拿到心仪Offer。 <br class="hidden md:inline" />
       立即开始您的智能求职之旅！
+    </Fragment>
+
+    <Fragment slot="actions">
+      <Button variant="primary" href="http://115.190.182.95" target="_blank">
+        立即体验智投简历
+      </Button>
     </Fragment>
   </CallToAction>
 </Layout>
