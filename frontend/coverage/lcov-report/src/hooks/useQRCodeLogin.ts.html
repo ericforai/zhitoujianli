@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">0.86% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/116</span>
+                <span class='fraction'>1/116</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">1% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/100</span>
+                <span class='fraction'>1/100</span>
             </div>
         
             
@@ -313,7 +313,10 @@
 <a name='L248'></a><a href='#L248'>248</a>
 <a name='L249'></a><a href='#L249'>249</a>
 <a name='L250'></a><a href='#L250'>250</a>
-<a name='L251'></a><a href='#L251'>251</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L251'></a><a href='#L251'>251</a>
+<a name='L252'></a><a href='#L252'>252</a>
+<a name='L253'></a><a href='#L253'>253</a>
+<a name='L254'></a><a href='#L254'>254</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -330,8 +333,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -379,6 +382,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -412,6 +418,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -553,8 +561,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -580,7 +586,7 @@ interface QRCodeLoginState {
   qrcodeCheckInterval: NodeJS.Timeout | null;
 }
 &nbsp;
-export const useQRCodeLogin = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
+export const useQRCodeLogin = <span class="fstat-no" title="function not covered" >()</span> =&gt; {
   const [state, setState] = <span class="cstat-no" title="statement not covered" >useState&lt;QRCodeLoginState&gt;({</span>
     showQRModal: false,
     qrCodeUrl: '',
@@ -589,7 +595,7 @@ export const useQRCodeLogin = <span class="cstat-no" title="statement not covere
   });
 &nbsp;
   // 指数退避重试工具
-  const retry = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync &lt;T,&gt;(fn: () =&gt; Promise&lt;T&gt;, max = <span class="branch-0 cbranch-no" title="branch not covered" >5)</span>: Promise&lt;T&gt; =&gt; {</span>
+  const retry = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync &lt;T&gt;(fn: () =&gt; Promise&lt;T&gt;, max = <span class="branch-0 cbranch-no" title="branch not covered" >5)</span>: Promise&lt;T&gt; =&gt; {</span>
     let attempt = <span class="cstat-no" title="statement not covered" >0;</span>
     let lastError: any;
 <span class="cstat-no" title="statement not covered" >    while (attempt &lt; max) {</span>
@@ -628,12 +634,15 @@ export const useQRCodeLogin = <span class="cstat-no" title="statement not covere
 <span class="cstat-no" title="statement not covered" >          throw new Error(`status:${response.status}`);</span>
         }
 &nbsp;
-        const json = <span class="cstat-no" title="statement not covered" >(await response.json()) as {</span>
-          success?: boolean;
-          data?: { qrcodeBase64?: string; image?: string };
-          qrcodeBase64?: string;
-          image?: string;
-        } | string | null;
+        const json = <span class="cstat-no" title="statement not covered" >(await response.json()) as</span>
+          | {
+              success?: boolean;
+              data?: { qrcodeBase64?: string; image?: string };
+              qrcodeBase64?: string;
+              image?: string;
+            }
+          | string
+          | null;
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        if (typeof json === 'string') {</span>
 <span class="cstat-no" title="statement not covered" >          return json;</span>
@@ -661,7 +670,9 @@ export const useQRCodeLogin = <span class="cstat-no" title="statement not covere
       });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (data) {</span>
-        const normalized = <span class="cstat-no" title="statement not covered" >data.startsWith('data:') ? data : `data:image/png;base64,${data}`;</span>
+        const normalized = <span class="cstat-no" title="statement not covered" >data.startsWith('data:')</span>
+          ? data
+          : `data:image/png;base64,${data}`;
 <span class="cstat-no" title="statement not covered" >        setState(<span class="fstat-no" title="function not covered" >pr</span>ev =&gt; (<span class="cstat-no" title="statement not covered" >{ ...prev, qrCodeUrl: normalized })</span>);</span>
 <span class="cstat-no" title="statement not covered" >        console.log('二维码已加载(base64)');</span>
       } else {
@@ -811,8 +822,6 @@ export const useQRCodeLogin = <span class="cstat-no" title="statement not covere
     refreshQRCode,
   };
 };
-&nbsp;
-&nbsp;
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -820,7 +829,7 @@ export const useQRCodeLogin = <span class="cstat-no" title="statement not covere
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-23T05:27:20.470Z
+                at 2025-10-23T08:32:08.481Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

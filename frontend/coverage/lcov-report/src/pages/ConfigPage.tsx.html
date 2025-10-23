@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">1.53% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/65</span>
+                <span class='fraction'>1/65</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">1.56% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/64</span>
+                <span class='fraction'>1/64</span>
             </div>
         
             
@@ -315,7 +315,22 @@
 <a name='L250'></a><a href='#L250'>250</a>
 <a name='L251'></a><a href='#L251'>251</a>
 <a name='L252'></a><a href='#L252'>252</a>
-<a name='L253'></a><a href='#L253'>253</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L253'></a><a href='#L253'>253</a>
+<a name='L254'></a><a href='#L254'>254</a>
+<a name='L255'></a><a href='#L255'>255</a>
+<a name='L256'></a><a href='#L256'>256</a>
+<a name='L257'></a><a href='#L257'>257</a>
+<a name='L258'></a><a href='#L258'>258</a>
+<a name='L259'></a><a href='#L259'>259</a>
+<a name='L260'></a><a href='#L260'>260</a>
+<a name='L261'></a><a href='#L261'>261</a>
+<a name='L262'></a><a href='#L262'>262</a>
+<a name='L263'></a><a href='#L263'>263</a>
+<a name='L264'></a><a href='#L264'>264</a>
+<a name='L265'></a><a href='#L265'>265</a>
+<a name='L266'></a><a href='#L266'>266</a>
+<a name='L267'></a><a href='#L267'>267</a>
+<a name='L268'></a><a href='#L268'>268</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -330,13 +345,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -461,6 +479,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -514,6 +536,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -582,13 +612,16 @@ import { useAuth } from '../contexts/AuthContext';
 import { BossConfig as BossConfigType } from '../types/api';
 import logger from '../utils/logger';
 &nbsp;
-const ConfigPage: React.FC = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
+const ConfigPage: React.FC = <span class="fstat-no" title="function not covered" >()</span> =&gt; {
   const { user, isAuthenticated, isLoading } = <span class="cstat-no" title="statement not covered" >useAuth();</span>
   const [activeTab, setActiveTab] = <span class="cstat-no" title="statement not covered" >useState&lt;'delivery' | 'resume'&gt;('delivery');</span>
   const [bossConfig, setBossConfig] = <span class="cstat-no" title="statement not covered" >useState&lt;BossConfigType | null&gt;(null);</span>
   const [loading, setLoading] = <span class="cstat-no" title="statement not covered" >useState(true);</span>
   const [saveLoading, setSaveLoading] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
-  const [message, setMessage] = <span class="cstat-no" title="statement not covered" >useState&lt;{ type: 'success' | 'error'; text: string } | null&gt;(null);</span>
+  const [message, setMessage] = <span class="cstat-no" title="statement not covered" >useState&lt;{</span>
+    type: 'success' | 'error';
+    text: string;
+  } | null&gt;(null);
 &nbsp;
   // 创建认证日志记录器
   const authLogger = <span class="cstat-no" title="statement not covered" >logger.createChild('ConfigPage:Auth');</span>
@@ -611,8 +644,8 @@ const ConfigPage: React.FC = <span class="cstat-no" title="statement not covered
         const token = <span class="cstat-no" title="statement not covered" >localStorage.getItem('authToken') || 'test_token';</span>
         const response = <span class="cstat-no" title="statement not covered" >await fetch('/api/config', {</span>
           headers: {
-            'Authorization': `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
         const data = <span class="cstat-no" title="statement not covered" >await response.json();</span>
 &nbsp;
@@ -651,10 +684,10 @@ const ConfigPage: React.FC = <span class="cstat-no" title="statement not covered
 <span class="cstat-no" title="statement not covered" >  if (isLoading) {</span>
 <span class="cstat-no" title="statement not covered" >    authLogger.debug('等待认证状态确认...');</span>
 <span class="cstat-no" title="statement not covered" >    return (</span>
-      &lt;div className="min-h-screen bg-gray-50 flex items-center justify-center"&gt;
-        &lt;div className="text-center"&gt;
-          &lt;div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"&gt;&lt;/div&gt;
-          &lt;p className="mt-4 text-gray-600"&gt;加载中...&lt;/p&gt;
+      &lt;div className='min-h-screen bg-gray-50 flex items-center justify-center'&gt;
+        &lt;div className='text-center'&gt;
+          &lt;div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto'&gt;&lt;/div&gt;
+          &lt;p className='mt-4 text-gray-600'&gt;加载中...&lt;/p&gt;
         &lt;/div&gt;
       &lt;/div&gt;
     );
@@ -669,7 +702,7 @@ const ConfigPage: React.FC = <span class="cstat-no" title="statement not covered
   // 认证确认，记录日志
 <span class="cstat-no" title="statement not covered" >  authLogger.info('ConfigPage认证检查通过，渲染组件', {</span>
     userId: user?.userId,
-    email: user?.email
+    email: user?.email,
   });
 &nbsp;
   // 保存配置到后端
@@ -683,9 +716,9 @@ const ConfigPage: React.FC = <span class="cstat-no" title="statement not covered
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken') || 'test_token'}`
+          Authorization: `Bearer ${localStorage.getItem('authToken') || 'test_token'}`,
         },
-        body: JSON.stringify({ boss: newConfig })
+        body: JSON.stringify({ boss: newConfig }),
       });
 &nbsp;
       const data = <span class="cstat-no" title="statement not covered" >await response.json();</span>
@@ -713,29 +746,33 @@ const ConfigPage: React.FC = <span class="cstat-no" title="statement not covered
   };
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  return (</span>
-    &lt;div className="min-h-screen bg-gray-50"&gt;
+    &lt;div className='min-h-screen bg-gray-50'&gt;
       &lt;Navigation /&gt;
 &nbsp;
       {/* Toast 通知 - 固定位置 */}
       {message &amp;&amp; (
-        &lt;div className="fixed top-20 right-4 z-50 max-w-sm"&gt;
-          &lt;div className={`p-4 rounded-lg shadow-lg border flex items-center justify-between ${
-            message.type === 'success'
-              ? 'bg-green-50 text-green-800 border-green-200'
-              : 'bg-red-50 text-red-800 border-red-200'
-          }`}&gt;
-            &lt;div className="flex items-center"&gt;
-              &lt;div className={`mr-3 text-lg ${
-                message.type === 'success' ? 'text-green-600' : 'text-red-600'
-              }`}&gt;
+        &lt;div className='fixed top-20 right-4 z-50 max-w-sm'&gt;
+          &lt;div
+            className={`p-4 rounded-lg shadow-lg border flex items-center justify-between ${
+              message.type === 'success'
+                ? 'bg-green-50 text-green-800 border-green-200'
+                : 'bg-red-50 text-red-800 border-red-200'
+            }`}
+          &gt;
+            &lt;div className='flex items-center'&gt;
+              &lt;div
+                className={`mr-3 text-lg ${
+                  message.type === 'success' ? 'text-green-600' : 'text-red-600'
+                }`}
+              &gt;
                 {message.type === 'success' ? '✅' : '❌'}
               &lt;/div&gt;
-              &lt;span className="font-medium"&gt;{message.text}&lt;/span&gt;
+              &lt;span className='font-medium'&gt;{message.text}&lt;/span&gt;
             &lt;/div&gt;
             &lt;button
               onClick={clearMessage}
-              className="ml-4 text-gray-400 hover:text-gray-600 text-lg"
-              title="关闭"
+              className='ml-4 text-gray-400 hover:text-gray-600 text-lg'
+              title='关闭'
             &gt;
               ×
             &lt;/button&gt;
@@ -743,17 +780,17 @@ const ConfigPage: React.FC = <span class="cstat-no" title="statement not covered
         &lt;/div&gt;
       )}
 &nbsp;
-      &lt;div className="max-w-7xl mx-auto px-4 py-8"&gt;
+      &lt;div className='max-w-7xl mx-auto px-4 py-8'&gt;
         {/* 页面标题 */}
-        &lt;div className="mb-8"&gt;
-          &lt;h1 className="text-3xl font-bold text-gray-900 mb-2"&gt;⚙️ 配置管理&lt;/h1&gt;
-          &lt;p className="text-gray-600"&gt;管理投递参数和简历内容，优化求职效果&lt;/p&gt;
+        &lt;div className='mb-8'&gt;
+          &lt;h1 className='text-3xl font-bold text-gray-900 mb-2'&gt;⚙️ 配置管理&lt;/h1&gt;
+          &lt;p className='text-gray-600'&gt;管理投递参数和简历内容，优化求职效果&lt;/p&gt;
         &lt;/div&gt;
 &nbsp;
         {/* Tab切换 */}
-        &lt;div className="mb-8"&gt;
-          &lt;div className="border-b border-gray-200"&gt;
-            &lt;nav className="-mb-px flex space-x-8"&gt;
+        &lt;div className='mb-8'&gt;
+          &lt;div className='border-b border-gray-200'&gt;
+            &lt;nav className='-mb-px flex space-x-8'&gt;
               &lt;button
                 onClick={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setActiveTab('delivery')}</span>
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
@@ -779,11 +816,11 @@ const ConfigPage: React.FC = <span class="cstat-no" title="statement not covered
         &lt;/div&gt;
 &nbsp;
         {/* 内容区域 */}
-        &lt;div className="bg-white rounded-lg shadow-sm"&gt;
+        &lt;div className='bg-white rounded-lg shadow-sm'&gt;
           {loading ? (
-            &lt;div className="p-8 text-center"&gt;
-              &lt;div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"&gt;&lt;/div&gt;
-              &lt;p className="mt-2 text-gray-600"&gt;加载配置中...&lt;/p&gt;
+            &lt;div className='p-8 text-center'&gt;
+              &lt;div className='inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600'&gt;&lt;/div&gt;
+              &lt;p className='mt-2 text-gray-600'&gt;加载配置中...&lt;/p&gt;
             &lt;/div&gt;
           ) : (
             &lt;&gt;
@@ -795,7 +832,7 @@ const ConfigPage: React.FC = <span class="cstat-no" title="statement not covered
                 /&gt;
               )}
               {activeTab === 'resume' &amp;&amp; (
-                &lt;div className="p-6"&gt;
+                &lt;div className='p-6'&gt;
                   &lt;CompleteResumeManager /&gt;
                 &lt;/div&gt;
               )}
@@ -804,11 +841,19 @@ const ConfigPage: React.FC = <span class="cstat-no" title="statement not covered
         &lt;/div&gt;
 &nbsp;
         {/* 帮助信息 */}
-        &lt;div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4"&gt;
-          &lt;h3 className="text-sm font-medium text-blue-900 mb-2"&gt;💡 使用提示&lt;/h3&gt;
-          &lt;ul className="text-sm text-blue-800 space-y-1"&gt;
-            &lt;li&gt;• &lt;strong&gt;投递参数配置&lt;/strong&gt;：设置搜索关键词、目标城市、薪资范围等，影响自动投递的岗位筛选&lt;/li&gt;
-            &lt;li&gt;• &lt;strong&gt;简历内容管理&lt;/strong&gt;：上传和编辑简历，AI将基于简历内容生成个性化打招呼语&lt;/li&gt;
+        &lt;div className='mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4'&gt;
+          &lt;h3 className='text-sm font-medium text-blue-900 mb-2'&gt;
+            💡 使用提示
+          &lt;/h3&gt;
+          &lt;ul className='text-sm text-blue-800 space-y-1'&gt;
+            &lt;li&gt;
+              • &lt;strong&gt;投递参数配置&lt;/strong&gt;
+              ：设置搜索关键词、目标城市、薪资范围等，影响自动投递的岗位筛选
+            &lt;/li&gt;
+            &lt;li&gt;
+              • &lt;strong&gt;简历内容管理&lt;/strong&gt;
+              ：上传和编辑简历，AI将基于简历内容生成个性化打招呼语
+            &lt;/li&gt;
             &lt;li&gt;• 配置修改后需要点击&amp;ldquo;保存配置&amp;rdquo;按钮才能生效&lt;/li&gt;
             &lt;li&gt;• 建议定期更新简历内容以获得更好的匹配效果&lt;/li&gt;
           &lt;/ul&gt;
@@ -826,7 +871,7 @@ export default ConfigPage;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-23T05:27:20.470Z
+                at 2025-10-23T08:32:08.481Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

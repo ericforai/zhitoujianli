@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -274,8 +274,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -332,7 +332,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -348,7 +348,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -382,7 +382,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">42x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -479,8 +479,8 @@
  * 价格方案组件
  * 展示智投简历的定价方案和套餐选择
  */
-const Pricing: React.FC = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-  const pricingPlans = <span class="cstat-no" title="statement not covered" >[</span>
+const Pricing: React.FC = () =&gt; {
+  const pricingPlans = [
     {
       name: '基础版',
       price: '免费',
@@ -537,7 +537,7 @@ const Pricing: React.FC = <span class="cstat-no" title="statement not covered" >
     },
   ];
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;section id='pricing' className='py-20 bg-gray-50'&gt;
       &lt;div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'&gt;
         {/* 标题区域 */}
@@ -552,8 +552,8 @@ const Pricing: React.FC = <span class="cstat-no" title="statement not covered" >
 &nbsp;
         {/* 价格卡片 */}
         &lt;div className='grid grid-cols-1 md:grid-cols-3 gap-8'&gt;
-          {pricingPlans.map(<span class="fstat-no" title="function not covered" >(p</span>lan, index) =&gt; (
-<span class="cstat-no" title="statement not covered" >            &lt;div</span>
+          {pricingPlans.map((plan, index) =&gt; (
+            &lt;div
               key={index}
               className={`relative bg-white rounded-2xl shadow-lg p-8 ${
                 plan.popular ? 'ring-2 ring-blue-500 scale-105' : ''
@@ -586,8 +586,8 @@ const Pricing: React.FC = <span class="cstat-no" title="statement not covered" >
 &nbsp;
               {/* 功能列表 */}
               &lt;ul className='space-y-4 mb-8'&gt;
-                {plan.features.map(<span class="fstat-no" title="function not covered" >(f</span>eature, featureIndex) =&gt; (
-<span class="cstat-no" title="statement not covered" >                  &lt;li key={featureIndex} className='flex items-start'&gt;</span>
+                {plan.features.map((feature, featureIndex) =&gt; (
+                  &lt;li key={featureIndex} className='flex items-start'&gt;
                     &lt;svg
                       className='w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0'
                       fill='none'
@@ -685,7 +685,7 @@ export default Pricing;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-23T05:27:20.470Z
+                at 2025-10-23T08:32:08.481Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
