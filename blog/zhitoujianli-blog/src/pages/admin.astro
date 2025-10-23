@@ -9,10 +9,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex" />
     <title>智投简历博客 - 内容管理</title>
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
     <!-- Include the script that builds the page and powers Decap CMS -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <script>
+      // 明确禁用Netlify Identity，强制使用GitHub认证
+      CMS.init({
+        config: {
+          backend: {
+            name: 'github',
+            repo: 'ericforai/zhitoujianli',
+            branch: 'main',
+            auth_type: 'pkce',
+            site_domain: 'blog.zhitoujianli.com',
+            client_id: '0v23liQzV7Vv0xuxSZC9',
+            auth_endpoint: 'https://github.com/login/oauth/authorize',
+            token_endpoint: 'https://github.com/login/oauth/access_token',
+            api_root: 'https://api.github.com',
+          },
+          // 明确禁用Netlify Identity
+          load_config_file: false,
+        },
+      });
+    </script>
   </body>
 </html>

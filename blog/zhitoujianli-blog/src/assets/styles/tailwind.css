@@ -2,6 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 现代化色彩系统 */
+:root {
+  --aw-color-primary: #2563eb;
+  --aw-color-secondary: #64748b;
+  --aw-color-accent: #3b82f6;
+  --aw-color-text-default: #1e293b;
+  --aw-color-text-muted: #64748b;
+  --aw-color-bg-page: #ffffff;
+  --aw-color-bg-page-dark: #0f172a;
+  --aw-color-bg-light: #f8fafc;
+  --aw-color-border: #e2e8f0;
+  --aw-color-border-dark: #334155;
+}
+
+/* 暗色模式色彩 */
+.dark {
+  --aw-color-text-default: #f1f5f9;
+  --aw-color-text-muted: #94a3b8;
+  --aw-color-bg-page: #0f172a;
+  --aw-color-bg-light: #1e293b;
+  --aw-color-border: #334155;
+}
+
 @layer utilities {
   .bg-page {
     background-color: var(--aw-color-bg-page);
@@ -10,7 +33,7 @@
     background-color: var(--aw-color-bg-page-dark);
   }
   .bg-light {
-    background-color: var(--aw-color-bg-page);
+    background-color: var(--aw-color-bg-light);
   }
   .text-page {
     color: var(--aw-color-text-page);
@@ -18,54 +41,102 @@
   .text-muted {
     color: var(--aw-color-text-muted);
   }
+  .border-subtle {
+    border-color: var(--aw-color-border);
+  }
 }
 
 @layer components {
+  /* 现代化按钮样式 */
   .btn {
-    @apply inline-flex items-center justify-center rounded-full border-gray-400 border bg-transparent font-medium text-center text-base text-page leading-snug transition py-3.5 px-6 md:px-8 ease-in duration-200 focus:ring-blue-500 focus:ring-offset-blue-200 focus:ring-2 focus:ring-offset-2 hover:bg-gray-100 hover:border-gray-600 dark:text-slate-300 dark:border-slate-500 dark:hover:bg-slate-800 dark:hover:border-slate-800 cursor-pointer;
+    @apply inline-flex items-center justify-center rounded-lg border border-subtle bg-transparent font-medium text-center text-sm text-default leading-snug transition-all duration-200 ease-in-out py-3 px-6 focus:ring-2 focus:ring-primary focus:ring-offset-2 hover:bg-light hover:border-primary cursor-pointer;
   }
 
   .btn-primary {
-    @apply btn font-semibold bg-primary text-white border-primary hover:bg-secondary hover:border-secondary hover:text-white dark:text-white dark:bg-primary dark:border-primary dark:hover:border-secondary dark:hover:bg-secondary;
+    @apply btn font-semibold bg-primary text-white border-primary hover:bg-accent hover:border-accent hover:text-white shadow-sm hover:shadow-md;
   }
 
   .btn-secondary {
-    @apply btn;
+    @apply btn text-muted hover:text-default hover:bg-light;
   }
 
   .btn-tertiary {
-    @apply btn border-none shadow-none text-muted hover:text-gray-900 dark:text-gray-400 dark:hover:text-white;
+    @apply btn border-none shadow-none text-muted hover:text-default hover:bg-light;
+  }
+
+  /* 现代化卡片样式 */
+  .card {
+    @apply bg-page border border-subtle rounded-xl shadow-sm hover:shadow-md transition-all duration-200;
+  }
+
+  .card-hover {
+    @apply card hover:border-primary hover:-translate-y-1;
+  }
+
+  /* 现代化输入框样式 */
+  .input {
+    @apply w-full px-4 py-3 border border-subtle rounded-lg bg-page text-default placeholder-muted focus:border-primary focus:ring-2 focus:ring-primary transition-all duration-200;
+  }
+
+  /* 现代化网格系统 */
+  .grid-modern {
+    @apply grid gap-6 md:gap-8;
+  }
+
+  .grid-2 {
+    @apply grid-modern grid-cols-1 md:grid-cols-2;
+  }
+
+  .grid-3 {
+    @apply grid-modern grid-cols-1 md:grid-cols-2 lg:grid-cols-3;
+  }
+
+  .grid-4 {
+    @apply grid-modern grid-cols-1 md:grid-cols-2 lg:grid-cols-4;
   }
 }
 
+/* 现代化头部样式 */
 #header.scroll > div:first-child {
-  @apply bg-page md:bg-white/90 md:backdrop-blur-md;
-  box-shadow: 0 0.375rem 1.5rem 0 rgb(140 152 164 / 13%);
+  @apply bg-page md:bg-page backdrop-blur-md border-b border-subtle;
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
+
 .dark #header.scroll > div:first-child,
 #header.scroll.dark > div:first-child {
-  @apply bg-page md:bg-[#030621e6] border-b border-gray-500/20;
-  box-shadow: none;
+  @apply bg-page md:bg-page border-b border-subtle;
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.3),
+    0 2px 4px -2px rgb(0 0 0 / 0.3);
 }
-/* #header.scroll > div:last-child {
-  @apply py-3;
-} */
 
+/* 现代化导航菜单 */
 #header.expanded nav {
   position: fixed;
   top: 70px;
   left: 0;
   right: 0;
   bottom: 70px !important;
-  padding: 0 5px;
+  padding: 1rem;
+  background: var(--aw-color-bg-page);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid var(--aw-color-border);
 }
 
+/* 现代化下拉菜单 */
 .dropdown:focus .dropdown-menu,
 .dropdown:focus-within .dropdown-menu,
 .dropdown:hover .dropdown-menu {
   display: block;
 }
 
+.dropdown-menu {
+  @apply bg-page border border-subtle rounded-lg shadow-lg backdrop-blur-md;
+}
+
+/* 现代化图标样式 */
 [astro-icon].icon-light > * {
   stroke-width: 1.2;
 }
@@ -74,9 +145,11 @@
   stroke-width: 2.4;
 }
 
+/* 现代化菜单切换动画 */
 [data-aw-toggle-menu] path {
-  @apply transition;
+  @apply transition-all duration-200;
 }
+
 [data-aw-toggle-menu].expanded g > path:first-child {
   @apply -rotate-45 translate-y-[15px] translate-x-[-3px];
 }
@@ -85,8 +158,26 @@
   @apply rotate-45 translate-y-[-8px] translate-x-[14px];
 }
 
-/* To deprecated */
-
+/* 现代化内容样式 */
 .dd *:first-child {
   margin-top: 0;
+}
+
+/* 现代化滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--aw-color-bg-light);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--aw-color-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--aw-color-muted);
 }

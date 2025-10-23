@@ -1,0 +1,176 @@
+---
+// GitHub直接编辑界面
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>智投简历博客 - GitHub编辑</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333;
+        border-bottom: 2px solid #007acc;
+        padding-bottom: 10px;
+      }
+      .github-link {
+        display: inline-block;
+        background: #24292e;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 6px;
+        text-decoration: none;
+        margin: 10px 10px 10px 0;
+        font-weight: bold;
+      }
+      .github-link:hover {
+        background: #1a1e22;
+      }
+      .section {
+        margin: 30px 0;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background: #fafafa;
+      }
+      .section h2 {
+        margin-top: 0;
+        color: #333;
+      }
+      .file-list {
+        list-style: none;
+        padding: 0;
+      }
+      .file-list li {
+        margin: 10px 0;
+        padding: 10px;
+        background: white;
+        border-radius: 4px;
+        border: 1px solid #e1e4e8;
+      }
+      .file-list a {
+        color: #0366d6;
+        text-decoration: none;
+        font-weight: bold;
+      }
+      .file-list a:hover {
+        text-decoration: underline;
+      }
+      .instructions {
+        background: #e3f2fd;
+        border: 1px solid #2196f3;
+        border-radius: 4px;
+        padding: 15px;
+        margin: 20px 0;
+      }
+      .instructions h3 {
+        margin-top: 0;
+        color: #1976d2;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔧 GitHub直接编辑</h1>
+
+      <div class="instructions">
+        <h3>📋 使用说明</h3>
+        <p>由于Decap CMS认证问题，您可以直接通过GitHub Web界面编辑博客内容：</p>
+        <ol>
+          <li>点击下面的链接直接跳转到GitHub仓库</li>
+          <li>在GitHub中编辑Markdown文件</li>
+          <li>提交更改后，博客会自动更新</li>
+        </ol>
+      </div>
+
+      <div class="section">
+        <h2>📁 博客文章管理</h2>
+        <a
+          href="https://github.com/ericforai/zhitoujianli/tree/main/blog/zhitoujianli-blog/src/data/post"
+          class="github-link"
+          target="_blank"
+        >
+          📝 管理博客文章
+        </a>
+        <p>点击上方链接可以直接在GitHub中查看、编辑、创建和删除博客文章。</p>
+      </div>
+
+      <div class="section">
+        <h2>⚙️ 配置文件</h2>
+        <ul class="file-list">
+          <li>
+            <a
+              href="https://github.com/ericforai/zhitoujianli/edit/main/blog/zhitoujianli-blog/src/config.yaml"
+              target="_blank">📄 博客配置文件 (config.yaml)</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/ericforai/zhitoujianli/edit/main/blog/zhitoujianli-blog/src/navigation.ts"
+              target="_blank">🧭 导航配置 (navigation.ts)</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/ericforai/zhitoujianli/edit/main/blog/zhitoujianli-blog/astro.config.ts"
+              target="_blank">⚙️ Astro配置 (astro.config.ts)</a
+            >
+          </li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>📊 快速操作</h2>
+        <a
+          href="https://github.com/ericforai/zhitoujianli/new/main/blog/zhitoujianli-blog/src/data/post"
+          class="github-link"
+          target="_blank"
+        >
+          ➕ 创建新文章
+        </a>
+        <a
+          href="https://github.com/ericforai/zhitoujianli/upload/main/blog/zhitoujianli-blog/src/assets/images"
+          class="github-link"
+          target="_blank"
+        >
+          🖼️ 上传图片
+        </a>
+      </div>
+
+      <div class="section">
+        <h2>📚 常用文章模板</h2>
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 14px;">
+          --- title: "文章标题" excerpt: "文章摘要" category: "分类名称" tags: ["标签1", "标签2", "标签3"] image:
+          "/images/文章图片.jpg" publishDate: "2024-01-01" author: "作者名称" --- # 文章标题 文章内容... ## 二级标题
+          更多内容...
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🔄 更新博客</h2>
+        <p>在GitHub中完成编辑后，博客会在几分钟内自动更新。如果需要立即更新，可以：</p>
+        <ol>
+          <li>访问 <a href="https://github.com/ericforai/zhitoujianli/actions" target="_blank">GitHub Actions</a></li>
+          <li>手动触发构建流程</li>
+          <li>等待构建完成</li>
+        </ol>
+      </div>
+    </div>
+  </body>
+</html>

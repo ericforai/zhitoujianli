@@ -82,7 +82,8 @@ apps:
 analytics:
   vendors:
     googleAnalytics:
-      id: null # or "G-XXXXXXXXXX"
+      id: 'G-S6YNCB5EDV' # 请替换为您的实际Google Analytics测量ID
+      partytown: true # 启用Partytown优化性能
 
 ui:
   theme: 'light' # Values: "system" | "light" | "dark" | "light:only" | "dark:only"

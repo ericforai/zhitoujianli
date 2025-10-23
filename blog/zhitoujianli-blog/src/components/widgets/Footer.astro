@@ -26,78 +26,83 @@ export interface Props {
 const { socialLinks = [], secondaryLinks = [], links = [], footNote = '', theme = 'light' } = Astro.props;
 ---
 
-<footer class:list={[{ dark: theme === 'dark' }, 'relative border-t border-gray-200 dark:border-slate-800 not-prose']}>
-  <div class="dark:bg-dark absolute inset-0 pointer-events-none" aria-hidden="true"></div>
-  <div
-    class="relative max-w-7xl mx-auto px-4 sm:px-6 dark:text-slate-300 intersect-once intersect-quarter intersect-no-queue motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade"
-  >
-    <div class="grid grid-cols-12 gap-4 gap-y-8 sm:gap-8 py-8 md:py-12">
-      <div class="col-span-12 lg:col-span-4">
-        <div class="mb-2">
-          <a class="inline-block font-bold text-xl" href={getHomePermalink()}>{SITE?.name}</a>
-        </div>
-        <div class="text-sm text-muted flex gap-1">
+<footer class:list={[{ dark: theme === 'dark' }, 'relative border-t border-subtle not-prose bg-light']}>
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 text-default">
+    <div class="py-12">
+      <!-- 主要内容区域 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+        <!-- 品牌区域 -->
+        <div class="lg:col-span-1">
+          <div class="mb-4">
+            <a
+              class="inline-block font-bold text-xl text-primary hover:text-accent transition-colors duration-200"
+              href={getHomePermalink()}
+            >
+              {SITE?.name}
+            </a>
+          </div>
+          <p class="text-muted text-sm leading-relaxed mb-4">
+            基于AI技术的智能求职平台，为求职者提供全方位的职业发展支持。
+          </p>
+          <!-- 社交媒体链接 -->
           {
-            secondaryLinks.map(({ text, href }, index) => (
-              <>
-                {index !== 0 ? ' · ' : ''}
-                <a
-                  class="text-muted hover:text-gray-700 dark:text-gray-400 hover:underline transition duration-150 ease-in-out"
-                  href={href}
-                  set:html={text}
-                />
-              </>
-            ))
+            socialLinks?.length ? (
+              <div class="flex space-x-4">
+                {socialLinks.map(({ text, href, icon }) => (
+                  <a
+                    class="text-muted hover:text-primary transition-colors duration-200 p-2 rounded-lg hover:bg-page"
+                    href={href}
+                    aria-label={text}
+                  >
+                    <Icon name={icon} class="w-5 h-5" />
+                  </a>
+                ))}
+              </div>
+            ) : (
+              ''
+            )
           }
         </div>
-      </div>
-      {
-        links.map(({ title, links }) => (
-          <div class="col-span-6 md:col-span-3 lg:col-span-2">
-            <div class="dark:text-gray-300 font-medium mb-2">{title}</div>
-            {links && Array.isArray(links) && links.length > 0 && (
-              <ul class="text-sm">
-                {links.map(({ text, href, ariaLabel }) => (
-                  <li class="mb-2">
+
+        <!-- 链接区域 -->
+        {
+          links.map(({ title, links }) => (
+            <div>
+              <h3 class="font-semibold text-default mb-4">{title}</h3>
+              <ul class="space-y-3">
+                {links.map(({ text, href }) => (
+                  <li>
                     <a
-                      class="text-muted hover:text-gray-700 hover:underline dark:text-gray-400 transition duration-150 ease-in-out"
+                      class="text-muted hover:text-primary transition-colors duration-200 text-sm"
                       href={href}
-                      aria-label={ariaLabel}
-                    >
-                      <Fragment set:html={text} />
-                    </a>
+                      set:html={text}
+                    />
                   </li>
                 ))}
               </ul>
-            )}
-          </div>
-        ))
-      }
-    </div>
-    <div class="md:flex md:items-center md:justify-between py-6 md:py-8">
-      {
-        socialLinks?.length ? (
-          <ul class="flex mb-4 md:order-1 -ml-2 md:ml-4 md:mb-0 rtl:ml-0 rtl:-mr-2 rtl:md:ml-0 rtl:md:mr-4">
-            {socialLinks.map(({ ariaLabel, href, text, icon }) => (
-              <li>
-                <a
-                  class="text-muted dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center"
-                  aria-label={ariaLabel}
-                  href={href}
-                >
-                  {icon && <Icon name={icon} class="w-5 h-5" />}
-                  <Fragment set:html={text} />
-                </a>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          ''
-        )
-      }
+            </div>
+          ))
+        }
+      </div>
 
-      <div class="text-sm mr-4 dark:text-muted">
-        <Fragment set:html={footNote} />
+      <!-- 底部区域 -->
+      <div class="pt-8 border-t border-subtle">
+        <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+          <div class="text-sm text-muted">
+            {footNote ? <Fragment set:html={footNote} /> : <Fragment>© 2024 {SITE?.name} · 让求职更智能</Fragment>}
+          </div>
+          {
+            secondaryLinks?.length ? (
+              <div class="flex flex-wrap gap-4 text-sm">
+                {secondaryLinks.map(({ text, href }, index) => (
+                  <a class="text-muted hover:text-primary transition-colors duration-200" href={href} set:html={text} />
+                ))}
+              </div>
+            ) : (
+              ''
+            )
+          }
+        </div>
       </div>
     </div>
   </div>
