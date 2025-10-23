@@ -36,12 +36,7 @@ const Container: React.FC<ContainerProps> = ({
 
   const combinedClasses = `${sizeClasses[size]} mx-auto px-4 sm:px-6 lg:px-8 ${paddingYClasses} ${className}`;
 
-  return (
-    <div className={combinedClasses}>
-      {children}
-    </div>
-  );
+  return <div className={combinedClasses}>{children}</div>;
 };
 
 export default Container;
-

@@ -74,17 +74,21 @@ export const resumeService = {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await apiClient.post('/api/candidate-resume/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      onUploadProgress: progressEvent => {
-        const percentCompleted = Math.round(
-          (progressEvent.loaded * 100) / (progressEvent.total || 1)
-        );
-        console.log(`上传进度: ${percentCompleted}%`);
-      },
-    });
+    const response = await apiClient.post(
+      '/api/candidate-resume/upload',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: progressEvent => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / (progressEvent.total || 1)
+          );
+          console.log(`上传进度: ${percentCompleted}%`);
+        },
+      }
+    );
 
     // 后端返回 {success: true, data: candidate, message: string} 格式
     const backendData = response.data;
@@ -160,7 +164,8 @@ export const resumeService = {
     const backendData = response.data;
     return {
       code: backendData.success ? 200 : 400,
-      message: backendData.message || (backendData.success ? '删除成功' : '删除失败'),
+      message:
+        backendData.message || (backendData.success ? '删除成功' : '删除失败'),
       data: undefined,
       timestamp: Date.now(),
     };
@@ -281,7 +286,11 @@ function convertBackendResumeToFrontend(backendData: any): ResumeInfo {
 function calculateOverallConfidence(confidence: any): number {
   if (!confidence) return 0;
 
-  const scores = [confidence.name, confidence.skills, confidence.experience].filter(score => score > 0);
+  const scores = [
+    confidence.name,
+    confidence.skills,
+    confidence.experience,
+  ].filter(score => score > 0);
   if (scores.length === 0) return 0;
 
   return scores.reduce((sum, score) => sum + score, 0) / scores.length;

@@ -30,7 +30,7 @@ export const useBossLoginStatus = () => {
 
       const response = await fetch('/api/boss/login/check-status', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          Authorization: `Bearer ${localStorage.getItem('authToken')}`,
           'Content-Type': 'application/json',
         },
       });
@@ -49,7 +49,9 @@ export const useBossLoginStatus = () => {
           lastChecked: new Date(),
         });
 
-        console.log(`Boss登录状态检查完成: ${result.isLoggedIn ? '已登录' : '需要登录'}`);
+        console.log(
+          `Boss登录状态检查完成: ${result.isLoggedIn ? '已登录' : '需要登录'}`
+        );
       } else {
         throw new Error(result.message || '检查登录状态失败');
       }

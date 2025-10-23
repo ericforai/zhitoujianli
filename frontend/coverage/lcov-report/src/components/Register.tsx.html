@@ -476,7 +476,14 @@
 <a name='L411'></a><a href='#L411'>411</a>
 <a name='L412'></a><a href='#L412'>412</a>
 <a name='L413'></a><a href='#L413'>413</a>
-<a name='L414'></a><a href='#L414'>414</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L414'></a><a href='#L414'>414</a>
+<a name='L415'></a><a href='#L415'>415</a>
+<a name='L416'></a><a href='#L416'>416</a>
+<a name='L417'></a><a href='#L417'>417</a>
+<a name='L418'></a><a href='#L418'>418</a>
+<a name='L419'></a><a href='#L419'>419</a>
+<a name='L420'></a><a href='#L420'>420</a>
+<a name='L421'></a><a href='#L421'>421</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -489,6 +496,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -712,8 +722,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -787,6 +795,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -825,6 +834,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -845,6 +855,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -901,6 +915,9 @@
 import React, { useEffect, useState } from 'react';
 import config from '../config/environment';
 import { authService } from '../services/authService';
+import Button from './common/Button';
+import Card from './common/Card';
+import Container from './common/Container';
 &nbsp;
 const Register: React.FC = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
   const [email, setEmail] = <span class="cstat-no" title="statement not covered" >useState('');</span>
@@ -1125,19 +1142,17 @@ const Register: React.FC = <span class="cstat-no" title="statement not covered" 
   };
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  return (</span>
-    &lt;div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8'&gt;
-      &lt;div className='max-w-md w-full space-y-8'&gt;
+    &lt;div className='min-h-screen flex items-center justify-center bg-gray-50 py-12'&gt;
+      &lt;Container size='md'&gt;
         {/* Logo和标题 */}
-        &lt;div className='text-center'&gt;
-          &lt;h1 className='text-4xl font-bold text-gray-900'&gt;智投简历&lt;/h1&gt;
-          &lt;p className='mt-2 text-sm text-gray-600'&gt;
-            创建账号，开启智能求职之旅
-          &lt;/p&gt;
+        &lt;div className='text-center mb-8'&gt;
+          &lt;h1 className='text-4xl font-bold text-gray-900 mb-2'&gt;智投简历&lt;/h1&gt;
+          &lt;p className='text-gray-600'&gt;创建账号，开启智能求职之旅&lt;/p&gt;
         &lt;/div&gt;
 &nbsp;
         {/* 注册卡片 */}
-        &lt;div className='bg-white rounded-lg shadow-lg p-8'&gt;
-          &lt;h2 className='text-2xl font-semibold text-gray-900 mb-6'&gt;
+        &lt;Card padding='lg'&gt;
+          &lt;h2 className='text-2xl font-bold text-gray-900 mb-6 text-center'&gt;
             注册新账号
           &lt;/h2&gt;
 &nbsp;
@@ -1172,17 +1187,18 @@ const Register: React.FC = <span class="cstat-no" title="statement not covered" 
                   required
                   value={email}
                   onChange={<span class="fstat-no" title="function not covered" >e </span>=&gt; <span class="cstat-no" title="statement not covered" >setEmail(e.target.value)}</span>
-                  className='flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
+                        className='flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-base'
                   placeholder='your@email.com'
                 /&gt;
-                &lt;button
+                &lt;Button
                   type='button'
                   onClick={handleSendVerificationCode}
                   disabled={loading || codeCountdown &gt; 0}
-                  className='px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+                  variant='primary'
+                  size='sm'
                 &gt;
                   {codeCountdown &gt; 0 ? `${codeCountdown}s` : '发送验证码'}
-                &lt;/button&gt;
+                &lt;/Button&gt;
               &lt;/div&gt;
             &lt;/div&gt;
 &nbsp;
@@ -1201,19 +1217,20 @@ const Register: React.FC = <span class="cstat-no" title="statement not covered" 
                     required
                     value={verificationCode}
                     onChange={<span class="fstat-no" title="function not covered" >e </span>=&gt; <span class="cstat-no" title="statement not covered" >setVerificationCode(e.target.value)}</span>
-                    className='flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100'
+                    className='flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 transition-colors duration-200'
                     placeholder='请输入6位验证码'
                     maxLength={6}
                     disabled={emailVerified}
                   /&gt;
-                  &lt;button
+                  &lt;Button
                     type='button'
                     onClick={handleVerifyEmailCode}
                     disabled={!verificationCode || loading || emailVerified}
-                    className='px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm'
+                    variant='primary'
+                    size='sm'
                   &gt;
                     {emailVerified ? '已验证' : '验证'}
-                  &lt;/button&gt;
+                  &lt;/Button&gt;
                 &lt;/div&gt;
                 &lt;p className='mt-1 text-xs text-gray-500'&gt;
                   验证码已发送到 {email}，请在5分钟内输入
@@ -1239,7 +1256,7 @@ const Register: React.FC = <span class="cstat-no" title="statement not covered" 
                 required
                 value={password}
                 onChange={<span class="fstat-no" title="function not covered" >e </span>=&gt; <span class="cstat-no" title="statement not covered" >setPassword(e.target.value)}</span>
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
+                      className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-base'
                 placeholder='至少6位'
                 minLength={6}
               /&gt;
@@ -1258,19 +1275,21 @@ const Register: React.FC = <span class="cstat-no" title="statement not covered" 
                 required
                 value={confirmPassword}
                 onChange={<span class="fstat-no" title="function not covered" >e </span>=&gt; <span class="cstat-no" title="statement not covered" >setConfirmPassword(e.target.value)}</span>
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
+                      className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-base'
                 placeholder='再次输入密码'
                 minLength={6}
               /&gt;
             &lt;/div&gt;
 &nbsp;
-            &lt;button
+            &lt;Button
               type='submit'
               disabled={loading}
-              className='w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+              variant='primary'
+              className='w-full'
+              loading={loading}
             &gt;
               {loading ? '注册中...' : '注册'}
-            &lt;/button&gt;
+            &lt;/Button&gt;
           &lt;/form&gt;
 &nbsp;
           {/* 登录链接 */}
@@ -1278,25 +1297,27 @@ const Register: React.FC = <span class="cstat-no" title="statement not covered" 
             &lt;span className='text-sm text-gray-600'&gt;已有账号？&lt;/span&gt;
             &lt;a
               href='/login'
-              className='ml-1 text-sm font-medium text-indigo-600 hover:text-indigo-500'
+              className='ml-1 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors duration-200'
             &gt;
               立即登录
             &lt;/a&gt;
           &lt;/div&gt;
-        &lt;/div&gt;
+        &lt;/Card&gt;
 &nbsp;
         {/* 底部提示 */}
-        &lt;div className='text-center text-xs text-gray-500'&gt;
-          &lt;p&gt;注册即表示同意&lt;/p&gt;
-          &lt;a href='/terms' className='text-indigo-600 hover:underline'&gt;
-            用户协议
-          &lt;/a&gt;
-          &lt;span&gt; 和 &lt;/span&gt;
-          &lt;a href='/privacy' className='text-indigo-600 hover:underline'&gt;
-            隐私政策
-          &lt;/a&gt;
+        &lt;div className='text-center text-xs text-gray-500 mt-8'&gt;
+          &lt;p className='mb-1'&gt;注册即表示同意&lt;/p&gt;
+          &lt;div&gt;
+            &lt;a href='/terms' className='text-blue-600 hover:text-blue-700 transition-colors duration-200'&gt;
+              用户协议
+            &lt;/a&gt;
+            &lt;span className='mx-1'&gt;和&lt;/span&gt;
+            &lt;a href='/privacy' className='text-blue-600 hover:text-blue-700 transition-colors duration-200'&gt;
+              隐私政策
+            &lt;/a&gt;
+          &lt;/div&gt;
         &lt;/div&gt;
-      &lt;/div&gt;
+      &lt;/Container&gt;
     &lt;/div&gt;
   );
 };
@@ -1309,7 +1330,7 @@ export default Register;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-22T08:47:04.105Z
+                at 2025-10-23T05:27:20.470Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

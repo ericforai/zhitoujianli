@@ -1,5 +1,6 @@
 package controller;
 
+import com.superxiang.WebApplication;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -45,7 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @since 2025-10-22
  */
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
-@SpringBootTest
+@SpringBootTest(classes = WebApplication.class)
 @AutoConfigureMockMvc
 @DisplayName("模块2: 上传简历与AI智能分析功能测试")
 public class CandidateResumeControllerTest {

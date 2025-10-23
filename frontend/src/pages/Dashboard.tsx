@@ -77,7 +77,7 @@ const Dashboard: React.FC = () => {
   // 认证确认，记录日志
   authLogger.info('Dashboard认证检查通过，渲染组件', {
     userId: user?.userId,
-    email: user?.email
+    email: user?.email,
   });
 
   // 记录数据加载开始
@@ -93,7 +93,9 @@ const Dashboard: React.FC = () => {
       id: 'login',
       label: isBossLoggedIn ? '已登录Boss' : '扫码登录Boss',
       icon: isBossLoggedIn ? '✅' : '📱',
-      description: isBossLoggedIn ? 'Boss账号已登录，可直接启动投递' : '使用手机App扫描二维码登录',
+      description: isBossLoggedIn
+        ? 'Boss账号已登录，可直接启动投递'
+        : '使用手机App扫描二维码登录',
       status: isBossLoggedIn ? 'completed' : 'active',
       action: isBossLoggedIn ? undefined : handleQRCodeLogin,
     };
@@ -113,7 +115,11 @@ const Dashboard: React.FC = () => {
         label: '启动自动投递',
         icon: '▶️',
         description: '开始智能投递简历',
-        status: isRunning ? 'completed' : (isBossLoggedIn || isLoggedIn) ? 'active' : 'pending',
+        status: isRunning
+          ? 'completed'
+          : isBossLoggedIn || isLoggedIn
+            ? 'active'
+            : 'pending',
         disabled: !(isBossLoggedIn || isLoggedIn) || isRunning,
         action: handleStart,
       },
@@ -149,21 +155,18 @@ const Dashboard: React.FC = () => {
         <div className='mt-16'>
           {/* 欢迎标题 */}
           <div className='mb-8'>
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+            <div className='flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0'>
               <div>
                 <h1 className='text-3xl font-bold text-gray-900'>
                   欢迎回来，{user?.username || user?.email || '用户'}！
                 </h1>
-                <p className='mt-2 text-gray-600'>这是您的工作台，管理您的求职信息</p>
+                <p className='mt-2 text-gray-600'>
+                  这是您的工作台，管理您的求职信息
+                </p>
               </div>
 
               {/* 返回主页按钮 */}
-              <Button
-                as='a'
-                href='/'
-                variant='ghost'
-                size='sm'
-              >
+              <Button as='a' href='/' variant='ghost' size='sm'>
                 ← 返回主页
               </Button>
             </div>
@@ -183,70 +186,72 @@ const Dashboard: React.FC = () => {
               icon='✅'
               color='green'
             />
-            <StatCard
-              title='智能匹配'
-              value='AI'
-              icon='🤖'
-              color='blue'
-            />
-            <StatCard
-              title='持续运行'
-              value='24/7'
-              icon='⏰'
-              color='blue'
-            />
+            <StatCard title='智能匹配' value='AI' icon='🤖' color='blue' />
+            <StatCard title='持续运行' value='24/7' icon='⏰' color='blue' />
           </div>
 
           {/* 工作流程时间线 */}
           <div className='mb-8'>
             <div className='mb-6'>
-              <h2 className='text-2xl font-bold text-gray-900 mb-2'>智能投递流程</h2>
+              <h2 className='text-2xl font-bold text-gray-900 mb-2'>
+                智能投递流程
+              </h2>
               <p className='text-gray-600'>按照以下步骤完成简历投递设置</p>
             </div>
 
             <Card padding='lg'>
               <WorkflowTimeline
                 steps={getWorkflowSteps()}
-                currentStep={bossStatus.isRunning ? 3 : (isBossLoggedIn || loginStatus === 'success') ? 2 : 1}
+                currentStep={
+                  bossStatus.isRunning
+                    ? 3
+                    : isBossLoggedIn || loginStatus === 'success'
+                      ? 2
+                      : 1
+                }
               />
             </Card>
           </div>
 
           {/* Boss登录状态显示 */}
           {!isBossStatusLoading && (
-            <Card className={`mb-6 ${
-              isBossLoggedIn
-                ? 'bg-green-50 border-green-200'
-                : 'bg-yellow-50 border-yellow-200'
-            }`}>
+            <Card
+              className={`mb-6 ${
+                isBossLoggedIn
+                  ? 'bg-green-50 border-green-200'
+                  : 'bg-yellow-50 border-yellow-200'
+              }`}
+            >
               <div className='flex items-center justify-between'>
                 <div className='flex items-center'>
-                  <span className='text-lg mr-2'>{isBossLoggedIn ? '✅' : '⚠️'}</span>
+                  <span className='text-lg mr-2'>
+                    {isBossLoggedIn ? '✅' : '⚠️'}
+                  </span>
                   <p className='text-sm font-medium text-gray-900'>
                     {isBossLoggedIn ? 'Boss账号已登录' : '需要扫码登录Boss'}
                   </p>
                 </div>
-                <Button
-                  onClick={refreshBossStatus}
-                  variant='ghost'
-                  size='sm'
-                >
+                <Button onClick={refreshBossStatus} variant='ghost' size='sm'>
                   刷新状态
                 </Button>
               </div>
               {bossStatusError && (
-                <p className='text-xs mt-2 text-red-600'>检查状态失败: {bossStatusError}</p>
+                <p className='text-xs mt-2 text-red-600'>
+                  检查状态失败: {bossStatusError}
+                </p>
               )}
             </Card>
           )}
 
           {/* 消息提示 */}
           {bossMessage && (
-            <Card className={`mb-6 ${
-              bossMessage.includes('成功')
-                ? 'bg-green-50 border-green-200'
-                : 'bg-red-50 border-red-200'
-            }`}>
+            <Card
+              className={`mb-6 ${
+                bossMessage.includes('成功')
+                  ? 'bg-green-50 border-green-200'
+                  : 'bg-red-50 border-red-200'
+              }`}
+            >
               <p className='text-sm text-gray-900'>{bossMessage}</p>
             </Card>
           )}
@@ -348,16 +353,10 @@ const Dashboard: React.FC = () => {
               </p>
 
               <div className='flex gap-3 justify-center'>
-                <Button
-                  onClick={refreshQRCode}
-                  variant='primary'
-                >
+                <Button onClick={refreshQRCode} variant='primary'>
                   刷新二维码
                 </Button>
-                <Button
-                  onClick={closeQRModal}
-                  variant='ghost'
-                >
+                <Button onClick={closeQRModal} variant='ghost'>
                   取消
                 </Button>
               </div>
@@ -385,13 +384,10 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon }) => {
           <p className='text-sm text-gray-600 mb-1'>{title}</p>
           <p className='text-2xl font-bold text-gray-900'>{value}</p>
         </div>
-        <div className='text-3xl'>
-          {icon}
-        </div>
+        <div className='text-3xl'>{icon}</div>
       </div>
     </Card>
   );
 };
-
 
 export default Dashboard;

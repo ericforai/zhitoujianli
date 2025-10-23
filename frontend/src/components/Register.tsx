@@ -56,7 +56,9 @@ const Register: React.FC = () => {
       setError('');
 
       // 使用统一的环境配置
-      const apiUrl = `${config.apiBaseUrl}/auth/send-verification-code`;
+      // 🔧 临时修复：确保API URL正确构建
+      const baseUrl = config.apiBaseUrl || '/api';
+      const apiUrl = `${baseUrl}/auth/send-verification-code`;
 
       console.log('🔗 发送验证码请求到:', apiUrl);
       console.log('🔧 当前环境:', {
@@ -64,6 +66,7 @@ const Register: React.FC = () => {
         protocol: window.location.protocol,
         apiBaseUrl: config.apiBaseUrl,
         fullUrl: apiUrl,
+        environment: config.isProduction ? 'production' : 'development',
       });
 
       const response = await fetch(apiUrl, {
@@ -145,7 +148,8 @@ const Register: React.FC = () => {
       console.log('  emailVerified:', emailVerified);
 
       // 使用统一的环境配置
-      const verifyUrl = `${config.apiBaseUrl}/auth/verify-code`;
+      const baseUrl = config.apiBaseUrl || '/api';
+      const verifyUrl = `${baseUrl}/auth/verify-code`;
 
       const response = await fetch(verifyUrl, {
         method: 'POST',
@@ -282,7 +286,7 @@ const Register: React.FC = () => {
                   required
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                        className='flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-base'
+                  className='flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-base'
                   placeholder='your@email.com'
                 />
                 <Button
@@ -351,7 +355,7 @@ const Register: React.FC = () => {
                 required
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                      className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-base'
+                className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-base'
                 placeholder='至少6位'
                 minLength={6}
               />
@@ -370,7 +374,7 @@ const Register: React.FC = () => {
                 required
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
-                      className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-base'
+                className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-base'
                 placeholder='再次输入密码'
                 minLength={6}
               />
@@ -403,11 +407,17 @@ const Register: React.FC = () => {
         <div className='text-center text-xs text-gray-500 mt-8'>
           <p className='mb-1'>注册即表示同意</p>
           <div>
-            <a href='/terms' className='text-blue-600 hover:text-blue-700 transition-colors duration-200'>
+            <a
+              href='/terms'
+              className='text-blue-600 hover:text-blue-700 transition-colors duration-200'
+            >
               用户协议
             </a>
             <span className='mx-1'>和</span>
-            <a href='/privacy' className='text-blue-600 hover:text-blue-700 transition-colors duration-200'>
+            <a
+              href='/privacy'
+              className='text-blue-600 hover:text-blue-700 transition-colors duration-200'
+            >
               隐私政策
             </a>
           </div>

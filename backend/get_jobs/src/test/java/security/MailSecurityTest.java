@@ -1,5 +1,6 @@
 package security;
 
+import com.superxiang.WebApplication;
 import config.MailConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @since 2025-10-22
  */
 @ExtendWith(SpringExtension.class)
-@SpringBootTest
+@SpringBootTest(classes = WebApplication.class)
 @DisplayName("安全测试: 邮件服务演示模式控制")
 public class MailSecurityTest {
 

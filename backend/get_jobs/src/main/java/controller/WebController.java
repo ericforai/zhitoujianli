@@ -216,22 +216,23 @@ public class WebController {
                 }
             }
 
-            // 创建日志文件
-            java.io.FileWriter logWriter = new java.io.FileWriter(currentLogFile, StandardCharsets.UTF_8);
-
             // 启动Boss执行服务
             CompletableFuture<Void> task = bossExecutionService.executeBossProgram(currentLogFile)
                 .whenComplete((result, throwable) -> {
-                    try {
+                    // 使用try-with-resources确保FileWriter被正确关闭（修复SpotBugs问题）
+                    try (java.io.FileWriter logWriter = new java.io.FileWriter(currentLogFile, StandardCharsets.UTF_8, true)) {
                         if (throwable != null) {
-                            logWriter.write(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + " - Boss程序执行异常: " + throwable.getMessage() + "%n");
+                            logWriter.write(String.format("%s - Boss程序执行异常: %s%n",
+                                new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()),
+                                throwable.getMessage()));
                             log.error("Boss程序执行异常", throwable);
                         } else {
-                            logWriter.write(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + " - Boss程序执行完成%n");
+                            logWriter.write(String.format("%s - Boss程序执行完成%n",
+                                new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
                         }
-                        logWriter.write(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + " - 投递任务结束%n");
+                        logWriter.write(String.format("%s - 投递任务结束%n",
+                            new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
                         logWriter.flush();
-                        logWriter.close();
                     } catch (Exception e) {
                         log.error("写入最终日志失败", e);
                     } finally {

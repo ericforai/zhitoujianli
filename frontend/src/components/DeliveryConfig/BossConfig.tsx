@@ -170,8 +170,12 @@ const BossConfig: React.FC<BossConfigProps> = ({
             {formData.keywords && formData.keywords.length > 0 && (
               <div className='bg-gray-50 rounded-lg p-4'>
                 <div className='flex items-center mb-2'>
-                  <span className='text-sm font-medium text-gray-700'>已添加的关键词：</span>
-                  <span className='ml-2 text-xs text-gray-500'>(共{formData.keywords.length}个)</span>
+                  <span className='text-sm font-medium text-gray-700'>
+                    已添加的关键词：
+                  </span>
+                  <span className='ml-2 text-xs text-gray-500'>
+                    (共{formData.keywords.length}个)
+                  </span>
                 </div>
                 <div className='flex flex-wrap gap-2'>
                   {formData.keywords.map((keyword: string, index: number) => (
@@ -238,8 +242,12 @@ const BossConfig: React.FC<BossConfigProps> = ({
             {formData.cities && formData.cities.length > 0 && (
               <div className='bg-gray-50 rounded-lg p-4'>
                 <div className='flex items-center mb-2'>
-                  <span className='text-sm font-medium text-gray-700'>已添加的城市：</span>
-                  <span className='ml-2 text-xs text-gray-500'>(共{formData.cities.length}个)</span>
+                  <span className='text-sm font-medium text-gray-700'>
+                    已添加的城市：
+                  </span>
+                  <span className='ml-2 text-xs text-gray-500'>
+                    (共{formData.cities.length}个)
+                  </span>
                 </div>
                 <div className='flex flex-wrap gap-2'>
                   {formData.cities.map((city: string, index: number) => (

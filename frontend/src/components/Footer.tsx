@@ -97,7 +97,7 @@ const Footer = () => {
 
         <div className='border-t border-gray-800 mt-8 pt-8 text-center'>
           <p className='text-gray-400 text-sm'>
-            © 2024 智投简历. 保留所有权利.
+            © 2025 智投简历 沪ICP备2025125372号.
           </p>
         </div>
       </Container>

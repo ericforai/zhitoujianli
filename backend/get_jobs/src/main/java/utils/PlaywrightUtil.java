@@ -36,6 +36,9 @@ import com.microsoft.playwright.options.SelectOption;
 public class PlaywrightUtil {
     private static final Logger log = LoggerFactory.getLogger(PlaywrightUtil.class);
 
+    // 线程安全的随机数生成器（修复SpotBugs问题）
+    private static final Random RANDOM = new Random();
+
     /**
      * 设备类型枚举
      */
@@ -376,8 +379,7 @@ public class PlaywrightUtil {
      * @param maxSeconds 最大等待秒数
      */
     public static void randomSleep(int minSeconds, int maxSeconds) {
-        Random random = new Random();
-        int delay = random.nextInt(maxSeconds - minSeconds + 1) + minSeconds;
+        int delay = RANDOM.nextInt(maxSeconds - minSeconds + 1) + minSeconds;
         sleep(delay);
     }
 
@@ -395,8 +397,7 @@ public class PlaywrightUtil {
      * @param maxMillis 最大毫秒数
      */
     public static void randomSleepMillis(int minMillis, int maxMillis) {
-        Random random = new Random();
-        int delay = random.nextInt(maxMillis - minMillis + 1) + minMillis;
+        int delay = RANDOM.nextInt(maxMillis - minMillis + 1) + minMillis;
         sleepMillis(delay);
     }
 
@@ -573,10 +574,9 @@ public class PlaywrightUtil {
             locator.clear();
             PlaywrightUtil.randomSleepMillis(200, 500);
 
-            Random random = new Random();
             for (char c : text.toCharArray()) {
                 // 计算本次字符输入的延迟时间
-                int delay = random.nextInt(maxDelay - minDelay + 1) + minDelay;
+                int delay = RANDOM.nextInt(maxDelay - minDelay + 1) + minDelay;
 
                 // 输入单个字符
                 locator.pressSequentially(String.valueOf(c),
@@ -1350,11 +1350,10 @@ public class PlaywrightUtil {
     public static void simulateMouseMove(DeviceType deviceType) {
         try {
             Page page = getPage(deviceType);
-            Random random = new Random();
 
             // 随机移动鼠标到页面不同位置
-            int x = random.nextInt(800) + 100; // 100-900
-            int y = random.nextInt(600) + 100; // 100-700
+            int x = RANDOM.nextInt(800) + 100; // 100-900
+            int y = RANDOM.nextInt(600) + 100; // 100-700
 
             page.mouse().move(x, y);
 
@@ -1380,13 +1379,12 @@ public class PlaywrightUtil {
     public static void simulateScroll(DeviceType deviceType) {
         try {
             Page page = getPage(deviceType);
-            Random random = new Random();
 
             // 随机滚动距离
-            int scrollDistance = random.nextInt(300) + 100; // 100-400像素
+            int scrollDistance = RANDOM.nextInt(300) + 100; // 100-400像素
 
             // 随机滚动方向
-            if (random.nextBoolean()) {
+            if (RANDOM.nextBoolean()) {
                 page.mouse().wheel(0, scrollDistance); // 向下滚动
             } else {
                 page.mouse().wheel(0, -scrollDistance); // 向上滚动
@@ -1414,11 +1412,10 @@ public class PlaywrightUtil {
     public static void simulateKeyboardActivity(DeviceType deviceType) {
         try {
             Page page = getPage(deviceType);
-            Random random = new Random();
 
             // 随机按一些无害的键
             String[] keys = {"Tab", "ArrowDown", "ArrowUp", "Home", "End"};
-            String randomKey = keys[random.nextInt(keys.length)];
+            String randomKey = keys[RANDOM.nextInt(keys.length)];
 
             page.keyboard().press(randomKey);
 
@@ -1442,13 +1439,11 @@ public class PlaywrightUtil {
      * @param deviceType 设备类型
      */
     public static void simulateHumanBehavior(DeviceType deviceType) {
-        Random random = new Random();
-
         // 随机选择要执行的行为
-        int behaviorCount = random.nextInt(3) + 1; // 1-3个行为
+        int behaviorCount = RANDOM.nextInt(3) + 1; // 1-3个行为
 
         for (int i = 0; i < behaviorCount; i++) {
-            int behavior = random.nextInt(3);
+            int behavior = RANDOM.nextInt(3);
 
             switch (behavior) {
                 case 0:

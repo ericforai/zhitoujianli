@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+  <!-- 首页 - 最高优先级 -->
+  <url>
+    <loc>https://zhitoujianli.com/</loc>
+    <lastmod>2025-10-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- 功能介绍页面 - 重要营销页面 -->
+  <url>
+    <loc>https://zhitoujianli.com/features</loc>
+    <lastmod>2025-10-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 价格方案页面 - 重要营销页面 -->
+  <url>
+    <loc>https://zhitoujianli.com/pricing</loc>
+    <lastmod>2025-10-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 博客页面 - SEO内容页面 -->
+  <url>
+    <loc>https://zhitoujianli.com/blog</loc>
+    <lastmod>2025-10-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- 联系我们页面 -->
+  <url>
+    <loc>https://zhitoujianli.com/contact</loc>
+    <lastmod>2025-10-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- 用户注册页面 -->
+  <url>
+    <loc>https://zhitoujianli.com/register</loc>
+    <lastmod>2025-10-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- 用户登录页面 -->
+  <url>
+    <loc>https://zhitoujianli.com/login</loc>
+    <lastmod>2025-10-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- 控制台 - 需登录访问，较低优先级 -->
+  <url>
+    <loc>https://zhitoujianli.com/dashboard</loc>
+    <lastmod>2025-10-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- 简历投递功能页 -->
+  <url>
+    <loc>https://zhitoujianli.com/resume-delivery</loc>
+    <lastmod>2025-10-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- 自动投递功能页 -->
+  <url>
+    <loc>https://zhitoujianli.com/auto-delivery</loc>
+    <lastmod>2025-10-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- BOSS直聘投递页 -->
+  <url>
+    <loc>https://zhitoujianli.com/boss-delivery</loc>
+    <lastmod>2025-10-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- 智能打招呼功能页 -->
+  <url>
+    <loc>https://zhitoujianli.com/smart-greeting</loc>
+    <lastmod>2025-10-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- 职位匹配功能页 -->
+  <url>
+    <loc>https://zhitoujianli.com/jd-matching</loc>
+    <lastmod>2025-10-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- 配置页面 -->
+  <url>
+    <loc>https://zhitoujianli.com/config</loc>
+    <lastmod>2025-10-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+</urlset>

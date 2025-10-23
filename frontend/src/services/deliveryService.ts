@@ -6,16 +6,16 @@
  */
 
 import {
-    ApiResponse,
-    BlacklistConfig,
-    BossConfig,
-    DeliveryConfig,
-    DeliveryRecord,
-    DeliveryRecordQuery,
-    DeliveryStatistics,
-    DeliveryStatisticsQuery,
-    DeliveryStrategy,
-    GreetingConfig,
+  ApiResponse,
+  BlacklistConfig,
+  BossConfig,
+  DeliveryConfig,
+  DeliveryRecord,
+  DeliveryRecordQuery,
+  DeliveryStatistics,
+  DeliveryStatisticsQuery,
+  DeliveryStrategy,
+  GreetingConfig,
 } from '../types/api';
 import apiClient from './apiService';
 
@@ -47,7 +47,10 @@ export const deliveryConfigService = {
   testDeliveryConfig: async (
     config: DeliveryConfig
   ): Promise<ApiResponse<{ valid: boolean; message: string }>> => {
-    const response = await apiClient.post('/api/delivery/config/config/test', config);
+    const response = await apiClient.post(
+      '/api/delivery/config/config/test',
+      config
+    );
     return response.data;
   },
 
@@ -154,7 +157,9 @@ export const deliveryConfigService = {
    * 删除黑名单项
    */
   deleteBlacklistItem: async (id: string): Promise<ApiResponse<void>> => {
-    const response = await apiClient.delete(`/api/delivery/config/blacklist/${id}`);
+    const response = await apiClient.delete(
+      `/api/delivery/config/blacklist/${id}`
+    );
     return response.data;
   },
 };

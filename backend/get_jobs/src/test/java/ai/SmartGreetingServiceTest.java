@@ -1,5 +1,6 @@
 package ai;
 
+import com.superxiang.WebApplication;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @since 2025-10-22
  */
 @ExtendWith(MockitoExtension.class)
-@SpringBootTest
+@SpringBootTest(classes = WebApplication.class)
 @DisplayName("模块3: 生成默认打招呼语测试")
 public class SmartGreetingServiceTest {
 

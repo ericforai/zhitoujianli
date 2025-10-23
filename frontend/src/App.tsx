@@ -90,10 +90,7 @@ function App() {
                 </PrivateRoute>
               }
             />
-            <Route
-              path='/resume'
-              element={<DirectResumeEntry />}
-            />
+            <Route path='/resume' element={<DirectResumeEntry />} />
             <Route
               path='/dashboard'
               element={

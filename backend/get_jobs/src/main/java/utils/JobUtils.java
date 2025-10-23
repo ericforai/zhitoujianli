@@ -26,6 +26,9 @@ import zhilian.ZhilianScheduled;
 @Slf4j
 public class JobUtils {
 
+    // 线程安全的随机数生成器（修复SpotBugs问题）
+    private static final Random RANDOM = new Random();
+
     public static String appendParam(String name, String value) {
         return Optional.ofNullable(value)
                 .filter(v -> !Objects.equals(UNLIMITED_CODE, v))
@@ -179,8 +182,7 @@ public class JobUtils {
         if (min > max) {
             throw new IllegalArgumentException("max must be greater than or equal to min");
         }
-        Random random = new Random();
-        return random.nextInt((max - min) + 1) + min;
+        return RANDOM.nextInt((max - min) + 1) + min;
     }
 
     public static void main(String[] args) {

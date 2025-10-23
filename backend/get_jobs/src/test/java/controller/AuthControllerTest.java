@@ -1,5 +1,6 @@
 package controller;
 
+import com.superxiang.WebApplication;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import config.MailConfig;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @since 2025-10-22
  */
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
-@SpringBootTest
+@SpringBootTest(classes = WebApplication.class)
 @AutoConfigureMockMvc
 @DisplayName("模块1: 邮箱注册功能测试")
 public class AuthControllerTest {

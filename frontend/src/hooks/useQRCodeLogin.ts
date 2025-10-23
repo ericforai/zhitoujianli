@@ -24,7 +24,7 @@ export const useQRCodeLogin = () => {
   });
 
   // 指数退避重试工具
-  const retry = async <T,>(fn: () => Promise<T>, max = 5): Promise<T> => {
+  const retry = async <T>(fn: () => Promise<T>, max = 5): Promise<T> => {
     let attempt = 0;
     let lastError: any;
     while (attempt < max) {
@@ -63,12 +63,15 @@ export const useQRCodeLogin = () => {
           throw new Error(`status:${response.status}`);
         }
 
-        const json = (await response.json()) as {
-          success?: boolean;
-          data?: { qrcodeBase64?: string; image?: string };
-          qrcodeBase64?: string;
-          image?: string;
-        } | string | null;
+        const json = (await response.json()) as
+          | {
+              success?: boolean;
+              data?: { qrcodeBase64?: string; image?: string };
+              qrcodeBase64?: string;
+              image?: string;
+            }
+          | string
+          | null;
 
         if (typeof json === 'string') {
           return json;
@@ -96,7 +99,9 @@ export const useQRCodeLogin = () => {
       });
 
       if (data) {
-        const normalized = data.startsWith('data:') ? data : `data:image/png;base64,${data}`;
+        const normalized = data.startsWith('data:')
+          ? data
+          : `data:image/png;base64,${data}`;
         setState(prev => ({ ...prev, qrCodeUrl: normalized }));
         console.log('二维码已加载(base64)');
       } else {
@@ -246,5 +251,3 @@ export const useQRCodeLogin = () => {
     refreshQRCode,
   };
 };
-
-

@@ -12,19 +12,16 @@
 
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
 import { authService } from '../../services/authService';
 import Register from '../Register';
 
+// Mock react-router-dom (using manual mock)
+jest.mock('react-router-dom');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { BrowserRouter, mockNavigate } = require('react-router-dom');
+
 // Mock authService
 jest.mock('../../services/authService');
-
-// Mock useNavigate
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
-}));
 
 describe('模块1: 邮箱注册功能测试', () => {
   beforeEach(() => {
@@ -49,7 +46,9 @@ describe('模块1: 邮箱注册功能测试', () => {
       expect(screen.getByLabelText(/邮箱/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/^密码$/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/确认密码/i)).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /发送验证码/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /发送验证码/i })
+      ).toBeInTheDocument();
 
       console.log('✅ 测试通过: 注册表单显示正确');
     });
@@ -79,19 +78,23 @@ describe('模块1: 邮箱注册功能测试', () => {
       // Mock API响应
       (authService.sendVerificationCode as jest.Mock).mockResolvedValue({
         success: true,
-        message: '验证码已发送'
+        message: '验证码已发送',
       });
 
       renderRegister();
 
       const emailInput = screen.getByLabelText(/邮箱/i);
-      const sendCodeButton = screen.getByRole('button', { name: /发送验证码/i });
+      const sendCodeButton = screen.getByRole('button', {
+        name: /发送验证码/i,
+      });
 
       await user.type(emailInput, 'test@example.com');
       await user.click(sendCodeButton);
 
       await waitFor(() => {
-        expect(authService.sendVerificationCode).toHaveBeenCalledWith('test@example.com');
+        expect(authService.sendVerificationCode).toHaveBeenCalledWith(
+          'test@example.com'
+        );
       });
 
       console.log('✅ 测试通过: 验证码发送功能正常');
@@ -102,20 +105,25 @@ describe('模块1: 邮箱注册功能测试', () => {
 
       (authService.sendVerificationCode as jest.Mock).mockResolvedValue({
         success: true,
-        message: '验证码已发送'
+        message: '验证码已发送',
       });
 
       renderRegister();
 
       const emailInput = screen.getByLabelText(/邮箱/i);
-      const sendCodeButton = screen.getByRole('button', { name: /发送验证码/i });
+      const sendCodeButton = screen.getByRole('button', {
+        name: /发送验证码/i,
+      });
 
       await user.type(emailInput, 'test@example.com');
       await user.click(sendCodeButton);
 
-      await waitFor(() => {
-        expect(screen.getByText(/\d+秒/)).toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.getByText(/\d+秒/)).toBeInTheDocument();
+        },
+        { timeout: 3000 }
+      );
 
       console.log('✅ 测试通过: 验证码倒计时显示正常');
     });
@@ -126,24 +134,27 @@ describe('模块1: 邮箱注册功能测试', () => {
       // Mock API响应
       (authService.sendVerificationCode as jest.Mock).mockResolvedValue({
         success: true,
-        message: '验证码已发送'
+        message: '验证码已发送',
       });
 
       (authService.verifyEmailCode as jest.Mock).mockResolvedValue({
         success: true,
-        message: '验证成功'
+        message: '验证成功',
       });
 
       (authService.register as jest.Mock).mockResolvedValue({
         success: true,
         message: '注册成功',
-        userId: 'user_001'
+        userId: 'user_001',
       });
 
       renderRegister();
 
       // 输入邮箱和密码
-      await user.type(screen.getByLabelText(/邮箱/i), 'test_user_001@example.com');
+      await user.type(
+        screen.getByLabelText(/邮箱/i),
+        'test_user_001@example.com'
+      );
       await user.type(screen.getByLabelText(/^密码$/i), 'Test1234');
       await user.type(screen.getByLabelText(/确认密码/i), 'Test1234');
 
@@ -155,8 +166,9 @@ describe('模块1: 邮箱注册功能测试', () => {
       });
 
       // 输入验证码
-      const codeInput = screen.getByPlaceholderText(/请输入验证码/i) ||
-                        screen.getByLabelText(/验证码/i);
+      const codeInput =
+        screen.getByPlaceholderText(/请输入验证码/i) ||
+        screen.getByLabelText(/验证码/i);
       await user.type(codeInput, '123456');
 
       // 验证验证码
@@ -164,7 +176,10 @@ describe('模块1: 邮箱注册功能测试', () => {
       await user.click(verifyButton);
 
       await waitFor(() => {
-        expect(authService.verifyEmailCode).toHaveBeenCalledWith('test_user_001@example.com', '123456');
+        expect(authService.verifyEmailCode).toHaveBeenCalledWith(
+          'test_user_001@example.com',
+          '123456'
+        );
       });
 
       // 注册
@@ -197,7 +212,9 @@ describe('模块1: 邮箱注册功能测试', () => {
         renderRegister();
 
         const emailInput = screen.getByLabelText(/邮箱/i);
-        const sendCodeButton = screen.getByRole('button', { name: /发送验证码/i });
+        const sendCodeButton = screen.getByRole('button', {
+          name: /发送验证码/i,
+        });
 
         if (email) {
           await user.type(emailInput, email);
@@ -217,16 +234,16 @@ describe('模块1: 邮箱注册功能测试', () => {
     const validEmails = [
       'test@example.com',
       'test.user@example.com',
-      'test+tag@example.co.uk'
+      'test+tag@example.co.uk',
     ];
 
-    validEmails.forEach((email) => {
+    validEmails.forEach(email => {
       test(`应该接受有效邮箱: ${email}`, async () => {
         const user = userEvent.setup();
 
         (authService.sendVerificationCode as jest.Mock).mockResolvedValue({
           success: true,
-          message: '验证码已发送'
+          message: '验证码已发送',
         });
 
         renderRegister();
@@ -234,7 +251,9 @@ describe('模块1: 邮箱注册功能测试', () => {
         const emailInput = screen.getByLabelText(/邮箱/i);
         await user.type(emailInput, email);
 
-        const sendCodeButton = screen.getByRole('button', { name: /发送验证码/i });
+        const sendCodeButton = screen.getByRole('button', {
+          name: /发送验证码/i,
+        });
         await user.click(sendCodeButton);
 
         await waitFor(() => {
@@ -299,8 +318,8 @@ describe('模块1: 邮箱注册功能测试', () => {
       (authService.sendVerificationCode as jest.Mock).mockRejectedValue({
         response: {
           status: 500,
-          data: { message: '服务器内部错误' }
-        }
+          data: { message: '服务器内部错误' },
+        },
       });
 
       renderRegister();
@@ -341,11 +360,18 @@ describe('模块1: 邮箱注册功能测试', () => {
       const user = userEvent.setup();
 
       // Mock延迟响应
-      (authService.register as jest.Mock).mockImplementation(() =>
-        new Promise(resolve => setTimeout(() => resolve({
-          success: true,
-          message: '注册成功'
-        }), 2000))
+      (authService.register as jest.Mock).mockImplementation(
+        () =>
+          new Promise(resolve =>
+            setTimeout(
+              () =>
+                resolve({
+                  success: true,
+                  message: '注册成功',
+                }),
+              2000
+            )
+          )
       );
 
       renderRegister();
@@ -400,7 +426,7 @@ describe('模块1: 邮箱注册功能测试', () => {
 
       (authService.sendVerificationCode as jest.Mock).mockResolvedValue({
         success: true,
-        message: '验证码已发送'
+        message: '验证码已发送',
       });
 
       const { unmount } = renderRegister();
@@ -417,7 +443,9 @@ describe('模块1: 邮箱注册功能测试', () => {
       renderRegister();
 
       // 验证倒计时状态是否恢复
-      const sendCodeButton = screen.getByRole('button', { name: /发送验证码/i });
+      const sendCodeButton = screen.getByRole('button', {
+        name: /发送验证码/i,
+      });
       expect(sendCodeButton).not.toBeDisabled();
 
       console.log('⚠️  问题1确认: 刷新后倒计时状态丢失');
@@ -425,8 +453,3 @@ describe('模块1: 邮箱注册功能测试', () => {
     });
   });
 });
-
-
-
-
-

@@ -148,7 +148,9 @@ export const aiGreetingService = {
    */
   getDefaultGreeting: async (): Promise<string> => {
     try {
-      const response = await apiClient.get('/candidate-resume/get-default-greeting');
+      const response = await apiClient.get(
+        '/candidate-resume/get-default-greeting'
+      );
       return response.data.greeting || '';
     } catch (error) {
       console.log('获取默认打招呼语失败，可能尚未设置');

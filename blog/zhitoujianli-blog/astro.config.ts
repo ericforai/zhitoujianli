@@ -95,10 +95,10 @@ export default defineConfig({
       },
     },
     preview: {
-      host: true, // 允许所有主机访问
+      host: '0.0.0.0', // 绑定到所有网络接口
       port: 4321,
       strictPort: false,
-      allowedHosts: true, // 禁用Host检查，允许所有域名访问
+      allowedHosts: ['blog.zhitoujianli.com', 'zhitoujianli.com', 'www.zhitoujianli.com', 'localhost', '127.0.0.1'], // 明确允许的主机
     },
     server: {
       host: true, // 开发模式也允许所有主机访问

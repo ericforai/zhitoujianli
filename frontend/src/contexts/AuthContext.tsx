@@ -11,11 +11,11 @@
  */
 
 import React, {
-    createContext,
-    useCallback,
-    useContext,
-    useEffect,
-    useState,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
 } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { User, authService } from '../services/authService';

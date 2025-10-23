@@ -28,7 +28,8 @@ interface WorkflowTimelineProps {
 
 const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({ steps }) => {
   const getStepClasses = (step: WorkflowStep) => {
-    const baseClasses = 'flex flex-col items-center p-6 rounded-lg shadow-md transition-all duration-300 cursor-pointer';
+    const baseClasses =
+      'flex flex-col items-center p-6 rounded-lg shadow-md transition-all duration-300 cursor-pointer';
 
     if (step.disabled) {
       return `${baseClasses} bg-gray-100 text-gray-400 cursor-not-allowed opacity-60`;
@@ -45,7 +46,8 @@ const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({ steps }) => {
   };
 
   const getStepIconClasses = (step: WorkflowStep) => {
-    const baseClasses = 'w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold mb-3';
+    const baseClasses =
+      'w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold mb-3';
 
     if (step.disabled) {
       return `${baseClasses} bg-gray-200 text-gray-400`;
@@ -81,9 +83,9 @@ const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({ steps }) => {
   };
 
   return (
-    <div className="w-full">
+    <div className='w-full'>
       {/* 桌面端横向布局 */}
-      <div className="hidden md:flex items-center justify-between w-full">
+      <div className='hidden md:flex items-center justify-between w-full'>
         {steps.map((step, index) => (
           <React.Fragment key={step.id}>
             {/* 步骤卡片 */}
@@ -98,27 +100,41 @@ const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({ steps }) => {
               </div>
 
               {/* 步骤标题 */}
-              <h3 className={`text-lg font-semibold mb-2 ${
-                step.disabled ? 'text-gray-400' :
-                step.status === 'completed' ? 'text-green-800' :
-                step.status === 'active' ? 'text-blue-800' : 'text-gray-800'
-              }`}>
+              <h3
+                className={`text-lg font-semibold mb-2 ${
+                  step.disabled
+                    ? 'text-gray-400'
+                    : step.status === 'completed'
+                      ? 'text-green-800'
+                      : step.status === 'active'
+                        ? 'text-blue-800'
+                        : 'text-gray-800'
+                }`}
+              >
                 {step.label}
               </h3>
 
               {/* 步骤描述 */}
-              <p className={`text-sm text-center ${
-                step.disabled ? 'text-gray-400' :
-                step.status === 'completed' ? 'text-green-600' :
-                step.status === 'active' ? 'text-blue-600' : 'text-gray-600'
-              }`}>
+              <p
+                className={`text-sm text-center ${
+                  step.disabled
+                    ? 'text-gray-400'
+                    : step.status === 'completed'
+                      ? 'text-green-600'
+                      : step.status === 'active'
+                        ? 'text-blue-600'
+                        : 'text-gray-600'
+                }`}
+              >
                 {step.description}
               </p>
             </div>
 
             {/* 连接箭头 */}
             {index < steps.length - 1 && (
-              <div className={`flex-shrink-0 mx-2 ${getArrowClasses(step, steps[index + 1])}`}>
+              <div
+                className={`flex-shrink-0 mx-2 ${getArrowClasses(step, steps[index + 1])}`}
+              >
                 →
               </div>
             )}
@@ -127,7 +143,7 @@ const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({ steps }) => {
       </div>
 
       {/* 移动端纵向布局 */}
-      <div className="md:hidden space-y-4">
+      <div className='md:hidden space-y-4'>
         {steps.map((step, index) => (
           <React.Fragment key={step.id}>
             {/* 步骤卡片 */}
@@ -136,26 +152,38 @@ const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({ steps }) => {
               onClick={() => handleStepClick(step)}
               title={step.disabled ? '此步骤暂时不可用' : step.description}
             >
-              <div className="flex items-center space-x-4">
+              <div className='flex items-center space-x-4'>
                 {/* 步骤图标 */}
                 <div className={getStepIconClasses(step)}>
                   {step.status === 'completed' ? '✓' : step.icon}
                 </div>
 
                 {/* 步骤内容 */}
-                <div className="flex-1">
-                  <h3 className={`text-lg font-semibold mb-1 ${
-                    step.disabled ? 'text-gray-400' :
-                    step.status === 'completed' ? 'text-green-800' :
-                    step.status === 'active' ? 'text-blue-800' : 'text-gray-800'
-                  }`}>
+                <div className='flex-1'>
+                  <h3
+                    className={`text-lg font-semibold mb-1 ${
+                      step.disabled
+                        ? 'text-gray-400'
+                        : step.status === 'completed'
+                          ? 'text-green-800'
+                          : step.status === 'active'
+                            ? 'text-blue-800'
+                            : 'text-gray-800'
+                    }`}
+                  >
                     {step.label}
                   </h3>
-                  <p className={`text-sm ${
-                    step.disabled ? 'text-gray-400' :
-                    step.status === 'completed' ? 'text-green-600' :
-                    step.status === 'active' ? 'text-blue-600' : 'text-gray-600'
-                  }`}>
+                  <p
+                    className={`text-sm ${
+                      step.disabled
+                        ? 'text-gray-400'
+                        : step.status === 'completed'
+                          ? 'text-green-600'
+                          : step.status === 'active'
+                            ? 'text-blue-600'
+                            : 'text-gray-600'
+                    }`}
+                  >
                     {step.description}
                   </p>
                 </div>
@@ -164,7 +192,9 @@ const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({ steps }) => {
 
             {/* 连接箭头 */}
             {index < steps.length - 1 && (
-              <div className={`flex justify-center ${getArrowClasses(step, steps[index + 1])}`}>
+              <div
+                className={`flex justify-center ${getArrowClasses(step, steps[index + 1])}`}
+              >
                 ↓
               </div>
             )}

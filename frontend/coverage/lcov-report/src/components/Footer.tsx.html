@@ -169,7 +169,11 @@
 <a name='L104'></a><a href='#L104'>104</a>
 <a name='L105'></a><a href='#L105'>105</a>
 <a name='L106'></a><a href='#L106'>106</a>
-<a name='L107'></a><a href='#L107'>107</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -275,14 +279,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const Footer = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import Container from './common/Container';
+&nbsp;
+const Footer = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;footer className='bg-gray-900 text-white py-12'&gt;
-      &lt;div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'&gt;
+      &lt;Container size='xl'&gt;
         &lt;div className='grid grid-cols-1 md:grid-cols-4 gap-8'&gt;
           {/* Logo and Description */}
           &lt;div className='col-span-1 md:col-span-2'&gt;
-            &lt;h3 className='text-2xl font-bold mb-4 font-chinese'&gt;智投简历&lt;/h3&gt;
+            &lt;h3 className='text-2xl font-bold mb-4'&gt;智投简历&lt;/h3&gt;
             &lt;p className='text-gray-400 mb-4 max-w-md'&gt;用AI，让求职更高效&lt;/p&gt;
             &lt;p className='text-gray-400 text-sm'&gt;
               智能投递 · 精准匹配 · 高效求职
@@ -295,18 +301,18 @@
             &lt;ul className='space-y-2'&gt;
               &lt;li&gt;
                 &lt;a
-                  href='#features'
-                  className='text-gray-400 hover:text-white transition-colors'
+                  href='/features'
+                  className='text-gray-400 hover:text-white transition-colors duration-200'
                 &gt;
                   功能
                 &lt;/a&gt;
               &lt;/li&gt;
               &lt;li&gt;
                 &lt;a
-                  href='#demo'
-                  className='text-gray-400 hover:text-white transition-colors'
+                  href='/pricing'
+                  className='text-gray-400 hover:text-white transition-colors duration-200'
                 &gt;
-                  演示
+                  定价
                 &lt;/a&gt;
               &lt;/li&gt;
               &lt;li&gt;
@@ -314,15 +320,15 @@
                   href='https://blog.zhitoujianli.com'
                   target='_blank'
                   rel='noopener noreferrer'
-                  className='text-gray-400 hover:text-white transition-colors'
+                  className='text-gray-400 hover:text-white transition-colors duration-200'
                 &gt;
                   博客
                 &lt;/a&gt;
               &lt;/li&gt;
               &lt;li&gt;
                 &lt;a
-                  href='#contact'
-                  className='text-gray-400 hover:text-white transition-colors'
+                  href='/contact'
+                  className='text-gray-400 hover:text-white transition-colors duration-200'
                 &gt;
                   联系我们
                 &lt;/a&gt;
@@ -337,7 +343,7 @@
               &lt;li&gt;
                 &lt;a
                   href='/help'
-                  className='text-gray-400 hover:text-white transition-colors'
+                  className='text-gray-400 hover:text-white transition-colors duration-200'
                 &gt;
                   帮助中心
                 &lt;/a&gt;
@@ -345,7 +351,7 @@
               &lt;li&gt;
                 &lt;a
                   href='/guide'
-                  className='text-gray-400 hover:text-white transition-colors'
+                  className='text-gray-400 hover:text-white transition-colors duration-200'
                 &gt;
                   用户指南
                 &lt;/a&gt;
@@ -353,7 +359,7 @@
               &lt;li&gt;
                 &lt;a
                   href='/api'
-                  className='text-gray-400 hover:text-white transition-colors'
+                  className='text-gray-400 hover:text-white transition-colors duration-200'
                 &gt;
                   API文档
                 &lt;/a&gt;
@@ -361,7 +367,7 @@
               &lt;li&gt;
                 &lt;a
                   href='/privacy'
-                  className='text-gray-400 hover:text-white transition-colors'
+                  className='text-gray-400 hover:text-white transition-colors duration-200'
                 &gt;
                   隐私政策
                 &lt;/a&gt;
@@ -375,7 +381,7 @@
             © 2024 智投简历. 保留所有权利.
           &lt;/p&gt;
         &lt;/div&gt;
-      &lt;/div&gt;
+      &lt;/Container&gt;
     &lt;/footer&gt;
   );
 };
@@ -388,7 +394,7 @@ export default Footer;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-22T08:47:04.105Z
+                at 2025-10-23T05:27:20.470Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

@@ -241,6 +241,16 @@ export const authService = {
   },
 
   /**
+   * 发送邮箱验证码
+   */
+  sendVerificationCode: async (
+    email: string
+  ): Promise<{ success: boolean; message: string }> => {
+    const response = await apiClient.post('/auth/send-email-code', { email });
+    return response.data;
+  },
+
+  /**
    * 发送手机验证码
    */
   sendPhoneCode: async (

@@ -1,6 +1,6 @@
 # 智投简历 - AI智能求职助手
 
-[![Version](https://img.shields.io/badge/version-2.0.3-blue.svg)](https://github.com/ericforai/zhitoujianli)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/ericforai/zhitoujianli)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-18.x-brightgreen.svg)](https://nodejs.org/)
 [![Java](https://img.shields.io/badge/java-21-orange.svg)](https://adoptium.net/)

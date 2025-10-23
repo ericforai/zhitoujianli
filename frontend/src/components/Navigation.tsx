@@ -64,9 +64,7 @@ const Navigation = () => {
               <div className='h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center transition-colors duration-200 group-hover:bg-blue-700'>
                 <span className='text-white font-bold text-sm'>智</span>
               </div>
-              <span className='text-xl font-bold text-gray-900'>
-                智投简历
-              </span>
+              <span className='text-xl font-bold text-gray-900'>智投简历</span>
             </a>
           </div>
 
@@ -116,12 +114,7 @@ const Navigation = () => {
           <div className='hidden md:flex items-center space-x-3'>
             {isLoggedIn ? (
               <div className='flex items-center space-x-3'>
-                <Button
-                  as='a'
-                  href='/dashboard'
-                  variant='primary'
-                  size='sm'
-                >
+                <Button as='a' href='/dashboard' variant='primary' size='sm'>
                   工作台
                 </Button>
 
@@ -137,30 +130,16 @@ const Navigation = () => {
                   </span>
                 </div>
 
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={handleLogout}
-                >
+                <Button variant='ghost' size='sm' onClick={handleLogout}>
                   退出
                 </Button>
               </div>
             ) : (
               <div className='flex items-center space-x-2'>
-                <Button
-                  as='a'
-                  href='/login'
-                  variant='ghost'
-                  size='sm'
-                >
+                <Button as='a' href='/login' variant='ghost' size='sm'>
                   登录
                 </Button>
-                <Button
-                  as='a'
-                  href='/register'
-                  variant='primary'
-                  size='sm'
-                >
+                <Button as='a' href='/register' variant='primary' size='sm'>
                   注册
                 </Button>
               </div>
@@ -262,7 +241,9 @@ const Navigation = () => {
                     <div className='flex items-center space-x-3'>
                       <div className='h-9 w-9 bg-blue-600 rounded-full flex items-center justify-center'>
                         <span className='text-white text-sm font-medium'>
-                          {user?.name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+                          {user?.name?.charAt(0) ||
+                            user?.email?.charAt(0) ||
+                            'U'}
                         </span>
                       </div>
                       <span className='text-base font-medium text-gray-800'>

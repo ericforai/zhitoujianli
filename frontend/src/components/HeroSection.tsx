@@ -18,20 +18,10 @@ const HeroSection = () => {
           </p>
 
           <div className='flex flex-col sm:flex-row gap-4 justify-center mb-16'>
-            <Button
-              as='a'
-              href='/resume-delivery'
-              variant='primary'
-              size='lg'
-            >
+            <Button as='a' href='/resume-delivery' variant='primary' size='lg'>
               立即体验
             </Button>
-            <Button
-              as='a'
-              href='/contact'
-              variant='secondary'
-              size='lg'
-            >
+            <Button as='a' href='/contact' variant='secondary' size='lg'>
               联系我们
             </Button>
           </div>

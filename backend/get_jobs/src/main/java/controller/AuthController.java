@@ -158,6 +158,22 @@ public class AuthController {
                         .body(Map.of("success", false, "message", "邮件发送失败，请稍后重试"));
             }
 
+        } catch (org.springframework.mail.MailSendException e) {
+            // 处理邮件发送异常，提供更友好的错误信息
+            String errorMessage = e.getMessage();
+            if (errorMessage != null && errorMessage.contains("550")) {
+                if (errorMessage.contains("non-existent account")) {
+                    return ResponseEntity.badRequest()
+                            .body(Map.of("success", false, "message", "邮箱地址不存在，请检查邮箱地址是否正确"));
+                } else if (errorMessage.contains("recipient")) {
+                    return ResponseEntity.badRequest()
+                            .body(Map.of("success", false, "message", "邮箱地址无效，请使用正确的邮箱地址"));
+                }
+            }
+
+            log.error("邮件发送异常: {}", request.get("email"), e);
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("success", false, "message", "邮件发送失败，请稍后重试"));
         } catch (Exception e) {
             log.error("❌ 发送验证码失败", e);
             return ResponseEntity.internalServerError()

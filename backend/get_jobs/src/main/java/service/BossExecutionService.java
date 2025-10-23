@@ -168,6 +168,10 @@ public class BossExecutionService {
         pb.environment().put("XVFB_DISPLAY", ":99");
         pb.environment().put("SCREEN_RESOLUTION", "1920x1080x24");
 
+        // 【重要】显式传递AI服务的环境变量（.env文件中的变量不会自动传递）
+        loadAndSetEnvVariables(pb);
+        log.info("✅ 已加载并传递AI服务环境变量到Boss进程");
+
         return pb;
     }
 
@@ -187,6 +191,37 @@ public class BossExecutionService {
         } catch (IOException e) {
             log.warn("读取classpath.txt失败，使用最小classpath");
             return generateMinimalClasspath();
+        }
+    }
+
+    /**
+     * 从.env文件加载并设置环境变量到ProcessBuilder
+     * 修复: .env文件的变量不会自动传递给子进程
+     */
+    private void loadAndSetEnvVariables(ProcessBuilder pb) {
+        try {
+            // 读取.env文件
+            File envFile = new File("/root/zhitoujianli/backend/get_jobs/.env");
+            if (envFile.exists()) {
+                java.nio.file.Files.lines(envFile.toPath())
+                    .filter(line -> !line.trim().isEmpty() && !line.trim().startsWith("#"))
+                    .forEach(line -> {
+                        String[] parts = line.split("=", 2);
+                        if (parts.length == 2) {
+                            String key = parts[0].trim();
+                            String value = parts[1].trim();
+                            // 只传递AI相关的环境变量
+                            if (key.contains("API") || key.contains("DEEPSEEK") || key.contains("MODEL") || key.equals("BASE_URL")) {
+                                pb.environment().put(key, value);
+                                log.debug("传递环境变量到Boss进程: {}=***", key);
+                            }
+                        }
+                    });
+            } else {
+                log.warn(".env文件不存在: {}", envFile.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            log.error("加载.env文件失败，AI服务可能无法使用", e);
         }
     }
 

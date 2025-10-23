@@ -88,7 +88,10 @@ const Login: React.FC = () => {
           )}
 
           {/* 邮箱登录表单 */}
-          <form onSubmit={handleEmailLogin} className='space-y-6 max-w-md mx-auto'>
+          <form
+            onSubmit={handleEmailLogin}
+            className='space-y-6 max-w-md mx-auto'
+          >
             <div>
               <label
                 htmlFor='email'
@@ -153,11 +156,17 @@ const Login: React.FC = () => {
         <div className='text-center text-xs text-gray-500 mt-8'>
           <p className='mb-1'>登录即表示同意</p>
           <div>
-            <a href='/terms' className='text-blue-600 hover:text-blue-700 transition-colors duration-200'>
+            <a
+              href='/terms'
+              className='text-blue-600 hover:text-blue-700 transition-colors duration-200'
+            >
               用户协议
             </a>
             <span className='mx-1'>和</span>
-            <a href='/privacy' className='text-blue-600 hover:text-blue-700 transition-colors duration-200'>
+            <a
+              href='/privacy'
+              className='text-blue-600 hover:text-blue-700 transition-colors duration-200'
+            >
               隐私政策
             </a>
           </div>

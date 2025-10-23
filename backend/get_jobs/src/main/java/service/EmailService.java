@@ -40,6 +40,10 @@ public class EmailService {
             sendHtmlEmail(toEmail, subject, content);
             log.info("验证码邮件发送成功: {}", toEmail);
             return true;
+        } catch (org.springframework.mail.MailSendException e) {
+            // 重新抛出MailSendException，让Controller层处理
+            log.error("验证码邮件发送失败: {}", toEmail, e);
+            throw e;
         } catch (Exception e) {
             log.error("验证码邮件发送失败: {}", toEmail, e);
             return false;

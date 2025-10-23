@@ -8,9 +8,9 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    ResumeParseResult,
-    aiGreetingService,
-    aiResumeService,
+  ResumeParseResult,
+  aiGreetingService,
+  aiResumeService,
 } from '../../services/aiService';
 
 interface CompleteResumeManagerProps {
@@ -51,16 +51,20 @@ const CompleteResumeManager: React.FC<CompleteResumeManagerProps> = ({
 
   // 加载已保存的默认招呼语
   useEffect(() => {
-    console.log('🔄 CompleteResumeManager组件已挂载，开始加载已保存的默认招呼语...');
+    console.log(
+      '🔄 CompleteResumeManager组件已挂载，开始加载已保存的默认招呼语...'
+    );
 
     const loadSavedGreeting = async () => {
       try {
-        console.log('📡 正在请求后端API: /api/candidate-resume/get-default-greeting');
+        console.log(
+          '📡 正在请求后端API: /api/candidate-resume/get-default-greeting'
+        );
         const savedGreeting = await aiGreetingService.getDefaultGreeting();
         console.log('📥 后端返回招呼语:', savedGreeting);
 
         if (savedGreeting) {
-          console.log('🔄 准备设置默认招呼语状态，当前状态:', defaultGreeting);
+          console.log('🔄 准备设置默认招呼语状态');
           setDefaultGreeting(savedGreeting);
           console.log('✅ 已加载保存的默认招呼语:', savedGreeting);
           console.log('🔄 状态设置完成，新状态:', savedGreeting);
@@ -300,24 +304,28 @@ const CompleteResumeManager: React.FC<CompleteResumeManagerProps> = ({
     <div className='space-y-6'>
       {/* Toast 通知 - 固定位置 */}
       {(successMessage || error) && (
-        <div className="fixed top-20 right-4 z-50 max-w-sm">
-          <div className={`p-4 rounded-lg shadow-lg border flex items-center justify-between ${
-            successMessage
-              ? 'bg-green-50 text-green-800 border-green-200'
-              : 'bg-red-50 text-red-800 border-red-200'
-          }`}>
-            <div className="flex items-center">
-              <div className={`mr-3 text-lg ${
-                successMessage ? 'text-green-600' : 'text-red-600'
-              }`}>
+        <div className='fixed top-20 right-4 z-50 max-w-sm'>
+          <div
+            className={`p-4 rounded-lg shadow-lg border flex items-center justify-between ${
+              successMessage
+                ? 'bg-green-50 text-green-800 border-green-200'
+                : 'bg-red-50 text-red-800 border-red-200'
+            }`}
+          >
+            <div className='flex items-center'>
+              <div
+                className={`mr-3 text-lg ${
+                  successMessage ? 'text-green-600' : 'text-red-600'
+                }`}
+              >
                 {successMessage ? '✅' : '❌'}
               </div>
-              <span className="font-medium">{successMessage || error}</span>
+              <span className='font-medium'>{successMessage || error}</span>
             </div>
             <button
               onClick={clearMessage}
-              className="ml-4 text-gray-400 hover:text-gray-600 text-lg"
-              title="关闭"
+              className='ml-4 text-gray-400 hover:text-gray-600 text-lg'
+              title='关闭'
             >
               ×
             </button>

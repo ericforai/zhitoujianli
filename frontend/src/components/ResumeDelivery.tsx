@@ -26,7 +26,10 @@ const ResumeDelivery: React.FC = () => {
   const authLogger = logger.createChild('ResumeDelivery:Auth');
 
   // 认证状态检查和日志记录
-  authLogger.debug('ResumeDelivery组件开始渲染', { isLoading, isAuthenticated });
+  authLogger.debug('ResumeDelivery组件开始渲染', {
+    isLoading,
+    isAuthenticated,
+  });
 
   // 在认证完成前显示加载界面
   if (isLoading) {
@@ -50,7 +53,7 @@ const ResumeDelivery: React.FC = () => {
   // 认证确认，记录日志
   authLogger.info('ResumeDelivery认证检查通过，渲染组件', {
     userId: user?.userId,
-    email: user?.email
+    email: user?.email,
   });
 
   const handleLogout = () => {

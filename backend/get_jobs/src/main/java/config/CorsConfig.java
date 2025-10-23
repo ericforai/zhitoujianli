@@ -29,9 +29,11 @@ public class CorsConfig {
 
         // 允许的源（明确列出，修复 allowCredentials + 通配符的浏览器限制）
         configuration.setAllowedOrigins(Arrays.asList(
-            // 生产环境 - HTTPS
+            // 生产环境 - HTTPS（修复：确保包含所有可能的域名变体）
             "https://www.zhitoujianli.com",
             "https://zhitoujianli.com",
+            "https://zhitoujianli.com:443",
+            "https://www.zhitoujianli.com:443",
             // 开发环境 - HTTP
             "http://localhost:3000",
             "http://localhost:8080",
