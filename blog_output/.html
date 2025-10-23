@@ -1,57 +1,3 @@
-#!/bin/bash
-
-# 智投简历博客自动发布脚本
-# 使用方法: ./blog_publisher.sh "博客标题" "博客内容文件路径"
-
-set -e
-
-# 配置参数
-BLOG_DOMAIN="zhitoujianli.com"
-BLOG_PATH="/blog"
-CONTENT_DIR="/root/zhitoujianli/blog_content"
-TEMPLATE_DIR="/root/zhitoujianli/blog_templates"
-OUTPUT_DIR="/root/zhitoujianli/blog_output"
-
-# 检查参数
-if [ $# -lt 2 ]; then
-    echo "使用方法: $0 \"博客标题\" \"博客内容文件路径\""
-    echo "示例: $0 \"简历优化指南\" \"/path/to/content.md\""
-    exit 1
-fi
-
-BLOG_TITLE="$1"
-CONTENT_FILE="$2"
-
-# 检查内容文件是否存在
-if [ ! -f "$CONTENT_FILE" ]; then
-    echo "错误: 内容文件不存在: $CONTENT_FILE"
-    exit 1
-fi
-
-# 创建输出目录
-mkdir -p "$OUTPUT_DIR"
-mkdir -p "$CONTENT_DIR"
-
-# 生成SEO友好的URL
-BLOG_SLUG=$(echo "$BLOG_TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g')
-BLOG_URL="https://$BLOG_DOMAIN$BLOG_PATH/$BLOG_SLUG"
-
-echo "开始处理博客: $BLOG_TITLE"
-echo "URL: $BLOG_URL"
-
-# 读取博客内容
-BLOG_CONTENT=$(cat "$CONTENT_FILE")
-
-# 生成发布时间
-PUBLISH_DATE=$(date '+%Y-%m-%dT%H:%M:%S+08:00')
-PUBLISH_DATE_DISPLAY=$(date '+%Y年%m月%d日')
-
-# 生成SEO元数据
-META_DESCRIPTION=$(echo "$BLOG_CONTENT" | head -n 3 | tr '\n' ' ' | sed 's/^#* *//' | cut -c1-150)
-META_KEYWORDS="简历优化,AI智能投递,求职工具,简历模板,岗位匹配,智能求职,简历制作,求职技巧"
-
-# 生成HTML文件
-cat > "$OUTPUT_DIR/$BLOG_SLUG.html" << EOF
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -59,50 +5,50 @@ cat > "$OUTPUT_DIR/$BLOG_SLUG.html" << EOF
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- SEO Meta Tags -->
-    <title>$BLOG_TITLE | 智投简历</title>
-    <meta name="description" content="$META_DESCRIPTION">
-    <meta name="keywords" content="$META_KEYWORDS">
+    <title>你的简历，为什么总被刷掉？AI智能投递帮你逆转局面！ | 智投简历</title>
+    <meta name="description" content="你的简历，为什么总被刷掉？AI智能投递帮你逆转局面！  ## 痛点共鸣：6秒定生死的简历筛选 ">
+    <meta name="keywords" content="简历优化,AI智能投递,求职工具,简历模板,岗位匹配,智能求职,简历制作,求职技巧">
     <meta name="author" content="智投简历团队">
     <meta name="robots" content="index, follow">
 
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="$BLOG_TITLE">
-    <meta property="og:description" content="$META_DESCRIPTION">
+    <meta property="og:title" content="你的简历，为什么总被刷掉？AI智能投递帮你逆转局面！">
+    <meta property="og:description" content="你的简历，为什么总被刷掉？AI智能投递帮你逆转局面！  ## 痛点共鸣：6秒定生死的简历筛选 ">
     <meta property="og:type" content="article">
-    <meta property="og:url" content="$BLOG_URL">
-    <meta property="og:image" content="https://$BLOG_DOMAIN/images/blog/$BLOG_SLUG-og.jpg">
+    <meta property="og:url" content="https://zhitoujianli.com/blog/">
+    <meta property="og:image" content="https://zhitoujianli.com/images/blog/-og.jpg">
     <meta property="og:site_name" content="智投简历">
     <meta property="og:locale" content="zh_CN">
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="$BLOG_URL">
+    <link rel="canonical" href="https://zhitoujianli.com/blog/">
 
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "BlogPosting",
-        "headline": "$BLOG_TITLE",
-        "description": "$META_DESCRIPTION",
-        "image": "https://$BLOG_DOMAIN/images/blog/$BLOG_SLUG-og.jpg",
+        "headline": "你的简历，为什么总被刷掉？AI智能投递帮你逆转局面！",
+        "description": "你的简历，为什么总被刷掉？AI智能投递帮你逆转局面！  ## 痛点共鸣：6秒定生死的简历筛选 ",
+        "image": "https://zhitoujianli.com/images/blog/-og.jpg",
         "author": {
             "@type": "Organization",
             "name": "智投简历团队",
-            "url": "https://$BLOG_DOMAIN"
+            "url": "https://zhitoujianli.com"
         },
         "publisher": {
             "@type": "Organization",
             "name": "智投简历",
             "logo": {
                 "@type": "ImageObject",
-                "url": "https://$BLOG_DOMAIN/images/logo.png"
+                "url": "https://zhitoujianli.com/images/logo.png"
             }
         },
-        "datePublished": "$PUBLISH_DATE",
-        "dateModified": "$PUBLISH_DATE",
+        "datePublished": "2025-10-23T17:24:37+08:00",
+        "dateModified": "2025-10-23T17:24:37+08:00",
         "mainEntityOfPage": {
             "@type": "WebPage",
-            "@id": "$BLOG_URL"
+            "@id": "https://zhitoujianli.com/blog/"
         },
         "keywords": ["简历优化", "AI智能投递", "求职工具", "简历模板", "岗位匹配", "智能求职"],
         "articleSection": "求职技巧"
@@ -172,12 +118,12 @@ cat > "$OUTPUT_DIR/$BLOG_SLUG.html" << EOF
     <div class="blog-header">
         <div class="blog-container px-4">
             <div class="blog-meta mb-4">
-                <span><i class="fas fa-calendar-alt mr-2"></i>$PUBLISH_DATE_DISPLAY</span>
+                <span><i class="fas fa-calendar-alt mr-2"></i>2025年10月23日</span>
                 <span class="mx-4"><i class="fas fa-user mr-2"></i>智投简历团队</span>
                 <span><i class="fas fa-clock mr-2"></i>阅读时间：8分钟</span>
             </div>
-            <h1 class="blog-title">$BLOG_TITLE</h1>
-            <p class="text-xl opacity-90">$META_DESCRIPTION</p>
+            <h1 class="blog-title">你的简历，为什么总被刷掉？AI智能投递帮你逆转局面！</h1>
+            <p class="text-xl opacity-90">你的简历，为什么总被刷掉？AI智能投递帮你逆转局面！  ## 痛点共鸣：6秒定生死的简历筛选 </p>
         </div>
     </div>
 
@@ -185,7 +131,113 @@ cat > "$OUTPUT_DIR/$BLOG_SLUG.html" << EOF
     <div class="blog-container px-4">
         <article class="blog-content">
             <!-- 这里插入博客内容 -->
-            <div id="blog-content-placeholder"></div>
+            <h1>你的简历，为什么总被刷掉？AI智能投递帮你逆转局面！</h1>
+
+<h2>痛点共鸣：6秒定生死的简历筛选</h2>
+
+<p>你投了50份简历，却只收到2个面试邀请？别急着怀疑自己的能力，问题可能出在简历上。HR每天要筛选200+份简历，平均每份简历只有6秒的"生死时刻"。在这6秒里，如果你的简历没有抓住HR的眼球，就会被无情地刷掉。</p>
+
+<p><strong>残酷的现实</strong>：</p>
+<p>- 85%的简历在第一轮筛选中被淘汰</p>
+<p>- 平均每份简历被HR查看的时间只有6秒</p>
+<p>- 90%的求职者简历存在格式、内容或匹配度问题</p>
+
+<h2>真实案例：从0面试到3个offer的逆袭</h2>
+
+<p><strong>小王的故事</strong>：市场营销专业应届生，投了30份简历，0个面试机会。</p>
+
+<p><strong>问题诊断</strong>：</p>
+<p>- 简历内容千篇一律，没有针对性</p>
+<p>- 缺乏量化成果，都是"参与过项目"的模糊描述</p>
+<p>- 关键词匹配度低，HR找不到核心技能点</p>
+
+<p><strong>解决方案</strong>：使用智投简历AI工具</p>
+<p>1. <strong>智能解析</strong>：上传简历后，AI自动提取核心信息（技能、经验、优势）</p>
+<p>2. <strong>岗位匹配</strong>：系统自动抓取目标岗位JD，进行智能匹配分析</p>
+<p>3. <strong>个性化优化</strong>：针对每个岗位生成专属简历版本和打招呼语</p>
+<p>4. <strong>一键投递</strong>：自动化投递流程，解放双手</p>
+
+<p><strong>结果</strong>：3天后收到3个面试邀请，最终拿到心仪offer！</p>
+
+<h2>智投简历：AI驱动的智能求职解决方案</h2>
+
+<h3>🎯 核心功能</h3>
+
+<p><strong>1. 智能简历解析</strong></p>
+<p>- 支持PDF、DOC、TXT格式</p>
+<p>- AI自动提取：姓名、职位、技能、工作经历、核心优势</p>
+<p>- 结构化数据存储，避免重复解析</p>
+
+<p><strong>2. 岗位智能匹配</strong></p>
+<p>- 自动抓取招聘平台岗位信息</p>
+<p>- 语义匹配分析，匹配度评分</p>
+<p>- 智能推荐最适合的岗位</p>
+
+<p><strong>3. 个性化打招呼语生成</strong></p>
+<p>- 基于简历和岗位JD生成专属打招呼语</p>
+<p>- 突出候选人核心优势与岗位匹配点</p>
+<p>- 语气自然专业，避免模板化</p>
+
+<p><strong>4. 自动化投递流程</strong></p>
+<p>- 一键批量投递</p>
+<p>- 实时状态跟踪</p>
+<p>- 投递记录和效果分析</p>
+
+<h3>🚀 技术优势</h3>
+
+<p>- <strong>AI驱动</strong>：基于DeepSeek API的智能分析</p>
+<p>- <strong>实时通信</strong>：WebSocket推送投递状态</p>
+<p>- <strong>安全可靠</strong>：JWT认证，数据加密存储</p>
+<p>- <strong>云端部署</strong>：支持大规模用户并发使用</p>
+
+<h2>立即行动：让你的简历在6秒内脱颖而出</h2>
+
+<h3>传统投递 vs 智投简历</h3>
+
+<p>| 对比项 | 传统投递 | 智投简历 |</p>
+<p>|--------|----------|----------|</p>
+<p>| 简历制作 | 手工编写，耗时费力 | AI智能解析，秒级完成 |</p>
+<p>| 岗位匹配 | 盲目投递，命中率低 | 智能匹配，精准推荐 |</p>
+<p>| 打招呼语 | 千篇一律，缺乏个性 | AI生成，个性化定制 |</p>
+<p>| 投递效率 | 手动操作，效率低下 | 自动化投递，批量处理 |</p>
+<p>| 效果跟踪 | 无记录，无法优化 | 全程记录，数据驱动 |</p>
+
+<h3>三步开启智能求职</h3>
+
+<p>1. <strong>上传简历</strong> → AI自动解析，提取核心信息</p>
+<p>2. <strong>智能匹配</strong> → 系统推荐最适合的岗位</p>
+<p>3. <strong>一键投递</strong> → 自动化投递，坐等面试邀请</p>
+
+<h2>成功案例分享</h2>
+
+<p><strong>张经理（5年工作经验）</strong>：</p>
+<p>> "以前投简历像大海捞针，现在智投简历帮我精准匹配，投递成功率提升了300%！"</p>
+
+<p><strong>李同学（应届毕业生）</strong>：</p>
+<p>> "作为应届生，最怕简历没亮点。智投简历帮我突出核心优势，很快就收到了心仪公司的面试邀请。"</p>
+
+<p><strong>王总（转行求职）</strong>：</p>
+<p>> "转行最担心技能不匹配，智投简历帮我分析岗位要求，生成针对性简历，成功转行到理想行业。"</p>
+
+<h2>立即体验：6秒改变你的求职命运</h2>
+
+<p>如果你的简历现在只有6秒机会让HR注意，你希望它能讲出怎样的故事？</p>
+
+<p><strong>智投简历</strong>让每个求职者都能：</p>
+<p>- ✅ 在6秒内抓住HR眼球</p>
+<p>- ✅ 精准匹配心仪岗位</p>
+<p>- ✅ 自动化投递流程</p>
+<p>- ✅ 数据驱动优化策略</p>
+
+<p><strong>现在注册，立即体验AI智能求职！</strong></p>
+
+<p>---</p>
+
+<p><em>智投简历 - 让AI为你的求职之路保驾护航</em></p>
+
+<p><strong>立即体验</strong>：<a href="https://www.zhitoujianli.com">www.zhitoujianli.com</a></p>
+
+
         </article>
 
         <!-- 社交媒体分享 -->
@@ -288,13 +340,13 @@ cat > "$OUTPUT_DIR/$BLOG_SLUG.html" << EOF
         function shareToWeibo() {
             const url = encodeURIComponent(window.location.href);
             const title = encodeURIComponent(document.title);
-            window.open(\`https://service.weibo.com/share/share.php?url=\${url}&title=\${title}\`, '_blank');
+            window.open(`https://service.weibo.com/share/share.php?url=${url}&title=${title}`, '_blank');
         }
 
         function shareToQQ() {
             const url = encodeURIComponent(window.location.href);
             const title = encodeURIComponent(document.title);
-            window.open(\`https://connect.qq.com/widget/shareqq/index.html?url=\${url}&title=\${title}\`, '_blank');
+            window.open(`https://connect.qq.com/widget/shareqq/index.html?url=${url}&title=${title}`, '_blank');
         }
 
         function copyLink() {
@@ -313,69 +365,3 @@ cat > "$OUTPUT_DIR/$BLOG_SLUG.html" << EOF
     </script>
 </body>
 </html>
-EOF
-
-# 处理Markdown内容并插入到HTML中
-python3 << EOF
-import re
-import sys
-
-def markdown_to_html(markdown_text):
-    # 简单的Markdown到HTML转换
-    html = markdown_text
-
-    # 标题转换
-    html = re.sub(r'^# (.*)$', r'<h1>\1</h1>', html, flags=re.MULTILINE)
-    html = re.sub(r'^## (.*)$', r'<h2>\1</h2>', html, flags=re.MULTILINE)
-    html = re.sub(r'^### (.*)$', r'<h3>\1</h3>', html, flags=re.MULTILINE)
-    html = re.sub(r'^#### (.*)$', r'<h4>\1</h4>', html, flags=re.MULTILINE)
-
-    # 段落转换
-    html = re.sub(r'^([^<\n].*)$', r'<p>\1</p>', html, flags=re.MULTILINE)
-
-    # 列表转换
-    html = re.sub(r'^- (.*)$', r'<li>\1</li>', html, flags=re.MULTILINE)
-    html = re.sub(r'(<li>.*</li>)', r'<ul>\1</ul>', html, flags=re.DOTALL)
-
-    # 粗体和斜体
-    html = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', html)
-    html = re.sub(r'\*(.*?)\*', r'<em>\1</em>', html)
-
-    # 链接转换
-    html = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'<a href="\2">\1</a>', html)
-
-    return html
-
-# 读取博客内容
-with open('$CONTENT_FILE', 'r', encoding='utf-8') as f:
-    content = f.read()
-
-# 转换为HTML
-html_content = markdown_to_html(content)
-
-# 读取HTML模板
-with open('$OUTPUT_DIR/$BLOG_SLUG.html', 'r', encoding='utf-8') as f:
-    html_template = f.read()
-
-# 替换占位符
-html_template = html_template.replace('<div id="blog-content-placeholder"></div>', html_content)
-
-# 写回文件
-with open('$OUTPUT_DIR/$BLOG_SLUG.html', 'w', encoding='utf-8') as f:
-    f.write(html_template)
-
-print("博客内容已处理完成")
-EOF
-
-echo "博客HTML文件已生成: $OUTPUT_DIR/$BLOG_SLUG.html"
-
-# 部署到服务器 (需要配置SSH密钥)
-echo "准备部署到 $BLOG_DOMAIN..."
-
-# 这里需要配置实际的部署命令
-# scp "$OUTPUT_DIR/$BLOG_SLUG.html" "user@$BLOG_DOMAIN:/var/www/html/blog/"
-# ssh "user@$BLOG_DOMAIN" "systemctl reload nginx"
-
-echo "博客发布完成！"
-echo "访问地址: $BLOG_URL"
-echo "本地文件: $OUTPUT_DIR/$BLOG_SLUG.html"
