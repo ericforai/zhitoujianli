@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
@@ -19,6 +20,7 @@ import utils.JobUtils;
  */
 @Data
 @Slf4j
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BossConfig {
     /**
      * 用于打招呼的语句
@@ -185,12 +187,34 @@ public class BossConfig {
             log.info("使用用户自定义配置");
         }
 
-        // 验证打招呼语是否为空
+        // 验证打招呼语是否为空，如果为空则尝试从default_greeting.json读取
         if (config.getSayHi() == null || config.getSayHi().trim().isEmpty()) {
-            log.warn("⚠️ 用户的打招呼语为空，请先生成个性化打招呼语");
-            log.info("💡 建议：1. 上传简历 2. 生成AI默认打招呼语 3. 保存到Boss配置");
+            log.warn("⚠️ 用户的打招呼语为空，尝试从default_greeting.json读取...");
+
+            try {
+                // 尝试从default_greeting.json读取打招呼语
+                String defaultGreeting = loadDefaultGreetingFromFile();
+                if (defaultGreeting != null && !defaultGreeting.trim().isEmpty()) {
+                    config.setSayHi(defaultGreeting);
+                    log.info("✅ 已从default_greeting.json加载打招呼语，长度: {}字", defaultGreeting.length());
+                } else {
+                    log.warn("⚠️ default_greeting.json中也未找到打招呼语");
+                    log.info("💡 建议：1. 上传简历 2. 生成AI默认打招呼语 3. 保存到Boss配置");
+                }
+            } catch (Exception e) {
+                log.warn("读取default_greeting.json失败: {}", e.getMessage());
+                log.info("💡 建议：1. 上传简历 2. 生成AI默认打招呼语 3. 保存到Boss配置");
+            }
         } else {
             log.info("✅ 打招呼语已设置，长度: {}字", config.getSayHi().length());
+        }
+
+        // 【新增】如果enableSmartGreeting未配置，默认启用
+        if (config.getEnableSmartGreeting() == null) {
+            config.setEnableSmartGreeting(true);
+            log.info("✅ enableSmartGreeting未配置，默认启用智能打招呼");
+        } else {
+            log.info("✅ enableSmartGreeting已配置: {}", config.getEnableSmartGreeting());
         }
 
         // 转换工作类型
@@ -263,6 +287,58 @@ public class BossConfig {
 
     public List<String> getIndustry() {
         return industry != null ? new ArrayList<>(industry) : null;
+    }
+
+    /**
+     * 从default_greeting.json文件加载默认打招呼语
+     * 支持多种用户ID格式的查找
+     */
+    @SneakyThrows
+    private static String loadDefaultGreetingFromFile() {
+        try {
+            // 获取当前用户ID
+            String userId = System.getenv("BOSS_USER_ID");
+            if (userId == null || userId.isEmpty()) {
+                userId = System.getProperty("boss.user.id");
+            }
+            if (userId == null || userId.isEmpty()) {
+                userId = "default_user";
+            }
+
+            log.debug("尝试为用户 {} 加载默认打招呼语", userId);
+
+            // 尝试多种可能的文件路径
+            String[] possiblePaths = {
+                "user_data/" + userId + "/default_greeting.json",  // 标准格式
+                "user_data/" + userId.replace("_", "@") + "/default_greeting.json",  // 邮箱格式
+                "user_data/" + userId.replace("@", "_").replace(".", "_") + "/default_greeting.json",  // 安全格式
+                "user_data/" + userId.replace("_sina_com", "@sina.com") + "/default_greeting.json",  // 特殊格式转换
+                "user_data/" + userId.replace("_", "@").replace("_com", ".com") + "/default_greeting.json"  // 通用格式转换
+            };
+
+            for (String path : possiblePaths) {
+                File greetingFile = new File(path);
+                if (greetingFile.exists()) {
+                    log.info("找到打招呼语文件: {}", path);
+
+                    ObjectMapper mapper = new ObjectMapper();
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> greetingData = mapper.readValue(greetingFile, Map.class);
+                    String greeting = (String) greetingData.get("greeting");
+
+                    if (greeting != null && !greeting.trim().isEmpty()) {
+                        return greeting;
+                    }
+                }
+            }
+
+            log.warn("未找到任何有效的打招呼语文件");
+            return null;
+
+        } catch (Exception e) {
+            log.error("加载默认打招呼语失败: {}", e.getMessage());
+            return null;
+        }
     }
 
 }

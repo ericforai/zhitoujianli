@@ -2,12 +2,14 @@ package controller;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
+import util.UserContextUtil;
 
 /**
  * Boss程序Cookie管理控制器
@@ -455,8 +458,16 @@ public class BossCookieController {
     public ResponseEntity<Map<String, Object>> getBossStatus() {
         try {
             Map<String, Object> status = new HashMap<>();
-            status.put("isRunning", false); // 暂时返回false，后续可以从WebController获取真实状态
-            status.put("deliveryCount", 0);
+
+            // 检查Boss进程是否在运行
+            boolean isRunning = checkBossProcessRunning();
+            status.put("isRunning", isRunning);
+
+            // 获取投递统计（修复：不再硬编码为0）
+            long deliveryCount = getDeliveryCount();
+            status.put("deliveryCount", deliveryCount);
+
+            log.info("Boss状态检查结果: isRunning={}, deliveryCount={}", isRunning, deliveryCount);
             return ResponseEntity.ok(status);
         } catch (Exception e) {
             log.error("获取Boss状态失败", e);
@@ -464,6 +475,81 @@ public class BossCookieController {
             error.put("success", false);
             error.put("message", "获取状态失败: " + e.getMessage());
             return ResponseEntity.status(500).body(error);
+        }
+    }
+
+    /**
+     * 获取投递统计数量
+     * @return 投递成功数量
+     */
+    private long getDeliveryCount() {
+        try {
+            String userId = UserContextUtil.getCurrentUserId();
+            if (userId == null || userId.isEmpty()) {
+                userId = "default_user";
+            }
+
+            // 构建可能的日志文件路径（支持多种用户ID格式）
+            String[] possibleLogPaths = {
+                "/tmp/boss_delivery_" + userId + ".log",
+                "/tmp/boss_delivery_" + userId.replace("@", "_").replace(".", "_") + ".log",
+                "/tmp/boss_delivery_" + userId.replace("_", "@") + ".log"
+            };
+
+            for (String logPath : possibleLogPaths) {
+                File logFile = new File(logPath);
+                if (logFile.exists()) {
+                    log.debug("找到日志文件: {}, 统计投递数量", logPath);
+
+                    // 统计"投递完成"的日志行数
+                    try (Stream<String> lines = Files.lines(Paths.get(logPath))) {
+                        long count = lines.filter(line -> line.contains("投递完成")).count();
+                        log.info("从日志文件 {} 统计到投递数量: {}", logPath, count);
+                        return count;
+                    } catch (IOException e) {
+                        log.warn("读取日志文件失败: {}", logPath, e);
+                    }
+                }
+            }
+
+            log.warn("未找到Boss投递日志文件，已尝试的路径: {}", String.join(", ", possibleLogPaths));
+            return 0;
+        } catch (Exception e) {
+            log.error("获取投递统计失败", e);
+            return 0;
+        }
+    }
+
+    /**
+     * 检查Boss进程是否在运行
+     * @return true如果Boss进程在运行，false如果未运行
+     */
+    private boolean checkBossProcessRunning() {
+        try {
+            // 使用ps命令检查Boss进程
+            ProcessBuilder pb = new ProcessBuilder("ps", "aux");
+            Process process = pb.start();
+
+            try (java.io.BufferedReader reader = new java.io.BufferedReader(
+                    new java.io.InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // 检查是否包含Boss进程
+                    if (line.contains("boss.IsolatedBossRunner") &&
+                        !line.contains("grep")) {
+                        log.debug("找到Boss进程: {}", line);
+                        return true;
+                    }
+                }
+            }
+
+            int exitCode = process.waitFor();
+            log.debug("ps命令执行完成，退出码: {}", exitCode);
+            return false;
+
+        } catch (Exception e) {
+            log.error("检查Boss进程状态失败", e);
+            return false;
         }
     }
 

@@ -142,6 +142,9 @@ const BossConfig: React.FC<BossConfigProps> = ({
           <label className='block text-sm font-medium text-gray-700 mb-2'>
             搜索关键词 <span className='text-red-500'>*</span>
           </label>
+          <p className='text-xs text-gray-500 mb-3'>
+            💡 系统将搜索包含以下任意关键词的岗位（或的关系）
+          </p>
           <div className='space-y-3'>
             <div className='flex space-x-2'>
               <input
@@ -162,24 +165,40 @@ const BossConfig: React.FC<BossConfigProps> = ({
                 添加
               </button>
             </div>
-            <div className='flex flex-wrap gap-2'>
-              {formData.keywords?.map((keyword: string, index: number) => (
-                <span
-                  key={index}
-                  className='inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800'
-                >
-                  {keyword}
-                  <button
-                    type='button'
-                    onClick={() => removeKeyword(index)}
-                    className='ml-2 text-blue-600 hover:text-blue-800'
-                    disabled={loading}
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
+
+            {/* 关键词列表 - 更清晰的显示 */}
+            {formData.keywords && formData.keywords.length > 0 && (
+              <div className='bg-gray-50 rounded-lg p-4'>
+                <div className='flex items-center mb-2'>
+                  <span className='text-sm font-medium text-gray-700'>已添加的关键词：</span>
+                  <span className='ml-2 text-xs text-gray-500'>(共{formData.keywords.length}个)</span>
+                </div>
+                <div className='flex flex-wrap gap-2'>
+                  {formData.keywords.map((keyword: string, index: number) => (
+                    <div
+                      key={index}
+                      className='inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200'
+                    >
+                      <span className='mr-2'>🔍</span>
+                      {keyword}
+                      <button
+                        type='button'
+                        onClick={() => removeKeyword(index)}
+                        className='ml-2 text-blue-600 hover:text-red-600 hover:bg-red-100 rounded-full p-1 transition-colors'
+                        disabled={loading}
+                        title='删除此关键词'
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className='mt-2 text-xs text-gray-500'>
+                  💡 系统将搜索包含以上任意关键词的岗位
+                </div>
+              </div>
+            )}
+
             {errors.error_0 && (
               <p className='text-sm text-red-600'>{errors.error_0}</p>
             )}
@@ -191,6 +210,9 @@ const BossConfig: React.FC<BossConfigProps> = ({
           <label className='block text-sm font-medium text-gray-700 mb-2'>
             目标城市 <span className='text-red-500'>*</span>
           </label>
+          <p className='text-xs text-gray-500 mb-3'>
+            💡 系统将搜索以下任意城市的岗位（或的关系）
+          </p>
           <div className='space-y-3'>
             <div className='flex space-x-2'>
               <input
@@ -211,24 +233,40 @@ const BossConfig: React.FC<BossConfigProps> = ({
                 添加
               </button>
             </div>
-            <div className='flex flex-wrap gap-2'>
-              {formData.cities?.map((city: string, index: number) => (
-                <span
-                  key={index}
-                  className='inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800'
-                >
-                  {city}
-                  <button
-                    type='button'
-                    onClick={() => removeCity(index)}
-                    className='ml-2 text-green-600 hover:text-green-800'
-                    disabled={loading}
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
+
+            {/* 城市列表 - 更清晰的显示 */}
+            {formData.cities && formData.cities.length > 0 && (
+              <div className='bg-gray-50 rounded-lg p-4'>
+                <div className='flex items-center mb-2'>
+                  <span className='text-sm font-medium text-gray-700'>已添加的城市：</span>
+                  <span className='ml-2 text-xs text-gray-500'>(共{formData.cities.length}个)</span>
+                </div>
+                <div className='flex flex-wrap gap-2'>
+                  {formData.cities.map((city: string, index: number) => (
+                    <div
+                      key={index}
+                      className='inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-green-100 text-green-800 border border-green-200'
+                    >
+                      <span className='mr-2'>📍</span>
+                      {city}
+                      <button
+                        type='button'
+                        onClick={() => removeCity(index)}
+                        className='ml-2 text-green-600 hover:text-red-600 hover:bg-red-100 rounded-full p-1 transition-colors'
+                        disabled={loading}
+                        title='删除此城市'
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className='mt-2 text-xs text-gray-500'>
+                  💡 系统将搜索以上任意城市的岗位
+                </div>
+              </div>
+            )}
+
             {errors.error_1 && (
               <p className='text-sm text-red-600'>{errors.error_1}</p>
             )}

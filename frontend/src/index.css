@@ -2,4 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* 全局样式优化 */
+@layer base {
+  body {
+    @apply text-gray-900 bg-white;
+    font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1 {
+    @apply text-5xl font-bold leading-tight;
+  }
+
+  h2 {
+    @apply text-4xl font-bold leading-tight;
+  }
+
+  h3 {
+    @apply text-2xl font-semibold leading-snug;
+  }
+
+  p {
+    @apply text-base leading-relaxed;
+  }
+}

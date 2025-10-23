@@ -124,7 +124,7 @@
                         <h5 class="card-title mb-4">
                             <i class="bi bi-cloud-upload"></i> 上传简历
                         </h5>
-                        
+
                         <!-- 文件上传 -->
                         <div class="upload-area" id="uploadArea">
                             <i class="bi bi-file-earmark-arrow-up fs-1 text-primary"></i>
@@ -141,7 +141,7 @@
                             <label for="resumeText" class="form-label fw-bold">
                                 <i class="bi bi-pencil-square"></i> 或直接粘贴简历文本：
                             </label>
-                            <textarea class="form-control" id="resumeText" rows="12" 
+                            <textarea class="form-control" id="resumeText" rows="12"
                                 placeholder="请粘贴您的简历内容...&#10;&#10;建议包含：&#10;- 个人信息（姓名、职位）&#10;- 工作经历（公司、职位、年限）&#10;- 核心技能&#10;- 主要成就&#10;- 教育背景"></textarea>
                         </div>
 
@@ -164,7 +164,7 @@
                 <div class="col-12">
                     <div class="candidate-card">
                         <h4 class="mb-3">
-                            <i class="bi bi-person-check-fill"></i> 
+                            <i class="bi bi-person-check-fill"></i>
                             解析结果
                         </h4>
                         <div id="candidateInfo">
@@ -180,7 +180,7 @@
                     <div class="card border-0 shadow-sm">
                         <div class="card-body p-4">
                             <h5 class="card-title mb-3">
-                                <i class="bi bi-chat-heart-fill text-success"></i> 
+                                <i class="bi bi-chat-heart-fill text-success"></i>
                                 AI生成的默认打招呼语
                             </h5>
                             <div class="alert alert-info alert-custom">
@@ -189,7 +189,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="defaultGreeting" class="form-label fw-bold">默认打招呼语：</label>
-                                <textarea class="form-control" id="defaultGreeting" rows="6" 
+                                <textarea class="form-control" id="defaultGreeting" rows="6"
                                     placeholder="AI正在生成中..."></textarea>
                             </div>
                             <div class="d-flex gap-2">
@@ -232,7 +232,7 @@
         // 初始化所有事件监听器
         function initializeEventListeners() {
             console.log('初始化事件监听器...');
-            
+
             // 文件上传点击事件
             const uploadArea = document.getElementById('uploadArea');
             if (uploadArea) {
@@ -275,7 +275,7 @@
                     }
                 });
             }
-            
+
             console.log('事件监听器初始化完成');
         }
 
@@ -330,7 +330,7 @@
 
             // 检查文件类型
             const fileName = file.name.toLowerCase();
-            if (!fileName.endsWith('.txt') && !fileName.endsWith('.pdf') && 
+            if (!fileName.endsWith('.txt') && !fileName.endsWith('.pdf') &&
                 !fileName.endsWith('.doc') && !fileName.endsWith('.docx')) {
                 alert('❌ 不支持的文件格式\n\n支持的格式：TXT、PDF、DOC、DOCX\n请上传正确格式的简历文件');
                 return;
@@ -341,7 +341,7 @@
 
             console.log('开始上传文件...');
             showLoading('正在上传文件并解析简历...');
-            
+
             fetch('/api/candidate-resume/upload', {
                 method: 'POST',
                 body: formData
@@ -357,10 +357,10 @@
                     candidateData = data.data;
                     displayCandidateInfo(candidateData);
                     document.getElementById('deleteBtn').style.display = 'inline-block';
-                    
+
                     // 生成默认打招呼语
                     generateDefaultGreeting(candidateData);
-                    
+
                     alert('简历解析成功！');
                 } else {
                     alert('文件解析失败：' + data.message);
@@ -371,7 +371,7 @@
                 console.error('上传错误:', error);
                 alert('文件上传失败：' + error.message);
             });
-            
+
             // 重置文件输入，允许重新选择相同文件
             event.target.value = '';
         }
@@ -400,7 +400,7 @@
                     candidateData = data.data;
                     displayCandidateInfo(candidateData);
                     document.getElementById('deleteBtn').style.display = 'inline-block';
-                    
+
                     // 生成默认打招呼语
                     generateDefaultGreeting(candidateData);
                 } else {
@@ -462,13 +462,13 @@
                     <div class="col-md-6">
                         <h6><i class="bi bi-stars"></i> 核心优势：</h6>
                         <div class="mb-3">
-                            ${(candidate.core_strengths || []).map(strength => 
+                            ${(candidate.core_strengths || []).map(strength =>
                                 `<span class="strength-tag">${strength}</span>`
                             ).join('')}
                         </div>
                         <h6><i class="bi bi-tools"></i> 技能：</h6>
                         <div>
-                            ${(candidate.skills || []).map(skill => 
+                            ${(candidate.skills || []).map(skill =>
                                 `<span class="skill-badge">${skill}</span>`
                             ).join('')}
                         </div>
@@ -488,7 +488,7 @@
         // 生成默认打招呼语
         function generateDefaultGreeting(candidate) {
             showLoading('AI正在生成默认打招呼语...');
-            
+
             fetch('/api/candidate-resume/generate-default-greeting', {
                 method: 'POST',
                 headers: {
@@ -496,30 +496,57 @@
                 },
                 body: JSON.stringify({ candidate: candidate })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 hideLoading();
                 if (data.success) {
                     document.getElementById('defaultGreeting').value = data.greeting;
+                    showSuccessMessage('✅ 默认打招呼语生成成功！');
                 } else {
-                    console.error('生成默认打招呼语失败:', data.message);
-                    document.getElementById('defaultGreeting').value = '生成失败，请稍后重试';
+                    throw new Error(data.message || '生成失败');
                 }
             })
             .catch(error => {
                 hideLoading();
-                console.error('Error:', error);
+                console.error('生成失败:', error);
                 document.getElementById('defaultGreeting').value = '生成失败，请稍后重试';
+
+                // 显示错误提示
+                if (error.message.includes('401') || error.message.includes('403')) {
+                    showErrorMessage('❌ 生成失败：请先登录系统');
+                } else if (error.message.includes('500')) {
+                    showErrorMessage('❌ 生成失败：服务器错误，请稍后重试');
+                } else {
+                    showErrorMessage('❌ 生成失败：' + error.message);
+                }
             });
         }
 
         // 重新生成打招呼语
         function regenerateGreeting() {
             if (!candidateData) {
-                alert('请先解析简历');
+                showErrorMessage('❌ 请先解析简历');
                 return;
             }
+
+            // 显示重新生成中的状态
+            const regenBtn = document.querySelector('button[onclick="regenerateGreeting()"]');
+            const originalText = regenBtn.innerHTML;
+            regenBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> 重新生成中...';
+            regenBtn.disabled = true;
+
             generateDefaultGreeting(candidateData);
+
+            // 恢复按钮状态（在generateDefaultGreeting完成后）
+            setTimeout(() => {
+                regenBtn.innerHTML = originalText;
+                regenBtn.disabled = false;
+            }, 3000);
         }
 
         // 保存默认打招呼语到配置
@@ -530,6 +557,12 @@
                 return;
             }
 
+            // 显示保存中的状态
+            const saveBtn = document.querySelector('button[onclick="saveDefaultGreeting()"]');
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> 保存中...';
+            saveBtn.disabled = true;
+
             fetch('/api/candidate-resume/save-default-greeting', {
                 method: 'POST',
                 headers: {
@@ -537,18 +570,105 @@
                 },
                 body: JSON.stringify({ greeting: greeting })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
-                    alert('默认打招呼语已保存到Boss配置！');
+                    // 显示成功提示
+                    showSuccessMessage('✅ 默认打招呼语已保存成功！');
+
+                    // 更新按钮状态
+                    saveBtn.innerHTML = '<i class="bi bi-check-circle"></i> 已保存';
+                    saveBtn.classList.remove('btn-primary');
+                    saveBtn.classList.add('btn-success');
+
+                    // 3秒后恢复原状
+                    setTimeout(() => {
+                        saveBtn.innerHTML = originalText;
+                        saveBtn.classList.remove('btn-success');
+                        saveBtn.classList.add('btn-primary');
+                        saveBtn.disabled = false;
+                    }, 3000);
                 } else {
-                    alert('保存失败：' + data.message);
+                    throw new Error(data.message || '保存失败');
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('保存失败：' + error.message);
+                console.error('保存失败:', error);
+
+                // 恢复按钮状态
+                saveBtn.innerHTML = originalText;
+                saveBtn.disabled = false;
+
+                // 显示错误提示
+                if (error.message.includes('401') || error.message.includes('403')) {
+                    showErrorMessage('❌ 保存失败：请先登录系统');
+                } else if (error.message.includes('500')) {
+                    showErrorMessage('❌ 保存失败：服务器错误，请稍后重试');
+                } else {
+                    showErrorMessage('❌ 保存失败：' + error.message);
+                }
             });
+        }
+
+        // 显示成功消息
+        function showSuccessMessage(message) {
+            // 移除现有的消息
+            const existingMessage = document.getElementById('saveMessage');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+
+            // 创建成功消息
+            const messageDiv = document.createElement('div');
+            messageDiv.id = 'saveMessage';
+            messageDiv.className = 'alert alert-success alert-dismissible fade show position-fixed';
+            messageDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            messageDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            document.body.appendChild(messageDiv);
+
+            // 5秒后自动消失
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, 5000);
+        }
+
+        // 显示错误消息
+        function showErrorMessage(message) {
+            // 移除现有的消息
+            const existingMessage = document.getElementById('saveMessage');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+
+            // 创建错误消息
+            const messageDiv = document.createElement('div');
+            messageDiv.id = 'saveMessage';
+            messageDiv.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+            messageDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            messageDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            document.body.appendChild(messageDiv);
+
+            // 8秒后自动消失
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, 8000);
         }
 
         // 显示/隐藏加载状态

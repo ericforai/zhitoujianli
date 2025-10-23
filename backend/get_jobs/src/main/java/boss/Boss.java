@@ -1178,13 +1178,43 @@ public class Boss {
             return sayHi;
         }
 
-        // 检查是否有候选人简历（直接从文件读取，不依赖Spring Security）
+        // 支持多种用户ID格式和文件名（candidate_resume.json优先）
         String userId = System.getProperty("boss.user.id", "default_user");
-        String resumePath = "user_data/" + userId + "/resume.json";
-        File resumeFile = new File(resumePath);
 
-        if (!resumeFile.exists()) {
-            log.warn("【打招呼语】未找到简历文件: {}，使用默认招呼语", resumePath);
+        // 修复用户ID转换逻辑：luwenrong123_sina_com -> luwenrong123@sina.com
+        // 策略：将最后一个_com替换为.com，将倒数第二个_替换为@
+        String emailUserId = userId;
+        if (userId.contains("_")) {
+            // 先替换域名部分：_com -> .com, _cn -> .cn, _net -> .net等
+            emailUserId = userId.replaceAll("_(com|cn|net|org|edu|gov)$", ".$1");
+            // 然后替换最后一个_为@（邮箱的@符号）
+            int lastUnderscoreIndex = emailUserId.lastIndexOf("_");
+            if (lastUnderscoreIndex > 0) {
+                emailUserId = emailUserId.substring(0, lastUnderscoreIndex) + "@" + emailUserId.substring(lastUnderscoreIndex + 1);
+            }
+        }
+
+        String[] possiblePaths = {
+            "user_data/" + userId + "/candidate_resume.json",  // 原始格式：luwenrong123_sina_com
+            "user_data/" + emailUserId + "/candidate_resume.json",  // 邮箱格式：luwenrong123@sina.com
+            "user_data/" + userId + "/resume.json",  // 兼容旧格式
+            "user_data/" + emailUserId + "/resume.json"  // 邮箱格式旧文件名
+        };
+
+        File resumeFile = null;
+        String resumePath = null;
+        for (String path : possiblePaths) {
+            File file = new File(path);
+            if (file.exists()) {
+                resumeFile = file;
+                resumePath = path;
+                log.info("【打招呼语】找到简历文件: {}", path);
+                break;
+            }
+        }
+
+        if (resumeFile == null) {
+            log.warn("【打招呼语】未找到简历文件，已尝试的路径: {}", String.join(", ", possiblePaths));
             return sayHi;
         }
 
@@ -1605,6 +1635,26 @@ public class Boss {
         // 检查是否需要登录
         boolean needLogin = !PlaywrightUtil.isCookieValid(cookiePath);
 
+        // 如果当前用户的Cookie无效，尝试使用default_user的Cookie作为fallback
+        if (needLogin) {
+            String defaultCookiePath = "/tmp/boss_cookies_default_user.json";
+            if (PlaywrightUtil.isCookieValid(defaultCookiePath)) {
+                log.info("当前用户Cookie无效，但发现default_user的Cookie，尝试复制使用...");
+                try {
+                    // 复制default_user的Cookie到当前用户
+                    java.nio.file.Files.copy(
+                        java.nio.file.Paths.get(defaultCookiePath),
+                        java.nio.file.Paths.get(cookiePath),
+                        java.nio.file.StandardCopyOption.REPLACE_EXISTING
+                    );
+                    log.info("✅ 已复制default_user的Cookie到: {}", cookiePath);
+                    needLogin = false; // Cookie复制成功，不需要重新登录
+                } catch (Exception e) {
+                    log.warn("复制Cookie失败: {}", e.getMessage());
+                }
+            }
+        }
+
         if (needLogin) {
             log.info("Cookie无效，切换到有头模式进行登录...");
             // 切换到有头模式进行登录
@@ -1888,9 +1938,12 @@ public class Boss {
 
         // 提取resume子对象
         Map<String, Object> resume = (Map<String, Object>) resumeData.get("resume");
+
+        // 【新增】如果没有resume子对象，说明是candidate_resume.json格式（扁平化结构）
         if (resume == null) {
-            log.warn("【简历转换】resume字段不存在，返回空候选人信息");
-            return candidate;
+            log.debug("【简历转换】检测到扁平化简历格式（candidate_resume.json），直接使用");
+            // candidate_resume.json已经是正确的格式，直接返回
+            return resumeData;
         }
 
         // 映射字段：position -> current_title

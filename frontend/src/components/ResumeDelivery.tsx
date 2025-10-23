@@ -11,40 +11,26 @@
  * @since 2025-01-03
  */
 
-import React, { useEffect, useState } from 'react';
-import { authService } from '../services/authService';
+import React, { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import logger from '../utils/logger';
 import AutoDelivery from './AutoDelivery';
 import DeliveryConfig from './DeliveryConfig';
 import ResumeManagement from './ResumeManagement';
 
 const ResumeDelivery: React.FC = () => {
-  const [user, setUser] = useState<any>(null);
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  useEffect(() => {
-    // 检查登录状态
-    if (!authService.isAuthenticated()) {
-      // 由于登录功能暂时不可用，自动设置访客模式
-      const guestUser = {
-        userId: 'guest-user',
-        username: '访客用户',
-        email: 'guest@zhitoujianli.com',
-      };
-      setUser(guestUser);
-      localStorage.setItem('user', JSON.stringify(guestUser));
-      // 不设置token，因为API已在白名单中无需token
-      return;
-    }
+  // 创建认证日志记录器
+  const authLogger = logger.createChild('ResumeDelivery:Auth');
 
-    const userData = authService.getCachedUser();
-    setUser(userData);
-  }, []);
+  // 认证状态检查和日志记录
+  authLogger.debug('ResumeDelivery组件开始渲染', { isLoading, isAuthenticated });
 
-  const handleLogout = () => {
-    authService.logout();
-  };
-
-  if (!user) {
+  // 在认证完成前显示加载界面
+  if (isLoading) {
+    authLogger.debug('等待认证状态确认...');
     return (
       <div className='min-h-screen flex items-center justify-center'>
         <div className='text-center'>
@@ -54,6 +40,25 @@ const ResumeDelivery: React.FC = () => {
       </div>
     );
   }
+
+  // 双重保险：理论上PrivateRoute已拦截，但作为防御性编程
+  if (!isAuthenticated) {
+    authLogger.warn('未认证用户尝试访问ResumeDelivery页面');
+    return null;
+  }
+
+  // 认证确认，记录日志
+  authLogger.info('ResumeDelivery认证检查通过，渲染组件', {
+    userId: user?.userId,
+    email: user?.email
+  });
+
+  const handleLogout = () => {
+    authLogger.info('用户退出登录');
+    // 这里应该调用authService.logout()，但由于我们使用AuthContext，应该通过context处理
+    // 暂时保留原有逻辑，后续可以优化
+    window.location.href = '/login';
+  };
 
   return (
     <div className='min-h-screen bg-gray-50'>
@@ -88,7 +93,7 @@ const ResumeDelivery: React.FC = () => {
             {/* 用户信息 */}
             <div className='flex items-center space-x-4'>
               <span className='text-gray-700'>
-                欢迎，{user.username || user.email}
+                欢迎，{user?.username || user?.email || '用户'}
               </span>
               <button
                 onClick={handleLogout}

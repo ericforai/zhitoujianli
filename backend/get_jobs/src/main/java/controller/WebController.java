@@ -47,7 +47,7 @@ public class WebController {
     @Autowired
     private BossExecutionService bossExecutionService;
 
-    @Autowired
+    // @Autowired
     // private ProcessManagerService processManager; // 暂时注释
 
     // 存储程序运行状态（仅用于向后兼容，实际进程管理使用ProcessManagerService）
@@ -479,6 +479,72 @@ public class WebController {
         }
 
         return ResponseEntity.ok(status);
+    }
+
+    @GetMapping("/simple-status")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getSimpleStatus() {
+        Map<String, Object> status = new HashMap<>();
+        status.put("isRunning", isRunning);
+        status.put("logFile", currentLogFile);
+
+        // 获取投递统计 - 支持多个日志文件
+        long deliveryCount = 0;
+
+        // 1. 检查当前日志文件
+        if (currentLogFile != null && Files.exists(Paths.get(currentLogFile))) {
+            try {
+                String content = new String(Files.readAllBytes(Paths.get(currentLogFile)), StandardCharsets.UTF_8);
+                deliveryCount += countOccurrences(content, "投递完成");
+            } catch (IOException e) {
+                log.error("读取当前日志文件失败", e);
+            }
+        }
+
+        // 2. 检查/tmp目录下所有Boss投递日志文件
+        try {
+            java.io.File tmpDir = new java.io.File("/tmp");
+            java.io.File[] logFiles = tmpDir.listFiles((dir, name) ->
+                name.startsWith("boss_delivery_") && name.endsWith(".log"));
+
+            log.info("【投递统计】找到 {} 个日志文件", logFiles == null ? 0 : logFiles.length);
+
+            if (logFiles != null && logFiles.length > 0) {
+                for (java.io.File logFile : logFiles) {
+                    try {
+                        String content = new String(Files.readAllBytes(logFile.toPath()), StandardCharsets.UTF_8);
+                        long count = countOccurrences(content, "投递完成");
+                        deliveryCount += count;
+                        log.info("【投递统计】从日志文件 {} 统计到 {} 次投递（文件大小: {} bytes）", logFile.getName(), count, content.length());
+                    } catch (IOException e) {
+                        log.error("读取Boss日志文件失败: {}", logFile.getAbsolutePath(), e);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("统计投递数量时出错", e);
+        }
+
+        status.put("deliveryCount", deliveryCount);
+        log.info("【投递统计】当前总投递数量: {}", deliveryCount);
+
+        return ResponseEntity.ok(status);
+    }
+
+    /**
+     * 统计字符串中某个子字符串出现的次数
+     */
+    private long countOccurrences(String text, String pattern) {
+        if (text == null || pattern == null || text.isEmpty() || pattern.isEmpty()) {
+            return 0;
+        }
+        long count = 0;
+        int index = 0;
+        while ((index = text.indexOf(pattern, index)) != -1) {
+            count++;
+            index += pattern.length();
+        }
+        return count;
     }
 
     @GetMapping("/logs")

@@ -1,55 +1,63 @@
+import Button from './common/Button';
+import Container from './common/Container';
+
 const HeroSection = () => {
   return (
-    <section className='pt-20 pb-16 bg-gradient-hero'>
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+    <section className='pt-32 pb-20 bg-white'>
+      <Container size='xl'>
         <div className='text-center'>
-          <h1 className='text-4xl md:text-6xl font-bold text-gray-900 mb-6 font-chinese'>
+          <h1 className='text-5xl md:text-6xl font-bold text-gray-900 mb-4 leading-tight'>
             智投简历
-            <span className='block text-2xl md:text-3xl font-normal text-gray-600 mt-2'>
-              智能投递 · 精准匹配
-            </span>
           </h1>
+          <p className='text-2xl md:text-3xl text-gray-600 mb-6'>
+            智能投递 · 精准匹配
+          </p>
 
-          <p className='text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto'>
+          <p className='text-xl text-gray-500 mb-10 max-w-2xl mx-auto'>
             用AI帮你更快拿到心仪Offer
           </p>
 
-          <div className='flex flex-col sm:flex-row gap-4 justify-center'>
-            <a
+          <div className='flex flex-col sm:flex-row gap-4 justify-center mb-16'>
+            <Button
+              as='a'
               href='/resume-delivery'
-              className='bg-gradient-primary text-white px-8 py-4 rounded-lg text-lg font-semibold hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg text-center'
+              variant='primary'
+              size='lg'
             >
               立即体验
-            </a>
-            <a
-              href='#contact'
-              className='border-2 border-primary-500 text-primary-500 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-primary-500 hover:text-white transition-all duration-300 text-center'
+            </Button>
+            <Button
+              as='a'
+              href='/contact'
+              variant='secondary'
+              size='lg'
             >
               联系我们
-            </a>
+            </Button>
           </div>
 
-          <div className='mt-12'>
-            <p className='text-sm text-gray-500 mb-4'>
+          {/* 统计数据 */}
+          <div className='border-t border-gray-200 pt-12'>
+            <p className='text-sm text-gray-500 mb-8'>
               已有 10,000+ 用户选择智投简历
             </p>
-            <div className='flex justify-center space-x-8 opacity-60'>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto'>
               <div className='text-center'>
-                <div className='text-2xl font-bold text-primary-500'>95%</div>
+                <div className='text-4xl font-bold text-blue-600 mb-2'>95%</div>
                 <div className='text-sm text-gray-600'>投递成功率</div>
               </div>
               <div className='text-center'>
-                <div className='text-2xl font-bold text-secondary-500'>3倍</div>
+                <div className='text-4xl font-bold text-blue-600 mb-2'>3倍</div>
                 <div className='text-sm text-gray-600'>效率提升</div>
               </div>
               <div className='text-center'>
-                <div className='text-2xl font-bold text-accent-green'>24h</div>
+                <div className='text-4xl font-bold text-blue-600 mb-2'>24h</div>
                 <div className='text-sm text-gray-600'>快速响应</div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 };

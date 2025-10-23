@@ -129,6 +129,14 @@ public class UserAuditService {
     }
 
     /**
+     * 记录用户登出（仅userId版本）
+     */
+    public void logLogout(Long userId, String reason) {
+        logSuccess(userId, "unknown", ActionType.LOGOUT,
+                  reason, "unknown", "unknown", "/api/auth/logout");
+    }
+
+    /**
      * 记录密码重置
      */
     public void logPasswordReset(User user, String ipAddress, String userAgent) {

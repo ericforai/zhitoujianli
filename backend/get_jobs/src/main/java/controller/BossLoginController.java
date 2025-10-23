@@ -227,6 +227,39 @@ public class BossLoginController {
     }
 
     /**
+     * 检查Boss登录状态（Cookie有效性）
+     * 用于系统启动时自动检查用户是否已登录Boss
+     */
+    @GetMapping("/check-status")
+    public ResponseEntity<Map<String, Object>> checkBossLoginStatus() {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // 获取当前用户ID
+            String userId = util.UserContextUtil.getCurrentUserId();
+            log.info("检查用户{}的Boss登录状态", userId);
+
+            // 检查Cookie文件是否存在且有效
+            boolean isLoggedIn = checkCookieValidity(userId);
+
+            response.put("success", true);
+            response.put("isLoggedIn", isLoggedIn);
+            response.put("userId", userId);
+            response.put("message", isLoggedIn ? "已登录Boss" : "需要扫码登录Boss");
+
+            log.info("用户{}的Boss登录状态: {}", userId, isLoggedIn ? "已登录" : "未登录");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("检查Boss登录状态失败", e);
+            response.put("success", false);
+            response.put("isLoggedIn", false);
+            response.put("message", "检查登录状态失败");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    /**
      * 检查登录状态
      * 返回当前登录进度
      */
@@ -323,6 +356,66 @@ public class BossLoginController {
      */
     private void cleanupLoginFiles() {
         cleanupLoginFiles("default_user");
+    }
+
+    /**
+     * 检查Cookie有效性
+     * @param userId 用户ID
+     * @return true如果Cookie有效，false如果无效或不存在
+     */
+    private boolean checkCookieValidity(String userId) {
+        try {
+            // 获取可能的Cookie文件路径
+            String[] possiblePaths;
+            String sanitizedUserId = util.UserContextUtil.sanitizeUserId(userId);
+
+            if ("default_user".equals(sanitizedUserId)) {
+                // 默认用户：使用统一路径
+                possiblePaths = new String[]{
+                    "/tmp/boss_cookies.json",  // 新的统一路径（第一优先级）
+                    "src/main/java/boss/cookie.json",  // 开发环境（fallback）
+                    "/root/zhitoujianli/backend/get_jobs/src/main/java/boss/cookie.json",  // 生产环境（fallback）
+                    "/opt/zhitoujianli/backend/src/main/java/boss/cookie.json"  // 备用路径（fallback）
+                };
+            } else {
+                // 多用户模式：优先检查用户特定的Cookie文件，但也要检查default_user的cookie
+                // 因为Boss程序可能使用default_user保存cookie，即使有认证用户
+                possiblePaths = new String[]{
+                    "/tmp/boss_cookies_" + sanitizedUserId + ".json",  // 用户特定Cookie（第一优先级）
+                    "/tmp/boss_cookies_default_user.json", // 检查default_user的cookie（新增）
+                    "/tmp/boss_cookies.json",  // 默认Cookie（fallback）
+                    "user_data/" + sanitizedUserId + "/boss_cookie.json"  // 用户数据目录（fallback）
+                };
+            }
+
+            // 检查每个可能的路径
+            for (String path : possiblePaths) {
+                File cookieFile = new File(path);
+                if (cookieFile.exists() && cookieFile.length() > 0) {
+                    log.info("找到Cookie文件: {} ({}KB)", path, cookieFile.length() / 1024);
+
+                    // 检查Cookie文件内容是否有效
+                    try {
+                        String content = new String(Files.readAllBytes(cookieFile.toPath()));
+                        if (content.trim().length() > 0 && !content.trim().equals("[]")) {
+                            log.info("Cookie文件内容有效，用户{}已登录Boss", userId);
+                            return true;
+                        } else {
+                            log.warn("Cookie文件为空或无效: {}", path);
+                        }
+                    } catch (Exception e) {
+                        log.warn("读取Cookie文件失败: {}", path, e);
+                    }
+                }
+            }
+
+            log.info("未找到有效的Cookie文件，用户{}需要登录Boss", userId);
+            return false;
+
+        } catch (Exception e) {
+            log.error("检查Cookie有效性失败", e);
+            return false;
+        }
     }
 
     /**

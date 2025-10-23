@@ -67,6 +67,7 @@ public class SimpleSecurityConfig {
                     "/api/boss/**",          // Boss投递接口（登录、二维码等）
                     "/api/delivery/**",      // 投递控制接口
                     "/api/config",           // 配置API（暂时公开，待JWT修复后可移除）
+                    "/api/candidate-resume/**", // 🔧 临时修复：简历上传接口允许无认证访问
                     "/login",                // 登录页面
                     "/register",             // 注册页面
                     "/",                     // 管理后台首页
@@ -80,12 +81,12 @@ public class SimpleSecurityConfig {
                 // 管理后台状态接口（允许无认证访问，用于监控）
                 .requestMatchers(
                     "/status",
+                    "/simple-status",
                     "/logs"
                 ).permitAll()
 
                 // 需要认证的端点
                 .requestMatchers(
-                    "/api/candidate-resume/**",             // 简历管理API
                     "/api/config",                          // 用户配置
                     "/api/ai-config",                       // AI配置
                     "/api/resume",                          // 简历

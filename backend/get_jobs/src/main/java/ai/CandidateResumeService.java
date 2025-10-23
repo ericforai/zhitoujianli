@@ -222,6 +222,24 @@ public class CandidateResumeService {
     }
 
     /**
+     * 获取默认打招呼语（带用户ID参数）
+     */
+    public static String getDefaultGreeting(String userId) throws Exception {
+        File greetingFile = new File("user_data/" + userId + "/default_greeting.json");
+
+        if (!greetingFile.exists()) {
+            log.warn("⚠️  用户未设置默认打招呼语: {}", userId);
+            return null;
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> greetingData = mapper.readValue(greetingFile, Map.class);
+
+        return (String) greetingData.get("greeting");
+    }
+
+    /**
      * 检查是否已上传简历（用户隔离）
      */
     public static boolean hasCandidateResume() {

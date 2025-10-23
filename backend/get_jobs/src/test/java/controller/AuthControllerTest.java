@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import service.EmailService;
 import service.VerificationCodeService;
 import service.UserService;
+import repository.UserRepository;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -62,6 +63,9 @@ public class AuthControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private UserRepository userRepository;
 
     @MockBean
     private MailConfig mailConfig;
@@ -224,8 +228,8 @@ public class AuthControllerTest {
         request.put("password", "Test1234");
         request.put("username", "testuser");
 
-        // Mock用户服务返回已存在
-        when(userService.existsByEmail("existing@example.com")).thenReturn(true);
+        // Mock用户仓库返回已存在
+        when(userRepository.existsByEmail("existing@example.com")).thenReturn(true);
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -350,8 +354,9 @@ public class AuthControllerTest {
         request.put("password", "MySecretPassword123");
         request.put("username", "testuser");
 
-        when(userService.existsByEmail(anyString())).thenReturn(false);
-        when(verificationCodeService.verifyCode(anyString(), anyString())).thenReturn(true);
+        when(userRepository.existsByEmail(anyString())).thenReturn(false);
+        when(verificationCodeService.verifyCode(anyString(), anyString()))
+                .thenReturn(VerificationCodeService.VerificationResult.SUCCESS);
 
         MvcResult result = mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -376,7 +381,8 @@ public class AuthControllerTest {
         request.put("code", "000000");
 
         // Mock验证码验证失败
-        when(verificationCodeService.verifyCode(anyString(), anyString())).thenReturn(false);
+        when(verificationCodeService.verifyCode(anyString(), anyString()))
+                .thenReturn(VerificationCodeService.VerificationResult.INVALID);
 
         // 连续10次错误尝试
         for (int i = 0; i < 10; i++) {
@@ -406,5 +412,8 @@ public class AuthControllerTest {
         System.out.println("✅ 健康检查通过");
     }
 }
+
+
+
 
 

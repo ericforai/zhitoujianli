@@ -15,6 +15,8 @@ alwaysApply: true
 3. 考虑安全性、性能和可维护性
 4. 提供高质量的代码建议
 5. 包含完整的错误处理和类型定义
+6. 不要使用默认用户default_user
+7. 系统安全认证永远处于启动用状态 (SECURITY_ENABLED=true)
 
 ## 📋 项目概览
 

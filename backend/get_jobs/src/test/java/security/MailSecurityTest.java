@@ -41,7 +41,6 @@ public class MailSecurityTest {
 
     @Test
     @DisplayName("测试用例: 开发环境允许演示模式")
-    @ActiveProfiles("dev")
     void testDevelopmentEnvironment_AllowsDemoMode() {
         // 在开发环境，即使邮件未配置，演示模式也应该允许
         boolean isDemoAllowed = mailConfig.isDemoModeAllowed();
@@ -57,7 +56,6 @@ public class MailSecurityTest {
 
     @Test
     @DisplayName("测试用例: 测试环境允许演示模式")
-    @ActiveProfiles("test")
     void testTestEnvironment_AllowsDemoMode() {
         boolean isDemoAllowed = mailConfig.isDemoModeAllowed();
 
@@ -69,7 +67,6 @@ public class MailSecurityTest {
 
     @Test
     @DisplayName("测试用例: 生产环境禁用演示模式")
-    @ActiveProfiles("production")
     void testProductionEnvironment_DisablesDemoMode() {
         // 在生产环境，应该禁用演示模式
         boolean isDemoAllowed = mailConfig.isDemoModeAllowed();
@@ -192,5 +189,8 @@ public class MailSecurityTest {
         System.out.println("==========================================\n");
     }
 }
+
+
+
 
 

@@ -85,17 +85,20 @@ public class AutoDeliveryController {
                     "/opt/zhitoujianli/backend/src/main/java/boss/cookie.json"  // 备用路径（fallback）
                 };
             } else {
-                // 多用户模式：优先检查用户特定的Cookie文件
+                // 多用户模式：优先检查用户特定的Cookie文件，但也要检查default_user的cookie
+                // 因为Boss程序可能使用default_user保存cookie
                 possiblePaths = new String[]{
                     "/tmp/boss_cookies_" + userId + ".json",  // 用户特定Cookie（第一优先级）
-                    "/tmp/boss_cookies.json",  // 默认Cookie（fallback）
-                    "user_data/" + userId + "/boss_cookie.json"  // 用户数据目录（fallback）
+                    "/tmp/boss_cookies_default_user.json",    // default_user的Cookie（第二优先级）
+                    "/tmp/boss_cookies.json",                 // 默认Cookie（第三优先级）
+                    "user_data/" + userId + "/boss_cookie.json"  // 用户数据目录（第四优先级）
                 };
             }
 
             File cookieFile = null;
             for (String path : possiblePaths) {
                 File tempFile = new File(path);
+                log.info("检查cookie文件路径: {} (存在: {})", tempFile.getAbsolutePath(), tempFile.exists());
                 if (tempFile.exists()) {
                     cookieFile = tempFile;
                     log.info("✅ 找到用户{}的cookie文件: {} (存在: {})", userId, tempFile.getAbsolutePath(), tempFile.exists());
@@ -152,18 +155,70 @@ public class AutoDeliveryController {
     @PostMapping("/stop")
     public ResponseEntity<ApiResponse<Map<String, Object>>> stopDelivery() {
         try {
+            // 获取当前用户ID
+            String userId = UserContextUtil.getCurrentUserId();
+            log.info("用户 {} 请求停止自动投递", userId);
+
+            // 1. 设置状态为停止
             isRunning = false;
+
+            // 2. 实际停止Boss进程
+            boolean processStopped = stopBossProcess(userId);
+
             Map<String, Object> data = new HashMap<>();
             data.put("status", "stopped");
-            data.put("message", "自动投递已停止");
+            data.put("message", processStopped ? "自动投递已停止" : "状态已更新，但进程可能仍在运行");
             data.put("stopTime", System.currentTimeMillis());
+            data.put("processStopped", processStopped);
 
-            log.info("✅ 自动投递已停止");
+            log.info("✅ 自动投递已停止，进程停止状态: {}", processStopped);
             return ResponseEntity.ok(ApiResponse.success(data, "停止成功"));
         } catch (Exception e) {
             log.error("停止自动投递失败", e);
             return ResponseEntity.status(500)
                 .body(ApiResponse.error("停止失败: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * 停止Boss进程
+     * @param userId 用户ID
+     * @return true如果成功停止进程，false如果进程不存在或停止失败
+     */
+    private boolean stopBossProcess(String userId) {
+        try {
+            // 使用pkill命令停止Boss进程
+            ProcessBuilder pb = new ProcessBuilder("pkill", "-f", "boss.IsolatedBossRunner");
+            Process process = pb.start();
+
+            int exitCode = process.waitFor();
+            log.info("停止Boss进程命令执行完成，退出码: {}", exitCode);
+
+            // 等待2秒让进程完全停止
+            Thread.sleep(2000);
+
+            // 验证进程是否已停止
+            ProcessBuilder checkPb = new ProcessBuilder("ps", "aux");
+            Process checkProcess = checkPb.start();
+
+            try (java.io.BufferedReader reader = new java.io.BufferedReader(
+                    new java.io.InputStreamReader(checkProcess.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.contains("boss.IsolatedBossRunner") &&
+                        !line.contains("grep")) {
+                        log.warn("Boss进程仍在运行: {}", line);
+                        return false;
+                    }
+                }
+            }
+
+            log.info("✅ Boss进程已成功停止");
+            return true;
+
+        } catch (Exception e) {
+            log.error("停止Boss进程失败", e);
+            return false;
         }
     }
 

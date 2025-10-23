@@ -239,35 +239,47 @@ public class CandidateResumeController {
             // ✅ 同时更新config.json中的boss.sayHi字段
             try {
                 String userId = UserContextUtil.getCurrentUserId();
+                log.info("【默认打招呼语】当前用户ID: {}", userId);
 
-                // 更新两个位置的配置文件
-                String[] configPaths = {
-                    "user_data/" + userId + "/config.json",  // 应用程序工作目录
-                    "/root/zhitoujianli/backend/get_jobs/user_data/" + userId + "/config.json"  // 开发目录
+                // 支持多种用户ID格式的配置文件路径
+                String[] possibleUserIds = {
+                    userId,  // 原始格式
+                    userId.replace("@", "_").replace(".", "_"),  // 安全格式
+                    userId.replace("_", "@")  // 邮箱格式
                 };
 
-                for (String configPath : configPaths) {
-                    File configFile = new File(configPath);
+                for (String testUserId : possibleUserIds) {
+                    // 更新两个位置的配置文件
+                    String[] configPaths = {
+                        "user_data/" + testUserId + "/config.json",  // 应用程序工作目录
+                        "/root/zhitoujianli/backend/get_jobs/user_data/" + testUserId + "/config.json"  // 开发目录
+                    };
 
-                    if (configFile.exists()) {
-                        ObjectMapper mapper = new ObjectMapper();
-                        Map<String, Object> config = mapper.readValue(configFile, Map.class);
+                    for (String configPath : configPaths) {
+                        File configFile = new File(configPath);
 
-                        // 确保boss字段存在
-                        Map<String, Object> boss = (Map<String, Object>) config.get("boss");
-                        if (boss == null) {
-                            boss = new HashMap<>();
-                            config.put("boss", boss);
+                        if (configFile.exists()) {
+                            log.info("【默认打招呼语】找到配置文件: {}", configPath);
+
+                            ObjectMapper mapper = new ObjectMapper();
+                            Map<String, Object> config = mapper.readValue(configFile, Map.class);
+
+                            // 确保boss字段存在
+                            Map<String, Object> boss = (Map<String, Object>) config.get("boss");
+                            if (boss == null) {
+                                boss = new HashMap<>();
+                                config.put("boss", boss);
+                            }
+
+                            // 更新sayHi字段
+                            boss.put("sayHi", greeting);
+
+                            // 保存回文件
+                            mapper.writerWithDefaultPrettyPrinter().writeValue(configFile, config);
+                            log.info("✅ 【默认打招呼语】已更新到Boss配置: {} -> boss.sayHi", configPath);
+                        } else {
+                            log.debug("【默认打招呼语】配置文件不存在: {}", configPath);
                         }
-
-                        // 更新sayHi字段
-                        boss.put("sayHi", greeting);
-
-                        // 保存回文件
-                        mapper.writerWithDefaultPrettyPrinter().writeValue(configFile, config);
-                        log.info("【默认打招呼语】已更新到Boss配置: {} -> boss.sayHi", configPath);
-                    } else {
-                        log.warn("【默认打招呼语】配置文件不存在，跳过: {}", configPath);
                     }
                 }
             } catch (Exception configException) {
@@ -287,6 +299,31 @@ public class CandidateResumeController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", "保存失败: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    /**
+     * 获取默认打招呼语
+     */
+    @GetMapping("/get-default-greeting")
+    public ResponseEntity<Map<String, Object>> getDefaultGreeting() {
+        try {
+            String userId = UserContextUtil.getCurrentUserId();
+            String greeting = CandidateResumeService.getDefaultGreeting(userId);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("greeting", greeting != null ? greeting : "");
+
+            log.info("【默认打招呼语】获取成功，用户: {}", userId);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("【默认打招呼语】获取失败", e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "获取失败: " + e.getMessage());
             return ResponseEntity.status(500).body(response);
         }
     }

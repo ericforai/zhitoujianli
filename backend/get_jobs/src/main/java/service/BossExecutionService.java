@@ -37,12 +37,18 @@ public class BossExecutionService {
      * @param headless 是否使用无头模式
      */
     public CompletableFuture<Void> executeBossProgram(String logFilePath, boolean headless) {
+        // 在异步执行前获取用户ID和SecurityContext，避免在异步线程中SecurityContext丢失
+        final String userId = util.UserContextUtil.sanitizeUserId(util.UserContextUtil.getCurrentUserId());
+        final org.springframework.security.core.context.SecurityContext securityContext =
+            org.springframework.security.core.context.SecurityContextHolder.getContext();
+
         return CompletableFuture.runAsync(() -> {
+            // 在异步线程中恢复SecurityContext
+            org.springframework.security.core.context.SecurityContextHolder.setContext(securityContext);
+
             Process process = null;
             try {
-                // 获取当前用户ID（支持多用户隔离）
-                String userId = util.UserContextUtil.getCurrentUserId();
-                userId = util.UserContextUtil.sanitizeUserId(userId);
+                // 使用预先获取的用户ID（支持多用户隔离）
 
                 log.info("开始执行Boss程序，用户: {}, 隔离执行环境，头模式: {}", userId, headless ? "无头" : "有头");
 
@@ -54,12 +60,12 @@ public class BossExecutionService {
 
                     writeLogHeader(logWriter);
 
-                    // 创建独立的Boss进程
-                    ProcessBuilder pb = createIsolatedBossProcess(headless);
+                // 创建独立的Boss进程（传递用户ID以支持多用户隔离）
+                ProcessBuilder pb = createIsolatedBossProcess(userId, headless);
 
-                    // 为Boss程序设置用户ID环境变量（多用户支持）
-                    pb.environment().put("BOSS_USER_ID", userId);
-                    log.info("📋 已设置Boss程序环境变量: BOSS_USER_ID={}", userId);
+                // 为Boss程序设置用户ID环境变量（多用户支持）
+                pb.environment().put("BOSS_USER_ID", userId);
+                log.info("📋 已设置Boss程序环境变量: BOSS_USER_ID={}", userId);
 
                     logWriter.write(formatTimestamp() + " - 启动独立Boss进程（用户: " + userId + "）...%n");
                     logWriter.flush();
@@ -121,9 +127,10 @@ public class BossExecutionService {
 
     /**
      * 创建完全隔离的Boss进程
+     * @param userId 用户ID（支持多用户隔离）
      * @param headless 是否使用无头模式
      */
-    private ProcessBuilder createIsolatedBossProcess(boolean headless) throws IOException {
+    private ProcessBuilder createIsolatedBossProcess(String userId, boolean headless) throws IOException {
         String javaHome = System.getProperty("java.home");
         String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
 
@@ -140,7 +147,7 @@ public class BossExecutionService {
             "-Djava.awt.headless=" + headless, // 动态头模式
             "-Dfile.encoding=UTF-8",   // 设置文件编码
             "-Dsun.java.command=boss.IsolatedBossRunner", // 设置主类
-            "-Dboss.user.id=default_user", // 传递用户ID给Boss程序
+            "-Dboss.user.id=" + userId, // 🔧 修复：使用动态用户ID支持多用户隔离
             "-cp", fullClasspath,      // 设置classpath
             "boss.IsolatedBossRunner"               // Boss隔离运行器
         };

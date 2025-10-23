@@ -30,16 +30,41 @@ export const resumeService = {
    * 检查简历是否存在
    */
   checkResume: async (): Promise<ApiResponse<{ hasResume: boolean }>> => {
-    const response = await apiClient.get('/api/resume/check');
-    return response.data;
+    const response = await apiClient.get('/api/candidate-resume/check');
+    // 后端返回 {success: true, hasResume: boolean} 格式
+    const backendData = response.data;
+    return {
+      code: backendData.success ? 200 : 400,
+      message: backendData.success ? '检查成功' : '检查失败',
+      data: { hasResume: backendData.hasResume },
+      timestamp: Date.now(),
+    };
   },
 
   /**
    * 获取简历信息
    */
   getResumeInfo: async (): Promise<ApiResponse<ResumeInfo>> => {
-    const response = await apiClient.get('/api/resume/info');
-    return response.data;
+    const response = await apiClient.get('/api/candidate-resume/load');
+    // 后端返回 {success: true, data: candidate} 格式
+    const backendData = response.data;
+    if (backendData.success && backendData.data) {
+      // 转换后端数据格式为前端期望格式
+      const convertedData = convertBackendResumeToFrontend(backendData.data);
+      return {
+        code: 200,
+        message: '获取成功',
+        data: convertedData,
+        timestamp: Date.now(),
+      };
+    } else {
+      return {
+        code: 400,
+        message: backendData.message || '未找到简历文件',
+        data: null as any,
+        timestamp: Date.now(),
+      };
+    }
   },
 
   /**
@@ -49,7 +74,7 @@ export const resumeService = {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await apiClient.post('/api/resume/upload', formData, {
+    const response = await apiClient.post('/api/candidate-resume/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -61,17 +86,54 @@ export const resumeService = {
       },
     });
 
-    return response.data;
+    // 后端返回 {success: true, data: candidate, message: string} 格式
+    const backendData = response.data;
+    if (backendData.success && backendData.data) {
+      // 转换后端数据格式为前端期望格式
+      const convertedData = convertBackendResumeToFrontend(backendData.data);
+      return {
+        code: 200,
+        message: backendData.message || '上传成功',
+        data: convertedData,
+        timestamp: Date.now(),
+      };
+    } else {
+      return {
+        code: 400,
+        message: backendData.message || '上传失败',
+        data: null as any,
+        timestamp: Date.now(),
+      };
+    }
   },
 
   /**
    * 解析简历文本
    */
   parseResume: async (resumeText: string): Promise<ApiResponse<ResumeInfo>> => {
-    const response = await apiClient.post('/api/resume/parse', {
+    const response = await apiClient.post('/api/candidate-resume/parse', {
       resume_text: resumeText,
     });
-    return response.data;
+
+    // 后端返回 {success: true, data: candidate, message: string} 格式
+    const backendData = response.data;
+    if (backendData.success && backendData.data) {
+      // 转换后端数据格式为前端期望格式
+      const convertedData = convertBackendResumeToFrontend(backendData.data);
+      return {
+        code: 200,
+        message: backendData.message || '解析成功',
+        data: convertedData,
+        timestamp: Date.now(),
+      };
+    } else {
+      return {
+        code: 400,
+        message: backendData.message || '解析失败',
+        data: null as any,
+        timestamp: Date.now(),
+      };
+    }
   },
 
   /**
@@ -94,7 +156,14 @@ export const resumeService = {
    */
   deleteResume: async (): Promise<ApiResponse<void>> => {
     const response = await apiClient.post('/api/candidate-resume/delete');
-    return response.data;
+    // 后端返回 {success: true, message: string} 格式
+    const backendData = response.data;
+    return {
+      code: backendData.success ? 200 : 400,
+      message: backendData.message || (backendData.success ? '删除成功' : '删除失败'),
+      data: undefined,
+      timestamp: Date.now(),
+    };
   },
 
   /**
@@ -172,3 +241,48 @@ export const resumeService = {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   },
 };
+
+/**
+ * 转换后端简历数据格式为前端期望格式
+ * 后端格式: {name, current_title, years_experience, skills, core_strengths, education, company, confidence}
+ * 前端格式: ResumeInfo
+ */
+function convertBackendResumeToFrontend(backendData: any): ResumeInfo {
+  const now = Date.now();
+
+  return {
+    id: `resume_${now}`, // 生成临时ID
+    name: backendData.name || '',
+    currentTitle: backendData.current_title || '',
+    yearsExperience: backendData.years_experience || 0,
+    education: backendData.education || '',
+    phone: '', // 后端暂未提供
+    email: '', // 后端暂未提供
+    skills: backendData.skills || [],
+    coreStrengths: backendData.core_strengths || [],
+    workExperience: backendData.company || '', // 使用company字段
+    projects: [], // 后端暂未提供
+    confidence: {
+      name: backendData.confidence?.name || 0,
+      skills: backendData.confidence?.skills || 0,
+      experience: backendData.confidence?.experience || 0,
+      overall: calculateOverallConfidence(backendData.confidence),
+    },
+    filePath: '', // 后端暂未提供
+    originalText: '', // 后端暂未提供
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+/**
+ * 计算总体置信度
+ */
+function calculateOverallConfidence(confidence: any): number {
+  if (!confidence) return 0;
+
+  const scores = [confidence.name, confidence.skills, confidence.experience].filter(score => score > 0);
+  if (scores.length === 0) return 0;
+
+  return scores.reduce((sum, score) => sum + score, 0) / scores.length;
+}

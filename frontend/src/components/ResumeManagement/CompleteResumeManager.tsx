@@ -6,11 +6,11 @@
  * @since 2025-10-11
  */
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  ResumeParseResult,
-  aiGreetingService,
-  aiResumeService,
+    ResumeParseResult,
+    aiGreetingService,
+    aiResumeService,
 } from '../../services/aiService';
 
 interface CompleteResumeManagerProps {
@@ -30,6 +30,56 @@ const CompleteResumeManager: React.FC<CompleteResumeManagerProps> = ({
   const [resumeText, setResumeText] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 清除消息
+  const clearMessage = () => {
+    setSuccessMessage(null);
+    setError(null);
+  };
+
+  // 自动清除消息
+  useEffect(() => {
+    if (successMessage || error) {
+      const timer = setTimeout(() => {
+        setSuccessMessage(null);
+        setError(null);
+      }, 3000); // 3秒后自动消失
+
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage, error]);
+
+  // 加载已保存的默认招呼语
+  useEffect(() => {
+    console.log('🔄 CompleteResumeManager组件已挂载，开始加载已保存的默认招呼语...');
+
+    const loadSavedGreeting = async () => {
+      try {
+        console.log('📡 正在请求后端API: /api/candidate-resume/get-default-greeting');
+        const savedGreeting = await aiGreetingService.getDefaultGreeting();
+        console.log('📥 后端返回招呼语:', savedGreeting);
+
+        if (savedGreeting) {
+          console.log('🔄 准备设置默认招呼语状态，当前状态:', defaultGreeting);
+          setDefaultGreeting(savedGreeting);
+          console.log('✅ 已加载保存的默认招呼语:', savedGreeting);
+          console.log('🔄 状态设置完成，新状态:', savedGreeting);
+        } else {
+          console.log('⚠️ 后端返回的招呼语为空');
+        }
+      } catch (error) {
+        console.error('❌ 加载默认招呼语失败:', error);
+        console.log('未找到已保存的默认招呼语');
+      }
+    };
+
+    loadSavedGreeting();
+  }, []);
+
+  // 🔍 监控默认招呼语状态变化
+  useEffect(() => {
+    console.log('🔄 默认招呼语状态发生变化:', defaultGreeting);
+  }, [defaultGreeting]);
 
   /**
    * 处理文件上传
@@ -143,6 +193,18 @@ const CompleteResumeManager: React.FC<CompleteResumeManagerProps> = ({
       console.log('✅ 默认打招呼语生成成功:', greeting);
 
       setDefaultGreeting(greeting);
+
+      // 🔧 自动保存生成的默认招呼语
+      if (greeting && greeting.trim()) {
+        try {
+          console.log('💾 自动保存默认打招呼语到后端');
+          await aiGreetingService.saveDefaultGreeting(greeting);
+          console.log('✅ 默认打招呼语已自动保存');
+        } catch (saveError: any) {
+          console.error('❌ 自动保存失败:', saveError);
+          // 自动保存失败不影响生成流程，只记录日志
+        }
+      }
     } catch (error: any) {
       console.error('❌ 默认打招呼语生成失败:', error);
       setError(`默认打招呼语生成失败: ${error.message || '未知错误'}`);
@@ -163,7 +225,7 @@ const CompleteResumeManager: React.FC<CompleteResumeManagerProps> = ({
 
     try {
       await generateDefaultGreeting(resumeInfo);
-      setSuccessMessage('默认打招呼语重新生成成功！');
+      setSuccessMessage('默认打招呼语重新生成并保存成功！');
     } catch (error: any) {
       console.error('❌ 重新生成失败:', error);
       setError(`重新生成失败: ${error.message || '未知错误'}`);
@@ -236,6 +298,33 @@ const CompleteResumeManager: React.FC<CompleteResumeManagerProps> = ({
 
   return (
     <div className='space-y-6'>
+      {/* Toast 通知 - 固定位置 */}
+      {(successMessage || error) && (
+        <div className="fixed top-20 right-4 z-50 max-w-sm">
+          <div className={`p-4 rounded-lg shadow-lg border flex items-center justify-between ${
+            successMessage
+              ? 'bg-green-50 text-green-800 border-green-200'
+              : 'bg-red-50 text-red-800 border-red-200'
+          }`}>
+            <div className="flex items-center">
+              <div className={`mr-3 text-lg ${
+                successMessage ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {successMessage ? '✅' : '❌'}
+              </div>
+              <span className="font-medium">{successMessage || error}</span>
+            </div>
+            <button
+              onClick={clearMessage}
+              className="ml-4 text-gray-400 hover:text-gray-600 text-lg"
+              title="关闭"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 页面标题 */}
       <div className='flex items-center justify-between'>
         <div>
@@ -264,56 +353,6 @@ const CompleteResumeManager: React.FC<CompleteResumeManagerProps> = ({
           返回主页
         </button>
       </div>
-
-      {/* 成功消息 */}
-      {successMessage && (
-        <div className='bg-green-50 border border-green-200 rounded-md p-4'>
-          <div className='flex'>
-            <div className='flex-shrink-0'>
-              <svg
-                className='h-5 w-5 text-green-400'
-                fill='currentColor'
-                viewBox='0 0 20 20'
-              >
-                <path
-                  fillRule='evenodd'
-                  d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                  clipRule='evenodd'
-                />
-              </svg>
-            </div>
-            <div className='ml-3'>
-              <p className='text-sm font-medium text-green-800'>
-                {successMessage}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 错误消息 */}
-      {error && (
-        <div className='bg-red-50 border border-red-200 rounded-md p-4'>
-          <div className='flex'>
-            <div className='flex-shrink-0'>
-              <svg
-                className='h-5 w-5 text-red-400'
-                fill='currentColor'
-                viewBox='0 0 20 20'
-              >
-                <path
-                  fillRule='evenodd'
-                  d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z'
-                  clipRule='evenodd'
-                />
-              </svg>
-            </div>
-            <div className='ml-3'>
-              <p className='text-sm font-medium text-red-800'>{error}</p>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 加载状态 */}
       {loading && (
@@ -539,7 +578,7 @@ const CompleteResumeManager: React.FC<CompleteResumeManagerProps> = ({
       )}
 
       {/* AI生成的默认打招呼语 */}
-      {resumeInfo && (
+      {(resumeInfo || defaultGreeting) && (
         <div className='bg-white rounded-lg shadow-sm border border-gray-200 p-6'>
           <h4 className='text-xl font-semibold text-gray-900 mb-4'>
             AI生成的默认打招呼语

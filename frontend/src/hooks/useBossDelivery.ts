@@ -96,10 +96,19 @@ export const useBossDelivery = () => {
       const result = await response.json();
       if (result.success) {
         setMessage('Boss投递任务已停止');
-        // 立即刷新状态
+
+        // 立即更新本地状态为停止
+        setStatus(prev => ({ ...prev, isRunning: false }));
+
+        // 立即刷新状态（双重保险）
         setTimeout(() => {
           fetchStatus();
-        }, 1000);
+        }, 500);
+
+        // 再次刷新确保状态同步
+        setTimeout(() => {
+          fetchStatus();
+        }, 2000);
       } else {
         setMessage(`停止失败: ${result.message}`);
       }
@@ -129,3 +138,5 @@ export const useBossDelivery = () => {
     handleStop,
   };
 };
+
+

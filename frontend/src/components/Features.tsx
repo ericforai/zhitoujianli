@@ -1,11 +1,12 @@
-import React from 'react';
+import Card from './common/Card';
+import Container from './common/Container';
 
 const Features = () => {
   const features = [
     {
       icon: (
         <svg
-          className='w-12 h-12 text-primary-500'
+          className='w-12 h-12 text-blue-600'
           fill='none'
           stroke='currentColor'
           viewBox='0 0 24 24'
@@ -24,7 +25,7 @@ const Features = () => {
     {
       icon: (
         <svg
-          className='w-12 h-12 text-secondary-500'
+          className='w-12 h-12 text-blue-600'
           fill='none'
           stroke='currentColor'
           viewBox='0 0 24 24'
@@ -43,7 +44,7 @@ const Features = () => {
     {
       icon: (
         <svg
-          className='w-12 h-12 text-accent-blue'
+          className='w-12 h-12 text-blue-600'
           fill='none'
           stroke='currentColor'
           viewBox='0 0 24 24'
@@ -62,10 +63,10 @@ const Features = () => {
   ];
 
   return (
-    <section id='features' className='py-20 bg-white'>
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+    <section id='features' className='py-20 bg-gray-50'>
+      <Container size='xl'>
         <div className='text-center mb-16'>
-          <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4 font-chinese'>
+          <h2 className='text-4xl font-bold text-gray-900 mb-4'>
             三大核心功能
           </h2>
           <p className='text-xl text-gray-600 max-w-2xl mx-auto'>
@@ -75,19 +76,18 @@ const Features = () => {
 
         <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
           {features.map((feature, index) => (
-            <div
-              key={index}
-              className='text-center p-8 rounded-xl hover:shadow-lg transition-shadow duration-300'
-            >
-              <div className='flex justify-center mb-6'>{feature.icon}</div>
-              <h3 className='text-xl font-semibold text-gray-900 mb-4 font-chinese'>
-                {feature.title}
-              </h3>
-              <p className='text-gray-600'>{feature.description}</p>
-            </div>
+            <Card key={index} hover padding='lg'>
+              <div className='text-center'>
+                <div className='flex justify-center mb-6'>{feature.icon}</div>
+                <h3 className='text-xl font-semibold text-gray-900 mb-4'>
+                  {feature.title}
+                </h3>
+                <p className='text-gray-600 leading-relaxed'>{feature.description}</p>
+              </div>
+            </Card>
           ))}
         </div>
-      </div>
+      </Container>
     </section>
   );
 };

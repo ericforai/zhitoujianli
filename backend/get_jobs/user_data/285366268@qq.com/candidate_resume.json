@@ -1,0 +1,14 @@
+{
+  "skills" : [ "API集成", "智能客服", "开放平台应用", "Agent场景设计", "客户成功", "团队管理" ],
+  "core_strengths" : [ "连续5年销售目标达成率超120%", "设计销服一体降本60%", "搭建AI客服提升效率200%", "带领团队人均效能提升200%", "客户续费率提升至98%" ],
+  "education" : null,
+  "years_experience" : 6,
+  "confidence" : {
+    "skills" : 0.9,
+    "name" : 0.95,
+    "experience" : 0.85
+  },
+  "name" : "夏开福",
+  "company" : "上海亘岩网络科技有限公司",
+  "current_title" : "销售总监"
+}

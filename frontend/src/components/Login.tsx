@@ -11,6 +11,9 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import logger from '../utils/logger';
+import Button from './common/Button';
+import Card from './common/Card';
+import Container from './common/Container';
 import './Login.css';
 
 const loginLogger = logger.createChild('Login');
@@ -56,17 +59,16 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8'>
-      <div className='max-w-md w-full space-y-8'>
+    <div className='min-h-screen flex items-center justify-center bg-gray-50 py-12'>
+      <Container size='lg'>
         {/* Logo和标题 */}
-        <div className='text-center'>
-          <h1 className='text-4xl font-bold text-gray-900'>智投简历</h1>
-          <p className='mt-2 text-sm text-gray-600'>智能化求职投递平台</p>
+        <div className='text-center mb-8'>
+          <h1 className='text-4xl font-bold text-gray-900 mb-2'>智投简历</h1>
+          <p className='text-gray-600'>智能化求职投递平台</p>
         </div>
 
         {/* 登录卡片 */}
-        <div className='bg-white rounded-lg shadow-lg p-8'>
-          {/* 登录标题 */}
+        <Card padding='lg' className='max-w-xl mx-auto w-full sm:w-auto'>
           <div className='text-center mb-6'>
             <h2 className='text-2xl font-bold text-gray-900'>邮箱登录</h2>
           </div>
@@ -86,11 +88,11 @@ const Login: React.FC = () => {
           )}
 
           {/* 邮箱登录表单 */}
-          <form onSubmit={handleEmailLogin} className='space-y-4'>
+          <form onSubmit={handleEmailLogin} className='space-y-6 max-w-md mx-auto'>
             <div>
               <label
                 htmlFor='email'
-                className='block text-sm font-medium text-gray-700 mb-1'
+                className='block text-sm font-medium text-gray-700 mb-2'
               >
                 邮箱地址
               </label>
@@ -100,7 +102,7 @@ const Login: React.FC = () => {
                 required
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
+                className='w-full px-4 py-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-base min-h-[48px] sm:min-h-[52px]'
                 placeholder='your@email.com'
               />
             </div>
@@ -108,7 +110,7 @@ const Login: React.FC = () => {
             <div>
               <label
                 htmlFor='password'
-                className='block text-sm font-medium text-gray-700 mb-1'
+                className='block text-sm font-medium text-gray-700 mb-2'
               >
                 密码
               </label>
@@ -118,18 +120,21 @@ const Login: React.FC = () => {
                 required
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
+                className='w-full px-4 py-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-base min-h-[48px] sm:min-h-[52px]'
                 placeholder='至少6位'
               />
             </div>
 
-            <button
+            <Button
               type='submit'
               disabled={loading}
-              className='w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+              variant='primary'
+              size='lg'
+              className='w-full'
+              loading={loading}
             >
               {loading ? '登录中...' : '登录'}
-            </button>
+            </Button>
           </form>
 
           {/* 注册链接 */}
@@ -137,25 +142,27 @@ const Login: React.FC = () => {
             <span className='text-sm text-gray-600'>还没有账号？</span>
             <a
               href='/register'
-              className='ml-1 text-sm font-medium text-indigo-600 hover:text-indigo-500'
+              className='ml-1 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors duration-200'
             >
               立即注册
             </a>
           </div>
-        </div>
+        </Card>
 
         {/* 底部提示 */}
-        <div className='text-center text-xs text-gray-500'>
-          <p>登录即表示同意</p>
-          <a href='/terms' className='text-indigo-600 hover:underline'>
-            用户协议
-          </a>
-          <span> 和 </span>
-          <a href='/privacy' className='text-indigo-600 hover:underline'>
-            隐私政策
-          </a>
+        <div className='text-center text-xs text-gray-500 mt-8'>
+          <p className='mb-1'>登录即表示同意</p>
+          <div>
+            <a href='/terms' className='text-blue-600 hover:text-blue-700 transition-colors duration-200'>
+              用户协议
+            </a>
+            <span className='mx-1'>和</span>
+            <a href='/privacy' className='text-blue-600 hover:text-blue-700 transition-colors duration-200'>
+              隐私政策
+            </a>
+          </div>
         </div>
-      </div>
+      </Container>
     </div>
   );
 };

@@ -1,11 +1,13 @@
+import Container from './common/Container';
+
 const Footer = () => {
   return (
     <footer className='bg-gray-900 text-white py-12'>
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+      <Container size='xl'>
         <div className='grid grid-cols-1 md:grid-cols-4 gap-8'>
           {/* Logo and Description */}
           <div className='col-span-1 md:col-span-2'>
-            <h3 className='text-2xl font-bold mb-4 font-chinese'>智投简历</h3>
+            <h3 className='text-2xl font-bold mb-4'>智投简历</h3>
             <p className='text-gray-400 mb-4 max-w-md'>用AI，让求职更高效</p>
             <p className='text-gray-400 text-sm'>
               智能投递 · 精准匹配 · 高效求职
@@ -18,18 +20,18 @@ const Footer = () => {
             <ul className='space-y-2'>
               <li>
                 <a
-                  href='#features'
-                  className='text-gray-400 hover:text-white transition-colors'
+                  href='/features'
+                  className='text-gray-400 hover:text-white transition-colors duration-200'
                 >
                   功能
                 </a>
               </li>
               <li>
                 <a
-                  href='#demo'
-                  className='text-gray-400 hover:text-white transition-colors'
+                  href='/pricing'
+                  className='text-gray-400 hover:text-white transition-colors duration-200'
                 >
-                  演示
+                  定价
                 </a>
               </li>
               <li>
@@ -37,15 +39,15 @@ const Footer = () => {
                   href='https://blog.zhitoujianli.com'
                   target='_blank'
                   rel='noopener noreferrer'
-                  className='text-gray-400 hover:text-white transition-colors'
+                  className='text-gray-400 hover:text-white transition-colors duration-200'
                 >
                   博客
                 </a>
               </li>
               <li>
                 <a
-                  href='#contact'
-                  className='text-gray-400 hover:text-white transition-colors'
+                  href='/contact'
+                  className='text-gray-400 hover:text-white transition-colors duration-200'
                 >
                   联系我们
                 </a>
@@ -60,7 +62,7 @@ const Footer = () => {
               <li>
                 <a
                   href='/help'
-                  className='text-gray-400 hover:text-white transition-colors'
+                  className='text-gray-400 hover:text-white transition-colors duration-200'
                 >
                   帮助中心
                 </a>
@@ -68,7 +70,7 @@ const Footer = () => {
               <li>
                 <a
                   href='/guide'
-                  className='text-gray-400 hover:text-white transition-colors'
+                  className='text-gray-400 hover:text-white transition-colors duration-200'
                 >
                   用户指南
                 </a>
@@ -76,7 +78,7 @@ const Footer = () => {
               <li>
                 <a
                   href='/api'
-                  className='text-gray-400 hover:text-white transition-colors'
+                  className='text-gray-400 hover:text-white transition-colors duration-200'
                 >
                   API文档
                 </a>
@@ -84,7 +86,7 @@ const Footer = () => {
               <li>
                 <a
                   href='/privacy'
-                  className='text-gray-400 hover:text-white transition-colors'
+                  className='text-gray-400 hover:text-white transition-colors duration-200'
                 >
                   隐私政策
                 </a>
@@ -98,7 +100,7 @@ const Footer = () => {
             © 2024 智投简历. 保留所有权利.
           </p>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 };

@@ -1093,10 +1093,37 @@
         return true;
       }
 
-      // 退出登录 - 已禁用
+      // 退出登录功能
       function logout() {
-        console.log('登录功能已禁用');
-        // 不执行任何操作
+        console.log('开始退出登录...');
+
+        // 清除本地存储
+        localStorage.removeItem('token');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
+
+        // 清除Cookie
+        document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+
+        // 调用后端logout API
+        fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+          }
+        }).then(response => {
+          if (response.ok) {
+            console.log('✅ 退出登录成功');
+          } else {
+            console.warn('⚠️ 退出登录API调用失败，但本地状态已清除');
+          }
+        }).catch(error => {
+          console.error('❌ 退出登录API调用出错:', error);
+        }).finally(() => {
+          // 无论API调用是否成功，都跳转到登录页
+          window.location.href = '/login';
+        });
       }
 
       // 页面加载完成后初始化

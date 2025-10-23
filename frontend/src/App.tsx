@@ -92,11 +92,7 @@ function App() {
             />
             <Route
               path='/resume'
-              element={
-                <PrivateRoute>
-                  <DirectResumeEntry />
-                </PrivateRoute>
-              }
+              element={<DirectResumeEntry />}
             />
             <Route
               path='/dashboard'
@@ -108,14 +104,6 @@ function App() {
             />
             <Route
               path='/config'
-              element={
-                <PrivateRoute>
-                  <ConfigPage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path='/config/resume-manager'
               element={
                 <PrivateRoute>
                   <ConfigPage />

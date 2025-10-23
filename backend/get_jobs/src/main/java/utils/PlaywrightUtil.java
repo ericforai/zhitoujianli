@@ -1251,7 +1251,7 @@ public class PlaywrightUtil {
     }
 
     /**
-     * 检查Cookie文件是否有效（从SeleniumUtil移植）
+     * 检查Cookie文件是否有效（增强版）
      *
      * @param cookiePath Cookie文件路径
      * @return 文件是否存在且内容有效
@@ -1270,7 +1270,37 @@ public class PlaywrightUtil {
                 return false;
             }
 
-            return true;
+            // 检查Cookie是否过期（增强验证）
+            try {
+                JSONArray cookieArray = new JSONArray(content);
+                long currentTime = System.currentTimeMillis() / 1000; // 转换为秒
+                boolean hasValidCookie = false;
+
+                for (int i = 0; i < cookieArray.length(); i++) {
+                    JSONObject cookie = cookieArray.getJSONObject(i);
+                    double expires = cookie.optDouble("expires", -1);
+
+                    // 如果expires为-1表示会话Cookie，始终有效
+                    // 如果expires > 当前时间，表示Cookie未过期
+                    if (expires == -1 || expires > currentTime) {
+                        hasValidCookie = true;
+                        break;
+                    }
+                }
+
+                if (!hasValidCookie) {
+                    log.info("所有Cookie已过期，文件: {}", cookiePath);
+                    return false;
+                }
+
+                log.debug("Cookie文件有效，包含未过期的Cookie: {}", cookiePath);
+                return true;
+
+            } catch (Exception jsonException) {
+                log.warn("解析Cookie JSON失败，但文件存在，假设有效: {}", jsonException.getMessage());
+                return true; // 如果JSON解析失败，但文件存在，假设有效
+            }
+
         } catch (Exception e) {
             log.error("检查Cookie文件有效性失败: {}", e.getMessage());
             return false;

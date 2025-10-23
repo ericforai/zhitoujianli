@@ -445,13 +445,33 @@ public class AuthController {
      * 用户注销
      */
     @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
-        // MVP版本：客户端删除Token即可
-        // 生产版本：可以实现Token黑名单
-        return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "注销成功"
-        ));
+    public ResponseEntity<?> logout(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            // 记录注销日志
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
+                Long userId = getUserIdFromToken(token);
+
+                if (userId != null) {
+                    // 记录注销审计日志
+                    auditService.logLogout(userId, "用户主动注销");
+                    log.info("✅ 用户注销成功: userId={}", userId);
+                }
+            }
+
+            // MVP版本：客户端删除Token即可
+            // 生产版本：可以实现Token黑名单机制
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "注销成功"
+            ));
+        } catch (Exception e) {
+            log.error("❌ 注销处理失败", e);
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "注销成功"
+            ));
+        }
     }
 
     /**
