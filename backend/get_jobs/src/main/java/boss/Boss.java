@@ -101,12 +101,12 @@ public class Boss {
         String userId = System.getenv("BOSS_USER_ID");
         if (userId == null || userId.isEmpty()) {
             log.info("未检测到BOSS_USER_ID环境变量，使用默认Cookie路径");
-            return "/tmp/boss_cookies.json";  // 默认单用户模式
+            return System.getProperty("java.io.tmpdir") + File.separator + "boss_cookies.json";  // 使用系统临时目录
         }
 
         // 清理userId中的非法字符（安全性）
         String safeUserId = userId.replaceAll("[^a-zA-Z0-9_-]", "_");
-        String cookiePath = "/tmp/boss_cookies_" + safeUserId + ".json";
+        String cookiePath = System.getProperty("java.io.tmpdir") + File.separator + "boss_cookies_" + safeUserId + ".json";
         log.info("✅ 多用户模式，Cookie路径: {}", cookiePath);
         return cookiePath;
     }
@@ -1263,7 +1263,7 @@ public class Boss {
         return maxSalary != null && jobSalary[0] > maxSalary;
     }
 
-    private static void RandomWait() {
+    private static void randomWait() {
         PlaywrightUtil.sleep(JobUtils.getRandomNumberInRange(3, 20));
     }
 
@@ -1882,7 +1882,7 @@ public class Boss {
     private static void captureDebugScreenshot(com.microsoft.playwright.Page page, Job job) {
         try {
             String timestamp = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
-            String filename = String.format("/tmp/boss_debug_%s_%s.png",
+            String filename = String.format(System.getProperty("java.io.tmpdir") + File.separator + "boss_debug_%s_%s.png",
                 job.getJobName().replaceAll("[^a-zA-Z0-9]", "_"),
                 timestamp);
 
@@ -1905,7 +1905,7 @@ public class Boss {
 
         // 如果当前用户的Cookie无效，尝试使用default_user的Cookie作为fallback
         if (needLogin) {
-            String defaultCookiePath = "/tmp/boss_cookies_default_user.json";
+            String defaultCookiePath = System.getProperty("java.io.tmpdir") + File.separator + "boss_cookies_default_user.json";
             if (PlaywrightUtil.isCookieValid(defaultCookiePath)) {
                 log.info("当前用户Cookie无效，但发现default_user的Cookie，尝试复制使用...");
                 try {
@@ -2093,20 +2093,20 @@ public class Boss {
 
                 if (qrcodeElement != null) {
                     // 截取二维码图片并保存
-                    String qrcodePath = "/tmp/boss_qrcode.png";
+                    String qrcodePath = System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode.png";
                     qrcodeElement.screenshot(new Locator.ScreenshotOptions().setPath(Paths.get(qrcodePath)));
                     log.info("✅ 二维码截图已保存: {} (使用选择器: {})", qrcodePath, successSelector);
 
                     // 更新登录状态文件为waiting
-                    String statusFile = "/tmp/boss_login_status.txt";
-                    Files.write(Paths.get(statusFile), "waiting".getBytes());
+                    String statusFile = System.getProperty("java.io.tmpdir") + File.separator + "boss_login_status.txt";
+                    Files.write(Paths.get(statusFile), "waiting".getBytes(StandardCharsets.UTF_8));
                     log.info("✅ 登录状态已更新为waiting");
                 } else {
                     log.warn("⚠️ 尝试了所有选择器都未找到二维码元素");
                     // 作为备选方案，截取整个页面
                     log.info("🔄 备选方案：截取整个登录页面");
-                    page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("/tmp/boss_qrcode.png")));
-                    Files.write(Paths.get("/tmp/boss_login_status.txt"), "waiting".getBytes());
+                    page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get(System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode.png")));
+                    Files.write(Paths.get(System.getProperty("java.io.tmpdir") + File.separator + "boss_login_status.txt"), "waiting".getBytes(StandardCharsets.UTF_8));
                     log.info("✅ 已截取完整页面作为二维码");
                 }
             } catch (Exception screenshotEx) {
@@ -2128,7 +2128,7 @@ public class Boss {
                     log.error("超过15分钟未完成登录，程序退出...");
                     // 更新登录状态为failed
                     try {
-                        Files.write(Paths.get("/tmp/boss_login_status.txt"), "failed".getBytes());
+                        Files.write(Paths.get(System.getProperty("java.io.tmpdir") + File.separator + "boss_login_status.txt"), "failed".getBytes(StandardCharsets.UTF_8));
                     } catch (Exception e) {
                         log.error("更新登录状态失败", e);
                     }
@@ -2146,7 +2146,7 @@ public class Boss {
 
                         // ===== 新增：更新登录状态为success =====
                         try {
-                            Files.write(Paths.get("/tmp/boss_login_status.txt"), "success".getBytes());
+                            Files.write(Paths.get(System.getProperty("java.io.tmpdir") + File.separator + "boss_login_status.txt"), "success".getBytes(StandardCharsets.UTF_8));
                             log.info("✅ 登录状态已更新为success");
                         } catch (Exception e) {
                             log.error("更新登录状态失败", e);

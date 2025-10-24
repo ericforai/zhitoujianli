@@ -6,6 +6,7 @@ import utils.JobUtils;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.ArrayList;
 
 /**
  * @author loks666
@@ -37,6 +38,11 @@ public class ZhilianConfig {
         String salary = config.getSalary();
         config.setSalary(Objects.equals("不限", salary) ? "0" : salary);
         return config;
+    }
+
+    // 防御性拷贝getter方法以避免内部表示暴露
+    public List<String> getKeywords() {
+        return keywords != null ? new ArrayList<>(keywords) : null;
     }
 
 }

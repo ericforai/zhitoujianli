@@ -98,7 +98,7 @@ public class AuthControllerTest {
         String verificationCode = "123456";
         when(verificationCodeService.generateCode()).thenReturn(verificationCode);
         doNothing().when(verificationCodeService).storeCode(anyString(), anyString());
-        doNothing().when(emailService).sendVerificationCode(anyString(), anyString());
+        when(emailService.sendVerificationCode(anyString(), anyString())).thenReturn(true);
 
         // 执行测试
         MvcResult result = mockMvc.perform(post("/api/auth/send-verification-code")
@@ -163,7 +163,7 @@ public class AuthControllerTest {
         // Mock服务
         when(verificationCodeService.generateCode()).thenReturn("123456");
         doNothing().when(verificationCodeService).storeCode(anyString(), anyString());
-        doNothing().when(emailService).sendVerificationCode(anyString(), anyString());
+        when(emailService.sendVerificationCode(anyString(), anyString())).thenReturn(true);
 
         for (String validEmail : validEmails) {
             Map<String, String> request = new HashMap<>();
@@ -206,7 +206,7 @@ public class AuthControllerTest {
         // Mock服务
         when(verificationCodeService.generateCode()).thenReturn("123456");
         doNothing().when(verificationCodeService).storeCode(anyString(), anyString());
-        doNothing().when(emailService).sendVerificationCode(anyString(), anyString());
+        when(emailService.sendVerificationCode(anyString(), anyString())).thenReturn(true);
 
         // 第一次发送成功
         mockMvc.perform(post("/api/auth/send-verification-code")

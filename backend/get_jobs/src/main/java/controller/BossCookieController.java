@@ -531,7 +531,7 @@ public class BossCookieController {
             Process process = pb.start();
 
             try (java.io.BufferedReader reader = new java.io.BufferedReader(
-                    new java.io.InputStreamReader(process.getInputStream()))) {
+                    new java.io.InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     // 检查是否包含Boss进程

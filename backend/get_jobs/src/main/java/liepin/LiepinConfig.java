@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import utils.JobUtils;
 
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * @author loks666
@@ -41,6 +42,11 @@ public class LiepinConfig {
         // 转换城市编码
         config.setCityCode(LiepinEnum.CityCode.forValue(config.getCityCode()).getCode());
         return config;
+    }
+
+    // 防御性拷贝getter方法以避免内部表示暴露
+    public List<String> getKeywords() {
+        return keywords != null ? new ArrayList<>(keywords) : null;
     }
 
 }

@@ -83,11 +83,16 @@
   }
 
   .blog-card-image {
-    @apply w-full h-48 bg-gradient-to-br from-blue-500 to-indigo-600 relative overflow-hidden;
+    @apply w-full bg-gradient-to-br from-blue-500 to-indigo-600 relative overflow-hidden;
+    height: 38%; /* 蓝色区域占38%，占比小 */
   }
 
   .blog-card-content {
     @apply p-6 space-y-3;
+    height: 62%; /* 白色区域占62%，占比多 */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 
   /* 现代化输入框样式 */

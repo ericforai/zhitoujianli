@@ -57,6 +57,9 @@ public class CandidateResumeControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockBean
+    private CandidateResumeService candidateResumeService;
+
     @TempDir
     Path tempDir;
 
@@ -83,6 +86,10 @@ public class CandidateResumeControllerTest {
         confidence.put("skills", 0.90);
         confidence.put("experience", 0.85);
         mockResumeData.put("confidence", confidence);
+
+        // Mock CandidateResumeService
+        when(candidateResumeService.parseAndSaveResume(anyString()))
+            .thenReturn(mockResumeData);
     }
 
     // ==================== 2.1 功能测试 ====================

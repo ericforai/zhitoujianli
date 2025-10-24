@@ -1,6 +1,7 @@
 package controller;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -217,7 +218,7 @@ public class ResumeApiController {
         String lowerFileName = fileName.toLowerCase();
 
         if (lowerFileName.endsWith(".txt")) {
-            return new String(file.getBytes(), "UTF-8");
+            return new String(file.getBytes(), StandardCharsets.UTF_8);
         } else if (lowerFileName.endsWith(".pdf")) {
             try (PDDocument document = PDDocument.load(file.getInputStream())) {
                 PDFTextStripper stripper = new PDFTextStripper();

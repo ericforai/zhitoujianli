@@ -7,6 +7,7 @@ import utils.JobUtils;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 /**
  * @author loks666
@@ -47,6 +48,15 @@ public class LagouConfig {
         List<String> scales = config.getScale();
         config.setScale(scales.stream().map(scale -> "不限".equals(scale) ? "0" : scale).collect(Collectors.toList()));
         return config;
+    }
+
+    // 防御性拷贝getter方法以避免内部表示暴露
+    public List<String> getKeywords() {
+        return keywords != null ? new ArrayList<>(keywords) : null;
+    }
+
+    public List<String> getScale() {
+        return scale != null ? new ArrayList<>(scale) : null;
     }
 
 }

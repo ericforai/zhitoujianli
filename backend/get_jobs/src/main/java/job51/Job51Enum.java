@@ -11,7 +11,7 @@ import lombok.Getter;
 public class Job51Enum {
 
     @Getter
-    public enum jobArea {
+    public enum JobArea {
         NULL("不限", "0"),
         BEIJING("北京", "010000"),
         SHANGHAI("上海", "020000"),
@@ -22,14 +22,14 @@ public class Job51Enum {
         private final String name;
         private final String code;
 
-        jobArea(String name, String code) {
+        JobArea(String name, String code) {
             this.name = name;
             this.code = code;
         }
 
         @JsonCreator
-        public static jobArea forValue(String value) {
-            for (jobArea cityCode : jobArea.values()) {
+        public static JobArea forValue(String value) {
+            for (JobArea cityCode : JobArea.values()) {
                 if (cityCode.name.equals(value)) {
                     return cityCode;
                 }

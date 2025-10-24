@@ -43,7 +43,7 @@ public class Job51 {
         String searchUrl = getSearchUrl();
         SeleniumUtil.initDriver();
         startDate = new Date();
-        Login();
+        login();
         config.getKeywords().forEach(keyword -> resume(searchUrl + "&keyword=" + keyword));
         printResult();
     }
@@ -74,7 +74,7 @@ public class Job51 {
                 JobUtils.appendListParam("salary", config.getSalary());
     }
 
-    private static void Login() {
+    private static void login() {
         // 临时注释避免编译错误
         // CHROME_DRIVER.get(homeUrl);
         // if (SeleniumUtil.isCookieValid(cookiePath)) {

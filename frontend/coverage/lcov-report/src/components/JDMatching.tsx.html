@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">23.68% </span>
+                <span class="strong">2.63% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>9/38</span>
+                <span class='fraction'>1/38</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">12.5% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>2/16</span>
+                <span class='fraction'>0/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">6.66% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/15</span>
+                <span class='fraction'>0/15</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">27.27% </span>
+                <span class="strong">3.03% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>9/33</span>
+                <span class='fraction'>1/33</span>
             </div>
         
             
@@ -569,20 +569,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -592,6 +589,9 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -617,19 +617,19 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1047,16 +1047,16 @@ interface MatchingResult {
   };
 }
 &nbsp;
-const JDMatching = () =&gt; {
-  const [resumeText, setResumeText] = useState('');
-  const [jdText, setJdText] = useState('');
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [matchingResult, setMatchingResult] = useState&lt;MatchingResult | null&gt;(
+const JDMatching = <span class="fstat-no" title="function not covered" >()</span> =&gt; {
+  const [resumeText, setResumeText] = <span class="cstat-no" title="statement not covered" >useState('');</span>
+  const [jdText, setJdText] = <span class="cstat-no" title="statement not covered" >useState('');</span>
+  const [isAnalyzing, setIsAnalyzing] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
+  const [matchingResult, setMatchingResult] = <span class="cstat-no" title="statement not covered" >useState&lt;MatchingResult | null&gt;(</span>
     null
   );
 &nbsp;
   // 模拟分析结果
-  const analyzeMatching = <span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {
+  const analyzeMatching = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    if (!resumeText.trim() || !jdText.trim()) {</span>
 <span class="cstat-no" title="statement not covered" >      alert('请先输入简历内容和JD内容');</span>
 <span class="cstat-no" title="statement not covered" >      return;</span>
@@ -1096,19 +1096,19 @@ const JDMatching = () =&gt; {
 <span class="cstat-no" title="statement not covered" >    setIsAnalyzing(false);</span>
   };
 &nbsp;
-  const getScoreColor = <span class="fstat-no" title="function not covered" >(s</span>core: number) =&gt; {
+  const getScoreColor = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(s</span>core: number) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    if (score &gt;= 80) <span class="cstat-no" title="statement not covered" >return 'text-green-600 bg-green-100';</span></span>
 <span class="cstat-no" title="statement not covered" >    if (score &gt;= 60) <span class="cstat-no" title="statement not covered" >return 'text-yellow-600 bg-yellow-100';</span></span>
 <span class="cstat-no" title="statement not covered" >    return 'text-red-600 bg-red-100';</span>
   };
 &nbsp;
-  const getScoreLabel = <span class="fstat-no" title="function not covered" >(s</span>core: number) =&gt; {
+  const getScoreLabel = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(s</span>core: number) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    if (score &gt;= 80) <span class="cstat-no" title="statement not covered" >return '高度匹配';</span></span>
 <span class="cstat-no" title="statement not covered" >    if (score &gt;= 60) <span class="cstat-no" title="statement not covered" >return '基本匹配';</span></span>
 <span class="cstat-no" title="statement not covered" >    return '需要提升';</span>
   };
 &nbsp;
-  return (
+<span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;section id='jd-matching' className='py-20 bg-white'&gt;
       &lt;div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'&gt;
         &lt;div className='text-center mb-16'&gt;
@@ -1158,7 +1158,7 @@ const JDMatching = () =&gt; {
               className='w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all'
             &gt;
               {isAnalyzing ? (
-<span class="branch-0 cbranch-no" title="branch not covered" >                &lt;div className='flex items-center justify-center space-x-2'&gt;</span>
+                &lt;div className='flex items-center justify-center space-x-2'&gt;
                   &lt;div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'&gt;&lt;/div&gt;
                   &lt;span&gt;AI分析中...&lt;/span&gt;
                 &lt;/div&gt;
@@ -1171,7 +1171,7 @@ const JDMatching = () =&gt; {
           {/* 右侧：分析结果 */}
           &lt;div className='space-y-6'&gt;
             {matchingResult ? (
-<span class="branch-0 cbranch-no" title="branch not covered" >              &lt;&gt;</span>
+              &lt;&gt;
                 {/* 总体匹配度 */}
                 &lt;div className='bg-white p-6 rounded-lg shadow-sm border'&gt;
                   &lt;div className='flex items-center justify-between mb-4'&gt;
@@ -1507,7 +1507,7 @@ export default JDMatching;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-24T01:40:31.495Z
+                at 2025-10-24T01:58:37.025Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

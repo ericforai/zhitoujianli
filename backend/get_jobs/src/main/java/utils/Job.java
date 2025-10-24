@@ -10,6 +10,7 @@ import java.io.Serializable;
  */
 @Data
 public class Job implements Serializable {
+    private static final long serialVersionUID = 1L;
     /**
      * 岗位链接
      */

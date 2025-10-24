@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -36,10 +37,10 @@ public class BossLoginController {
     private BossExecutionService bossExecutionService;
 
     // 二维码截图保存路径
-    private static final String QRCODE_PATH = "/tmp/boss_qrcode.png";
+    private static final String QRCODE_PATH = System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode.png";
 
     // 登录状态标记文件
-    private static final String LOGIN_STATUS_FILE = "/tmp/boss_login_status.txt";
+    private static final String LOGIN_STATUS_FILE = System.getProperty("java.io.tmpdir") + File.separator + "boss_login_status.txt";
 
     // 【多用户支持】用户级别的登录状态锁（Map<userId, isInProgress>）
     private static final Map<String, Boolean> userLoginStatus = new ConcurrentHashMap<>();
@@ -97,7 +98,7 @@ public class BossLoginController {
             cleanupLoginFiles();
 
             // 创建登录状态文件，标记为"等待登录"
-            Files.write(Paths.get(LOGIN_STATUS_FILE), "waiting".getBytes());
+            Files.write(Paths.get(LOGIN_STATUS_FILE), "waiting".getBytes(StandardCharsets.UTF_8));
 
             // 异步启动Boss程序（有头模式，用于生成二维码）
             CompletableFuture.runAsync(() -> {
@@ -105,7 +106,7 @@ public class BossLoginController {
                     log.info("🚀 异步启动Boss程序以生成登录二维码...");
 
                     // 启动Boss程序并等待二维码生成
-                    CompletableFuture<Void> bossFuture = bossExecutionService.executeBossProgram("/tmp/boss_login.log", false);
+                    CompletableFuture<Void> bossFuture = bossExecutionService.executeBossProgram(System.getProperty("java.io.tmpdir") + File.separator + "boss_login.log", false);
 
                     // 等待二维码生成（最多等待30秒）
                     int maxWaitTime = 30; // 30秒
@@ -128,13 +129,13 @@ public class BossLoginController {
                     File qrcodeFile = new File(QRCODE_PATH);
                     if (!qrcodeFile.exists() || qrcodeFile.length() == 0) {
                         log.warn("⚠️ 二维码文件未在预期时间内生成");
-                        Files.write(Paths.get(LOGIN_STATUS_FILE), "failed".getBytes());
+                        Files.write(Paths.get(LOGIN_STATUS_FILE), "failed".getBytes(StandardCharsets.UTF_8));
                     }
 
                 } catch (Exception e) {
                     log.error("Boss程序启动失败", e);
                     try {
-                        Files.write(Paths.get(LOGIN_STATUS_FILE), "failed".getBytes());
+                        Files.write(Paths.get(LOGIN_STATUS_FILE), "failed".getBytes(StandardCharsets.UTF_8));
                     } catch (IOException ioException) {
                         log.error("更新失败状态文件失败", ioException);
                     }

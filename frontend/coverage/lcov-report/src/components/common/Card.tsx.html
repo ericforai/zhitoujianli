@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">16.66% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>1/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">40% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>2/5</span>
+                <span class='fraction'>0/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>0/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">16.66% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>1/6</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -144,24 +144,24 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -189,32 +189,32 @@ export interface CardProps {
   onClick?: () =&gt; void;
 }
 &nbsp;
-const Card: React.FC&lt;CardProps&gt; = ({
+const Card: React.FC&lt;CardProps&gt; = <span class="fstat-no" title="function not covered" >({</span>
   children,
-  className = '',
+  className = <span class="branch-0 cbranch-no" title="branch not covered" >'',</span>
   hover = <span class="branch-0 cbranch-no" title="branch not covered" >false,</span>
   padding = <span class="branch-0 cbranch-no" title="branch not covered" >'md',</span>
   onClick,
 }) =&gt; {
   // 基础样式
-  const baseClasses = 'bg-white rounded-lg border border-gray-200';
+  const baseClasses = <span class="cstat-no" title="statement not covered" >'bg-white rounded-lg border border-gray-200';</span>
 &nbsp;
   // Hover 效果
-  const hoverClasses = hover
+  const hoverClasses = <span class="cstat-no" title="statement not covered" >hover</span>
     ? 'hover:shadow-md transition-shadow duration-200 cursor-pointer'
-    : <span class="branch-1 cbranch-no" title="branch not covered" >'shadow-sm';</span>
+    : 'shadow-sm';
 &nbsp;
   // 内边距样式
-  const paddingClasses = {
+  const paddingClasses = <span class="cstat-no" title="statement not covered" >{</span>
     none: '',
     sm: 'p-4',
     md: 'p-6',
     lg: 'p-10',
   };
 &nbsp;
-  const combinedClasses = `${baseClasses} ${hoverClasses} ${paddingClasses[padding]} ${className}`;
+  const combinedClasses = <span class="cstat-no" title="statement not covered" >`${baseClasses} ${hoverClasses} ${paddingClasses[padding]} ${className}`;</span>
 &nbsp;
-  return (
+<span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;div className={combinedClasses} onClick={onClick}&gt;
       {children}
     &lt;/div&gt;
@@ -229,7 +229,7 @@ export default Card;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-24T01:40:31.495Z
+                at 2025-10-24T01:58:37.025Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

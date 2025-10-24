@@ -202,7 +202,7 @@ public class AutoDeliveryController {
             Process checkProcess = checkPb.start();
 
             try (java.io.BufferedReader reader = new java.io.BufferedReader(
-                    new java.io.InputStreamReader(checkProcess.getInputStream()))) {
+                    new java.io.InputStreamReader(checkProcess.getInputStream(), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     if (line.contains("boss.IsolatedBossRunner") &&

@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.Map;
+import java.util.HashMap;
 
 @Data
 @Builder
@@ -17,4 +18,9 @@ public class AuthSuccessResponse {
     private Long expiresIn;
     private Map<String, Object> user;
     private String userId;
+
+    // 防御性拷贝getter方法以避免内部表示暴露
+    public Map<String, Object> getUser() {
+        return user != null ? new HashMap<>(user) : null;
+    }
 }

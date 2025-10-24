@@ -8,6 +8,7 @@ import lombok.Builder;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.HashMap;
 
 /**
  * 管理员用户实体
@@ -121,5 +122,10 @@ public class AdminUser {
             return new String[0];
         }
         return permissions.get(permission);
+    }
+
+    // 防御性拷贝getter方法以避免内部表示暴露
+    public Map<String, Object> getPermissions() {
+        return permissions != null ? new HashMap<>(permissions) : null;
     }
 }

@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">5.1% </span>
+                <span class="strong">8.16% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>5/98</span>
+                <span class='fraction'>8/98</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">11.11% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/27</span>
+                <span class='fraction'>3/27</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">5.15% </span>
+                <span class="strong">8.24% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>5/97</span>
+                <span class='fraction'>8/97</span>
             </div>
         
             
@@ -564,7 +564,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -587,7 +587,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -625,7 +625,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -636,7 +636,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -652,7 +652,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -702,7 +702,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -719,7 +719,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -891,7 +891,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -993,8 +993,8 @@ class TokenManager {
   /**
    * 获取Token
    */
-<span class="fstat-no" title="function not covered" >  st</span>atic getToken(): string | null {
-<span class="cstat-no" title="statement not covered" >    return localStorage.getItem(CONFIG_CONSTANTS.TOKEN_KEY);</span>
+  static getToken(): string | null {
+    return localStorage.getItem(CONFIG_CONSTANTS.TOKEN_KEY);
   }
 &nbsp;
   /**
@@ -1016,8 +1016,8 @@ class TokenManager {
   /**
    * 检查是否已认证
    */
-<span class="fstat-no" title="function not covered" >  st</span>atic isAuthenticated(): boolean {
-<span class="cstat-no" title="statement not covered" >    return this.getToken() !== null;</span>
+  static isAuthenticated(): boolean {
+    return this.getToken() !== null;
   }
 }
 &nbsp;
@@ -1320,8 +1320,8 @@ export const authService = {
   /**
    * 检查是否已登录
    */
-  isAuthenticated: <span class="fstat-no" title="function not covered" >()</span>: boolean =&gt; {
-<span class="cstat-no" title="statement not covered" >    return TokenManager.isAuthenticated();</span>
+  isAuthenticated: (): boolean =&gt; {
+    return TokenManager.isAuthenticated();
   },
 &nbsp;
   /**
@@ -1360,7 +1360,7 @@ export default apiClient;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-24T01:40:31.495Z
+                at 2025-10-24T01:58:37.025Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

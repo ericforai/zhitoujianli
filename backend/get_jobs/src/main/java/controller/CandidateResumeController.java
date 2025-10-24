@@ -2,6 +2,7 @@ package controller;
 
 import java.io.File;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -430,7 +431,7 @@ public class CandidateResumeController {
 
             // TXT文件
             if (lowerFileName.endsWith(".txt")) {
-                content = new String(file.getBytes(), "UTF-8");
+                content = new String(file.getBytes(), StandardCharsets.UTF_8);
                 log.info("【文件解析】TXT文件解析成功，长度: {} 字符", content.length());
 
             // PDF文件
