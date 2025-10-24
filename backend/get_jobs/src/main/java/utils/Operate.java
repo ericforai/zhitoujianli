@@ -18,7 +18,7 @@ import static utils.Constant.ACTIONS;
 /**
  * Boss直聘页面操作工具类
  * 封装常见页面操作逻辑
- * 
+ *
  * 替代原始代码中重复的页面操作逻辑:
  * - 下拉加载更多岗位
  * - 随机等待和模拟用户行为
@@ -28,24 +28,25 @@ import static utils.Constant.ACTIONS;
  */
 public class Operate {
     private static final Logger log = LoggerFactory.getLogger(Operate.class);
-    private static final Random random = new Random();
+    // 线程安全的随机数生成器（修复SpotBugs问题）
+    private static final Random RANDOM = new Random();
 
     /**
      * 页面下拉加载更多岗位
-     * 
+     *
      * 替代原始代码:
      * ```java
      * // 记录下拉前后的岗位数量
      * int previousJobCount = 0;
      * int currentJobCount = 0;
      * int unchangedCount = 0;
-     * 
+     *
      * while (unchangedCount < 2) {
      * // 获取所有岗位卡片
      * List<ElementHandle> jobCards = page.querySelectorAll("ul.rec-job-list
      * li.job-card-box");
      * currentJobCount = jobCards.size();
-     * 
+     *
      * if (currentJobCount > previousJobCount) {
      * previousJobCount = currentJobCount;
      * unchangedCount = 0;
@@ -56,7 +57,7 @@ public class Operate {
      * }
      * }
      * ```
-     * 
+     *
      * @param page            Playwright页面对象
      * @param maxLoadAttempts 最大尝试加载次数
      * @return 最终加载的岗位数量
@@ -106,7 +107,7 @@ public class Operate {
 
     /**
      * 模拟随机等待时间
-     * 
+     *
      * 替代原始代码:
      * ```java
      * private static void RandomWait() {
@@ -121,7 +122,7 @@ public class Operate {
 
     /**
      * 模拟用户浏览行为
-     * 
+     *
      * 替代原始代码:
      * ```java
      * private static void simulateWait() {
@@ -151,7 +152,7 @@ public class Operate {
 
     /**
      * 关闭当前标签页并返回到指定的标签页
-     * 
+     *
      * 替代原始代码:
      * ```java
      * private static void closeWindow(ArrayList<String> tabs) {
@@ -160,7 +161,7 @@ public class Operate {
      * CHROME_DRIVER.switchTo().window(tabs.get(0));
      * }
      * ```
-     * 
+     *
      * @param tabs     标签页列表
      * @param tabIndex 要切换到的标签页索引
      */
@@ -173,7 +174,7 @@ public class Operate {
 
     /**
      * 在新标签页中打开链接
-     * 
+     *
      * 替代原始代码:
      * ```java
      * JavascriptExecutor jse = CHROME_DRIVER;
@@ -182,7 +183,7 @@ public class Operate {
      * ArrayList<String> tabs = new ArrayList<>(CHROME_DRIVER.getWindowHandles());
      * CHROME_DRIVER.switchTo().window(tabs.getLast());
      * ```
-     * 
+     *
      * @param url 要打开的链接
      * @return 所有标签页的句柄列表
      */
@@ -194,7 +195,7 @@ public class Operate {
 
     /**
      * 向下滚动聊天记录页面，直到加载全部内容
-     * 
+     *
      * 替代原始代码:
      * ```java
      * JavascriptExecutor js = CHROME_DRIVER;
@@ -207,7 +208,7 @@ public class Operate {
      * shouldBreak = true;
      * }
      * } catch (Exception ignore) {}
-     * 
+     *
      * WebElement element;
      * try {
      * WAIT.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[contains(text(),
@@ -217,7 +218,7 @@ public class Operate {
      * } catch (Exception e) {
      * break;
      * }
-     * 
+     *
      * if (element != null) {
      * js.executeScript("arguments[0].scrollIntoView();", element);
      * } else {
@@ -265,7 +266,7 @@ public class Operate {
 
     /**
      * 发送简历图片
-     * 
+     *
      * 替代原始代码:
      * ```java
      * public static Boolean sendResume(String company) {
@@ -291,7 +292,7 @@ public class Operate {
      * }
      * }
      * ```
-     * 
+     *
      * @param imagePath 简历图片路径
      * @return 是否发送成功
      */

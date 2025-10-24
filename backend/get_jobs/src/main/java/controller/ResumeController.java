@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -199,7 +200,7 @@ public class ResumeController {
             String lowerFileName = fileName.toLowerCase();
 
             if (lowerFileName.endsWith(".txt")) {
-                return new String(file.getBytes(), "UTF-8");
+                return new String(file.getBytes(), StandardCharsets.UTF_8);
             } else if (lowerFileName.endsWith(".doc") || lowerFileName.endsWith(".docx")) {
                 // FIXME: 实现DOC/DOCX文件解析
                 // 可以使用Apache POI库

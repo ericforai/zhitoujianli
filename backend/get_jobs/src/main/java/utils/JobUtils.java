@@ -47,6 +47,22 @@ public class JobUtils {
     public static <T> T getConfig(Class<T> clazz) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
+        // 使用try-with-resources确保InputStream被正确关闭（修复SpotBugs问题）
+        try (InputStream is = getConfigInputStream(clazz)) {
+            JsonNode rootNode = mapper.readTree(is);
+            String key = clazz.getSimpleName().toLowerCase().replaceAll("config", "");
+            JsonNode configNode = rootNode.path(key);
+            return mapper.treeToValue(configNode, clazz);
+        }
+    }
+
+    /**
+     * 获取配置文件输入流
+     * @param clazz 配置类
+     * @return 配置文件输入流
+     * @throws FileNotFoundException 如果找不到配置文件
+     */
+    private static InputStream getConfigInputStream(Class<?> clazz) throws FileNotFoundException {
         // 首先尝试从classpath加载
         InputStream is = clazz.getClassLoader().getResourceAsStream("config.yaml");
 
@@ -70,10 +86,7 @@ public class JobUtils {
             throw new FileNotFoundException("无法找到 config.yaml 文件");
         }
 
-        JsonNode rootNode = mapper.readTree(is);
-        String key = clazz.getSimpleName().toLowerCase().replaceAll("config", "");
-        JsonNode configNode = rootNode.path(key);
-        return mapper.treeToValue(configNode, clazz);
+        return is;
     }
 
     public static void runScheduled(Platform platform) {

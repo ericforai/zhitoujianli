@@ -48,6 +48,11 @@ public class Locators {
     public static final String DIALOG_CONTAINER = "//div[@class='dialog-container']";
     public static final String SEND_BUTTON = "//button[@type='send']";
     public static final String IMAGE_UPLOAD = "//div[@aria-label='发送图片']//input[@type='file']";
+
+    // 新增：Boss直聘最新聊天输入框选择器
+    public static final String CHAT_INPUT_NEW = "div.dialog-input[contenteditable='true']";
+    public static final String CHAT_INPUT_ALTERNATIVE = "div[contenteditable='true'][role='textbox']";
+    public static final String CHAT_INPUT_FALLBACK = "textarea.input-area, input[type='text'][placeholder*='输入']";
     public static final String DIALOG_CONTENT = "//div[@class='dialog-con']";
     public static final String SCROLL_LOAD_MORE = "//div[contains(text(), '滚动加载更多')]";
 

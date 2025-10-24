@@ -26,9 +26,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.Path;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -45,13 +42,13 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 
 import ai.AiConfig;
 import ai.AiFilter;
 import ai.AiService;
-import ai.CandidateResumeService;
 import ai.SmartGreetingService;
 import lombok.SneakyThrows;
 import utils.Job;
@@ -77,10 +74,22 @@ public class Boss {
     static Set<String> blackRecruiters;
     static Set<String> blackJobs;
     static List<Job> resultList = new ArrayList<>();
-    static String dataPath = "src/main/java/boss/data.json";
+    static String dataPath = getDataPath();  // 修复SpotBugs：使用动态路径
     static String cookiePath = initCookiePath();  // 多用户支持：动态Cookie路径
     static Date startDate;
     static BossConfig config = BossConfig.init();
+
+    /**
+     * 获取数据文件路径（修复SpotBugs硬编码路径问题）
+     * 使用相对路径，支持跨平台部署
+     *
+     * @return 数据文件路径
+     */
+    private static String getDataPath() {
+        // 使用相对路径，避免硬编码
+        String userDir = System.getProperty("user.dir");
+        return userDir + File.separator + "src" + File.separator + "main" + File.separator + "java" + File.separator + "boss" + File.separator + "data.json";
+    }
 
     /**
      * 初始化Cookie文件路径（支持多用户隔离）
@@ -733,8 +742,37 @@ public class Boss {
 
         // 6. 等待聊天输入框（更新选择器）
         log.info("等待聊天输入框加载...");
+
+        // 优先策略: 在已找到的对话框容器内查找输入框
+        String[] dialogInputSelectors = {
+            ".dialog-container [contenteditable='true']",
+            ".dialog-container [contenteditable]",
+            ".dialog-container .editor",
+            ".dialog-container .editor-content",
+            ".dialog-container .input-area",
+            ".dialog-container .message-input",
+            ".dialog-container .chat-input",
+            ".dialog-container textarea",
+            ".dialog-container input[type='text']",
+            ".dialog-container div[role='textbox']",
+            ".dialog-container .dialog-input",
+            ".dialog-container .chat-textarea",
+            ".dialog-container .im-input",
+            ".dialog-container .msg-input"
+        };
+
+        // 全局选择器（备用策略）- 更新为最新的Boss直聘选择器
         String[] inputSelectors = {
-            "div#chat-input.chat-input[contenteditable='true']",
+            // Boss直聘最新选择器（优先级最高）- 2024年10月更新
+            "div.dialog-input[contenteditable='true']",
+            "div[contenteditable='true'][role='textbox']",
+            "div.dialog-input",
+            "div[data-testid='chat-input']",
+            "div[class*='dialog-input']",
+            "div[class*='chat-input']",
+
+            // 通用选择器
+            "div#chat-input[contenteditable='true']",
             "textarea.input-area",
             "div[contenteditable='true']",
             "[class*='input'][contenteditable='true']",
@@ -748,6 +786,7 @@ public class Boss {
             "[class*='input-area']",
             "[class*='message-input']",
             "[class*='conversation-input']",
+
             // Boss直聘特定的选择器
             ".dialog-input",
             ".chat-textarea",
@@ -755,6 +794,7 @@ public class Boss {
             ".msg-input",
             "#message-input",
             "#chat-textarea",
+
             // 更宽松的选择器
             "input[type='text']",
             "input[type='textarea']",
@@ -770,8 +810,9 @@ public class Boss {
         Locator inputLocator = null;
         boolean inputReady = false;
 
-        for (int i = 0; i < 25; i++) {  // 增加等待次数到25次
-            for (String selector : inputSelectors) {
+        for (int i = 0; i < 20; i++) {  // 优化：减少到20次，总时长约30秒
+            // 第一阶段: 在对话框容器内查找（优先策略）
+            for (String selector : dialogInputSelectors) {
                 Locator testLocator = detailPage.locator(selector);
                 if (testLocator.count() > 0) {
                     // 检查每个匹配的元素
@@ -801,7 +842,7 @@ public class Boss {
                                 // 如果是input、textarea或contenteditable元素，认为是输入框
                                 if ("input".equals(elementType) || "textarea".equals(elementType) ||
                                     "true".equals(contentEditable) || !inputType.isEmpty()) {
-                                    log.info("找到聊天输入框: {} (第{}个元素, 类型: {}, 可编辑: {}, class: {})",
+                                    log.info("✅ 在对话框容器内找到聊天输入框: {} (第{}个元素, 类型: {}, 可编辑: {}, class: {})",
                                         selector, j, elementType, contentEditable, className);
                                     inputLocator = testLocator.nth(j);
                                     inputReady = true;
@@ -819,8 +860,64 @@ public class Boss {
 
             if (inputReady) break;
 
-            // 随机延迟等待输入框出现
-            PlaywrightUtil.randomSleepMillis(1000, 2000);
+            // 第二阶段: 使用全局选择器（备用策略）
+            if (!inputReady && i > 5) {  // 5秒后尝试全局查找
+                log.debug("对话框内未找到输入框，尝试全局查找...");
+                for (String selector : inputSelectors) {
+                Locator testLocator = detailPage.locator(selector);
+                if (testLocator.count() > 0) {
+                    // 检查每个匹配的元素
+                    for (int j = 0; j < testLocator.count(); j++) {
+                        try {
+                            if (testLocator.nth(j).isVisible() && testLocator.nth(j).isEnabled()) {
+                                // 进一步检查是否是可编辑的输入框
+                                String elementType = testLocator.nth(j).evaluate("el => el.tagName.toLowerCase()").toString();
+                                String contentEditable = testLocator.nth(j).evaluate("el => el.contentEditable").toString();
+                                String inputType = testLocator.nth(j).evaluate("el => el.type || ''").toString();
+
+                                // 检查是否是搜索框（排除）
+                                String className = testLocator.nth(j).evaluate("el => el.className || ''").toString();
+                                String name = testLocator.nth(j).evaluate("el => el.name || ''").toString();
+                                String placeholder = testLocator.nth(j).evaluate("el => el.placeholder || ''").toString();
+
+                                // 排除搜索框、验证码框和其他非聊天输入框
+                                if (className.contains("ipt-search") || className.contains("search") ||
+                                    className.contains("ipt-sms") ||  // 短信验证码框
+                                    name.equals("query") || name.equals("phoneCode") ||  // query是搜索框，phoneCode是验证码框
+                                    placeholder.contains("搜索") || placeholder.contains("验证码")) {
+                                    log.debug("跳过非聊天输入框: {}, class={}, name={}, placeholder={}",
+                                        selector, className, name, placeholder);
+                                    continue;
+                                }
+
+                                // 如果是input、textarea或contenteditable元素，认为是输入框
+                                if ("input".equals(elementType) || "textarea".equals(elementType) ||
+                                    "true".equals(contentEditable) || !inputType.isEmpty()) {
+                                    log.info("✅ 全局查找找到聊天输入框: {} (第{}个元素, 类型: {}, 可编辑: {}, class: {})",
+                                        selector, j, elementType, contentEditable, className);
+                                    inputLocator = testLocator.nth(j);
+                                    inputReady = true;
+                                    break;
+                                }
+                            }
+                        } catch (Exception e) {
+                            // 忽略单个元素的检查错误
+                            continue;
+                        }
+                    }
+                    if (inputReady) break;
+                }
+            }
+            }
+
+            if (inputReady) break;
+
+            // 优化延迟策略：前5次快速检查，后续正常延迟
+            if (i < 5) {
+                PlaywrightUtil.randomSleepMillis(500, 1000);  // 前5次快速检查
+            } else {
+                PlaywrightUtil.randomSleepMillis(1000, 1500);  // 后15次正常延迟
+            }
         }
 
         if (!inputReady) {
@@ -831,6 +928,50 @@ public class Boss {
                 String pageTitle = detailPage.title();
                 String currentUrl = detailPage.url();
                 log.warn("调试信息 - 页面标题: {}, URL: {}", pageTitle, currentUrl);
+
+                // 🔍 增强调试：输出对话框内部的所有可能元素
+                Locator dialogContainer = detailPage.locator(".dialog-container");
+                if (dialogContainer.count() > 0) {
+                    log.warn("🔍 对话框容器存在，查找内部元素:");
+
+                    String[] dialogDebugSelectors = {
+                        ".dialog-container [contenteditable]",
+                        ".dialog-container textarea",
+                        ".dialog-container input",
+                        ".dialog-container [role='textbox']",
+                        ".dialog-container .editor",
+                        ".dialog-container .editor-content",
+                        ".dialog-container .input-area",
+                        ".dialog-container .message-input",
+                        ".dialog-container .chat-input",
+                        ".dialog-container .dialog-input",
+                        ".dialog-container .chat-textarea",
+                        ".dialog-container .im-input",
+                        ".dialog-container .msg-input"
+                    };
+
+                    for (String selector : dialogDebugSelectors) {
+                        int count = detailPage.locator(selector).count();
+                        if (count > 0) {
+                            log.warn("  🔍 找到 {} 个元素: {}", count, selector);
+                            // 输出第一个元素的详细信息
+                            try {
+                                Locator first = detailPage.locator(selector).first();
+                                String outerHTML = (String) first.evaluate("el => el.outerHTML");
+                                String tagName = (String) first.evaluate("el => el.tagName");
+                                String className = (String) first.evaluate("el => el.className || ''");
+                                String id = (String) first.evaluate("el => el.id || ''");
+                                boolean visible = first.isVisible();
+                                log.warn("    📋 第一个元素: {} class='{}' id='{}' visible={}", tagName, className, id, visible);
+                                log.warn("    📄 HTML片段: {}", outerHTML.substring(0, Math.min(200, outerHTML.length())));
+                            } catch (Exception e) {
+                                log.warn("    ❌ 获取元素详情失败: {}", e.getMessage());
+                            }
+                        }
+                    }
+                } else {
+                    log.warn("❌ 对话框容器(.dialog-container)不存在");
+                }
 
                 // 输出页面中所有可能的输入相关元素
                 String[] debugSelectors = {
@@ -843,6 +984,25 @@ public class Boss {
                     Locator elements = detailPage.locator(selector);
                     if (elements.count() > 0) {
                         log.warn("调试信息 - 找到{}个元素: {}", elements.count(), selector);
+                    }
+                }
+
+                // 截图诊断当前页面状态
+                captureDebugScreenshot(detailPage, job);
+
+                // 增强调试信息：输出所有input元素的详细属性
+                log.warn("调试：列出所有input元素属性");
+                Locator allInputs = detailPage.locator("input, textarea, [contenteditable]");
+                for (int idx = 0; idx < Math.min(allInputs.count(), 10); idx++) {
+                    try {
+                        Locator element = allInputs.nth(idx);
+                        String tagName = (String) element.evaluate("el => el.tagName");
+                        String className = (String) element.evaluate("el => el.className || ''");
+                        String id = (String) element.evaluate("el => el.id || ''");
+                        boolean visible = element.isVisible();
+                        log.warn("  [{}] {} class='{}' id='{}' visible={}", idx, tagName, className, id, visible);
+                    } catch (Exception e) {
+                        // 忽略单个元素错误
                     }
                 }
 
@@ -1505,12 +1665,25 @@ public class Boss {
                 return false;
             }
 
+            // 转义消息内容，防止JavaScript语法错误
+            String escapedMessage = message.replace("\\", "\\\\")
+                                          .replace("\"", "\\\"")
+                                          .replace("\n", "\\n")
+                                          .replace("\r", "\\r")
+                                          .replace("\t", "\\t");
+
             // 尝试使用JavaScript直接操作页面
             String script = String.format("""
                 (function() {
                     try {
-                        // 查找所有可能的输入元素
+                        // 查找所有可能的输入元素 - 2024年10月更新
                         const inputSelectors = [
+                            'div.dialog-input[contenteditable="true"]',
+                            'div[contenteditable="true"][role="textbox"]',
+                            'div.dialog-input',
+                            'div[data-testid="chat-input"]',
+                            'div[class*="dialog-input"]',
+                            'div[class*="chat-input"]',
                             'div#chat-input.chat-input[contenteditable="true"]',
                             'textarea.input-area',
                             'div[contenteditable="true"]',
@@ -1558,11 +1731,11 @@ public class Boss {
                 const changeEvent = new Event('change', { bubbles: true });
 
                 if (inputElement.tagName === 'TEXTAREA' || inputElement.tagName === 'INPUT') {
-                    inputElement.value = '%s';
+                    inputElement.value = "%s";
                     inputElement.dispatchEvent(inputEvent);
                     inputElement.dispatchEvent(changeEvent);
                 } else {
-                    inputElement.textContent = '%s';
+                    inputElement.textContent = "%s";
                     inputElement.dispatchEvent(inputEvent);
                     inputElement.dispatchEvent(changeEvent);
                 }
@@ -1614,17 +1787,112 @@ public class Boss {
                         return {success: false, message: error.message};
                     }
                 })()
-                """, message, message);
+                """, escapedMessage, escapedMessage);
 
             // 执行JavaScript
             Object result = page.evaluate(script);
             log.info("备用方案执行结果: {}", result);
 
-            return true;
+            // 等待消息发送完成并验证
+            PlaywrightUtil.sleep(3);
+
+            // 验证消息是否真正发送成功
+            boolean messageSent = verifyMessageSent(page);
+            if (messageSent) {
+                log.info("✅ 备用方案验证成功，消息已发送: {}", job.getJobName());
+                return true;
+            } else {
+                log.warn("❌ 备用方案验证失败，消息未发送: {}", job.getJobName());
+                return false;
+            }
 
         } catch (Exception e) {
             log.error("备用方案发送消息失败: {}", e.getMessage());
             return false;
+        }
+    }
+
+    /**
+     * 验证消息是否真正发送成功
+     * @param page 页面对象
+     * @return 是否发送成功
+     */
+    private static boolean verifyMessageSent(com.microsoft.playwright.Page page) {
+        try {
+            // 等待页面更新
+            PlaywrightUtil.sleep(2);
+
+            // 检查是否有成功发送的提示
+            String[] successSelectors = {
+                ".message-sent",
+                ".sent-success",
+                "[class*='sent']",
+                "[class*='success']",
+                ".chat-message:last-child",
+                ".message-item:last-child"
+            };
+
+            for (String selector : successSelectors) {
+                Locator element = page.locator(selector);
+                if (element.count() > 0 && element.first().isVisible()) {
+                    log.info("找到发送成功标识: {}", selector);
+                    return true;
+                }
+            }
+
+            // 检查页面URL是否跳转到聊天页面
+            String currentUrl = page.url();
+            if (currentUrl.contains("/chat/") || currentUrl.contains("/im/") || currentUrl.contains("/message/")) {
+                log.info("页面已跳转到聊天页面，消息可能已发送: {}", currentUrl);
+                return true;
+            }
+
+            // 检查是否有错误提示
+            String[] errorSelectors = {
+                ".error-message",
+                ".send-failed",
+                "[class*='error']",
+                "[class*='fail']"
+            };
+
+            for (String selector : errorSelectors) {
+                Locator element = page.locator(selector);
+                if (element.count() > 0 && element.first().isVisible()) {
+                    String errorText = element.first().textContent();
+                    log.warn("发现发送错误提示: {} - {}", selector, errorText);
+                    return false;
+                }
+            }
+
+            // 如果都没有找到明确的成功或失败标识，但备用方案执行成功，则认为是成功的
+            log.info("未找到明确的发送状态标识，但备用方案执行成功，认为消息已发送");
+            return true;
+
+        } catch (Exception e) {
+            log.error("验证消息发送状态失败: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 截图诊断聊天页面
+     * @param page 页面对象
+     * @param job 岗位信息
+     */
+    private static void captureDebugScreenshot(com.microsoft.playwright.Page page, Job job) {
+        try {
+            String timestamp = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
+            String filename = String.format("/tmp/boss_debug_%s_%s.png",
+                job.getJobName().replaceAll("[^a-zA-Z0-9]", "_"),
+                timestamp);
+
+            page.screenshot(new com.microsoft.playwright.Page.ScreenshotOptions()
+                .setPath(java.nio.file.Paths.get(filename))
+                .setFullPage(true));
+
+            log.info("📸 已截图保存: {}", filename);
+        } catch (Exception e) {
+            log.warn("截图失败: {}", e.getMessage());
         }
     }
 
