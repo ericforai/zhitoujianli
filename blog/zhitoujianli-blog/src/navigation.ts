@@ -15,15 +15,15 @@ export const headerData = {
       links: [
         {
           text: '产品动态',
-          href: getPermalink('产品动态', 'category'),
+          href: getPermalink('chan3-pin3-dong4-tai4', 'category'),
         },
         {
           text: '求职指南',
-          href: getPermalink('求职指南', 'category'),
+          href: getPermalink('qiu2-zhi2-zhi3-nan2', 'category'),
         },
         {
           text: '职场建议',
-          href: getPermalink('职场建议', 'category'),
+          href: getPermalink('zhi2-chang3-jian4-yi4', 'category'),
         },
       ],
     },
@@ -40,19 +40,19 @@ export const footerData = {
     {
       title: '产品功能',
       links: [
-        { text: 'AI智能匹配', href: (import.meta.env.SITE_URL || 'http://115.190.182.95') + '#features' },
-        { text: '简历优化', href: (import.meta.env.SITE_URL || 'http://115.190.182.95') + '#features' },
-        { text: '精准投递', href: (import.meta.env.SITE_URL || 'http://115.190.182.95') + '#features' },
-        { text: '数据分析', href: (import.meta.env.SITE_URL || 'http://115.190.182.95') + '#features' },
-        { text: '价格方案', href: (import.meta.env.SITE_URL || 'http://115.190.182.95') + '#pricing' },
+        { text: 'AI智能匹配', href: import.meta.env.SITE_URL || 'http://115.190.182.95' },
+        { text: '简历优化', href: import.meta.env.SITE_URL || 'http://115.190.182.95' },
+        { text: '精准投递', href: import.meta.env.SITE_URL || 'http://115.190.182.95' },
+        { text: '数据分析', href: import.meta.env.SITE_URL || 'http://115.190.182.95' },
+        { text: '价格方案', href: import.meta.env.SITE_URL || 'http://115.190.182.95' },
       ],
     },
     {
       title: '博客分类',
       links: [
-        { text: '产品动态', href: getPermalink('产品动态', 'category') },
-        { text: '求职指南', href: getPermalink('求职指南', 'category') },
-        { text: '职场建议', href: getPermalink('职场建议', 'category') },
+        { text: '产品动态', href: getPermalink('chan3-pin3-dong4-tai4', 'category') },
+        { text: '求职指南', href: getPermalink('qiu2-zhi2-zhi3-nan2', 'category') },
+        { text: '职场建议', href: getPermalink('zhi2-chang3-jian4-yi4', 'category') },
         { text: '最新文章', href: getBlogPermalink() },
       ],
     },

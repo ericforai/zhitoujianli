@@ -234,6 +234,7 @@ public class AuthController {
 
         try {
             String password = request.get("password");
+            String confirmPassword = request.get("confirmPassword");
             String username = request.get("username");
 
             // 参数验证
@@ -249,6 +250,14 @@ public class AuthController {
                     "密码长度至少6位", clientIp, userAgent, "/api/auth/register");
                 return ResponseEntity.badRequest()
                         .body(Map.of("success", false, "message", "密码长度至少6位"));
+            }
+
+            // 密码确认验证
+            if (confirmPassword != null && !password.equals(confirmPassword)) {
+                auditService.logFailure(null, email, entity.UserAuditLog.ActionType.REGISTER,
+                    "密码不一致", clientIp, userAgent, "/api/auth/register");
+                return ResponseEntity.badRequest()
+                        .body(Map.of("success", false, "message", "密码不一致"));
             }
 
             // 简化版注册：不需要验证码验证

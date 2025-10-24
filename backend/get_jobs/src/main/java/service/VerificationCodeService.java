@@ -2,6 +2,7 @@ package service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.scheduling.annotation.Scheduled;
@@ -33,11 +34,14 @@ public class VerificationCodeService {
     // 最大验证尝试次数
     private static final int MAX_ATTEMPTS = 5;
 
+    // 随机数生成器
+    private static final Random random = new Random();
+
     /**
      * 生成6位数字验证码
      */
     public String generateCode() {
-        return String.format("%06d", (int) (Math.random() * 1000000));
+        return String.format("%06d", random.nextInt(1000000));
     }
 
     /**
