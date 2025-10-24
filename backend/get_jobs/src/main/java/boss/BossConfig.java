@@ -19,6 +19,7 @@ import utils.JobUtils;
  * 项目链接: <a href="https://github.com/loks666/get_jobs">https://github.com/loks666/get_jobs</a>
  */
 @Slf4j
+@Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BossConfig {
     /**
@@ -40,39 +41,11 @@ public class BossConfig {
      * 城市编码
      */
     private List<String> cityCode;
-    
-    /**
-     * 获取城市编码的防御性拷贝
-     */
-    public List<String> getCityCode() {
-        return cityCode != null ? new ArrayList<>(cityCode) : null;
-    }
-    
-    /**
-     * 设置城市编码的防御性拷贝
-     */
-    public void setCityCode(List<String> cityCode) {
-        this.cityCode = cityCode != null ? new ArrayList<>(cityCode) : null;
-    }
 
     /**
      * 自定义城市编码映射
      */
     private Map<String, String> customCityCode;
-    
-    /**
-     * 获取自定义城市编码映射的防御性拷贝
-     */
-    public Map<String, String> getCustomCityCode() {
-        return customCityCode != null ? new java.util.HashMap<>(customCityCode) : null;
-    }
-    
-    /**
-     * 设置自定义城市编码映射的防御性拷贝
-     */
-    public void setCustomCityCode(Map<String, String> customCityCode) {
-        this.customCityCode = customCityCode != null ? new java.util.HashMap<>(customCityCode) : null;
-    }
 
     /**
      * 行业列表
