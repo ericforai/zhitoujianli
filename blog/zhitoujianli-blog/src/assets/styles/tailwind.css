@@ -2,18 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 现代化色彩系统 */
+/* 现代化色彩系统 - AI智能求职品牌色 */
 :root {
-  --aw-color-primary: #2563eb;
-  --aw-color-secondary: #64748b;
-  --aw-color-accent: #3b82f6;
-  --aw-color-text-default: #1e293b;
-  --aw-color-text-muted: #64748b;
-  --aw-color-bg-page: #ffffff;
-  --aw-color-bg-page-dark: #0f172a;
-  --aw-color-bg-light: #f8fafc;
-  --aw-color-border: #e2e8f0;
-  --aw-color-border-dark: #334155;
+  --aw-color-primary: #2563eb; /* 科技蓝 - 主品牌色 */
+  --aw-color-secondary: #64748b; /* 中性灰 - 辅助文字 */
+  --aw-color-accent: #1e40af; /* 深靛蓝 - 强调色 */
+  --aw-color-text-default: #1e293b; /* 深灰 - 正文 */
+  --aw-color-text-muted: #64748b; /* 中灰 - 辅助文字 */
+  --aw-color-bg-page: #ffffff; /* 纯白 - 主背景 */
+  --aw-color-bg-page-dark: #0f172a; /* 深色背景 */
+  --aw-color-bg-light: #f8fafc; /* 极浅灰 - 区块背景 */
+  --aw-color-border: #e2e8f0; /* 浅灰 - 边框 */
+  --aw-color-border-dark: #334155; /* 深色边框 */
+  --aw-color-gradient-start: #3b82f6; /* 渐变起始 - 蓝色 */
+  --aw-color-gradient-end: #1e40af; /* 渐变结束 - 靛蓝 */
 }
 
 /* 暗色模式色彩 */
@@ -25,57 +27,72 @@
   --aw-color-border: #334155;
 }
 
+/* 现代化交互动效 */
 @layer utilities {
-  .bg-page {
-    background-color: var(--aw-color-bg-page);
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
   }
-  .bg-dark {
-    background-color: var(--aw-color-bg-page-dark);
+
+  .hover-scale {
+    @apply transition-transform duration-200 hover:scale-105;
   }
-  .bg-light {
-    background-color: var(--aw-color-bg-light);
+
+  .hover-fade {
+    @apply transition-opacity duration-200 hover:opacity-80;
   }
-  .text-page {
-    color: var(--aw-color-text-page);
+
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
   }
-  .text-muted {
-    color: var(--aw-color-text-muted);
-  }
-  .border-subtle {
-    border-color: var(--aw-color-border);
+
+  .interactive-link {
+    @apply transition-colors duration-200 hover:text-blue-600 hover:underline;
   }
 }
 
 @layer components {
   /* 现代化按钮样式 */
   .btn {
-    @apply inline-flex items-center justify-center rounded-lg border border-subtle bg-transparent font-medium text-center text-sm text-default leading-snug transition-all duration-200 ease-in-out py-3 px-6 focus:ring-2 focus:ring-primary focus:ring-offset-2 hover:bg-light hover:border-primary cursor-pointer;
+    @apply inline-flex items-center justify-center rounded-lg border border-gray-200 bg-transparent font-medium text-center text-sm text-gray-900 leading-snug transition-all duration-200 ease-in-out py-3 px-6 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hover:bg-gray-50 hover:border-blue-500 cursor-pointer;
   }
 
   .btn-primary {
-    @apply btn font-semibold bg-primary text-white border-primary hover:bg-accent hover:border-accent hover:text-white shadow-sm hover:shadow-md;
+    @apply btn font-semibold bg-blue-600 text-white border-blue-600 hover:bg-blue-700 hover:border-blue-700 hover:text-white shadow-sm hover:shadow-md;
   }
 
   .btn-secondary {
-    @apply btn text-muted hover:text-default hover:bg-light;
+    @apply btn text-gray-600 hover:text-gray-900 hover:bg-gray-50;
   }
 
   .btn-tertiary {
-    @apply btn border-none shadow-none text-muted hover:text-default hover:bg-light;
+    @apply btn border-none shadow-none text-gray-600 hover:text-gray-900 hover:bg-gray-50;
   }
 
   /* 现代化卡片样式 */
   .card {
-    @apply bg-page border border-subtle rounded-xl shadow-sm hover:shadow-md transition-all duration-200;
+    @apply bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300;
   }
 
   .card-hover {
-    @apply card hover:border-primary hover:-translate-y-1;
+    @apply card hover:border-blue-500 hover:-translate-y-1 hover:shadow-xl;
+  }
+
+  /* 博客文章卡片专用样式 */
+  .blog-card {
+    @apply bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden;
+  }
+
+  .blog-card-image {
+    @apply w-full h-48 bg-gradient-to-br from-blue-500 to-indigo-600 relative overflow-hidden;
+  }
+
+  .blog-card-content {
+    @apply p-6 space-y-3;
   }
 
   /* 现代化输入框样式 */
   .input {
-    @apply w-full px-4 py-3 border border-subtle rounded-lg bg-page text-default placeholder-muted focus:border-primary focus:ring-2 focus:ring-primary transition-all duration-200;
+    @apply w-full px-4 py-3 border border-gray-200 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200;
   }
 
   /* 现代化网格系统 */
@@ -96,17 +113,21 @@
   }
 }
 
-/* 现代化头部样式 */
+/* 现代化头部样式 - 透明毛玻璃效果 */
+#header {
+  @apply bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm;
+}
+
 #header.scroll > div:first-child {
-  @apply bg-page md:bg-page backdrop-blur-md border-b border-subtle;
+  @apply bg-white/90 backdrop-blur-md border-b border-gray-200/50;
   box-shadow:
-    0 4px 6px -1px rgb(0 0 0 / 0.1),
-    0 2px 4px -2px rgb(0 0 0 / 0.1);
+    0 4px 6px -1px rgb(0 0 0 / 0.05),
+    0 2px 4px -2px rgb(0 0 0 / 0.05);
 }
 
 .dark #header.scroll > div:first-child,
 #header.scroll.dark > div:first-child {
-  @apply bg-page md:bg-page border-b border-subtle;
+  @apply bg-white md:bg-white border-b border-gray-200;
   box-shadow:
     0 4px 6px -1px rgb(0 0 0 / 0.3),
     0 2px 4px -2px rgb(0 0 0 / 0.3);
@@ -120,9 +141,9 @@
   right: 0;
   bottom: 70px !important;
   padding: 1rem;
-  background: var(--aw-color-bg-page);
+  background: #ffffff;
   backdrop-filter: blur(8px);
-  border-top: 1px solid var(--aw-color-border);
+  border-top: 1px solid #e2e8f0;
 }
 
 /* 现代化下拉菜单 */
@@ -133,7 +154,7 @@
 }
 
 .dropdown-menu {
-  @apply bg-page border border-subtle rounded-lg shadow-lg backdrop-blur-md;
+  @apply bg-white border border-gray-200 rounded-lg shadow-lg backdrop-blur-md;
 }
 
 /* 现代化图标样式 */

@@ -8,24 +8,20 @@ const {
 } = Astro.props;
 ---
 
-<section class="relative not-prose overflow-hidden">
-  <!-- 背景装饰 -->
-  <div class="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5"></div>
-  <div class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-primary/10 to-transparent rounded-full blur-3xl">
-  </div>
-  <div class="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-accent/10 to-transparent rounded-full blur-3xl">
-  </div>
+<section class="relative not-prose overflow-hidden bg-white">
+  <!-- 现代化背景装饰 -->
+  <div class="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-indigo-50/30"></div>
+  <div class="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-to-bl from-blue-400/10 to-transparent rounded-full blur-3xl"></div>
+  <div class="absolute bottom-1/4 left-1/4 w-96 h-96 bg-gradient-to-tr from-indigo-400/10 to-transparent rounded-full blur-3xl"></div>
 
-  <div class="relative max-w-7xl mx-auto px-4 sm:px-6">
-    <div class="py-16 md:py-24">
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="py-20 lg:py-24">
       <div class="text-center pb-8 md:pb-12 max-w-5xl mx-auto">
-        <h1
-          class="font-bold font-heading leading-tight tracking-tight mb-6 dark:text-gray-100 text-4xl md:text-5xl lg:text-6xl animate-fade"
-        >
+        <h1 class="font-bold font-heading leading-tight tracking-tight mb-6 text-gray-900 text-5xl lg:text-6xl animate-fade">
           <slot name="title">{title}</slot>
         </h1>
         <div class="max-w-4xl mx-auto">
-          <p class="text-muted text-lg md:text-xl mb-8 leading-relaxed animate-slide">
+          <p class="text-gray-600 text-xl lg:text-2xl mb-8 leading-relaxed animate-slide">
             <slot name="subtitle">{subtitle}</slot>
           </p>
           <div class="flex flex-col sm:flex-row gap-4 justify-center items-center animate-scale">

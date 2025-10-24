@@ -50,12 +50,11 @@ const currentPath = `/${trimSlash(new URL(Astro.url).pathname)}`;
 <header
   class:list={[
     { sticky: isSticky, relative: !isSticky, dark: isDark },
-    'top-0 z-50 flex-none mx-auto w-full border-b border-subtle transition-all duration-300 ease-in-out',
+    'top-0 z-50 flex-none mx-auto w-full bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm transition-all duration-300 ease-in-out',
   ]}
   {...isSticky ? { 'data-aw-sticky-header': true } : {}}
   {...id ? { id } : {}}
 >
-  <div class="absolute inset-0 bg-page backdrop-blur-md"></div>
   <div
     class:list={[
       'relative text-default py-4 px-4 md:px-6 mx-auto w-full',
@@ -100,7 +99,7 @@ const currentPath = `/${trimSlash(new URL(Astro.url).pathname)}`;
                 <>
                   <button
                     type="button"
-                    class="hover:text-primary dark:hover:text-white px-4 py-2 flex items-center whitespace-nowrap rounded-lg transition-all duration-200 hover:bg-light"
+                    class="hover:text-blue-600 dark:hover:text-white px-4 py-2 flex items-center whitespace-nowrap rounded-lg transition-all duration-200 hover:bg-blue-50 hover:shadow-sm"
                   >
                     {text}{' '}
                     <Icon
@@ -127,8 +126,8 @@ const currentPath = `/${trimSlash(new URL(Astro.url).pathname)}`;
               ) : (
                 <a
                   class:list={[
-                    'hover:text-primary dark:hover:text-white px-4 py-2 flex items-center whitespace-nowrap rounded-lg transition-all duration-200 hover:bg-light',
-                    { 'aw-link-active': href === currentPath },
+                    'hover:text-blue-600 dark:hover:text-white px-4 py-2 flex items-center whitespace-nowrap rounded-lg transition-all duration-200 hover:bg-blue-50 hover:shadow-sm',
+                    { 'text-blue-600 bg-blue-50 shadow-sm': href === currentPath },
                   ]}
                   href={href}
                 >

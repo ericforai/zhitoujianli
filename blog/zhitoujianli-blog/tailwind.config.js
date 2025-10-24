@@ -20,7 +20,7 @@ export default {
       },
       fontSize: {
         xs: ['0.75rem', { lineHeight: '1.5' }],
-        sm: ['0.875rem', { lineHeight: '1.6' }],
+        sm: ['0.875rem', { lineHeight: '1.5' }],
         base: ['1rem', { lineHeight: '1.6' }],
         lg: ['1.125rem', { lineHeight: '1.6' }],
         xl: ['1.25rem', { lineHeight: '1.5' }],
@@ -34,11 +34,21 @@ export default {
         18: '4.5rem',
         88: '22rem',
         128: '32rem',
+        // 现代化间距系统
+        section: '4rem', // 64px - 区块间距
+        'section-lg': '5rem', // 80px - 大区块间距
+        card: '1.5rem', // 24px - 卡片内边距
+        'card-lg': '2rem', // 32px - 大卡片内边距
       },
       animation: {
         fade: 'fadeInUp 0.6s ease-out both',
         slide: 'slideInUp 0.6s ease-out both',
         scale: 'scaleIn 0.3s ease-out both',
+        // 现代化交互动效
+        'fade-in': 'fadeIn 0.3s ease-out',
+        'slide-up': 'slideUp 0.3s ease-out',
+        'scale-up': 'scaleUp 0.2s ease-out',
+        'bounce-subtle': 'bounceSubtle 0.4s ease-out',
       },
       keyframes: {
         fadeInUp: {
@@ -52,6 +62,23 @@ export default {
         scaleIn: {
           '0%': { opacity: 0, transform: 'scale(0.95)' },
           '100%': { opacity: 1, transform: 'scale(1)' },
+        },
+        // 现代化交互动效关键帧
+        fadeIn: {
+          '0%': { opacity: 0 },
+          '100%': { opacity: 1 },
+        },
+        slideUp: {
+          '0%': { opacity: 0, transform: 'translateY(0.5rem)' },
+          '100%': { opacity: 1, transform: 'translateY(0)' },
+        },
+        scaleUp: {
+          '0%': { opacity: 0, transform: 'scale(0.98)' },
+          '100%': { opacity: 1, transform: 'scale(1)' },
+        },
+        bounceSubtle: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-0.25rem)' },
         },
       },
       backdropBlur: {

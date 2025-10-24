@@ -14,17 +14,17 @@ const posts = await findLatestPosts({ count: 12 });
 
 <Layout metadata={metadata}>
   <!-- Hero区域 -->
-  <section class="relative py-20 bg-gradient-to-br from-slate-50 via-white to-blue-50">
+  <section class="relative py-16 lg:py-20 bg-white">
     <div class="absolute inset-0">
-      <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl"></div>
-      <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl"></div>
+      <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-400/5 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-400/5 rounded-full blur-3xl"></div>
     </div>
 
     <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+      <h1 class="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
         求职指南
       </h1>
-      <p class="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+      <p class="text-xl lg:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
         专业的求职指导内容，助您在求职路上更加顺利
       </p>
     </div>
@@ -53,7 +53,7 @@ const posts = await findLatestPosts({ count: 12 });
       </div>
 
       <!-- 文章网格 -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
         {posts.map((post) => (
           <article class="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
             <!-- 文章封面 -->
