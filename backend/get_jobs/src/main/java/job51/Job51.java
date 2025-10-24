@@ -1,20 +1,24 @@
 package job51;
 
-import lombok.SneakyThrows;
-import org.openqa.selenium.*;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import utils.JobUtils;
-import utils.SeleniumUtil;
+import static utils.Bot.sendMessageByTime;
+import static utils.Constant.ACTIONS;
+import static utils.Constant.WAIT;
+import static utils.JobUtils.formatDuration;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static utils.Bot.sendMessageByTime;
-import static utils.Constant.*;
-import static utils.JobUtils.formatDuration;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import lombok.SneakyThrows;
+import utils.JobUtils;
+import utils.SeleniumUtil;
 
 /**
  * @author loks666
@@ -26,7 +30,7 @@ public class Job51 {
         // 在类加载时就设置日志文件名，确保Logger初始化时能获取到正确的属性
         System.setProperty("log.name", "job51");
     }
-    
+
     private static final Logger log = LoggerFactory.getLogger(Job51.class);
 
     static Integer page = 1;
@@ -56,7 +60,7 @@ public class Job51 {
         // 临时注释避免编译错误
         // CHROME_DRIVER.close();
         // CHROME_DRIVER.quit();
-        
+
         // 确保所有日志都被刷新到文件
         try {
             Thread.sleep(1000); // 等待1秒确保日志写入完成
