@@ -18,7 +18,6 @@ import utils.JobUtils;
  * @author loks666
  * 项目链接: <a href="https://github.com/loks666/get_jobs">https://github.com/loks666/get_jobs</a>
  */
-@Data
 @Slf4j
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BossConfig {
@@ -41,11 +40,39 @@ public class BossConfig {
      * 城市编码
      */
     private List<String> cityCode;
+    
+    /**
+     * 获取城市编码的防御性拷贝
+     */
+    public List<String> getCityCode() {
+        return cityCode != null ? new ArrayList<>(cityCode) : null;
+    }
+    
+    /**
+     * 设置城市编码的防御性拷贝
+     */
+    public void setCityCode(List<String> cityCode) {
+        this.cityCode = cityCode != null ? new ArrayList<>(cityCode) : null;
+    }
 
     /**
      * 自定义城市编码映射
      */
     private Map<String, String> customCityCode;
+    
+    /**
+     * 获取自定义城市编码映射的防御性拷贝
+     */
+    public Map<String, String> getCustomCityCode() {
+        return customCityCode != null ? new java.util.HashMap<>(customCityCode) : null;
+    }
+    
+    /**
+     * 设置自定义城市编码映射的防御性拷贝
+     */
+    public void setCustomCityCode(Map<String, String> customCityCode) {
+        this.customCityCode = customCityCode != null ? new java.util.HashMap<>(customCityCode) : null;
+    }
 
     /**
      * 行业列表
@@ -287,6 +314,99 @@ public class BossConfig {
 
     public List<String> getIndustry() {
         return industry != null ? new ArrayList<>(industry) : null;
+    }
+
+    public List<String> getExperience() {
+        return experience != null ? new ArrayList<>(experience) : null;
+    }
+
+    public List<String> getDegree() {
+        return degree != null ? new ArrayList<>(degree) : null;
+    }
+
+    public List<String> getScale() {
+        return scale != null ? new ArrayList<>(scale) : null;
+    }
+
+    public List<String> getDeadStatus() {
+        return deadStatus != null ? new ArrayList<>(deadStatus) : null;
+    }
+
+    public List<Integer> getExpectedSalary() {
+        return expectedSalary != null ? new ArrayList<>(expectedSalary) : null;
+    }
+
+    // Setter方法
+    public void setSayHi(String sayHi) {
+        this.sayHi = sayHi;
+    }
+
+    public void setDebugger(Boolean debugger) {
+        this.debugger = debugger;
+    }
+
+    public void setKeywords(List<String> keywords) {
+        this.keywords = keywords != null ? new ArrayList<>(keywords) : null;
+    }
+
+    public void setCityCode(List<String> cityCode) {
+        this.cityCode = cityCode != null ? new ArrayList<>(cityCode) : null;
+    }
+
+    public void setCustomCityCode(Map<String, String> customCityCode) {
+        this.customCityCode = customCityCode != null ? new java.util.HashMap<>(customCityCode) : null;
+    }
+
+    public void setIndustry(List<String> industry) {
+        this.industry = industry != null ? new ArrayList<>(industry) : null;
+    }
+
+    public void setExperience(List<String> experience) {
+        this.experience = experience != null ? new ArrayList<>(experience) : null;
+    }
+
+    public void setSalary(List<String> salary) {
+        this.salary = salary != null ? new ArrayList<>(salary) : null;
+    }
+
+    public void setDegree(List<String> degree) {
+        this.degree = degree != null ? new ArrayList<>(degree) : null;
+    }
+
+    public void setScale(List<String> scale) {
+        this.scale = scale != null ? new ArrayList<>(scale) : null;
+    }
+
+    public void setStage(List<String> stage) {
+        this.stage = stage != null ? new ArrayList<>(stage) : null;
+    }
+
+    public void setEnableAI(Boolean enableAI) {
+        this.enableAI = enableAI;
+    }
+
+    public void setEnableSmartGreeting(Boolean enableSmartGreeting) {
+        this.enableSmartGreeting = enableSmartGreeting;
+    }
+
+    public void setFilterDeadHR(Boolean filterDeadHR) {
+        this.filterDeadHR = filterDeadHR;
+    }
+
+    public void setSendImgResume(Boolean sendImgResume) {
+        this.sendImgResume = sendImgResume;
+    }
+
+    public void setExpectedSalary(List<Integer> expectedSalary) {
+        this.expectedSalary = expectedSalary != null ? new ArrayList<>(expectedSalary) : null;
+    }
+
+    public void setWaitTime(String waitTime) {
+        this.waitTime = waitTime;
+    }
+
+    public void setDeadStatus(List<String> deadStatus) {
+        this.deadStatus = deadStatus != null ? new ArrayList<>(deadStatus) : null;
     }
 
     /**
