@@ -1,4 +1,4 @@
-import { getAsset, getBlogPermalink, getPermalink } from './utils/permalinks';
+import { getBlogPermalink, getPermalink } from './utils/permalinks';
 
 export const headerData = {
   links: [
@@ -83,7 +83,6 @@ export const footerData = {
     { ariaLabel: '微信', icon: 'tabler:brand-wechat', href: '#' },
     { ariaLabel: '微博', icon: 'tabler:brand-weibo', href: '#' },
     { ariaLabel: 'QQ', icon: 'tabler:brand-qq', href: '#' },
-    { ariaLabel: 'RSS', icon: 'tabler:rss', href: getAsset('/rss.xml') },
     { ariaLabel: 'GitHub', icon: 'tabler:brand-github', href: 'https://github.com/zhitoujianli' },
   ],
   footNote: `
