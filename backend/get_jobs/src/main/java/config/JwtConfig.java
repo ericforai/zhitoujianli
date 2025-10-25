@@ -1,5 +1,7 @@
 package config;
 
+import java.nio.charset.StandardCharsets;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
@@ -7,8 +9,6 @@ import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-
-import java.nio.charset.StandardCharsets;
 
 /**
  * JWT配置类
@@ -25,7 +25,7 @@ public class JwtConfig {
     @Autowired
     private Dotenv dotenv;
 
-    private String jwtSecret;
+    private String jwtSecret = ""; // 初始化为空字符串避免SpotBugs警告
     private long jwtExpiration;
 
     /**

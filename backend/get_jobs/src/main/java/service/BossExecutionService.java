@@ -96,9 +96,16 @@ public class BossExecutionService {
                     // 等待进程完成，最长30分钟
                     boolean finished = process.waitFor(30, TimeUnit.MINUTES);
 
-                    // 等待日志线程完成
-                    outputLatch.await(5, TimeUnit.SECONDS);
-                    errorLatch.await(5, TimeUnit.SECONDS);
+                    // 等待日志线程完成，检查返回值
+                    boolean outputFinished = outputLatch.await(5, TimeUnit.SECONDS);
+                    boolean errorFinished = errorLatch.await(5, TimeUnit.SECONDS);
+
+                    if (!outputFinished) {
+                        logWriter.write(formatTimestamp() + " - WARNING: 输出日志线程未在5秒内完成%n");
+                    }
+                    if (!errorFinished) {
+                        logWriter.write(formatTimestamp() + " - WARNING: 错误日志线程未在5秒内完成%n");
+                    }
 
                     if (!finished) {
                         logWriter.write(formatTimestamp() + " - WARNING: Boss程序超时未完成%n");

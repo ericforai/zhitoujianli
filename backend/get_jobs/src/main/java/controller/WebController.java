@@ -38,7 +38,7 @@ import util.UserContextUtil;
 @Slf4j
 public class WebController {
 
-    private final String CONFIG_PATH = "src/main/resources/config.yaml";
+    private static final String CONFIG_PATH = "src/main/resources/config.yaml";
     private final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
     @Autowired

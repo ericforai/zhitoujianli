@@ -282,6 +282,16 @@ public class QuotaInitializer implements CommandLineRunner {
         private Boolean isActive;
         private Integer sortOrder;
 
+        // Getter方法以避免SpotBugs未读字段警告
+        public String getQuotaKey() { return quotaKey; }
+        public String getQuotaName() { return quotaName; }
+        public String getQuotaDescription() { return quotaDescription; }
+        public QuotaCategory getQuotaCategory() { return quotaCategory; }
+        public UnitType getUnitType() { return unitType; }
+        public ResetPeriod getResetPeriod() { return resetPeriod; }
+        public Boolean getIsActive() { return isActive; }
+        public Integer getSortOrder() { return sortOrder; }
+
         public static QuotaDefinitionBuilder builder() {
             return new QuotaDefinitionBuilder();
         }

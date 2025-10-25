@@ -316,7 +316,7 @@ const JDMatching = () => {
           </div>
 
           {/* 右侧：分析结果 */}
-          <div className='space-y-6'>
+          <div className='space-y-4 flex flex-col justify-between min-h-full'>
             {matchingResult ? (
               <>
                 {/* 示例状态提示 */}
@@ -522,31 +522,8 @@ const JDMatching = () => {
                   </div>
                 </div>
 
-                {/* 引导CTA */}
-                <div className='mt-8 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl'>
-                  <h3 className='text-xl font-semibold text-gray-900 mb-2 text-center'>
-                    想要获取您的专属分析报告？
-                  </h3>
-                  <p className='text-gray-600 text-center mb-4'>
-                    输入您的简历和目标岗位，AI将为您生成详细的匹配分析和优化建议
-                  </p>
-                  <div className='flex justify-center gap-4'>
-                    <button
-                      onClick={() => {
-                        if (resumeTextareaRef.current) {
-                          resumeTextareaRef.current.focus();
-                          resumeTextareaRef.current.select();
-                        }
-                      }}
-                      className='px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl'
-                    >
-                      尝试分析我的简历
-                    </button>
-                    <button className='px-8 py-3 border-2 border-indigo-500 text-indigo-600 rounded-lg hover:bg-indigo-50 transition-all duration-200'>
-                      注册保存报告
-                    </button>
-                  </div>
-                </div>
+                {/* 弹性空间 - 确保底部对齐 */}
+                <div className='flex-grow'></div>
               </>
             ) : (
               /* 空状态 - 用户清空了示例内容 */
@@ -583,6 +560,32 @@ const JDMatching = () => {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* 注册引导CTA - 移到底部全宽展示 */}
+        <div className='mt-12 p-8 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl'>
+          <h3 className='text-2xl font-semibold text-gray-900 mb-3 text-center'>
+            想要获取您的专属分析报告？
+          </h3>
+          <p className='text-lg text-gray-600 text-center mb-6'>
+            输入您的简历和目标岗位，AI将为您生成详细的匹配分析和优化建议
+          </p>
+          <div className='flex justify-center gap-6'>
+            <button
+              onClick={() => {
+                if (resumeTextareaRef.current) {
+                  resumeTextareaRef.current.focus();
+                  resumeTextareaRef.current.select();
+                }
+              }}
+              className='px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-lg font-medium'
+            >
+              尝试分析我的简历
+            </button>
+            <button className='px-10 py-4 border-2 border-indigo-500 text-indigo-600 rounded-lg hover:bg-indigo-50 transition-all duration-200 text-lg font-medium shadow-md hover:shadow-lg'>
+              注册保存报告
+            </button>
           </div>
         </div>
       </div>

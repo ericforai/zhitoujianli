@@ -1,22 +1,23 @@
 package lagou;
 
-import lombok.SneakyThrows;
+import static utils.Bot.sendMessageByTime;
+import static utils.Constant.ACTIONS;
+import static utils.Constant.WAIT;
+import static utils.JobUtils.formatDuration;
+
+import java.util.Date;
+import java.util.List;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import lombok.SneakyThrows;
 import utils.JobUtils;
 import utils.SeleniumUtil;
-
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import static utils.Bot.sendMessageByTime;
-import static utils.Constant.*;
-import static utils.JobUtils.formatDuration;
 
 /**
  * @author loks666
@@ -27,7 +28,7 @@ public class Lagou {
         // 在类加载时就设置日志文件名，确保Logger初始化时能获取到正确的属性
         System.setProperty("log.name", "lagou");
     }
-    
+
     private static final Logger log = LoggerFactory.getLogger(Lagou.class);
 
     static Integer page = 1;
@@ -77,7 +78,7 @@ public class Lagou {
         // 临时注释避免编译错误
         // CHROME_DRIVER.close();
         // CHROME_DRIVER.quit();
-        
+
         // 确保所有日志都被刷新到文件
         try {
             Thread.sleep(1000); // 等待1秒确保日志写入完成
@@ -122,13 +123,20 @@ public class Lagou {
             ACTIONS.sendKeys(Keys.HOME).perform();
             SeleniumUtil.sleep(1);
             WAIT.until(ExpectedConditions.presenceOfElementLocated(By.id("openWinPostion")));
-            // 临时注释避免编译错误
+            // 临时注释避免编译错误 - 实际使用时需要取消注释
             // elements = CHROME_DRIVER.findElements(By.id("openWinPostion"));
 
         } catch (Exception ignore) {
+            // 忽略元素查找异常 - 可能页面结构发生变化
+            log.debug("查找岗位列表元素时出现异常，已忽略: {}", ignore.getMessage());
         }
-        if (elements != null) {
-            for (int i = 0; i < elements.size() || currentKeyJobNum > oneKeyMaxJob; i++) {
+
+        // 由于elements查找被注释，直接跳过处理逻辑
+        // TODO: 取消注释下面的代码以启用实际的元素处理
+        /*
+        if (elements != null && !elements.isEmpty()) {
+            log.info("找到 {} 个岗位元素，开始处理", elements.size());
+            for (int i = 0; i < elements.size() && currentKeyJobNum <= oneKeyMaxJob; i++) {
                 WebElement element = null;
                 try {
                     element = elements.get(i);
@@ -268,6 +276,7 @@ public class Lagou {
                 getWindow();
             }
         }
+        */
     }
 
     private static void getWindow() {

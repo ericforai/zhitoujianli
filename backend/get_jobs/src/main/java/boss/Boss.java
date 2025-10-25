@@ -606,7 +606,8 @@ public class Boss {
                 try {
                     detailPage.close();
                 } catch (Exception ex) {
-                    // 忽略关闭异常
+                    // 忽略关闭异常 - 页面可能已经被关闭或出现其他非关键错误
+                    log.debug("关闭详情页面时出现异常，已忽略: {}", ex.getMessage());
                 }
             }
             return;
@@ -645,7 +646,8 @@ public class Boss {
             try {
                 detailPage.close();
             } catch (Exception ex) {
-                // 忽略关闭异常
+                // 忽略关闭异常 - 页面可能已经被关闭或出现其他非关键错误
+                log.debug("关闭详情页面时出现异常，已忽略: {}", ex.getMessage());
             }
             return;
         }
@@ -861,7 +863,7 @@ public class Boss {
             if (inputReady) break;
 
             // 第二阶段: 使用全局选择器（备用策略）
-            if (!inputReady && i > 5) {  // 5秒后尝试全局查找
+            if (i > 5) {  // 5秒后尝试全局查找
                 log.debug("对话框内未找到输入框，尝试全局查找...");
                 for (String selector : inputSelectors) {
                 Locator testLocator = detailPage.locator(selector);
@@ -1002,7 +1004,8 @@ public class Boss {
                         boolean visible = element.isVisible();
                         log.warn("  [{}] {} class='{}' id='{}' visible={}", idx, tagName, className, id, visible);
                     } catch (Exception e) {
-                        // 忽略单个元素错误
+                        // 忽略单个元素错误 - 元素可能不存在或无法访问
+                        log.debug("获取元素信息时出现异常，已忽略: {}", e.getMessage());
                     }
                 }
 
@@ -1068,7 +1071,8 @@ public class Boss {
                 try {
                     detailPage.close();
                 } catch (Exception ex) {
-                    // 忽略关闭异常
+                    // 忽略关闭异常 - 页面可能已经被关闭或出现其他非关键错误
+                    log.debug("关闭详情页面时出现异常，已忽略: {}", ex.getMessage());
                 }
                 return;
             }

@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @CrossOrigin(origins = {"http://localhost:3000", "http://115.190.182.95:3000", "http://115.190.182.95"})
 public class DeliveryConfigController {
 
-    private final String CONFIG_PATH = "src/main/resources/config.yaml";
+    private static final String CONFIG_PATH = "src/main/resources/config.yaml";
     private final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
     /**

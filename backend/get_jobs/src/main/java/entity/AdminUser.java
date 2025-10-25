@@ -128,4 +128,14 @@ public class AdminUser {
     public Map<String, Object> getPermissions() {
         return permissions != null ? new HashMap<>(permissions) : null;
     }
+
+    // 自定义Builder以避免内部表示暴露
+    public static class AdminUserBuilder {
+        private Map<String, Object> permissions;
+
+        public AdminUserBuilder permissions(Map<String, Object> permissions) {
+            this.permissions = permissions != null ? new HashMap<>(permissions) : null;
+            return this;
+        }
+    }
 }
