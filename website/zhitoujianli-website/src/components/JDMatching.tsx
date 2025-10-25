@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { sampleAnalysis, sampleJD, sampleResume } from '../data/sampleData';
 
 interface MatchingResult {
   overallScore: number;
+  overallLevel?: string;
+  overallDescription?: string;
   skillMatch: {
     score: number;
     matchedSkills: string[];
@@ -25,10 +28,49 @@ interface MatchingResult {
 }
 
 const JDMatching = () => {
-  const [resumeText, setResumeText] = useState('');
-  const [jdText, setJdText] = useState('');
+  const [isUsingExample, setIsUsingExample] = useState(true);
+  const [resumeText, setResumeText] = useState(sampleResume);
+  const [jdText, setJdText] = useState(sampleJD);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [matchingResult, setMatchingResult] = useState<MatchingResult | null>(null);
+  const [matchingResult, setMatchingResult] = useState<MatchingResult | null>(sampleAnalysis);
+  const resumeTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const jdTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // 清空示例内容
+  const clearExample = () => {
+    setResumeText('');
+    setJdText('');
+    setIsUsingExample(false);
+    setMatchingResult(null);
+  };
+
+  // 处理输入框焦点
+  const handleInputFocus = (field: 'resume' | 'jd') => {
+    if (isUsingExample) {
+      // 自动选中全部内容
+      setTimeout(() => {
+        if (field === 'resume' && resumeTextareaRef.current) {
+          resumeTextareaRef.current.select();
+        } else if (field === 'jd' && jdTextareaRef.current) {
+          jdTextareaRef.current.select();
+        }
+      }, 0);
+    }
+  };
+
+  // 处理输入框内容变更
+  const handleInputChange = (field: 'resume' | 'jd', value: string) => {
+    if (field === 'resume') {
+      setResumeText(value);
+    } else {
+      setJdText(value);
+    }
+    setIsUsingExample(false);
+    // 如果当前显示的是示例分析结果，清除它
+    if (matchingResult === sampleAnalysis) {
+      setMatchingResult(null);
+    }
+  };
 
   // 模拟分析结果
   const analyzeMatching = async () => {
@@ -97,15 +139,30 @@ const JDMatching = () => {
 
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
           {/* 左侧：输入区域 */}
-          <div className='space-y-6'>
+          <div className='space-y-4'>
             {/* 简历输入 */}
             <div className='bg-gray-50 p-6 rounded-lg'>
               <h3 className='text-lg font-semibold mb-4'>1. 输入简历内容</h3>
+              {isUsingExample && (
+                <div className='mb-2 flex items-center justify-between'>
+                  <span className='text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-full'>
+                    📝 示例内容 - 点击可直接编辑
+                  </span>
+                  <button
+                    onClick={clearExample}
+                    className='text-sm text-gray-500 hover:text-gray-700 transition-colors'
+                  >
+                    清空内容
+                  </button>
+                </div>
+              )}
               <textarea
+                ref={resumeTextareaRef}
                 value={resumeText}
-                onChange={e => setResumeText(e.target.value)}
+                onChange={e => handleInputChange('resume', e.target.value)}
+                onFocus={() => handleInputFocus('resume')}
                 placeholder='请粘贴您的简历内容，包括个人信息、工作经历、技能、项目经验等...'
-                className='w-full h-40 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none'
+                className='w-full h-52 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none'
               />
               <p className='text-sm text-gray-500 mt-2'>
                 支持文本格式，建议包含完整的工作经历和技能信息
@@ -115,11 +172,26 @@ const JDMatching = () => {
             {/* JD输入 */}
             <div className='bg-gray-50 p-6 rounded-lg'>
               <h3 className='text-lg font-semibold mb-4'>2. 输入岗位JD</h3>
+              {isUsingExample && (
+                <div className='mb-2 flex items-center justify-between'>
+                  <span className='text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-full'>
+                    📝 示例内容 - 点击可直接编辑
+                  </span>
+                  <button
+                    onClick={clearExample}
+                    className='text-sm text-gray-500 hover:text-gray-700 transition-colors'
+                  >
+                    清空内容
+                  </button>
+                </div>
+              )}
               <textarea
+                ref={jdTextareaRef}
                 value={jdText}
-                onChange={e => setJdText(e.target.value)}
+                onChange={e => handleInputChange('jd', e.target.value)}
+                onFocus={() => handleInputFocus('jd')}
                 placeholder='请粘贴目标岗位的职位描述，包括岗位要求、技能要求、经验要求等...'
-                className='w-full h-40 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none'
+                className='w-full h-52 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none'
               />
               <p className='text-sm text-gray-500 mt-2'>详细的JD内容有助于更精准的匹配度分析</p>
             </div>
@@ -139,12 +211,141 @@ const JDMatching = () => {
                 '开始智能分析'
               )}
             </button>
+
+            {/* 功能说明 */}
+            <div className='bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl'>
+              <h3 className='text-lg font-semibold text-gray-900 mb-4 text-center'>💡 分析说明</h3>
+              <div className='space-y-4'>
+                <div className='flex items-start space-x-3'>
+                  <div className='w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0'>
+                    <svg
+                      className='w-4 h-4 text-indigo-600'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M13 10V3L4 14h7v7l9-11h-7z'
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className='font-medium text-gray-900 mb-1'>AI智能分析</h4>
+                    <p className='text-sm text-gray-600'>
+                      基于深度学习的语义分析技术，精准匹配简历与岗位要求
+                    </p>
+                  </div>
+                </div>
+                <div className='flex items-start space-x-3'>
+                  <div className='w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0'>
+                    <svg
+                      className='w-4 h-4 text-purple-600'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className='font-medium text-gray-900 mb-1'>多维度评估</h4>
+                    <p className='text-sm text-gray-600'>
+                      从技能、经验、教育、项目四个维度全面评估匹配度
+                    </p>
+                  </div>
+                </div>
+                <div className='flex items-start space-x-3'>
+                  <div className='w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0'>
+                    <svg
+                      className='w-4 h-4 text-green-600'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className='font-medium text-gray-900 mb-1'>优化建议</h4>
+                    <p className='text-sm text-gray-600'>
+                      提供具体的技能提升和简历优化建议，提高求职成功率
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 使用技巧 */}
+            <div className='bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg'>
+              <h4 className='font-medium text-gray-900 mb-3 flex items-center'>
+                <svg
+                  className='w-5 h-5 text-blue-600 mr-2'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
+                  />
+                </svg>
+                使用技巧
+              </h4>
+              <ul className='text-sm text-gray-600 space-y-1'>
+                <li>• 简历内容越详细，分析越精准</li>
+                <li>• 建议包含工作经历、技能和项目经验</li>
+                <li>• JD内容请粘贴完整的岗位描述</li>
+                <li>• 支持中英文混合内容分析</li>
+              </ul>
+            </div>
           </div>
 
           {/* 右侧：分析结果 */}
           <div className='space-y-6'>
             {matchingResult ? (
               <>
+                {/* 示例状态提示 */}
+                {isUsingExample && (
+                  <div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
+                    <div className='flex items-center'>
+                      <div className='w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3'>
+                        <svg
+                          className='w-4 h-4 text-blue-600'
+                          fill='none'
+                          stroke='currentColor'
+                          viewBox='0 0 24 24'
+                        >
+                          <path
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            strokeWidth={2}
+                            d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+                          />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className='text-sm font-medium text-blue-900'>基于示例的分析结果</p>
+                        <p className='text-xs text-blue-700'>输入您的简历和JD获取专属分析报告</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* 总体匹配度 */}
                 <div className='bg-white p-6 rounded-lg shadow-sm border'>
                   <div className='flex items-center justify-between mb-4'>
@@ -152,7 +353,8 @@ const JDMatching = () => {
                     <div
                       className={`px-3 py-1 rounded-full text-sm font-medium ${getScoreColor(matchingResult.overallScore)}`}
                     >
-                      {matchingResult.overallScore}分 - {getScoreLabel(matchingResult.overallScore)}
+                      {matchingResult.overallScore}分 -{' '}
+                      {matchingResult.overallLevel || getScoreLabel(matchingResult.overallScore)}
                     </div>
                   </div>
                   <div className='w-full bg-gray-200 rounded-full h-3'>
@@ -162,7 +364,8 @@ const JDMatching = () => {
                     ></div>
                   </div>
                   <p className='text-sm text-gray-600 mt-2'>
-                    基于技能、经验、教育背景和项目经历的综合评分
+                    {matchingResult.overallDescription ||
+                      '基于技能、经验、教育背景和项目经历的综合评分'}
                   </p>
                 </div>
 
@@ -318,9 +521,35 @@ const JDMatching = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* 引导CTA */}
+                <div className='mt-8 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl'>
+                  <h3 className='text-xl font-semibold text-gray-900 mb-2 text-center'>
+                    想要获取您的专属分析报告？
+                  </h3>
+                  <p className='text-gray-600 text-center mb-4'>
+                    输入您的简历和目标岗位，AI将为您生成详细的匹配分析和优化建议
+                  </p>
+                  <div className='flex justify-center gap-4'>
+                    <button
+                      onClick={() => {
+                        if (resumeTextareaRef.current) {
+                          resumeTextareaRef.current.focus();
+                          resumeTextareaRef.current.select();
+                        }
+                      }}
+                      className='px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl'
+                    >
+                      尝试分析我的简历
+                    </button>
+                    <button className='px-8 py-3 border-2 border-indigo-500 text-indigo-600 rounded-lg hover:bg-indigo-50 transition-all duration-200'>
+                      注册保存报告
+                    </button>
+                  </div>
+                </div>
               </>
             ) : (
-              /* 默认状态 */
+              /* 空状态 - 用户清空了示例内容 */
               <div className='bg-gray-50 p-8 rounded-lg text-center'>
                 <div className='w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4'>
                   <svg
@@ -337,80 +566,23 @@ const JDMatching = () => {
                     />
                   </svg>
                 </div>
-                <h3 className='text-lg font-medium text-gray-900 mb-2'>等待分析</h3>
-                <p className='text-gray-600 text-sm'>输入简历和JD内容后，点击"开始智能分析"按钮</p>
+                <h3 className='text-lg font-medium text-gray-900 mb-2'>准备开始分析</h3>
+                <p className='text-gray-600 text-sm mb-4'>
+                  输入简历和JD内容后，点击"开始智能分析"按钮
+                </p>
+                <button
+                  onClick={() => {
+                    setResumeText(sampleResume);
+                    setJdText(sampleJD);
+                    setIsUsingExample(true);
+                    setMatchingResult(sampleAnalysis);
+                  }}
+                  className='px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors'
+                >
+                  查看示例分析
+                </button>
               </div>
             )}
-          </div>
-        </div>
-
-        {/* 功能说明 */}
-        <div className='mt-16 bg-gradient-to-r from-indigo-50 to-purple-50 p-8 rounded-xl'>
-          <h3 className='text-xl font-semibold text-gray-900 mb-4 text-center'>💡 分析说明</h3>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-            <div className='text-center'>
-              <div className='w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-3'>
-                <svg
-                  className='w-6 h-6 text-indigo-600'
-                  fill='none'
-                  stroke='currentColor'
-                  viewBox='0 0 24 24'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M13 10V3L4 14h7v7l9-11h-7z'
-                  />
-                </svg>
-              </div>
-              <h4 className='font-medium text-gray-900 mb-2'>AI智能分析</h4>
-              <p className='text-sm text-gray-600'>
-                基于深度学习的语义分析技术，精准匹配简历与岗位要求
-              </p>
-            </div>
-            <div className='text-center'>
-              <div className='w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3'>
-                <svg
-                  className='w-6 h-6 text-purple-600'
-                  fill='none'
-                  stroke='currentColor'
-                  viewBox='0 0 24 24'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'
-                  />
-                </svg>
-              </div>
-              <h4 className='font-medium text-gray-900 mb-2'>多维度评估</h4>
-              <p className='text-sm text-gray-600'>
-                从技能、经验、教育、项目四个维度全面评估匹配度
-              </p>
-            </div>
-            <div className='text-center'>
-              <div className='w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3'>
-                <svg
-                  className='w-6 h-6 text-green-600'
-                  fill='none'
-                  stroke='currentColor'
-                  viewBox='0 0 24 24'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
-                  />
-                </svg>
-              </div>
-              <h4 className='font-medium text-gray-900 mb-2'>优化建议</h4>
-              <p className='text-sm text-gray-600'>
-                提供具体的技能提升和简历优化建议，提高求职成功率
-              </p>
-            </div>
           </div>
         </div>
       </div>
@@ -419,4 +591,3 @@ const JDMatching = () => {
 };
 
 export default JDMatching;
-

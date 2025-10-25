@@ -5,8 +5,6 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -76,7 +74,7 @@ public class CandidateResumeControllerTest {
         // 设置测试环境变量，避免AI服务调用失败
         System.setProperty("DEEPSEEK_API_KEY", "test-api-key-for-testing");
         System.setProperty("API_KEY", "test-api-key-for-testing");
-        
+
         // 准备Mock简历解析数据
         mockResumeData = new HashMap<>();
         mockResumeData.put("name", "张三");
