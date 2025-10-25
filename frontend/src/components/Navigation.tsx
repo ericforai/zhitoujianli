@@ -108,6 +108,14 @@ const Navigation = () => {
             >
               博客
             </a>
+            <a
+              href='https://blog.zhitoujianli.com/about/#company'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors duration-200'
+            >
+              关于我们
+            </a>
           </div>
 
           {/* Desktop Auth Section - 简约风格 */}
@@ -224,6 +232,15 @@ const Navigation = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               博客
+            </a>
+            <a
+              href='https://blog.zhitoujianli.com/about/#company'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='block px-4 py-3 rounded-lg text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors duration-200'
+              onClick={() => setIsMenuOpen(false)}
+            >
+              关于我们
             </a>
 
             {/* Mobile Auth Section */}
