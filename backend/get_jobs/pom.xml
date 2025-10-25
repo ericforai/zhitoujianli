@@ -428,6 +428,8 @@
                     </rulesets>
                     <failOnViolation>true</failOnViolation>
                     <printFailingErrors>true</printFailingErrors>
+                    <!-- 修复Java 21兼容性问题 -->
+                    <targetJdk>17</targetJdk>
                 </configuration>
                 <executions>
                     <execution>
