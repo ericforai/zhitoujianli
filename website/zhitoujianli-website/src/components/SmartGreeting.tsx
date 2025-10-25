@@ -157,27 +157,34 @@ const SmartGreeting = () => {
               </div>
             </div>
 
-            {/* 步骤3：智能打招呼 */}
+            {/* 步骤3：智能打招呼 - 重点突出 */}
             <div className='relative'>
-              <div className='text-center p-6 bg-purple-50 rounded-xl border-2 border-purple-200'>
+              <div className='text-center p-8 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl border-2 border-purple-300 shadow-lg transform scale-105'>
                 <div className='flex justify-center mb-4'>
-                  <svg
-                    className='w-8 h-8 text-purple-600'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z'
-                    />
-                  </svg>
+                  <div className='w-12 h-12 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full flex items-center justify-center'>
+                    <svg
+                      className='w-6 h-6 text-white'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z'
+                      />
+                    </svg>
+                  </div>
                 </div>
-                <div className='text-3xl font-bold text-purple-300 mb-3'>03</div>
-                <h4 className='text-lg font-semibold text-gray-900 mb-2'>智能打招呼</h4>
-                <p className='text-sm text-gray-600'>生成个性化开场白</p>
+                <div className='text-4xl font-bold bg-gradient-to-r from-purple-500 to-indigo-500 bg-clip-text text-transparent mb-3'>
+                  03
+                </div>
+                <h4 className='text-xl font-bold text-gray-900 mb-2'>智能打招呼</h4>
+                <p className='text-sm text-gray-700 font-medium'>AI生成个性化开场白</p>
+                <div className='mt-3 inline-block px-3 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full'>
+                  🎯 核心功能
+                </div>
               </div>
             </div>
           </div>
@@ -185,7 +192,7 @@ const SmartGreeting = () => {
 
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
           {/* 左侧：功能区域 */}
-          <div className='space-y-6'>
+          <div className='space-y-4'>
             {/* 简历上传区域 */}
             <div className='bg-white p-6 rounded-lg shadow-sm'>
               <h3 className='text-lg font-semibold mb-4'>1. 上传简历</h3>
@@ -268,10 +275,36 @@ const SmartGreeting = () => {
             >
               {isAnalyzing ? 'AI分析中...' : '生成个性化打招呼语'}
             </button>
+
+            {/* 使用建议 - 移到左侧 */}
+            <div className='bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg'>
+              <h3 className='text-lg font-semibold text-blue-900 mb-4 flex items-center'>
+                <svg
+                  className='w-5 h-5 text-blue-600 mr-2'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
+                  />
+                </svg>
+                使用建议
+              </h3>
+              <ul className='text-sm text-blue-800 space-y-2'>
+                <li>• 确保简历信息完整准确，AI分析更精准</li>
+                <li>• JD内容越详细，生成的打招呼语越个性化</li>
+                <li>• 可根据不同公司调整打招呼语风格</li>
+                <li>• 建议结合具体岗位要求微调内容</li>
+              </ul>
+            </div>
           </div>
 
           {/* 右侧：结果展示 */}
-          <div className='space-y-6'>
+          <div className='space-y-4'>
             {/* 匹配度分析 */}
             {analysisResult && (
               <div className='bg-white p-6 rounded-lg shadow-sm'>
@@ -332,7 +365,11 @@ const SmartGreeting = () => {
                   </button>
                 </div>
                 <div className='bg-gray-50 p-4 rounded-lg'>
-                  <p className='text-gray-800 leading-relaxed'>{generatedGreeting}</p>
+                  <textarea
+                    value={generatedGreeting}
+                    readOnly
+                    className='w-full h-52 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 resize-none focus:outline-none text-gray-800 leading-relaxed'
+                  />
                 </div>
                 <div className='mt-3 text-xs text-gray-500'>
                   字数：{generatedGreeting.length} / {greetingSettings.maxLength}
@@ -340,16 +377,107 @@ const SmartGreeting = () => {
               </div>
             )}
 
-            {/* 使用提示 */}
-            <div className='bg-blue-50 p-6 rounded-lg'>
-              <h3 className='text-lg font-semibold text-blue-900 mb-3'>💡 使用建议</h3>
-              <ul className='text-sm text-blue-800 space-y-2'>
-                <li>• 确保简历信息完整准确，AI分析更精准</li>
-                <li>• JD内容越详细，生成的打招呼语越个性化</li>
-                <li>• 可根据不同公司调整打招呼语风格</li>
-                <li>• 建议结合具体岗位要求微调内容</li>
-              </ul>
+            {/* 示例打招呼语展示 */}
+            <div className='bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-lg'>
+              <h3 className='text-lg font-semibold text-purple-900 mb-4 flex items-center'>
+                <svg
+                  className='w-5 h-5 text-purple-600 mr-2'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z'
+                  />
+                </svg>
+                示例效果
+              </h3>
+
+              <div className='space-y-4'>
+                <div className='bg-white p-4 rounded-lg shadow-sm'>
+                  <div className='flex items-center mb-2'>
+                    <span className='px-2 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full mr-2'>
+                      专业型
+                    </span>
+                    <span className='text-sm text-gray-500'>前端开发工程师</span>
+                  </div>
+                  <textarea
+                    readOnly
+                    value="您好！我是一名具有3年React开发经验的前端工程师，看到贵公司正在招聘前端开发岗位。我在电商平台开发方面有丰富经验，熟悉Vue.js和Node.js技术栈，相信能为团队带来价值。期待与您进一步沟通！"
+                    className='w-full h-32 px-3 py-2 border border-gray-200 rounded-md bg-gray-50 resize-none focus:outline-none text-sm text-gray-700 leading-relaxed'
+                  />
+                </div>
+
+                <div className='bg-white p-4 rounded-lg shadow-sm'>
+                  <div className='flex items-center mb-2'>
+                    <span className='px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full mr-2'>
+                      真诚型
+                    </span>
+                    <span className='text-sm text-gray-500'>产品经理</span>
+                  </div>
+                  <textarea
+                    readOnly
+                    value="您好！我对贵公司的产品理念非常认同，特别是'让求职更智能'的愿景深深打动了我。作为一名有5年产品经验的产品经理，我希望能够加入团队，共同打造更优秀的求职产品。期待有机会与您交流！"
+                    className='w-full h-32 px-3 py-2 border border-gray-200 rounded-md bg-gray-50 resize-none focus:outline-none text-sm text-gray-700 leading-relaxed'
+                  />
+                </div>
+
+                <div className='bg-white p-4 rounded-lg shadow-sm'>
+                  <div className='flex items-center mb-2'>
+                    <span className='px-2 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full mr-2'>
+                      简短有力型
+                    </span>
+                    <span className='text-sm text-gray-500'>数据分析师</span>
+                  </div>
+                  <textarea
+                    readOnly
+                    value="您好！我是一名数据分析师，擅长Python和SQL，有丰富的用户行为分析经验，期待为贵公司的数据驱动决策贡献力量！"
+                    className='w-full h-32 px-3 py-2 border border-gray-200 rounded-md bg-gray-50 resize-none focus:outline-none text-sm text-gray-700 leading-relaxed'
+                  />
+                </div>
+
+                <div className='bg-white p-4 rounded-lg shadow-sm'>
+                  <div className='flex items-center mb-2'>
+                    <span className='px-2 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full mr-2'>
+                      创新型
+                    </span>
+                    <span className='text-sm text-gray-500'>UI/UX设计师</span>
+                  </div>
+                  <textarea
+                    readOnly
+                    value="您好！我是一名UI/UX设计师，专注于用户体验设计和界面创新。看到贵公司正在招聘设计岗位，我对您的产品设计理念很感兴趣。我有丰富的移动端和Web端设计经验，希望能为团队带来创新的设计思维。期待与您深入交流！"
+                    className='w-full h-32 px-3 py-2 border border-gray-200 rounded-md bg-gray-50 resize-none focus:outline-none text-sm text-gray-700 leading-relaxed'
+                  />
+                </div>
+              </div>
+
+              <div className='mt-4 p-3 bg-indigo-50 rounded-lg'>
+                <p className='text-xs text-indigo-700 text-center'>
+                  💡 以上仅为示例，AI会根据您的简历和JD生成专属的个性化打招呼语
+                </p>
+              </div>
             </div>
+          </div>
+        </div>
+
+        {/* 注册引导CTA - 全宽底部展示 */}
+        <div className='mt-12 p-8 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl'>
+          <h3 className='text-2xl font-semibold text-gray-900 mb-3 text-center'>
+            想要生成更多个性化打招呼语？
+          </h3>
+          <p className='text-lg text-gray-600 text-center mb-6'>
+            注册账号，保存您的打招呼语模板，支持批量生成和个性化定制
+          </p>
+          <div className='flex justify-center gap-6'>
+            <button className='px-10 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl text-lg font-medium'>
+              立即注册体验
+            </button>
+            <button className='px-10 py-4 border-2 border-purple-500 text-purple-600 rounded-lg hover:bg-purple-50 transition-all duration-200 text-lg font-medium shadow-md hover:shadow-lg'>
+              了解更多功能
+            </button>
           </div>
         </div>
       </div>
