@@ -61,31 +61,7 @@ const Navigation = () => {
                 演示
               </a>
               <a
-                href='#auto-delivery'
-                className='text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors'
-              >
-                自动投递
-              </a>
-              <a
-                href='#jd-matching'
-                className='text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors'
-              >
-                JD匹配
-              </a>
-              <a
-                href='#smart-greeting'
-                className='text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors'
-              >
-                智能打招呼
-              </a>
-              <a
-                href='#pricing'
-                className='text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors'
-              >
-                价格
-              </a>
-              <a
-                href='http://localhost:4321/blog/'
+                href='https://blog.zhitoujianli.com'
                 className='text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors'
                 target='_blank'
                 rel='noopener noreferrer'
@@ -93,10 +69,12 @@ const Navigation = () => {
                 博客
               </a>
               <a
-                href='#contact'
+                href='https://blog.zhitoujianli.com/about'
                 className='text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors'
+                target='_blank'
+                rel='noopener noreferrer'
               >
-                联系我们
+                关于我们
               </a>
             </div>
           </div>
@@ -104,15 +82,7 @@ const Navigation = () => {
           {/* CTA Buttons */}
           <div className='hidden md:flex space-x-3'>
             <a
-              href='http://localhost:8080'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='bg-gray-600 text-white px-6 py-2 rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg'
-            >
-              后台管理
-            </a>
-            <a
-              href='#contact'
+              href='http://115.190.182.95/login'
               className='bg-gradient-primary text-white px-6 py-2 rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg'
             >
               立即体验
@@ -154,31 +124,7 @@ const Navigation = () => {
                 演示
               </a>
               <a
-                href='#auto-delivery'
-                className='text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium'
-              >
-                自动投递
-              </a>
-              <a
-                href='#jd-matching'
-                className='text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium'
-              >
-                JD匹配
-              </a>
-              <a
-                href='#smart-greeting'
-                className='text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium'
-              >
-                智能打招呼
-              </a>
-              <a
-                href='#pricing'
-                className='text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium'
-              >
-                价格
-              </a>
-              <a
-                href='http://localhost:4321/blog/'
+                href='https://blog.zhitoujianli.com'
                 className='text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium'
                 target='_blank'
                 rel='noopener noreferrer'
@@ -186,21 +132,15 @@ const Navigation = () => {
                 博客
               </a>
               <a
-                href='#contact'
+                href='https://blog.zhitoujianli.com/about'
                 className='text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium'
-              >
-                联系我们
-              </a>
-              <a
-                href='http://localhost:8080'
                 target='_blank'
                 rel='noopener noreferrer'
-                className='w-full bg-gray-600 text-white px-6 py-2 rounded-lg mt-2 text-center block'
               >
-                后台管理
+                关于我们
               </a>
               <a
-                href='#contact'
+                href='http://115.190.182.95/login'
                 className='w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-lg mt-2 text-center block'
               >
                 立即体验

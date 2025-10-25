@@ -29,10 +29,10 @@ export const headerData = {
     },
     {
       text: '关于我们',
-      href: (import.meta.env.SITE_URL || 'http://115.190.182.95') + '#contact',
+      href: 'https://zhitoujianli.com/#about',
     },
   ],
-  actions: [{ text: '立即体验', href: import.meta.env.SITE_URL || 'http://115.190.182.95', target: '_blank' }],
+  actions: [{ text: '立即体验', href: import.meta.env.SITE_URL || 'http://115.190.182.95/login', target: '_blank' }],
 };
 
 export const footerData = {

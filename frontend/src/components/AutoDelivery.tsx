@@ -55,8 +55,8 @@ const AutoDelivery = () => {
       return;
     }
 
-    // 跳转到后台管理系统
-    window.open('http://localhost:8080', '_blank');
+    // 跳转到登录页
+    window.open('http://115.190.182.95/login', '_blank');
   };
 
   return (
@@ -319,13 +319,13 @@ const AutoDelivery = () => {
             <div className='bg-gradient-to-r from-indigo-500 to-purple-600 p-6 rounded-lg text-white'>
               <h3 className='text-lg font-semibold mb-2'>准备开始投递？</h3>
               <p className='text-sm opacity-90 mb-4'>
-                点击下方按钮进入后台管理系统，配置详细的投递参数
+                登录后即可开始配置详细的投递参数
               </p>
               <button
                 onClick={handleStartDelivery}
                 className='w-full bg-white text-indigo-600 py-3 px-6 rounded-lg font-medium hover:bg-gray-100 transition-colors'
               >
-                进入后台管理系统
+                立即登录
               </button>
             </div>
           </div>

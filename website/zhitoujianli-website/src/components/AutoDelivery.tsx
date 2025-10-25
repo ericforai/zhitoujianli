@@ -53,8 +53,8 @@ const AutoDelivery = () => {
       return;
     }
 
-    // 跳转到后台管理系统
-    window.open('http://localhost:8080', '_blank');
+    // 跳转到登录页
+    window.open('http://115.190.182.95/login', '_blank');
   };
 
   return (
@@ -287,16 +287,35 @@ const AutoDelivery = () => {
             {/* 开始投递按钮 */}
             <div className='bg-gradient-to-r from-indigo-500 to-purple-600 p-6 rounded-lg text-white'>
               <h3 className='text-lg font-semibold mb-2'>准备开始投递？</h3>
-              <p className='text-sm opacity-90 mb-4'>
-                点击下方按钮进入后台管理系统，配置详细的投递参数
-              </p>
+              <p className='text-sm opacity-90 mb-4'>登录后即可开始配置详细的投递参数</p>
               <button
                 onClick={handleStartDelivery}
                 className='w-full bg-white text-indigo-600 py-3 px-6 rounded-lg font-medium hover:bg-gray-100 transition-colors'
               >
-                进入后台管理系统
+                立即登录
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* 底部注册引导CTA */}
+        <div className='mt-12 p-8 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl'>
+          <h3 className='text-2xl font-semibold text-gray-900 mb-3 text-center'>
+            准备开启智能投递之旅？
+          </h3>
+          <p className='text-lg text-gray-600 text-center mb-6'>
+            立即注册，享受AI驱动的自动化投递服务，让求职更高效
+          </p>
+          <div className='flex justify-center gap-6'>
+            <button
+              onClick={handleStartDelivery}
+              className='px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-lg font-medium'
+            >
+              立即注册
+            </button>
+            <button className='px-10 py-4 border-2 border-indigo-500 text-indigo-600 rounded-lg hover:bg-indigo-50 transition-all duration-200 text-lg font-medium shadow-md hover:shadow-lg'>
+              了解更多
+            </button>
           </div>
         </div>
       </div>
@@ -305,4 +324,3 @@ const AutoDelivery = () => {
 };
 
 export default AutoDelivery;
-
