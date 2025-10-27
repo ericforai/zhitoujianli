@@ -3,13 +3,42 @@ import { useState } from 'react';
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  // 处理锚点滚动
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    const element = document.querySelector(targetId);
+    if (element) {
+      // 获取固定导航栏的高度（约80px）
+      const navHeight = 80;
+      const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+      const offsetPosition = elementPosition - navHeight - 20; // 额外20px间距
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth',
+      });
+    }
+    setIsMenuOpen(false);
+  };
+
+  // 处理Logo点击 - 返回页面顶部
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setIsMenuOpen(false);
+  };
+
   return (
     <nav className='bg-white shadow-sm fixed w-full top-0 z-50'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='flex justify-between items-center h-16'>
           {/* Logo */}
           <div className='flex items-center'>
-            <div className='flex-shrink-0 flex items-center space-x-2'>
+            <a
+              href='/'
+              onClick={handleLogoClick}
+              className='flex-shrink-0 flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity duration-200'
+            >
               {/* Logo图标：简历文档+箭头 */}
               <div className='w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center'>
                 <svg
@@ -42,7 +71,7 @@ const Navigation = () => {
               <h1 className='text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent font-chinese'>
                 智投简历
               </h1>
-            </div>
+            </a>
           </div>
 
           {/* Desktop Menu */}
@@ -50,12 +79,14 @@ const Navigation = () => {
             <div className='ml-10 flex items-baseline space-x-8'>
               <a
                 href='#features'
+                onClick={e => handleNavClick(e, '#features')}
                 className='text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors'
               >
                 功能
               </a>
               <a
                 href='#demo'
+                onClick={e => handleNavClick(e, '#demo')}
                 className='text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors'
               >
                 演示
@@ -113,12 +144,14 @@ const Navigation = () => {
             <div className='px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t'>
               <a
                 href='#features'
+                onClick={e => handleNavClick(e, '#features')}
                 className='text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium'
               >
                 功能
               </a>
               <a
                 href='#demo'
+                onClick={e => handleNavClick(e, '#demo')}
                 className='text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium'
               >
                 演示

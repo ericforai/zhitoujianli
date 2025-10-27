@@ -115,20 +115,20 @@ const Demo = () => {
   }, []);
 
   return (
-    <section id='demo' className='py-20 bg-gray-50'>
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+    <section id='demo' className='py-28 bg-gray-50 scroll-mt-32'>
+      <div className='max-w-5xl mx-auto px-6 sm:px-8 lg:px-12'>
         <div className='text-center mb-16'>
-          <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4 font-chinese'>
+          <h2 className='text-2xl md:text-3xl font-bold text-gray-900 mb-4 font-chinese'>
             只需三步，轻松开启智能求职
           </h2>
-          <p className='text-xl text-gray-600 max-w-2xl mx-auto'>上传简历 → 匹配JD → 智能打招呼</p>
+          <p className='text-lg text-gray-600 max-w-2xl mx-auto'>上传简历 → 匹配JD → 智能打招呼</p>
         </div>
 
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
+        <div className='grid grid-cols-1 md:grid-cols-3 md:gap-4 gap-8'>
           {/* 步骤1：上传简历 */}
           <div className='relative'>
             <div
-              className={`text-center p-8 bg-white rounded-xl shadow-sm transition-all duration-500 min-h-[320px] flex flex-col justify-center ${
+              className={`text-center p-6 bg-white rounded-xl shadow-sm transition-all duration-500 min-h-[280px] flex flex-col justify-center ${
                 currentStep === 0
                   ? 'shadow-2xl scale-105 ring-4 ring-primary-500 ring-opacity-50'
                   : 'hover:shadow-md'
@@ -188,31 +188,12 @@ const Demo = () => {
                 <div className='text-green-500 font-medium animate-bounce'>✓ 简历已上传</div>
               )}
             </div>
-
-            {/* 箭头 */}
-            <div className='hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2'>
-              <svg
-                className={`w-8 h-8 transition-all duration-500 ${
-                  currentStep === 0 ? 'text-primary-500 animate-pulse' : 'text-gray-400'
-                }`}
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M9 5l7 7-7 7'
-                />
-              </svg>
-            </div>
           </div>
 
           {/* 步骤2：匹配JD */}
           <div className='relative'>
             <div
-              className={`text-center p-8 bg-white rounded-xl shadow-sm transition-all duration-500 min-h-[320px] flex flex-col justify-center ${
+              className={`text-center p-6 bg-white rounded-xl shadow-sm transition-all duration-500 min-h-[280px] flex flex-col justify-center ${
                 currentStep === 1
                   ? 'shadow-2xl scale-105 ring-4 ring-secondary-500 ring-opacity-50'
                   : 'hover:shadow-md'
@@ -279,31 +260,12 @@ const Demo = () => {
                 </div>
               )}
             </div>
-
-            {/* 箭头 */}
-            <div className='hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2'>
-              <svg
-                className={`w-8 h-8 transition-all duration-500 ${
-                  currentStep === 1 ? 'text-secondary-500 animate-pulse' : 'text-gray-400'
-                }`}
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M9 5l7 7-7 7'
-                />
-              </svg>
-            </div>
           </div>
 
           {/* 步骤3：智能打招呼 */}
           <div className='relative'>
             <div
-              className={`text-center p-8 bg-white rounded-xl shadow-sm transition-all duration-500 min-h-[320px] flex flex-col justify-center ${
+              className={`text-center p-6 bg-white rounded-xl shadow-sm transition-all duration-500 min-h-[280px] flex flex-col justify-center ${
                 currentStep === 2
                   ? 'shadow-2xl scale-105 ring-4 ring-accent-blue ring-opacity-50'
                   : 'hover:shadow-md'

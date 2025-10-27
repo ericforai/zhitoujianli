@@ -27,11 +27,11 @@ const Features = () => {
   ];
 
   return (
-    <section className='py-24 bg-white'>
-      <div className='max-w-6xl mx-auto px-4 sm:px-6 lg:px-8'>
+    <section id='features' className='py-32 bg-white scroll-mt-32'>
+      <div className='max-w-5xl mx-auto px-6 sm:px-8 lg:px-12'>
         <div className='text-center mb-16'>
-          <h2 className='text-4xl md:text-5xl font-bold text-gray-900 mb-4'>核心功能</h2>
-          <p className='text-xl text-gray-600 max-w-2xl mx-auto'>
+          <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4'>核心功能</h2>
+          <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
             AI驱动的智能求职系统，让每一次投递都精准高效
           </p>
         </div>
@@ -49,8 +49,8 @@ const Features = () => {
                   {feature.icon}
                 </div>
               </div>
-              <h3 className='text-xl font-bold text-gray-900 mb-3'>{feature.title}</h3>
-              <p className='text-gray-600 leading-relaxed'>{feature.description}</p>
+              <h3 className='text-lg font-bold text-gray-900 mb-3'>{feature.title}</h3>
+              <p className='text-sm text-gray-600 leading-relaxed'>{feature.description}</p>
             </div>
           ))}
         </div>

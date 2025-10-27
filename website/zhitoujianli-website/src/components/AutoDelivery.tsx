@@ -58,13 +58,13 @@ const AutoDelivery = () => {
   };
 
   return (
-    <section id='auto-delivery' className='py-20 bg-gray-50'>
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+    <section id='auto-delivery' className='py-28 bg-gray-50'>
+      <div className='max-w-6xl mx-auto px-6 sm:px-8 lg:px-12'>
         <div className='text-center mb-16'>
-          <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4 font-chinese'>
+          <h2 className='text-2xl md:text-3xl font-bold text-gray-900 mb-4 font-chinese'>
             自动化投递简历
           </h2>
-          <p className='text-xl text-gray-600 max-w-2xl mx-auto'>
+          <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
             一键批量投递，智能匹配岗位，节省宝贵时间，提升求职效率
           </p>
         </div>

@@ -59,13 +59,13 @@ const SmartGreeting = () => {
   };
 
   return (
-    <section id='smart-greeting' className='py-20 bg-gray-50'>
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+    <section id='smart-greeting' className='py-28 bg-gray-50'>
+      <div className='max-w-5xl mx-auto px-6 sm:px-8 lg:px-12'>
         <div className='text-center mb-16'>
-          <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4 font-chinese'>
+          <h2 className='text-2xl md:text-3xl font-bold text-gray-900 mb-4 font-chinese'>
             智能化打招呼语
           </h2>
-          <p className='text-xl text-gray-600 max-w-2xl mx-auto'>
+          <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
             基于您的简历和JD，生成个性化、高匹配度的打招呼语，提升投递成功率
           </p>
         </div>
@@ -182,9 +182,6 @@ const SmartGreeting = () => {
                 </div>
                 <h4 className='text-xl font-bold text-gray-900 mb-2'>智能打招呼</h4>
                 <p className='text-sm text-gray-700 font-medium'>AI生成个性化开场白</p>
-                <div className='mt-3 inline-block px-3 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full'>
-                  🎯 核心功能
-                </div>
               </div>
             </div>
           </div>
@@ -406,7 +403,7 @@ const SmartGreeting = () => {
                   </div>
                   <textarea
                     readOnly
-                    value="您好！我是一名具有3年React开发经验的前端工程师，看到贵公司正在招聘前端开发岗位。我在电商平台开发方面有丰富经验，熟悉Vue.js和Node.js技术栈，相信能为团队带来价值。期待与您进一步沟通！"
+                    value='您好！我是一名具有3年React开发经验的前端工程师，看到贵公司正在招聘前端开发岗位。我在电商平台开发方面有丰富经验，熟悉Vue.js和Node.js技术栈，相信能为团队带来价值。期待与您进一步沟通！'
                     className='w-full h-32 px-3 py-2 border border-gray-200 rounded-md bg-gray-50 resize-none focus:outline-none text-sm text-gray-700 leading-relaxed'
                   />
                 </div>
@@ -434,7 +431,7 @@ const SmartGreeting = () => {
                   </div>
                   <textarea
                     readOnly
-                    value="您好！我是一名数据分析师，擅长Python和SQL，有丰富的用户行为分析经验，期待为贵公司的数据驱动决策贡献力量！"
+                    value='您好！我是一名数据分析师，擅长Python和SQL，有丰富的用户行为分析经验，期待为贵公司的数据驱动决策贡献力量！'
                     className='w-full h-32 px-3 py-2 border border-gray-200 rounded-md bg-gray-50 resize-none focus:outline-none text-sm text-gray-700 leading-relaxed'
                   />
                 </div>
@@ -448,7 +445,7 @@ const SmartGreeting = () => {
                   </div>
                   <textarea
                     readOnly
-                    value="您好！我是一名UI/UX设计师，专注于用户体验设计和界面创新。看到贵公司正在招聘设计岗位，我对您的产品设计理念很感兴趣。我有丰富的移动端和Web端设计经验，希望能为团队带来创新的设计思维。期待与您深入交流！"
+                    value='您好！我是一名UI/UX设计师，专注于用户体验设计和界面创新。看到贵公司正在招聘设计岗位，我对您的产品设计理念很感兴趣。我有丰富的移动端和Web端设计经验，希望能为团队带来创新的设计思维。期待与您深入交流！'
                     className='w-full h-32 px-3 py-2 border border-gray-200 rounded-md bg-gray-50 resize-none focus:outline-none text-sm text-gray-700 leading-relaxed'
                   />
                 </div>

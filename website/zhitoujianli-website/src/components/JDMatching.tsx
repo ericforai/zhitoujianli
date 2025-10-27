@@ -126,13 +126,13 @@ const JDMatching = () => {
   };
 
   return (
-    <section id='jd-matching' className='py-20 bg-white'>
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+    <section id='jd-matching' className='py-28 bg-white'>
+      <div className='max-w-5xl mx-auto px-6 sm:px-8 lg:px-12'>
         <div className='text-center mb-16'>
-          <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4 font-chinese'>
+          <h2 className='text-2xl md:text-3xl font-bold text-gray-900 mb-4 font-chinese'>
             JD智能匹配度分析
           </h2>
-          <p className='text-xl text-gray-600 max-w-2xl mx-auto'>
+          <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
             精准解析简历与JD的契合度，提供详细的匹配分析和优化建议
           </p>
         </div>
