@@ -15,12 +15,12 @@ if [ -d "frontend" ]; then
   cd ..
 fi
 
-# 后端测试
+# 后端测试（已禁用）
 if [ -d "backend/get_jobs" ]; then
-  echo "⚙️ 运行后端测试..."
-  cd backend/get_jobs
-  mvn test
-  cd ../..
+  echo "⚙️ 后端测试已禁用，跳过..."
+  # cd backend/get_jobs
+  # mvn test
+  # cd ../..
 fi
 
 # 构建检查

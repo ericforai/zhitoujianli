@@ -24,9 +24,9 @@ if [ -d "frontend" ]; then
   cd ..
 fi
 
-# 后端代码检查
+# 后端代码检查（已禁用测试）
 if [ -d "backend/get_jobs" ]; then
-  echo "⚙️ 检查后端代码..."
+  echo "⚙️ 检查后端代码（跳过测试）..."
   cd backend/get_jobs
 
   # Checkstyle检查
