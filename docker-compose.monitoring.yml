@@ -1,0 +1,81 @@
+version: '3.8'
+
+# 智投简历 - 监控告警系统
+# Prometheus + Grafana + Alertmanager
+
+services:
+  # Prometheus - 指标收集和存储
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: zhitoujianli-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/alerts:/etc/prometheus/alerts
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    restart: unless-stopped
+    networks:
+      - monitoring
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Grafana - 可视化Dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: zhitoujianli-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=https://zhitoujianli.com/grafana
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    restart: unless-stopped
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+
+  # Alertmanager - 告警管理和通知
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: zhitoujianli-alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - alertmanager-data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+volumes:
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  alertmanager-data:
+    driver: local
+
+networks:
+  monitoring:
+    driver: bridge
+
+
+
+

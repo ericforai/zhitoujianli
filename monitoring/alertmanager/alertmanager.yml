@@ -1,0 +1,78 @@
+# Alertmanager配置
+# 智投简历告警通知配置
+
+global:
+  resolve_timeout: 5m
+  # SMTP配置（用于邮件通知）
+  smtp_smarthost: 'smtp.qq.com:465'
+  smtp_from: '${ALERT_EMAIL_FROM:alert@zhitoujianli.com}'
+  smtp_auth_username: '${ALERT_EMAIL_USER}'
+  smtp_auth_password: '${ALERT_EMAIL_PASSWORD}'
+  smtp_require_tls: true
+
+# 告警路由
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  receiver: 'default'
+
+  routes:
+    # 严重告警 - 多渠道通知
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 10s
+      repeat_interval: 5m
+
+    # 警告 - 邮件通知
+    - match:
+        severity: warning
+      receiver: 'warning-alerts'
+      repeat_interval: 1h
+
+# 告警接收器
+receivers:
+  # 默认接收器
+  - name: 'default'
+    webhook_configs:
+      - url: 'http://localhost:8080/api/alerts/webhook'
+        send_resolved: true
+
+  # 严重告警 - 邮件 + Webhook
+  - name: 'critical-alerts'
+    email_configs:
+      - to: '${ALERT_EMAIL_TO:admin@zhitoujianli.com}'
+        headers:
+          Subject: '🚨 [严重] {{ .GroupLabels.alertname }}'
+        html: |
+          <h2>严重告警</h2>
+          <p><strong>告警名称:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>描述:</strong> {{ .CommonAnnotations.description }}</p>
+          <p><strong>建议操作:</strong> {{ .CommonAnnotations.action }}</p>
+          <p><strong>时间:</strong> {{ .StartsAt }}</p>
+    webhook_configs:
+      - url: 'http://localhost:8080/api/alerts/webhook'
+        send_resolved: true
+
+  # 警告告警 - 仅邮件
+  - name: 'warning-alerts'
+    email_configs:
+      - to: '${ALERT_EMAIL_TO:admin@zhitoujianli.com}'
+        headers:
+          Subject: '⚠️  [警告] {{ .GroupLabels.alertname }}'
+
+# 抑制规则（避免告警风暴）
+inhibit_rules:
+  # 服务宕机时，抑制其他所有告警
+  - source_match:
+      severity: 'critical'
+      alertname: 'ServiceDown'
+    target_match_re:
+      severity: 'warning|info'
+    equal: ['service']
+
+
+
+

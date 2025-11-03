@@ -1,0 +1,65 @@
+# 可用性告警规则
+# 监控服务宕机、健康检查失败等
+
+groups:
+  - name: availability
+    interval: 30s
+    rules:
+      # 服务宕机
+      - alert: ServiceDown
+        expr: up{job="zhitoujianli-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: availability
+          team: ops
+        annotations:
+          summary: "🚨 后端服务宕机！"
+          description: "智投简历后端服务已停止响应超过1分钟"
+          action: "立即检查服务状态：systemctl status zhitoujianli-backend"
+          runbook: "https://docs.zhitoujianli.com/runbook/service-down"
+
+      # 健康检查失败
+      - alert: HealthCheckFailed
+        expr: up{job="zhitoujianli-backend"} == 1 and (application_ready_status{job="zhitoujianli-backend"} == 0 or application_live_status{job="zhitoujianli-backend"} == 0)
+        for: 3m
+        labels:
+          severity: warning
+          category: availability
+        annotations:
+          summary: "服务健康检查失败"
+          description: "服务运行中但健康检查失败"
+          action: "检查/actuator/health端点和依赖服务状态"
+
+      # HTTP请求成功率低
+      - alert: LowHTTPSuccessRate
+        expr: |
+          (
+            sum(rate(http_server_requests_seconds_count{status=~"2.."}[5m]))
+            /
+            sum(rate(http_server_requests_seconds_count[5m]))
+          ) < 0.95
+        for: 5m
+        labels:
+          severity: warning
+          category: availability
+        annotations:
+          summary: "HTTP请求成功率低"
+          description: "成功率：{{ $value | humanizePercentage }}"
+          action: "检查应用错误日志"
+
+      # 数据库连接失败
+      - alert: DatabaseConnectionError
+        expr: hikaricp_connections_creation_failed > 0
+        for: 2m
+        labels:
+          severity: critical
+          category: database
+        annotations:
+          summary: "数据库连接创建失败"
+          description: "无法创建新的数据库连接"
+          action: "检查数据库服务状态和网络连接"
+
+
+
+

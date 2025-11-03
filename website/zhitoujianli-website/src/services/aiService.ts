@@ -60,7 +60,7 @@ export const analyzeResumeAndJD = async (
   jdText: string,
   settings: GreetingSettings
 ): Promise<{ analysis: AnalysisResult; greeting: string }> => {
-  
+
   // 模拟API调用延迟
   await new Promise(resolve => setTimeout(resolve, 2000));
 
@@ -91,9 +91,9 @@ export const analyzeResumeAndJD = async (
   // 根据风格生成打招呼语
   const greetingTemplates = {
     professional: `您好！我是${resumeData.name}，拥有${resumeData.experience.length}年相关工作经验，精通${resumeData.skills.slice(0, 3).join('、')}等技术栈。在${resumeData.projects[0] || '相关项目'}方面有丰富经验，曾负责${resumeData.experience[0] || '核心业务'}的开发和优化。看到贵公司招聘相关岗位，我的技术背景和项目经验与岗位要求高度匹配，希望能有机会为贵公司贡献价值。`,
-    
+
     sincere: `您好！我对贵公司的相关岗位非常感兴趣。作为一名有${resumeData.experience.length}年经验的工程师，我热爱技术，在${resumeData.skills.slice(0, 2).join('、')}方面有扎实基础，也有${resumeData.projects[0] || '相关项目'}开发经验。我相信我的技能和热情能够为团队带来价值，期待与您进一步交流。`,
-    
+
     concise: `${resumeData.experience.length}年经验，精通${resumeData.skills.slice(0, 2).join('/')}，有${resumeData.projects[0] || '相关项目'}背景，与岗位要求高度匹配，期待合作机会。`
   };
 

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员认证诊断工具</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 管理员认证诊断工具</h1>
+
+    <div class="card">
+        <h2>1. 当前认证状态</h2>
+        <div id="authStatus"></div>
+    </div>
+
+    <div class="card">
+        <h2>2. localStorage 内容</h2>
+        <pre id="localStorage"></pre>
+    </div>
+
+    <div class="card">
+        <h2>3. 操作</h2>
+        <button onclick="checkStatus()">刷新状态</button>
+        <button onclick="clearAll()">清除所有认证信息</button>
+        <button onclick="goToLogin()">前往登录页</button>
+        <button onclick="goToDashboard()">前往管理后台</button>
+    </div>
+
+    <div class="card">
+        <h2>4. 测试登录API</h2>
+        <input type="text" id="username" placeholder="用户名 (admin@zhitoujianli.com)" style="width: 300px; padding: 8px; margin: 5px;">
+        <input type="password" id="password" placeholder="密码" style="width: 300px; padding: 8px; margin: 5px;">
+        <br>
+        <button onclick="testLogin()">测试登录</button>
+        <div id="loginResult"></div>
+    </div>
+
+    <script>
+        function checkStatus() {
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            const userType = localStorage.getItem('userType');
+            const allKeys = Object.keys(localStorage);
+
+            const statusDiv = document.getElementById('authStatus');
+            let html = '';
+
+            if (token && userType === 'admin') {
+                html += '<div class="status success">✅ 管理员认证通过</div>';
+                html += '<p><strong>Token:</strong> ' + token.substring(0, 30) + '...</p>';
+                html += '<p><strong>UserType:</strong> ' + userType + '</p>';
+            } else {
+                html += '<div class="status error">❌ 管理员认证失败</div>';
+                if (!token) {
+                    html += '<div class="status warning">⚠️ 缺少 Token</div>';
+                }
+                if (userType !== 'admin') {
+                    html += '<div class="status warning">⚠️ UserType 不是 admin (当前: ' + (userType || 'null') + ')</div>';
+                }
+            }
+
+            statusDiv.innerHTML = html;
+
+            const storageDiv = document.getElementById('localStorage');
+            storageDiv.textContent = JSON.stringify(
+                allKeys.reduce((acc, key) => {
+                    acc[key] = localStorage.getItem(key);
+                    return acc;
+                }, {}),
+                null,
+                2
+            );
+        }
+
+        function clearAll() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userType');
+            localStorage.removeItem('user');
+            alert('已清除所有认证信息');
+            checkStatus();
+        }
+
+        function goToLogin() {
+            window.location.href = '/login';
+        }
+
+        function goToDashboard() {
+            window.location.href = '/admin/dashboard';
+        }
+
+        async function testLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('loginResult');
+
+            if (!username || !password) {
+                resultDiv.innerHTML = '<div class="status error">请输入用户名和密码</div>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<div class="status warning">正在测试登录...</div>';
+
+            try {
+                const response = await fetch('/api/admin/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: username,
+                        username: username,
+                        password: password,
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.token) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('userType', 'admin');
+
+                    resultDiv.innerHTML = '<div class="status success">✅ 登录成功！Token已保存</div>';
+                    checkStatus();
+
+                    setTimeout(() => {
+                        if (confirm('登录成功！是否跳转到管理后台？')) {
+                            window.location.replace('/admin/dashboard');
+                        }
+                    }, 1000);
+                } else {
+                    resultDiv.innerHTML = '<div class="status error">❌ 登录失败: ' + (data.message || '未知错误') + '</div>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="status error">❌ 请求失败: ' + error.message + '</div>';
+            }
+        }
+
+        // 页面加载时自动检查
+        checkStatus();
+    </script>
+</body>
+</html>

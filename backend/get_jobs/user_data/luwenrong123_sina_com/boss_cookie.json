@@ -1,0 +1,146 @@
+[
+    {
+        "path": "/",
+        "expires": 1.793616694419669E9,
+        "domain": ".zhipin.com",
+        "name": "lastCity",
+        "httpOnly": false,
+        "secure": false,
+        "value": "101010100"
+    },
+    {
+        "path": "/",
+        "expires": 1.796640695802406E9,
+        "domain": ".hm.baidu.com",
+        "name": "HMACCOUNT_BFESS",
+        "httpOnly": false,
+        "secure": true,
+        "value": "115DC14485D5537D"
+    },
+    {
+        "path": "/",
+        "expires": -1,
+        "domain": ".zhipin.com",
+        "name": "__g",
+        "httpOnly": false,
+        "secure": false,
+        "value": "-"
+    },
+    {
+        "path": "/",
+        "expires": 1.793616731E9,
+        "domain": ".zhipin.com",
+        "name": "Hm_lvt_194df3105ad7148dcf2b98a91b5e727a",
+        "httpOnly": false,
+        "secure": false,
+        "value": "1762080696"
+    },
+    {
+        "path": "/",
+        "expires": -1,
+        "domain": ".zhipin.com",
+        "name": "HMACCOUNT",
+        "httpOnly": false,
+        "secure": false,
+        "value": "115DC14485D5537D"
+    },
+    {
+        "path": "/",
+        "expires": -1,
+        "domain": ".zhipin.com",
+        "name": "__l",
+        "httpOnly": false,
+        "secure": false,
+        "value": "l=%2Fwww.zhipin.com%2Fweb%2Fuser%2F%3Fka%3Dheader-login&s=3&friend_source=0"
+    },
+    {
+        "path": "/",
+        "expires": 1.762628400274257E9,
+        "domain": ".zhipin.com",
+        "name": "wt2",
+        "httpOnly": true,
+        "secure": false,
+        "value": "DqD8GNiLP8pvaDlFSqmjJsd-QYYVVR-MoplLXO8BfVBPtkhPTHncq35nl6osP4KRb5D0ivSVx14qDpmZsJ9F9FA~~"
+    },
+    {
+        "path": "/",
+        "expires": 1.762628400274447E9,
+        "domain": ".zhipin.com",
+        "name": "wbg",
+        "httpOnly": true,
+        "secure": false,
+        "value": "0"
+    },
+    {
+        "path": "/",
+        "expires": 1.762628400274496E9,
+        "domain": ".zhipin.com",
+        "name": "zp_at",
+        "httpOnly": true,
+        "secure": false,
+        "value": "x7nEmsE6dwifP3byw20tfMh7GyKwLjJmLplkPAdct8A~"
+    },
+    {
+        "path": "/",
+        "expires": 1.796640731071738E9,
+        "domain": "www.zhipin.com",
+        "name": "ab_guid",
+        "httpOnly": false,
+        "secure": false,
+        "value": "34de1c8d-a81e-451b-b358-e519328537f5"
+    },
+    {
+        "path": "/",
+        "expires": -1,
+        "domain": ".zhipin.com",
+        "name": "Hm_lpvt_194df3105ad7148dcf2b98a91b5e727a",
+        "httpOnly": false,
+        "secure": false,
+        "value": "1762080732"
+    },
+    {
+        "path": "/",
+        "expires": 1.762628400469833E9,
+        "domain": ".zhipin.com",
+        "name": "bst",
+        "httpOnly": false,
+        "secure": true,
+        "value": "V2QN8vFOT-2VRrW9NryR8QLSuw7jjX|QN8vFOT-2VRrW9NryR8QLSuw6T_U"
+    },
+    {
+        "path": "/",
+        "expires": -1,
+        "domain": ".zhipin.com",
+        "name": "__c",
+        "httpOnly": false,
+        "secure": false,
+        "value": "1762080696"
+    },
+    {
+        "path": "/",
+        "expires": 1.796640732569903E9,
+        "domain": ".zhipin.com",
+        "name": "__a",
+        "httpOnly": false,
+        "secure": false,
+        "value": "90587609.1762080696..1762080696.4.1.4.4"
+    },
+    {
+        "path": "/",
+        "expires": 1.762081733085422E9,
+        "domain": "ws6.zhipin.com",
+        "name": "tgw_l7_route",
+        "httpOnly": false,
+        "secure": true,
+        "value": "fb45e7068fe1d86d76200f75c62f6b2f"
+    },
+    {
+        "path": "/",
+        "expires": 1.762311133E9,
+        "domain": ".zhipin.com",
+        "name": "__zp_stoken__",
+        "httpOnly": false,
+        "secure": false,
+        "value": "e8dbfw4TClQ4MNF8KWV4KwrVtTcK2dl5iW01cf1lyXMKwTlFCW8Kwe8KcwqXCvGRDQsKfwr3CiW7ChVbCg8KnwovCr8O0acO1Q8KuwpLClcSWw6cJwpDEocO6wrbCnzArBgACAQIGAAIBAnN1CgkKCQ8NDg0NCwkKCTUrwrTDhTMwNjQlTUlPBklcX0ZbRQZVR0c3MAoPAw4wKjY0NzTCucK2wrAPwr3CsMKyDMK%2BwrTCtA40PzQwwrbDtiInwrdhAMK3w4kEwrFzA2kEfgDDh1s5D8OXwrfDvywwMsK3xLU7MRY9Mzc%2FMzc8NzEmMDjDgFk9DsOXwrDDnCM3Ez8xMzkxNzEzOzM5JTM%2FKiExNCc%2FBA4PAgMmPMKwwp3CtMOdMTM%3D"
+    }
+]

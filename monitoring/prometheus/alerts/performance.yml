@@ -1,0 +1,85 @@
+# 性能告警规则
+# 监控API响应时间、数据库连接池、内存使用等
+
+groups:
+  - name: performance
+    interval: 30s
+    rules:
+      # API响应时间过长（P95）
+      - alert: SlowAPIResponse
+        expr: histogram_quantile(0.95, rate(api_calls_seconds_bucket[5m])) > 5
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "API响应时间过长"
+          description: "95%的API请求响应时间超过5秒：{{ $value | humanizeDuration }}"
+          action: "检查数据库查询性能和代码优化机会"
+
+      # 数据库连接池使用率高
+      - alert: HighDatabaseConnectionUsage
+        expr: |
+          (
+            hikaricp_connections_active
+            /
+            hikaricp_connections_max
+          ) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "数据库连接池使用率过高"
+          description: "当前活跃连接：{{ $value | humanizePercentage }}"
+          action: "考虑增加连接池大小或优化数据库查询"
+
+      # 数据库连接池即将耗尽
+      - alert: DatabaseConnectionPoolNearExhaustion
+        expr: |
+          (
+            hikaricp_connections_active
+            /
+            hikaricp_connections_max
+          ) > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          category: database
+        annotations:
+          summary: "数据库连接池即将耗尽！"
+          description: "活跃连接：{{ $value | humanizePercentage }}，可能导致服务不可用"
+          action: "立即检查慢查询和连接泄漏"
+
+      # JVM堆内存使用率高
+      - alert: HighHeapMemoryUsage
+        expr: |
+          (
+            jvm_memory_used_bytes{area="heap"}
+            /
+            jvm_memory_max_bytes{area="heap"}
+          ) > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          category: resource
+        annotations:
+          summary: "JVM堆内存使用率过高"
+          description: "堆内存使用率：{{ $value | humanizePercentage }}"
+          action: "检查内存泄漏，考虑增加堆内存"
+
+      # GC耗时过长
+      - alert: FrequentGarbageCollection
+        expr: rate(jvm_gc_pause_seconds_sum[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "GC耗时过长"
+          description: "过去5分钟GC平均耗时：{{ $value | humanize }}秒/分钟"
+          action: "检查内存使用和GC配置"
+
+
+
+

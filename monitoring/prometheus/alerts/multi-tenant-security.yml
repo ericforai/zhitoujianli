@@ -1,0 +1,53 @@
+# 多租户安全告警规则
+# 检测跨租户访问、未授权访问等安全问题
+
+groups:
+  - name: multi_tenant_security
+    interval: 30s
+    rules:
+      # 未授权访问过多
+      - alert: TooManyUnauthorizedAccess
+        expr: rate(security_unauthorized_total[5m]) > 5
+        for: 3m
+        labels:
+          severity: warning
+          category: security
+          team: backend
+        annotations:
+          summary: "未授权访问过多"
+          description: "过去5分钟平均每分钟{{ $value | humanize }}次未授权访问"
+          action: "检查是否有恶意扫描或Token过期问题"
+
+      # 数据访问被拒绝激增
+      - alert: DataAccessDeniedSpike
+        expr: rate(security_data_access_denied[5m]) > 10
+        for: 2m
+        labels:
+          severity: critical
+          category: security
+          team: backend
+        annotations:
+          summary: "数据访问被拒绝次数激增！"
+          description: "检测到大量数据访问被拒绝：{{ $value | humanize }}次/分钟"
+          action: "可能存在跨租户访问尝试，立即检查日志"
+
+      # API错误率过高
+      - alert: HighAPIErrorRate
+        expr: |
+          (
+            sum(rate(api_requests_total{status="error"}[5m]))
+            /
+            sum(rate(api_requests_total[5m]))
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          category: reliability
+        annotations:
+          summary: "API错误率过高"
+          description: "当前错误率：{{ $value | humanizePercentage }}"
+          action: "检查应用日志和异常堆栈"
+
+
+
+
