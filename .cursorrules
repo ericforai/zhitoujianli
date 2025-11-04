@@ -46,8 +46,9 @@ cp -r build /usr/share/nginx/html/
 ### 重要路径（必须记住）
 
 ```yaml
+前端唯一源代码: /root/zhitoujianli/frontend/  # ← v3.0.0后唯一官方源代码
+前端构建源: /root/zhitoujianli/frontend/build/
 前端部署路径: /var/www/zhitoujianli/build/  # ← Nginx配置的路径
-前端构建源: /root/zhitoujianli/website/zhitoujianli-website/build/
 后端JAR路径: /opt/zhitoujianli/backend/
 环境变量文件: /etc/zhitoujianli/backend.env
 部署脚本: /opt/zhitoujianli/scripts/
@@ -135,7 +136,7 @@ mvn clean package -DskipTests
 ## 🔄 版本管理
 
 **当前版本：**
-- 前端：使用 Git SHA 或 build 时间戳
+- 前端：v3.0.0（main.66e9065f.js，152.71 kB gzip）
 - 后端：v2.1.1（包含用户隔离修复）
 
 **部署记录：**
@@ -143,5 +144,144 @@ mvn clean package -DskipTests
 
 ---
 
+## 🚨 v3.0.0 关键教训（永久记住！）
+
+### ❌ 绝对禁止的前端操作
+
+**禁止创建任何其他前端目录：**
+```bash
+❌ 禁止：mkdir frontend2
+❌ 禁止：mkdir frontend_new  
+❌ 禁止：mkdir frontend_FINAL
+❌ 禁止：mkdir website
+❌ 禁止：在任何website/目录下开发前端
+```
+
+**禁止创建DEPRECATED标记文件：**
+```bash
+❌ 禁止：创建任何DEPRECATED.md文件
+❌ 如果看到DEPRECATED.md → 立即质疑并验证
+```
+
+**禁止修改部署脚本指向其他目录：**
+```bash
+❌ deploy-frontend.sh 必须永远指向：frontend/build
+❌ 不允许指向：website/、frontend_FINAL/、或任何其他目录
+```
+
+### ✅ 唯一正确的前端规则（v3.0.0后）
+
+**唯一源代码位置：**
+```bash
+✅ 唯一正确：/root/zhitoujianli/frontend/
+✅ 没有例外
+✅ 没有其他选择
+```
+
+**唯一构建命令：**
+```bash
+cd /root/zhitoujianli/frontend && npm run build
+```
+
+**唯一部署命令：**
+```bash
+/opt/zhitoujianli/scripts/deploy-frontend.sh
+```
+
+### 🔍 前端混乱问题的根源（已解决但永不忘记）
+
+**历史教训（v3.0.0之前的混乱）：**
+
+1. **自相矛盾的DEPRECATED.md文件**
+   - frontend/DEPRECATED.md说"用website"
+   - website/DEPRECATED.md说"用frontend"
+   - 导致AI陷入无限循环，版本反复切换
+
+2. **多个前端目录共存**
+   - frontend/、website/、frontend_FINAL/、build/
+   - 不知道哪个是官方源代码
+   - 部署时容易选错
+
+3. **部署脚本指向混乱**
+   - 脚本指向frontend_FINAL/build（不存在完整代码）
+   - 导致部署失败或部署错误版本
+
+4. **缺少明确的单一源代码规则**
+   - 没有文档说明哪个是官方目录
+   - 开发者和AI都困惑
+
+**v3.0.0解决方案：**
+- ✅ 彻底删除website/、frontend_FINAL/、build/
+- ✅ 删除所有DEPRECATED.md文件
+- ✅ 锁定部署脚本指向frontend/build
+- ✅ 创建清晰的README文档
+- ✅ 建立永久记忆和规则
+
+### 🛡️ 防护措施（永不再犯）
+
+**AI必须遵守的铁律：**
+
+1. **看到多个前端目录 → 立即警告用户**
+   - 只允许存在：frontend/ 和 PRODUCTION_FRONTEND/（备份）
+   - 任何其他前端目录都是错误的
+
+2. **看到DEPRECATED.md → 立即质疑**
+   - v3.0.0后不应该有任何DEPRECATED文件
+   - 如果出现，必须验证是否正确
+
+3. **修改部署脚本前 → 必须确认**
+   - deploy-frontend.sh的BUILD_SOURCE必须是frontend/build
+   - 不允许指向其他任何路径
+
+4. **创建前端目录前 → 必须拒绝**
+   - 前端只有一个官方目录：frontend/
+   - 任何创建新前端目录的请求都应该被质疑
+
+**验证命令（AI应定期执行）：**
+```bash
+# 验证只有2个前端目录
+ls -ld /root/zhitoujianli/frontend* /root/zhitoujianli/PRODUCTION_FRONTEND 2>/dev/null | wc -l
+# 应该输出：2
+
+# 验证部署脚本正确
+grep "BUILD_SOURCE=" /opt/zhitoujianli/scripts/deploy-frontend.sh
+# 应该输出：BUILD_SOURCE="/root/zhitoujianli/frontend/build"
+
+# 验证没有DEPRECATED文件
+find /root/zhitoujianli -name "DEPRECATED.md" 2>/dev/null
+# 应该输出：空（没有结果）
+```
+
+---
+
+## 📖 v3.0.0 快速参考
+
+**前端开发的唯一正确流程：**
+
+```bash
+# 1. 进入源代码目录
+cd /root/zhitoujianli/frontend/
+
+# 2. 修改代码
+vi src/components/XXX.tsx
+
+# 3. 构建+部署（一条命令）
+cd /root/zhitoujianli && ./deploy-frontend.sh
+
+# 4. 提醒用户清除浏览器缓存
+echo "请按 Ctrl + Shift + R 清除缓存"
+```
+
+**如果用户说"前端又乱了"：**
+
+1. 检查是否有多个前端目录
+2. 检查部署脚本指向是否正确
+3. 查看是否有DEPRECATED文件
+4. 参考本规则文件恢复正确状态
+
+---
+
 **🤖 AI提醒：每次执行操作前，先检查这个文件！**
+
+**🚨 v3.0.0后的铁律：frontend/是唯一源代码，没有任何例外！**
 
