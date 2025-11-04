@@ -1,0 +1,54 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景渐变 -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="avatarGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8fafc;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e2e8f0;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+  
+  <!-- 背景圆形 -->
+  <circle cx="100" cy="100" r="100" fill="url(#bgGradient)"/>
+  
+  <!-- 头像背景 -->
+  <circle cx="100" cy="100" r="80" fill="url(#avatarGradient)" filter="url(#shadow)"/>
+  
+  <!-- 头像内容 -->
+  <!-- 头部 -->
+  <circle cx="100" cy="80" r="25" fill="#cbd5e1"/>
+  
+  <!-- 身体 -->
+  <ellipse cx="100" cy="140" rx="35" ry="45" fill="#cbd5e1"/>
+  
+  <!-- 眼睛 -->
+  <circle cx="92" cy="75" r="3" fill="#374151"/>
+  <circle cx="108" cy="75" r="3" fill="#374151"/>
+  
+  <!-- 嘴巴 -->
+  <path d="M 95 85 Q 100 90 105 85" stroke="#374151" stroke-width="2" fill="none"/>
+  
+  <!-- 装饰性元素 -->
+  <!-- 代码符号 -->
+  <text x="50" y="50" font-family="monospace" font-size="16" fill="#ffffff" opacity="0.3">&lt;/&gt;</text>
+  <text x="150" y="170" font-family="monospace" font-size="16" fill="#ffffff" opacity="0.3">{}</text>
+  
+  <!-- 技术图标 -->
+  <circle cx="40" cy="40" r="8" fill="#ffffff" opacity="0.2"/>
+  <text x="40" y="45" font-family="Arial, sans-serif" font-size="12" fill="#ffffff" text-anchor="middle">⚡</text>
+  
+  <circle cx="160" cy="40" r="8" fill="#ffffff" opacity="0.2"/>
+  <text x="160" y="45" font-family="Arial, sans-serif" font-size="12" fill="#ffffff" text-anchor="middle">🚀</text>
+  
+  <circle cx="40" cy="160" r="8" fill="#ffffff" opacity="0.2"/>
+  <text x="40" y="165" font-family="Arial, sans-serif" font-size="12" fill="#ffffff" text-anchor="middle">💡</text>
+  
+  <circle cx="160" cy="160" r="8" fill="#ffffff" opacity="0.2"/>
+  <text x="160" y="165" font-family="Arial, sans-serif" font-size="12" fill="#ffffff" text-anchor="middle">🎯</text>
+</svg>

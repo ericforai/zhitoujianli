@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>简单API测试</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen bg-gray-50 p-8">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-3xl font-bold text-gray-900 mb-8">简单API测试</h1>
+
+      <div class="space-y-6">
+        <!-- 简历API测试 -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-xl font-semibold mb-4">简历API测试</h2>
+          <div class="space-y-4">
+            <button
+              onclick="testResumeCheck()"
+              class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              测试简历检查
+            </button>
+            <button
+              onclick="testResumeInfo()"
+              class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            >
+              测试简历信息
+            </button>
+          </div>
+          <div
+            id="resume-result"
+            class="mt-4 p-4 bg-gray-100 rounded min-h-[100px]"
+          >
+            <p class="text-gray-500">点击按钮开始测试...</p>
+          </div>
+        </div>
+
+        <!-- 投递配置API测试 -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-xl font-semibold mb-4">投递配置API测试</h2>
+          <div class="space-y-4">
+            <button
+              onclick="testDeliveryConfig()"
+              class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+            >
+              测试投递配置
+            </button>
+            <button
+              onclick="testBossConfig()"
+              class="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+            >
+              测试Boss配置
+            </button>
+            <button
+              onclick="testBlacklistConfig()"
+              class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              测试黑名单配置
+            </button>
+          </div>
+          <div
+            id="config-result"
+            class="mt-4 p-4 bg-gray-100 rounded min-h-[100px]"
+          >
+            <p class="text-gray-500">点击按钮开始测试...</p>
+          </div>
+        </div>
+
+        <!-- 自动投递API测试 -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-xl font-semibold mb-4">自动投递API测试</h2>
+          <div class="space-y-4">
+            <button
+              onclick="testDeliveryStatus()"
+              class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+            >
+              测试投递状态
+            </button>
+            <button
+              onclick="testStartDelivery()"
+              class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            >
+              测试启动投递
+            </button>
+            <button
+              onclick="testStopDelivery()"
+              class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              测试停止投递
+            </button>
+          </div>
+          <div
+            id="delivery-result"
+            class="mt-4 p-4 bg-gray-100 rounded min-h-[100px]"
+          >
+            <p class="text-gray-500">点击按钮开始测试...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = 'http://115.190.182.95:8080/api';
+
+      function log(elementId, message, type = 'info') {
+        const element = document.getElementById(elementId);
+        const timestamp = new Date().toLocaleTimeString();
+        const color =
+          type === 'error'
+            ? 'text-red-600'
+            : type === 'success'
+              ? 'text-green-600'
+              : 'text-gray-700';
+        element.innerHTML += `<div class="${color}">[${timestamp}] ${message}</div>`;
+        element.scrollTop = element.scrollHeight;
+      }
+
+      function clearLog(elementId) {
+        document.getElementById(elementId).innerHTML = '';
+      }
+
+      async function testApi(
+        endpoint,
+        resultElementId,
+        method = 'GET',
+        data = null
+      ) {
+        clearLog(resultElementId);
+        log(resultElementId, `开始测试 ${method} ${endpoint}`, 'info');
+
+        try {
+          const options = {
+            method,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            mode: 'cors',
+          };
+
+          if (data) {
+            options.body = JSON.stringify(data);
+          }
+
+          log(resultElementId, `请求URL: ${API_BASE}${endpoint}`, 'info');
+          log(
+            resultElementId,
+            `请求选项: ${JSON.stringify(options, null, 2)}`,
+            'info'
+          );
+
+          const response = await fetch(`${API_BASE}${endpoint}`, options);
+
+          log(
+            resultElementId,
+            `响应状态: ${response.status} ${response.statusText}`,
+            'info'
+          );
+          log(resultElementId, `响应URL: ${response.url}`, 'info');
+
+          if (response.ok) {
+            const result = await response.json();
+            log(
+              resultElementId,
+              `✅ 成功: ${JSON.stringify(result, null, 2)}`,
+              'success'
+            );
+          } else {
+            const errorText = await response.text();
+            log(resultElementId, `❌ 失败: ${errorText}`, 'error');
+          }
+        } catch (error) {
+          log(resultElementId, `❌ 错误: ${error.message}`, 'error');
+          log(resultElementId, `错误堆栈: ${error.stack}`, 'error');
+        }
+      }
+
+      // 简历API测试
+      function testResumeCheck() {
+        testApi('/candidate-resume/check', 'resume-result');
+      }
+
+      function testResumeInfo() {
+        testApi('/candidate-resume/info', 'resume-result');
+      }
+
+      // 投递配置API测试
+      function testDeliveryConfig() {
+        testApi('/delivery/config', 'config-result');
+      }
+
+      function testBossConfig() {
+        testApi('/delivery/boss-config', 'config-result');
+      }
+
+      function testBlacklistConfig() {
+        testApi('/delivery/blacklist', 'config-result');
+      }
+
+      // 自动投递API测试
+      function testDeliveryStatus() {
+        testApi('/delivery/status', 'delivery-result');
+      }
+
+      function testStartDelivery() {
+        testApi('/delivery/start', 'delivery-result', 'POST');
+      }
+
+      function testStopDelivery() {
+        testApi('/delivery/stop', 'delivery-result', 'POST');
+      }
+    </script>
+  </body>
+</html>

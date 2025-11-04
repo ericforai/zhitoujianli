@@ -64,6 +64,7 @@ public class SimpleSecurityConfig {
                 // 公开访问的端点
                 .requestMatchers(
                     "/api/auth/**",          // 认证接口
+                    "/api/admin/auth/**",    // 🔧 管理员认证接口（必须公开访问）
                     "/api/boss/**",          // Boss投递接口（登录、二维码等）
                     "/api/delivery/**",      // 投递控制接口
                     "/api/config",           // 配置API（暂时公开，待JWT修复后可移除）

@@ -1,0 +1,96 @@
+<svg viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="cardGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#f8fafc;stop-opacity:0.9" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="600" fill="url(#bgGradient)"/>
+  
+  <!-- Floating geometric shapes -->
+  <circle cx="100" cy="100" r="40" fill="#ffffff" opacity="0.1"/>
+  <circle cx="1100" cy="150" r="60" fill="#ffffff" opacity="0.1"/>
+  <rect x="950" y="450" width="80" height="80" fill="#ffffff" opacity="0.1" transform="rotate(45 990 490)"/>
+  
+  <!-- Main resume document -->
+  <g>
+    <!-- Resume paper -->
+    <rect x="300" y="120" width="400" height="500" rx="8" fill="url(#cardGradient)" stroke="#e2e8f0" stroke-width="1"/>
+    
+    <!-- Resume header -->
+    <rect x="320" y="140" width="360" height="80" fill="#667eea" opacity="0.1" rx="4"/>
+    <rect x="340" y="160" width="120" height="2" fill="#667eea"/>
+    <rect x="340" y="170" width="80" height="1.5" fill="#667eea" opacity="0.7"/>
+    <rect x="340" y="175" width="100" height="1.5" fill="#667eea" opacity="0.7"/>
+    <rect x="340" y="180" width="90" height="1" fill="#667eea" opacity="0.5"/>
+    
+    <!-- Resume sections -->
+    <rect x="340" y="240" width="320" height="15" fill="#4a5568"/>
+    <rect x="340" y="260" width="280" height="8" fill="#718096"/>
+    <rect x="340" y="275" width="300" height="8" fill="#718096"/>
+    <rect x="340" y="290" width="250" height="8" fill="#718096"/>
+    
+    <rect x="340" y="320" width="320" height="15" fill="#4a5568"/>
+    <rect x="340" y="340" width="200" height="8" fill="#718096"/>
+    <rect x="340" y="355" width="320" height="8" fill="#718096"/>
+    <rect x="340" y="370" width="280" height="8" fill="#718096"/>
+    
+    <rect x="340" y="400" width="320" height="15" fill="#4a5568"/>
+    <rect x="340" y="420" width="250" height="8" fill="#718096"/>
+    <rect x="340" y="435" width="300" height="8" fill="#718096"/>
+    
+    <!-- Skills badges -->
+    <rect x="340" y="460" width="60" height="20" fill="#667eea" opacity="0.2" rx="10"/>
+    <rect x="420" y="460" width="70" height="20" fill="#667eea" opacity="0.2" rx="10"/>
+    <rect x="510" y="460" width="65" height="20" fill="#667eea" opacity="0.2" rx="10"/>
+  </g>
+  
+  <!-- Success indicators -->
+  <g>
+    <!-- Checkmark -->
+    <circle cx="800" cy="200" r="30" fill="#48bb78"/>
+    <path d="M790 200 L805 215 L825 185" stroke="#ffffff" stroke-width="3" fill="none"/>
+    
+    <!-- Arrow pointing up -->
+    <path d="M800 250 L790 270 L810 270 Z" fill="#48bb78"/>
+    <text x="800" y="300" text-anchor="middle" fill="#2d3748" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Success Rate +85%</text>
+  </g>
+  
+  <!-- AI optimization icons -->
+  <g>
+    <!-- Brain icon -->
+    <circle cx="150" cy="300" r="40" fill="url(#cardGradient)" stroke="#667eea" stroke-width="2"/>
+    <path d="M130 280 Q150 260 170 280 Q150 320 130 300 Z" fill="#667eea" opacity="0.3"/>
+    <circle cx="140" cy="290" r="3" fill="#667eea"/>
+    <circle cx="160" cy="290" r="3" fill="#667eea"/>
+    <path d="M140 310 Q150 315 160 310" stroke="#667eea" stroke-width="2" fill="none"/>
+    <text x="150" y="350" text-anchor="middle" fill="#4a5568" font-family="Arial, sans-serif" font-size="12">AI Analysis</text>
+  </g>
+  
+  <!-- Target/Goal icon -->
+  <g>
+    <circle cx="1050" cy="350" r="45" fill="url(#cardGradient)" stroke="#667eea" stroke-width="2"/>
+    <circle cx="1050" cy="350" r="35" fill="none" stroke="#e53e3e" stroke-width="3"/>
+    <circle cx="1050" cy="350" r="25" fill="none" stroke="#e53e3e" stroke-width="3"/>
+    <circle cx="1050" cy="350" r="15" fill="#e53e3e"/>
+    <text x="1050" y="410" text-anchor="middle" fill="#4a5568" font-family="Arial, sans-serif" font-size="12">Target Job</text>
+  </g>
+  
+  <!-- Sparkles for optimization effect -->
+  <g>
+    <path d="M200 150 L205 160 L200 170 L190 160 Z" fill="#ffd700"/>
+    <path d="M1000 100 L1005 110 L1000 120 L990 110 Z" fill="#ffd700"/>
+    <path d="M850 500 L855 510 L850 520 L840 510 Z" fill="#ffd700"/>
+    <path d="M500 50 L505 60 L500 70 L490 60 Z" fill="#ffd700"/>
+  </g>
+  
+  <!-- Title text -->
+  <text x="600" y="80" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="32" font-weight="bold">简历优化技巧</text>
+  <text x="600" y="110" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="18" opacity="0.9">让你的简历脱颖而出</text>
+</svg>

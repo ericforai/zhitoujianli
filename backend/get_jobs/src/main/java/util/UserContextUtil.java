@@ -237,4 +237,37 @@ public class UserContextUtil {
         log.debug("安全用户数据路径: {}", userDataPath);
         return userDataPath;
     }
+
+    /**
+     * 获取当前管理员用户名
+     * 用于管理员操作的审计记录
+     *
+     * @return 管理员用户名
+     */
+    public static String getCurrentAdminUsername() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.isAuthenticated()) {
+                if (authentication.getPrincipal() instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> userInfo = (Map<String, Object>) authentication.getPrincipal();
+                    String username = (String) userInfo.get("username");
+                    if (username != null && !username.isEmpty()) {
+                        log.debug("获取当前管理员用户名: {}", username);
+                        return username;
+                    }
+                }
+                // 备选：使用认证名称
+                String name = authentication.getName();
+                if (name != null && !"anonymousUser".equals(name)) {
+                    log.debug("从Authentication.getName()获取管理员用户名: {}", name);
+                    return name;
+                }
+            }
+        } catch (Exception e) {
+            log.error("获取当前管理员用户名失败: {}", e.getMessage(), e);
+        }
+        log.warn("未能获取管理员用户名，返回默认值");
+        return "system_admin";
+    }
 }

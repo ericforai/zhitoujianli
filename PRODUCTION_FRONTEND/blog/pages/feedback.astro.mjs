@@ -1,0 +1,55 @@
+import { c as createComponent, r as renderComponent, a as renderTemplate, m as maybeRenderHead } from '../chunks/astro/server_BMxpr7GR.mjs';
+import 'kleur/colors';
+import { $ as $$PageLayout } from '../chunks/PageLayout_CYieUw40.mjs';
+import { a as $$Icon } from '../chunks/Layout_ClwenmRe.mjs';
+import { $ as $$Breadcrumb } from '../chunks/Breadcrumb_CtB7Z_gT.mjs';
+export { renderers } from '../renderers.mjs';
+
+const $$Feedback = createComponent(($$result, $$props, $$slots) => {
+  const metadata = {
+    title: "\u610F\u89C1\u53CD\u9988 - \u667A\u6295\u7B80\u5386",
+    description: "\u667A\u6295\u7B80\u5386\u610F\u89C1\u53CD\u9988\u9875\u9762\uFF0C\u6211\u4EEC\u91CD\u89C6\u6BCF\u4E00\u4F4D\u7528\u6237\u7684\u5EFA\u8BAE\uFF0C\u60A8\u7684\u53CD\u9988\u5C06\u5E2E\u52A9\u6211\u4EEC\u4E0D\u65AD\u6539\u8FDB\u4EA7\u54C1\u548C\u670D\u52A1\u3002"
+  };
+  return renderTemplate`${renderComponent($$result, "Layout", $$PageLayout, { "metadata": metadata }, { "default": ($$result2) => renderTemplate` ${maybeRenderHead()}<section class="px-4 py-16 sm:px-6 mx-auto lg:px-8 lg:py-20 max-w-4xl"> <div class="mx-auto max-w-3xl px-4 sm:px-6"> ${renderComponent($$result2, "Breadcrumb", $$Breadcrumb, { "items": [
+    { text: "\u610F\u89C1\u53CD\u9988", current: true }
+  ] })} </div> <div class="text-center mb-16"> <h1 class="font-bold font-heading text-4xl md:text-5xl leading-tighter tracking-tighter mb-6">
+意见<span class="text-accent dark:text-white">反馈</span> </h1> <p class="text-xl text-muted dark:text-slate-400 max-w-3xl mx-auto">
+您的建议是我们前进的动力，帮助我们打造更好的产品体验
+</p> </div> <!-- 反馈表单 --> <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8 mb-16"> <h2 class="text-2xl font-bold font-heading mb-6 text-center"> ${renderComponent($$result2, "Icon", $$Icon, { "name": "tabler:message-circle", "class": "w-6 h-6 inline-block mr-2 text-primary" })}
+提交反馈
+</h2> <form class="space-y-6"> <div class="grid md:grid-cols-2 gap-6"> <div> <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+姓名 *
+</label> <input type="text" id="name" name="name" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-700 dark:text-white" placeholder="请输入您的姓名"> </div> <div> <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+邮箱 *
+</label> <input type="email" id="email" name="email" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-700 dark:text-white" placeholder="请输入您的邮箱"> </div> </div> <div> <label for="feedback-type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+反馈类型 *
+</label> <select id="feedback-type" name="feedback-type" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-700 dark:text-white"> <option value="">请选择反馈类型</option> <option value="bug">Bug报告</option> <option value="feature">功能建议</option> <option value="improvement">改进建议</option> <option value="complaint">投诉</option> <option value="praise">表扬</option> <option value="other">其他</option> </select> </div> <div> <label for="subject" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+主题 *
+</label> <input type="text" id="subject" name="subject" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-700 dark:text-white" placeholder="请简要描述您的问题或建议"> </div> <div> <label for="message" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+详细描述 *
+</label> <textarea id="message" name="message" rows="6" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-700 dark:text-white" placeholder="请详细描述您的反馈内容..."></textarea> </div> <div class="text-center"> <button type="submit" class="btn btn-primary px-8 py-3 inline-flex items-center"> ${renderComponent($$result2, "Icon", $$Icon, { "name": "tabler:send", "class": "w-4 h-4 mr-2" })}
+提交反馈
+</button> </div> </form> </div> <!-- 反馈说明 --> <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-8 mb-16"> <h2 class="text-2xl font-bold font-heading mb-6 text-center"> ${renderComponent($$result2, "Icon", $$Icon, { "name": "tabler:info-circle", "class": "w-6 h-6 inline-block mr-2 text-blue-600 dark:text-blue-400" })}
+反馈说明
+</h2> <div class="grid md:grid-cols-2 gap-8"> <div> <h3 class="text-lg font-semibold mb-4 text-blue-800 dark:text-blue-200"> ${renderComponent($$result2, "Icon", $$Icon, { "name": "tabler:check", "class": "w-5 h-5 inline-block mr-2" })}
+我们重视您的反馈
+</h3> <ul class="space-y-2 text-blue-700 dark:text-blue-300"> <li>• 所有反馈都会认真阅读和处理</li> <li>• 重要问题会在24小时内回复</li> <li>• 您的建议可能成为新功能的灵感</li> <li>• 持续改进是我们的承诺</li> </ul> </div> <div> <h3 class="text-lg font-semibold mb-4 text-blue-800 dark:text-blue-200"> ${renderComponent($$result2, "Icon", $$Icon, { "name": "tabler:clock", "class": "w-5 h-5 inline-block mr-2" })}
+处理时间
+</h3> <ul class="space-y-2 text-blue-700 dark:text-blue-300"> <li>• Bug报告：1-3个工作日</li> <li>• 功能建议：3-7个工作日</li> <li>• 一般反馈：5-10个工作日</li> <li>• 紧急问题：24小时内</li> </ul> </div> </div> </div> <!-- 其他联系方式 --> <div class="text-center"> <h2 class="text-2xl font-bold font-heading mb-6">
+其他联系方式
+</h2> <div class="grid md:grid-cols-3 gap-6"> <a href="mailto:feedback@zhitoujianli.com" class="block p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"> ${renderComponent($$result2, "Icon", $$Icon, { "name": "tabler:mail", "class": "w-8 h-8 text-primary mx-auto mb-3" })} <h3 class="font-semibold mb-2">邮件反馈</h3> <p class="text-sm text-muted dark:text-slate-400">feedback@zhitoujianli.com</p> </a> <a href="/contact" class="block p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"> ${renderComponent($$result2, "Icon", $$Icon, { "name": "tabler:headphones", "class": "w-8 h-8 text-primary mx-auto mb-3" })} <h3 class="font-semibold mb-2">在线客服</h3> <p class="text-sm text-muted dark:text-slate-400">工作日9:00-18:00</p> </a> <a href="/faq" class="block p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"> ${renderComponent($$result2, "Icon", $$Icon, { "name": "tabler:help", "class": "w-8 h-8 text-primary mx-auto mb-3" })} <h3 class="font-semibold mb-2">常见问题</h3> <p class="text-sm text-muted dark:text-slate-400">查看FAQ快速解答</p> </a> </div> </div> </section> ` })}`;
+}, "/root/zhitoujianli/blog/zhitoujianli-blog/src/pages/feedback.astro", void 0);
+
+const $$file = "/root/zhitoujianli/blog/zhitoujianli-blog/src/pages/feedback.astro";
+const $$url = "/feedback/";
+
+const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: $$Feedback,
+  file: $$file,
+  url: $$url
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const page = () => _page;
+
+export { page };

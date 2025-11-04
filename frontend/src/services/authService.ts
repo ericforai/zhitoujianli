@@ -227,15 +227,28 @@ const handleLoginResponse = (response: LoginResponse): LoginResponse => {
 export const authService = {
   /**
    * 邮箱密码登录
+   * 🔧 自动检测管理员邮箱并调用对应的API
    */
   loginByEmail: async (
     email: string,
     password: string
   ): Promise<LoginResponse> => {
-    const response = await apiClient.post<LoginResponse>('/auth/login/email', {
+    // 🔧 检测管理员邮箱
+    const isAdmin = email === 'admin@zhitoujianli.com';
+    const loginEndpoint = isAdmin ? '/admin/auth/login' : '/auth/login/email';
+
+    console.log(`🔐 登录检测: ${email} -> ${isAdmin ? '管理员' : '普通用户'} (API: ${loginEndpoint})`);
+
+    const response = await apiClient.post<LoginResponse>(loginEndpoint, {
       email,
       password,
     });
+
+    // 如果是管理员登录，设置userType标识
+    if (isAdmin) {
+      localStorage.setItem('userType', 'admin');
+      console.log('✅ 已设置管理员标识: userType=admin');
+    }
 
     return handleLoginResponse(response.data);
   },

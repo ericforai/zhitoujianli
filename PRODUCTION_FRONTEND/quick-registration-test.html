@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>注册功能快速测试</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border-radius: 4px;
+      }
+      .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 10px 5px;
+        font-size: 16px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      button:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+      }
+      input {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+      }
+      .result {
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧪 注册功能快速测试</h1>
+
+      <div class="test-section info">
+        <h3>📋 测试说明</h3>
+        <p>这个页面用于快速测试注册功能的API调用，帮助诊断混合内容错误问题。</p>
+      </div>
+
+      <div class="test-section">
+        <h3>🔍 环境检查</h3>
+        <div id="env-check" class="result info">检查中...</div>
+      </div>
+
+      <div class="test-section">
+        <h3>📧 发送验证码测试</h3>
+        <input
+          type="email"
+          id="email-input"
+          placeholder="输入测试邮箱地址"
+          value="test@example.com"
+        />
+        <br />
+        <button onclick="testSendCode()">发送验证码</button>
+        <div id="send-result" class="result"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>🔗 注册页面测试</h3>
+        <p>点击下方按钮访问实际的注册页面：</p>
+        <button onclick="openRegistrationPage()">打开注册页面</button>
+        <div id="page-result" class="result"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>📊 测试结果汇总</h3>
+        <div id="summary-result" class="result info">等待测试...</div>
+      </div>
+    </div>
+
+    <script>
+      // 环境检查
+      function checkEnvironment() {
+        const envCheck = document.getElementById('env-check');
+        const protocol = window.location.protocol;
+        const hostname = window.location.hostname;
+
+        let status = '';
+        let className = '';
+
+        if (protocol === 'https:') {
+          status = `✅ HTTPS环境正常<br>域名: ${hostname}<br>协议: ${protocol}`;
+          className = 'success';
+        } else {
+          status = `❌ HTTP环境，可能存在混合内容问题<br>域名: ${hostname}<br>协议: ${protocol}`;
+          className = 'error';
+        }
+
+        envCheck.innerHTML = status;
+        envCheck.className = `result ${className}`;
+      }
+
+      // 测试发送验证码
+      async function testSendCode() {
+        const email = document.getElementById('email-input').value;
+        const resultDiv = document.getElementById('send-result');
+        const button = event.target;
+
+        if (!email) {
+          resultDiv.innerHTML = '❌ 请输入邮箱地址';
+          resultDiv.className = 'result error';
+          return;
+        }
+
+        button.disabled = true;
+        button.textContent = '发送中...';
+        resultDiv.innerHTML = '🔄 正在发送验证码...';
+        resultDiv.className = 'result info';
+
+        try {
+          const response = await fetch('/api/auth/send-verification-code', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: email }),
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            resultDiv.innerHTML = `✅ 验证码发送成功！<br>邮箱: ${email}<br>响应: ${JSON.stringify(result)}`;
+            resultDiv.className = 'result success';
+            updateSummary('send-code', true);
+          } else {
+            resultDiv.innerHTML = `⚠️ 验证码发送失败<br>状态码: ${response.status}<br>错误: ${result.message || '未知错误'}`;
+            resultDiv.className = 'result error';
+            updateSummary('send-code', false);
+          }
+        } catch (error) {
+          resultDiv.innerHTML = `❌ 网络错误<br>错误信息: ${error.message}<br>可能原因: 混合内容错误或API不可用`;
+          resultDiv.className = 'result error';
+          updateSummary('send-code', false);
+        } finally {
+          button.disabled = false;
+          button.textContent = '发送验证码';
+        }
+      }
+
+      // 打开注册页面
+      function openRegistrationPage() {
+        const resultDiv = document.getElementById('page-result');
+        resultDiv.innerHTML = '🔄 正在打开注册页面...';
+        resultDiv.className = 'result info';
+
+        try {
+          window.open('/register', '_blank');
+          resultDiv.innerHTML = '✅ 注册页面已在新标签页中打开';
+          resultDiv.className = 'result success';
+          updateSummary('page-access', true);
+        } catch (error) {
+          resultDiv.innerHTML = `❌ 无法打开注册页面<br>错误: ${error.message}`;
+          resultDiv.className = 'result error';
+          updateSummary('page-access', false);
+        }
+      }
+
+      // 更新测试结果汇总
+      const testResults = {};
+
+      function updateSummary(testName, success) {
+        testResults[testName] = success;
+        updateSummaryDisplay();
+      }
+
+      function updateSummaryDisplay() {
+        const summaryDiv = document.getElementById('summary-result');
+        const totalTests = Object.keys(testResults).length;
+        const passedTests = Object.values(testResults).filter(Boolean).length;
+
+        if (totalTests === 0) {
+          summaryDiv.innerHTML = '等待测试...';
+          summaryDiv.className = 'result info';
+          return;
+        }
+
+        const percentage = Math.round((passedTests / totalTests) * 100);
+        let status = '';
+        let className = '';
+
+        if (percentage === 100) {
+          status = `🎉 所有测试通过！ (${passedTests}/${totalTests})`;
+          className = 'success';
+        } else if (percentage >= 50) {
+          status = `⚠️ 部分测试通过 (${passedTests}/${totalTests} - ${percentage}%)`;
+          className = 'info';
+        } else {
+          status = `❌ 大部分测试失败 (${passedTests}/${totalTests} - ${percentage}%)`;
+          className = 'error';
+        }
+
+        summaryDiv.innerHTML = status;
+        summaryDiv.className = `result ${className}`;
+      }
+
+      // 页面加载时自动检查环境
+      window.addEventListener('load', () => {
+        checkEnvironment();
+        updateSummaryDisplay();
+      });
+    </script>
+  </body>
+</html>
+
+
