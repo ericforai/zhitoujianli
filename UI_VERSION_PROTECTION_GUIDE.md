@@ -92,7 +92,7 @@ public/images/
 
 ### 验证清单
 - ✅ https://zhitoujianli.com/images/logo.png - 200 OK
-- ✅ https://zhitoujianli.com/images/chat-bot.svg - 200 OK  
+- ✅ https://zhitoujianli.com/images/chat-bot.svg - 200 OK
 - ✅ 线上版本：main.93852b0f.js（包含新UI代码）
 
 ---
@@ -153,6 +153,6 @@ public/images/
 
 ---
 
-**最后更新：** 2025年11月4日  
+**最后更新：** 2025年11月4日
 **维护者：** 智投简历技术团队
 

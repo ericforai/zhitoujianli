@@ -35,6 +35,15 @@ module.exports = {
       backgroundImage: {
         'gradient-primary': 'linear-gradient(135deg, #4F46E5 0%, #9333EA 100%)',
         'gradient-hero': 'linear-gradient(135deg, #f0f4ff 0%, #ffffff 50%, #faf5ff 100%)',
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-20px)' },
+        }
+      },
+      animation: {
+        float: 'float 3s ease-in-out infinite',
       }
     },
   },
