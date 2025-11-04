@@ -66,10 +66,10 @@ curl http://localhost:8080/api/version | jq '.'
 
 ## 📝 版本号升级规则
 
-| 变更类型 | 版本号变化 | 命令示例 |
-|---------|-----------|---------|
-| Bug修复 | 2.2.0 → 2.2.1 | `git commit -m "fix: ..."` |
-| 新功能 | 2.2.1 → 2.3.0 | `git commit -m "feat: ..."` |
+| 变更类型   | 版本号变化    | 命令示例                     |
+| ---------- | ------------- | ---------------------------- |
+| Bug修复    | 2.2.0 → 2.2.1 | `git commit -m "fix: ..."`   |
+| 新功能     | 2.2.1 → 2.3.0 | `git commit -m "feat: ..."`  |
 | 破坏性变更 | 2.3.0 → 3.0.0 | `git commit -m "feat!: ..."` |
 
 ---
@@ -114,10 +114,10 @@ systemctl restart zhitoujianli-backend
 
 ## 📊 版本API端点
 
-| 端点 | 说明 | 示例 |
-|-----|------|------|
-| `GET /api/version` | 完整版本信息 | `curl http://localhost:8080/api/version` |
-| `GET /api/version/short` | 简化版本信息 | `curl http://localhost:8080/api/version/short` |
+| 端点                      | 说明          | 示例                                            |
+| ------------------------- | ------------- | ----------------------------------------------- |
+| `GET /api/version`        | 完整版本信息  | `curl http://localhost:8080/api/version`        |
+| `GET /api/version/short`  | 简化版本信息  | `curl http://localhost:8080/api/version/short`  |
 | `GET /api/version/health` | 健康检查+版本 | `curl http://localhost:8080/api/version/health` |
 
 ---
@@ -245,8 +245,3 @@ crontab -e
 
 **维护者：** ZhiTouJianLi Team
 **最后更新：** 2025-11-03
-
-
-
-
-

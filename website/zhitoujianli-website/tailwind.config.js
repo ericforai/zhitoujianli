@@ -1,13 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
-  ],
+  content: ['./src/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {
       fontFamily: {
-        'sans': ['Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'sans-serif'],
-        'chinese': ['PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'sans-serif'],
+        sans: ['Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'sans-serif'],
+        chinese: ['PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'sans-serif'],
       },
       colors: {
         primary: {
@@ -30,7 +28,7 @@ module.exports = {
           50: '#F3F4F6', // 辅助色浅灰
           100: '#f9fafb',
           900: '#111827',
-        }
+        },
       },
       backgroundImage: {
         'gradient-primary': 'linear-gradient(135deg, #4F46E5 0%, #9333EA 100%)',
@@ -40,12 +38,12 @@ module.exports = {
         float: {
           '0%, 100%': { transform: 'translateY(0px)' },
           '50%': { transform: 'translateY(-20px)' },
-        }
+        },
       },
       animation: {
         float: 'float 3s ease-in-out infinite',
-      }
+      },
     },
   },
   plugins: [],
-}
+};

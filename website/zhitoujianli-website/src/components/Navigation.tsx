@@ -40,9 +40,9 @@ const Navigation = () => {
               className='flex-shrink-0 flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity duration-200'
             >
               {/* Logo图片：纸飞机 */}
-              <img 
-                src='/images/logo.png' 
-                alt='智投简历Logo' 
+              <img
+                src='/images/logo.png'
+                alt='智投简历Logo'
                 className='h-10 w-10'
                   />
               <h1 className='text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent font-chinese'>

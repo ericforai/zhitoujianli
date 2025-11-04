@@ -1,13 +1,15 @@
 package com.superxiang.controller;
 
-import com.superxiang.utils.VersionInfo;
-import lombok.extern.slf4j.Slf4j;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.superxiang.utils.VersionInfo;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 版本信息控制器
