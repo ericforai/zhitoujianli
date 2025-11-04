@@ -24,8 +24,9 @@ const DeliveryConfig: React.FC = () => {
    */
   const handleBossConfigChange = async (bossConfig: any) => {
     try {
+      if (!config) return;
       const updatedConfig = {
-        ...config!,
+        ...config,
         bossConfig,
         updatedAt: Date.now(),
       };
@@ -42,8 +43,9 @@ const DeliveryConfig: React.FC = () => {
    */
   const handleStrategyChange = async (strategy: any) => {
     try {
+      if (!config) return;
       const updatedConfig = {
-        ...config!,
+        ...config,
         deliveryStrategy: strategy,
         updatedAt: Date.now(),
       };
@@ -60,8 +62,9 @@ const DeliveryConfig: React.FC = () => {
    */
   const handleBlacklistChange = async (blacklistConfig: any) => {
     try {
+      if (!config) return;
       const updatedConfig = {
-        ...config!,
+        ...config,
         blacklistConfig,
         updatedAt: Date.now(),
       };

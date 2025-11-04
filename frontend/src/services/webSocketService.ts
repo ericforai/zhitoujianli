@@ -136,7 +136,10 @@ class WebSocketManager {
     if (!this.eventHandlers.has(topic)) {
       this.eventHandlers.set(topic, []);
     }
-    this.eventHandlers.get(topic)!.push(handler);
+    const handlers = this.eventHandlers.get(topic);
+    if (handlers) {
+      handlers.push(handler);
+    }
   }
 
   /**

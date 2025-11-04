@@ -96,7 +96,10 @@ export const useWebSocket = (): UseWebSocketReturn => {
       if (!handlersRef.current.has('status')) {
         handlersRef.current.set('status', []);
       }
-      handlersRef.current.get('status')!.push(handler);
+      const handlers = handlersRef.current.get('status');
+      if (handlers) {
+        handlers.push(handler);
+      }
     },
     []
   );
@@ -111,7 +114,10 @@ export const useWebSocket = (): UseWebSocketReturn => {
       if (!handlersRef.current.has('progress')) {
         handlersRef.current.set('progress', []);
       }
-      handlersRef.current.get('progress')!.push(handler);
+      const handlers = handlersRef.current.get('progress');
+      if (handlers) {
+        handlers.push(handler);
+      }
     },
     []
   );
@@ -126,7 +132,10 @@ export const useWebSocket = (): UseWebSocketReturn => {
       if (!handlersRef.current.has('record')) {
         handlersRef.current.set('record', []);
       }
-      handlersRef.current.get('record')!.push(handler);
+      const handlers = handlersRef.current.get('record');
+      if (handlers) {
+        handlers.push(handler);
+      }
     },
     []
   );
@@ -141,7 +150,10 @@ export const useWebSocket = (): UseWebSocketReturn => {
       if (!handlersRef.current.has('error')) {
         handlersRef.current.set('error', []);
       }
-      handlersRef.current.get('error')!.push(handler);
+      const handlers = handlersRef.current.get('error');
+      if (handlers) {
+        handlers.push(handler);
+      }
     },
     []
   );
@@ -156,7 +168,10 @@ export const useWebSocket = (): UseWebSocketReturn => {
       if (!handlersRef.current.has('success')) {
         handlersRef.current.set('success', []);
       }
-      handlersRef.current.get('success')!.push(handler);
+      const handlers = handlersRef.current.get('success');
+      if (handlers) {
+        handlers.push(handler);
+      }
     },
     []
   );

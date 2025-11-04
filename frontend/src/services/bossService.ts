@@ -107,7 +107,7 @@ export const bossService = {
   /**
    * 获取投递日志
    */
-  getBossLogs: async (lines: number = 50): Promise<LogsResponse> => {
+  getBossLogs: async (lines = 50): Promise<LogsResponse> => {
     try {
       const response = await bossApiClient.get<LogsResponse>(
         `/boss/logs?lines=${lines}`
