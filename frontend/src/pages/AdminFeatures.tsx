@@ -73,8 +73,8 @@ const AdminFeatures: React.FC = () => {
 
       if (result.success) {
         // 更新本地状态
-        setFeatures((prev) =>
-          prev.map((f) => (f.id === featureId ? { ...f, isEnabled: enabled } : f))
+        setFeatures(prev =>
+          prev.map(f => (f.id === featureId ? { ...f, isEnabled: enabled } : f))
         );
       } else {
         setError(result.message || '更新功能状态失败');
@@ -132,7 +132,7 @@ const AdminFeatures: React.FC = () => {
               </tr>
             </thead>
             <tbody className='bg-white divide-y divide-gray-200'>
-              {features.map((feature) => (
+              {features.map(feature => (
                 <tr key={feature.id} className='hover:bg-gray-50'>
                   <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>
                     {feature.featureName || feature.featureKey}
@@ -156,7 +156,9 @@ const AdminFeatures: React.FC = () => {
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
                     <button
-                      onClick={() => toggleFeature(feature.id, !feature.isEnabled)}
+                      onClick={() =>
+                        toggleFeature(feature.id, !feature.isEnabled)
+                      }
                       className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                         feature.isEnabled
                           ? 'bg-red-100 text-red-700 hover:bg-red-200'
@@ -177,4 +179,3 @@ const AdminFeatures: React.FC = () => {
 };
 
 export default AdminFeatures;
-

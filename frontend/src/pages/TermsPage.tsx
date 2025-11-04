@@ -50,7 +50,8 @@ const TermsPage: React.FC = () => {
                 </p>
                 <ul className='list-disc list-inside space-y-2 text-gray-700'>
                   <li>
-                    <strong>AI智能匹配</strong>：基于人工智能算法分析职位要求与简历匹配度
+                    <strong>AI智能匹配</strong>
+                    ：基于人工智能算法分析职位要求与简历匹配度
                   </li>
                   <li>
                     <strong>简历优化</strong>：智能优化简历内容，提高通过率
@@ -229,4 +230,3 @@ const TermsPage: React.FC = () => {
 };
 
 export default TermsPage;
-

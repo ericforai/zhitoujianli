@@ -10,13 +10,13 @@ import AdminLayout from '../components/admin/AdminLayout';
 import config from '../config/environment';
 
 interface User {
-  id: number | string;  // 支持后端返回的 userId (Long)
-  userId?: number | string;  // 后端返回的实际字段
+  id: number | string; // 支持后端返回的 userId (Long)
+  userId?: number | string; // 后端返回的实际字段
   email: string;
   nickname?: string;
   createdAt: string;
-  active: boolean;  // 后端返回的字段名是 active
-  status: string;   // 后端返回的 status 字段
+  active: boolean; // 后端返回的字段名是 active
+  status: string; // 后端返回的 status 字段
   planType?: string;
 }
 
@@ -31,13 +31,18 @@ const AdminUsers: React.FC = () => {
 
   useEffect(() => {
     fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   // 切换用户状态（启用/禁用）
   const handleToggleUserStatus = async (user: User, currentActive: boolean) => {
     const userId = user.userId || user.id;
 
-    if (!confirm(`确定要${currentActive ? '禁用' : '启用'}用户 ${user.email} 吗？`)) {
+    if (
+      !confirm(
+        `确定要${currentActive ? '禁用' : '启用'}用户 ${user.email} 吗？`
+      )
+    ) {
       return;
     }
 
@@ -45,18 +50,25 @@ const AdminUsers: React.FC = () => {
       setUpdatingUserId(String(userId));
       const token = localStorage.getItem('authToken');
 
-      console.log('🔄 更新用户状态:', { userId, currentActive, newActive: !currentActive });
-
-      const response = await fetch(`${config.apiBaseUrl}/admin/users/${userId}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          active: !currentActive,
-        }),
+      console.log('🔄 更新用户状态:', {
+        userId,
+        currentActive,
+        newActive: !currentActive,
       });
+
+      const response = await fetch(
+        `${config.apiBaseUrl}/admin/users/${userId}/status`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            active: !currentActive,
+          }),
+        }
+      );
 
       const result = await response.json();
       console.log('✅ 更新状态响应:', result);
@@ -91,16 +103,19 @@ const AdminUsers: React.FC = () => {
 
       console.log('🗑️ 删除用户:', { userId, email: user.email, reason });
 
-      const response = await fetch(`${config.apiBaseUrl}/admin/users/${userId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          reason,
-        }),
-      });
+      const response = await fetch(
+        `${config.apiBaseUrl}/admin/users/${userId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            reason,
+          }),
+        }
+      );
 
       const result = await response.json();
       console.log('✅ 删除响应:', result);
@@ -203,7 +218,7 @@ const AdminUsers: React.FC = () => {
               </tr>
             </thead>
             <tbody className='bg-white divide-y divide-gray-200'>
-              {users.map((user) => (
+              {users.map(user => (
                 <tr key={user.id} className='hover:bg-gray-50'>
                   <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
                     {user.id}
@@ -225,7 +240,9 @@ const AdminUsers: React.FC = () => {
                           : 'bg-red-100 text-red-800'
                       }`}
                     >
-                      {user.active || user.status === 'enabled' ? '启用' : '禁用'}
+                      {user.active || user.status === 'enabled'
+                        ? '启用'
+                        : '禁用'}
                     </span>
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
@@ -234,8 +251,15 @@ const AdminUsers: React.FC = () => {
                   <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
                     <div className='flex items-center gap-2'>
                       <button
-                        onClick={() => handleToggleUserStatus(user, user.active || user.status === 'enabled')}
-                        disabled={updatingUserId === String(user.userId || user.id)}
+                        onClick={() =>
+                          handleToggleUserStatus(
+                            user,
+                            user.active || user.status === 'enabled'
+                          )
+                        }
+                        disabled={
+                          updatingUserId === String(user.userId || user.id)
+                        }
                         className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
                           user.active || user.status === 'enabled'
                             ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
@@ -244,12 +268,15 @@ const AdminUsers: React.FC = () => {
                       >
                         {updatingUserId === String(user.userId || user.id)
                           ? '处理中...'
-                          : (user.active || user.status === 'enabled' ? '禁用' : '启用')
-                        }
+                          : user.active || user.status === 'enabled'
+                            ? '禁用'
+                            : '启用'}
                       </button>
                       <button
                         onClick={() => handleDeleteUser(user)}
-                        disabled={updatingUserId === String(user.userId || user.id)}
+                        disabled={
+                          updatingUserId === String(user.userId || user.id)
+                        }
                         className='px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded-md text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
                       >
                         删除
@@ -290,4 +317,3 @@ const AdminUsers: React.FC = () => {
 };
 
 export default AdminUsers;
-

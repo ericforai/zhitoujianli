@@ -1,5 +1,6 @@
 package controller;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import dto.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
+import util.UserContextUtil;
 
 /**
  * 投递配置RESTful API控制器
@@ -30,8 +32,10 @@ import lombok.extern.slf4j.Slf4j;
 @CrossOrigin(origins = {"http://localhost:3000", "http://115.190.182.95:3000", "http://115.190.182.95"})
 public class DeliveryConfigController {
 
-    private static final String CONFIG_PATH = "src/main/resources/config.yaml";
+    // ✅ 废弃全局配置，改用用户隔离配置
+    // private static final String CONFIG_PATH = "src/main/resources/config.yaml";
     private final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+    private final ObjectMapper jsonMapper = new ObjectMapper();  // JSON格式（与Boss程序保持一致）
 
     /**
      * 获取投递配置
@@ -41,6 +45,10 @@ public class DeliveryConfigController {
         try {
             Map<String, Object> config = loadConfig();
             return ResponseEntity.ok(ApiResponse.success(config, "获取投递配置成功"));
+        } catch (exception.UnauthorizedException e) {
+            log.warn("用户未登录，无法获取配置: {}", e.getMessage());
+            return ResponseEntity.status(401)
+                .body(ApiResponse.error("用户未登录或Token无效，请先登录"));
         } catch (Exception e) {
             log.error("获取投递配置失败", e);
             return ResponseEntity.status(500)
@@ -55,10 +63,16 @@ public class DeliveryConfigController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> updateDeliveryConfig(
             @RequestBody Map<String, Object> config) {
         try {
+            log.info("📥 收到配置更新请求，数据: {}", config);
             saveConfig(config);
+            log.info("✅ 配置保存完成");
             return ResponseEntity.ok(ApiResponse.success(config, "投递配置更新成功"));
+        } catch (exception.UnauthorizedException e) {
+            log.warn("用户未登录，无法保存配置: {}", e.getMessage());
+            return ResponseEntity.status(401)
+                .body(ApiResponse.error("用户未登录或Token无效，请先登录"));
         } catch (Exception e) {
-            log.error("更新投递配置失败", e);
+            log.error("❌ 更新投递配置失败", e);
             return ResponseEntity.status(500)
                 .body(ApiResponse.error("更新投递配置失败: " + e.getMessage()));
         }
@@ -158,21 +172,71 @@ public class DeliveryConfigController {
     }
 
     /**
-     * 加载配置文件
+     * 获取用户配置文件路径（用户隔离）
      */
-    private Map<String, Object> loadConfig() throws Exception {
-        java.io.File configFile = new java.io.File(CONFIG_PATH);
-        if (!configFile.exists()) {
-            return new HashMap<>();
-        }
-        return yamlMapper.readValue(configFile, Map.class);
+    private String getUserConfigPath() throws exception.UnauthorizedException {
+        String userId = UserContextUtil.getCurrentUserId();  // 可能抛出UnauthorizedException
+        // 清理userId中的非法字符（与Boss程序保持一致）
+        String safeUserId = userId.replaceAll("[^a-zA-Z0-9_@.-]", "_");
+
+        // 使用user_data目录（与Boss程序保持一致）
+        String configPath = "user_data" + File.separator + safeUserId + File.separator + "config.json";
+        log.info("用户配置路径: userId={}, path={}", userId, configPath);
+        return configPath;
     }
 
     /**
-     * 保存配置文件
+     * 加载配置文件（用户隔离）
+     */
+    private Map<String, Object> loadConfig() throws Exception {
+        String configPath = getUserConfigPath();
+        File configFile = new File(configPath);
+
+        if (!configFile.exists()) {
+            log.info("用户配置文件不存在，返回空配置: {}", configPath);
+            return new HashMap<>();
+        }
+
+        // 使用JSON格式（与Boss程序保持一致）
+        Map<String, Object> config = jsonMapper.readValue(configFile, Map.class);
+        log.info("✅ 加载用户配置成功: {}", configPath);
+        return config;
+    }
+
+    /**
+     * 保存配置文件（用户隔离）
      */
     private void saveConfig(Map<String, Object> config) throws Exception {
-        yamlMapper.writeValue(new java.io.File(CONFIG_PATH), config);
+        String configPath = getUserConfigPath();
+        File configFile = new File(configPath);
+
+        log.info("💾 准备保存配置到: {}", configPath);
+        log.info("💾 配置数据: {}", config);
+
+        // 确保目录存在
+        File parentDir = configFile.getParentFile();
+        if (!parentDir.exists()) {
+            parentDir.mkdirs();
+            log.info("📁 创建用户配置目录: {}", parentDir.getAbsolutePath());
+        }
+
+        // 添加元数据
+        String userId = UserContextUtil.getCurrentUserId();
+        config.put("userId", userId);
+        config.put("lastModified", System.currentTimeMillis());
+
+        log.info("💾 最终保存的数据: {}", config);
+
+        // 使用JSON格式（与Boss程序保持一致）
+        jsonMapper.writerWithDefaultPrettyPrinter().writeValue(configFile, config);
+
+        // 验证文件是否真的被写入
+        if (configFile.exists()) {
+            log.info("✅ 保存用户配置成功: {}, 文件大小: {} bytes", configPath, configFile.length());
+        } else {
+            log.error("❌ 文件保存失败！文件不存在: {}", configPath);
+            throw new Exception("配置文件保存失败");
+        }
     }
 }
 

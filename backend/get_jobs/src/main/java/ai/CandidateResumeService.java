@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 import util.UserContextUtil;
+import util.UserDataPathUtil;
 
 /**
  * 候选人简历解析与管理服务
@@ -33,14 +34,21 @@ public class CandidateResumeService {
 
     /**
      * 获取当前用户的简历文件路径
+     *
+     * @deprecated 使用 UserDataPathUtil.getResumePath() 替代
      */
+    @Deprecated
     private static String getUserResumePath(String userId) {
-        return USER_RESUME_BASE_PATH + "/" + userId + "/candidate_resume.json";
+        // ✅ 使用新的统一工具类
+        return UserDataPathUtil.getResumePath();
     }
 
     /**
      * 获取当前用户的简历文件路径（从UserContext获取用户ID）
+     *
+     * @deprecated 使用 UserDataPathUtil.getResumePath() 替代
      */
+    @Deprecated
     private static String getCurrentUserResumePath() {
         // 从UserContext获取当前用户ID
         String userId = UserContextUtil.getCurrentUserId();
@@ -48,7 +56,8 @@ public class CandidateResumeService {
             // 商业化项目必须要求用户登录
             throw new RuntimeException("用户未登录，无法访问简历数据。请先登录系统。");
         }
-        return getUserResumePath(userId);
+        // ✅ 使用新的统一工具类
+        return UserDataPathUtil.getResumePath();
     }
 
     /**
@@ -123,14 +132,14 @@ public class CandidateResumeService {
      */
     private static void saveCandidateInfo(Map<String, Object> candidate) {
         try {
-            String userResumePath = getCurrentUserResumePath();
+            // ✅ 使用新工具类获取路径（统一格式）
+            String userResumePath = UserDataPathUtil.getResumePath();
             log.info("【简历解析】保存简历到用户路径: {}", userResumePath);
 
-            // 确保目录存在
+            // ✅ 使用工具类确保目录存在
+            UserDataPathUtil.ensureUserDataDirExists();
+
             File file = new File(userResumePath);
-            if (!file.getParentFile().exists()) {
-                if (!file.getParentFile().mkdirs()) { log.warn("创建目录失败: {}", file.getParentFile().getPath()); }
-            }
 
             // 转换为格式化的JSON
             ObjectMapper mapper = new ObjectMapper();
@@ -154,16 +163,17 @@ public class CandidateResumeService {
      */
     public static Map<String, Object> loadCandidateInfo() {
         try {
-            String userResumePath = getCurrentUserResumePath();
-            log.info("【简历解析】加载用户简历: {}", userResumePath);
+            // ✅ 使用兼容方法查找文件（支持新旧格式）
+            File resumeFile = UserDataPathUtil.getResumeFile();
 
-            File file = new File(userResumePath);
-            if (!file.exists()) {
-                log.warn("【简历解析】用户简历文件不存在: {}", userResumePath);
+            if (!resumeFile.exists()) {
+                log.warn("【简历解析】用户简历文件不存在: {}", resumeFile.getAbsolutePath());
                 return null;
             }
 
-            String jsonString = Files.readString(Paths.get(userResumePath));
+            log.info("【简历解析】加载用户简历: {}", resumeFile.getAbsolutePath());
+
+            String jsonString = Files.readString(resumeFile.toPath());
             ObjectMapper mapper = new ObjectMapper();
             @SuppressWarnings("unchecked")
             Map<String, Object> candidate = mapper.readValue(jsonString, Map.class);
@@ -181,17 +191,10 @@ public class CandidateResumeService {
      * 保存默认打招呼语到用户数据目录
      */
     public static void saveDefaultGreeting(String greeting) throws Exception {
-        String userId = UserContextUtil.getCurrentUserId();
-        String userDataDir = "user_data/" + userId;
+        // ✅ 使用新工具类
+        UserDataPathUtil.ensureUserDataDirExists();
 
-        // 确保用户目录存在
-        File userDir = new File(userDataDir);
-        if (!userDir.exists()) {
-            userDir.mkdirs();
-        }
-
-        // 保存到 default_greeting.json
-        File greetingFile = new File(userDataDir + "/default_greeting.json");
+        File greetingFile = new File(UserDataPathUtil.getDefaultGreetingPath());
         Map<String, Object> greetingData = new HashMap<>();
         greetingData.put("greeting", greeting);
         greetingData.put("updated_at", System.currentTimeMillis());
@@ -206,10 +209,11 @@ public class CandidateResumeService {
      * 从用户数据目录加载默认打招呼语
      */
     public static String loadDefaultGreeting() throws Exception {
-        String userId = UserContextUtil.getCurrentUserId();
-        File greetingFile = new File("user_data/" + userId + "/default_greeting.json");
+        // ✅ 使用兼容方法查找文件（支持新旧格式）
+        File greetingFile = UserDataPathUtil.getDefaultGreetingFile();
 
         if (!greetingFile.exists()) {
+            String userId = UserContextUtil.getCurrentUserId();
             log.warn("⚠️  用户未设置默认打招呼语: {}", userId);
             return null;
         }
@@ -223,9 +227,12 @@ public class CandidateResumeService {
 
     /**
      * 获取默认打招呼语（带用户ID参数）
+     *
+     * 注意：此方法忽略传入的userId参数，使用当前登录用户
      */
     public static String getDefaultGreeting(String userId) throws Exception {
-        File greetingFile = new File("user_data/" + userId + "/default_greeting.json");
+        // ✅ 使用兼容方法查找文件（支持新旧格式）
+        File greetingFile = UserDataPathUtil.getDefaultGreetingFile();
 
         if (!greetingFile.exists()) {
             log.warn("⚠️  用户未设置默认打招呼语: {}", userId);
@@ -244,9 +251,9 @@ public class CandidateResumeService {
      */
     public static boolean hasCandidateResume() {
         try {
-            String userResumePath = getCurrentUserResumePath();
-            File file = new File(userResumePath);
-            return file.exists() && file.length() > 0;
+            // ✅ 使用兼容方法查找文件（支持新旧格式）
+            File resumeFile = UserDataPathUtil.getResumeFile();
+            return resumeFile.exists() && resumeFile.length() > 0;
         } catch (Exception e) {
             log.warn("【简历解析】检查简历存在性失败: {}", e.getMessage());
             return false;
@@ -258,11 +265,14 @@ public class CandidateResumeService {
      */
     public static void deleteCandidateResume() {
         try {
-            String userResumePath = getCurrentUserResumePath();
-            File file = new File(userResumePath);
-            if (file.exists()) {
-                if (!file.delete()) { log.warn("删除文件失败: {}", file.getPath()); }
-                log.info("【简历解析】已删除用户简历: {}", userResumePath);
+            // ✅ 使用兼容方法查找文件（支持新旧格式，删除时也要兼容）
+            File resumeFile = UserDataPathUtil.getResumeFile();
+
+            if (resumeFile.exists()) {
+                if (!resumeFile.delete()) {
+                    log.warn("删除文件失败: {}", resumeFile.getPath());
+                }
+                log.info("【简历解析】已删除用户简历: {}", resumeFile.getAbsolutePath());
             }
         } catch (Exception e) {
             log.error("【简历解析】删除用户简历失败: {}", e.getMessage());

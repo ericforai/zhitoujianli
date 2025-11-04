@@ -60,3 +60,4 @@ react.log
 # Certificate and private key files
 *.pem
 *.p12get_jobs-*.jar
+backend/deploy/*.jar

@@ -31,14 +31,16 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
     const checkAdminStatus = async () => {
       try {
         // 多次尝试获取，确保localStorage已保存
-        let token = localStorage.getItem('authToken') || localStorage.getItem('token');
+        let token =
+          localStorage.getItem('authToken') || localStorage.getItem('token');
         let userType = localStorage.getItem('userType');
 
         // 如果第一次没获取到，等待一下再试
         if (!token || userType !== 'admin') {
           console.warn('⚠️ 第一次检查失败，等待100ms后重试...');
           await new Promise(resolve => setTimeout(resolve, 100));
-          token = localStorage.getItem('authToken') || localStorage.getItem('token');
+          token =
+            localStorage.getItem('authToken') || localStorage.getItem('token');
           userType = localStorage.getItem('userType');
         }
 
@@ -47,7 +49,9 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
           tokenLength: token?.length || 0,
           userType,
           pathname: window.location.pathname,
-          allKeys: Object.keys(localStorage).filter(k => k.includes('token') || k.includes('Type') || k === 'userType')
+          allKeys: Object.keys(localStorage).filter(
+            k => k.includes('token') || k.includes('Type') || k === 'userType'
+          ),
         });
 
         // 检查token和userType
@@ -63,7 +67,7 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
                 acc[k] = localStorage.getItem(k)?.substring(0, 30) + '...';
               }
               return acc;
-            }, {} as any)
+            }, {} as any),
           });
 
           // 延迟重定向，给localStorage更多时间恢复
@@ -71,7 +75,8 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
           await new Promise(resolve => setTimeout(resolve, 500));
 
           // 最后一次检查
-          const finalToken = localStorage.getItem('authToken') || localStorage.getItem('token');
+          const finalToken =
+            localStorage.getItem('authToken') || localStorage.getItem('token');
           const finalUserType = localStorage.getItem('userType');
 
           if (!finalToken || finalUserType !== 'admin') {
@@ -122,4 +127,3 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
 };
 
 export default AdminRoute;
-

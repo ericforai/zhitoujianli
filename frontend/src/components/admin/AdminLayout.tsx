@@ -64,7 +64,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 strokeLinecap='round'
                 strokeLinejoin='round'
                 strokeWidth={2}
-                d={sidebarOpen ? 'M11 19l-7-7 7-7m8 14l-7-7 7-7' : 'M13 5l7 7-7 7M5 5l7 7-7 7'}
+                d={
+                  sidebarOpen
+                    ? 'M11 19l-7-7 7-7m8 14l-7-7 7-7'
+                    : 'M13 5l7 7-7 7M5 5l7 7-7 7'
+                }
               />
             </svg>
           </button>
@@ -72,7 +76,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
         {/* 导航菜单 */}
         <nav className='p-4 space-y-2'>
-          {menuItems.map((item) => (
+          {menuItems.map(item => (
             <Link
               key={item.path}
               to={item.path}
@@ -109,7 +113,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         {/* 顶部栏 */}
         <header className='h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6'>
           <h2 className='text-lg font-semibold text-gray-900'>
-            {menuItems.find((item) => isActive(item.path))?.label || '管理后台'}
+            {menuItems.find(item => isActive(item.path))?.label || '管理后台'}
           </h2>
           <div className='flex items-center gap-4'>
             <span className='text-sm text-gray-600'>
@@ -128,4 +132,3 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 };
 
 export default AdminLayout;
-

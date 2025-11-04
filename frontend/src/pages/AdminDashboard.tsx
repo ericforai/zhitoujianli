@@ -21,7 +21,9 @@ interface DashboardData {
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -31,7 +33,8 @@ const AdminDashboard: React.FC = () => {
     console.log('📍 当前路径:', window.location.pathname);
 
     // 诊断：检查管理员认证状态
-    const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+    const token =
+      localStorage.getItem('authToken') || localStorage.getItem('token');
     const userType = localStorage.getItem('userType');
 
     console.log('📊 AdminDashboard加载:', {
@@ -39,7 +42,9 @@ const AdminDashboard: React.FC = () => {
       tokenLength: token?.length || 0,
       userType,
       pathname: window.location.pathname,
-      localStorageKeys: Object.keys(localStorage).filter(k => k.includes('token') || k.includes('Type') || k === 'userType'),
+      localStorageKeys: Object.keys(localStorage).filter(
+        k => k.includes('token') || k.includes('Type') || k === 'userType'
+      ),
       allLocalStorage: Object.keys(localStorage).reduce((acc, k) => {
         if (k.includes('token') || k === 'userType') {
           acc[k] = localStorage.getItem(k)?.substring(0, 30) + '...';
@@ -190,7 +195,13 @@ interface StatCardProps {
   onClick?: () => void;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, onClick }) => {
+const StatCard: React.FC<StatCardProps> = ({
+  title,
+  value,
+  icon,
+  color,
+  onClick,
+}) => {
   const colorClasses = {
     blue: 'bg-blue-50 border-blue-200 text-blue-700',
     green: 'bg-green-50 border-green-200 text-green-700',
@@ -208,9 +219,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, onClick 
           <p className='text-sm font-medium opacity-75'>{title}</p>
           <p className='text-3xl font-bold mt-2'>{value.toLocaleString()}</p>
           {onClick && (
-            <p className='text-xs text-gray-500 mt-1'>
-              点击查看详情 →
-            </p>
+            <p className='text-xs text-gray-500 mt-1'>点击查看详情 →</p>
           )}
         </div>
         <span className='text-4xl'>{icon}</span>
@@ -220,4 +229,3 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, onClick 
 };
 
 export default AdminDashboard;
-

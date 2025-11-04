@@ -630,27 +630,24 @@ public class WebController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getUserConfig() {
         try {
-            // 获取用户ID（兼容单用户和多用户模式）
-            String userId = util.UserContextUtil.getCurrentUserId();
-            userId = util.UserContextUtil.sanitizeUserId(userId); // 安全验证
-
-            // 动态拼接配置路径
-            String configPath = "user_data/" + userId + "/config.json";
+            // ✅ 使用兼容方法查找配置文件（支持新旧格式）
+            java.io.File configFile = util.UserDataPathUtil.getConfigFile();
+            String safeUserId = util.UserDataPathUtil.getSafeUserId();
             Map<String, Object> config;
 
-            if (new java.io.File(configPath).exists()) {
+            if (configFile.exists()) {
                 com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-                config = mapper.readValue(new java.io.File(configPath), Map.class);
-                log.info("✅ 从文件加载用户配置: userId={}, path={}", userId, configPath);
+                config = mapper.readValue(configFile, Map.class);
+                log.info("✅ 从文件加载用户配置: userId={}, path={}", safeUserId, configFile.getAbsolutePath());
             } else {
                 config = getDefaultConfig();
-                log.info("📋 使用默认配置: userId={}", userId);
+                log.info("📋 使用默认配置: userId={}", safeUserId);
             }
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("config", config);
-            response.put("userId", userId); // 返回用户ID供前端确认
+            response.put("userId", safeUserId);
 
             return ResponseEntity.ok(response);
         } catch (SecurityException e) {
@@ -675,39 +672,33 @@ public class WebController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> saveUserConfig(@RequestBody Map<String, Object> config) {
         try {
-            // 获取用户ID（兼容单用户和多用户模式）
+            // ✅ 使用新的统一工具类
             String userId = util.UserContextUtil.getCurrentUserId();
-            userId = util.UserContextUtil.sanitizeUserId(userId); // 安全验证
+            String safeUserId = util.UserDataPathUtil.getSafeUserId();
+            String configPath = util.UserDataPathUtil.getConfigPath();
 
-            // 动态拼接配置路径
-            String configPath = "user_data/" + userId + "/config.json";
-
-            // 获取用户信息（在SECURITY_ENABLED=true时从JWT获取，否则使用默认值）
+            // 获取用户信息
             String userEmail = util.UserContextUtil.getCurrentUserEmail();
             String username = util.UserContextUtil.getCurrentUsername();
 
-            config.put("userId", userId);
+            config.put("userId", safeUserId);  // ✅ 保存清理后的ID
             config.put("userEmail", userEmail);
             config.put("username", username);
             config.put("lastModified", System.currentTimeMillis());
 
-            // 确保用户目录存在
-            java.nio.file.Path path = java.nio.file.Paths.get("user_data/" + userId);
-            if (!java.nio.file.Files.exists(path)) {
-                java.nio.file.Files.createDirectories(path);
-                log.info("📁 创建用户数据目录: {}", path);
-            }
+            // ✅ 确保用户目录存在
+            util.UserDataPathUtil.ensureUserDataDirExists();
 
             // 保存配置
             com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
             mapper.writerWithDefaultPrettyPrinter().writeValue(new java.io.File(configPath), config);
 
-            log.info("✅ 用户配置保存成功: userId={}, email={}, path={}", userId, userEmail, configPath);
+            log.info("✅ 用户配置保存成功: userId={}, email={}, path={}", safeUserId, userEmail, configPath);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "用户配置保存成功");
-            response.put("userId", userId); // 返回用户ID供前端确认
+            response.put("userId", safeUserId);
             return ResponseEntity.ok(response);
 
         } catch (SecurityException e) {

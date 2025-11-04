@@ -1,32 +1,58 @@
 {
-  "boss" : {
-    "keywords" : [ "市场总监", "市场营销", "品牌营销" ],
-    "cityCode" : [ "上海" ],
-    "debugger" : false,
-    "degree" : [ "不限" ],
-    "scale" : [ "不限" ],
-    "industry" : [ "不限" ],
-    "enableAI" : false,
-    "experience" : [ "10年以上" ],
-    "salary" : [ "30K以上" ],
-    "sayHi" : "",
-    "filterDeadHR" : true,
-    "stage" : [ "不限" ],
-    "deadStatus" : [ "3月前活跃", "半年前活跃", "1年前活跃", "2年前活跃" ],
-    "sendImgResume" : false,
-    "expectedSalary" : [ 30, 50 ],
-    "jobType" : "不限",
-    "waitTime" : 10,
-    "salaryRange" : {
-      "minSalary" : 30,
-      "maxSalary" : 50
+  "boss": {
+    "keywords": [
+      "市场总监"
+    ],
+    "cityCode": [
+      "上海"
+    ],
+    "debugger": false,
+    "degree": [
+      "不限"
+    ],
+    "scale": [
+      "不限"
+    ],
+    "industry": [
+      "不限"
+    ],
+    "enableAI": false,
+    "experience": [
+      "10年以上"
+    ],
+    "salary": [
+      "30K以上"
+    ],
+    "sayHi": "",
+    "filterDeadHR": true,
+    "stage": [
+      "不限"
+    ],
+    "deadStatus": [
+      "3月前活跃",
+      "半年前活跃",
+      "1年前活跃",
+      "2年前活跃"
+    ],
+    "sendImgResume": false,
+    "expectedSalary": [
+      30,
+      50
+    ],
+    "jobType": "不限",
+    "waitTime": 10,
+    "salaryRange": {
+      "minSalary": 30,
+      "maxSalary": 50
     },
-    "experienceRequirement" : "10年以上",
-    "educationRequirement" : "本科",
-    "cities" : [ "上海" ]
+    "experienceRequirement": "10年以上",
+    "educationRequirement": "本科",
+    "cities": [
+      "上海"
+    ]
   },
-  "userId" : "luwenrong123_sina_com",
-  "userEmail" : "luwenrong123@sina.com",
-  "username" : "luwenrong123",
-  "lastModified" : 1761121266443
+  "userId": "luwenrong123_sina_com",
+  "userEmail": "luwenrong123@sina.com",
+  "username": "luwenrong123",
+  "lastModified": 1762217244000
 }

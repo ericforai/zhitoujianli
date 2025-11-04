@@ -19,16 +19,14 @@ interface ConfigItem {
   updatedAt: string;
 }
 
-interface SystemConfig {
-  [key: string]: any;
-}
-
 const AdminSystem: React.FC = () => {
   const [configList, setConfigList] = useState<ConfigItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
-  const [editingConfig, setEditingConfig] = useState<{[key: string]: string}>({});
+  const [editingConfig, setEditingConfig] = useState<{ [key: string]: string }>(
+    {}
+  );
 
   useEffect(() => {
     fetchConfig();
@@ -74,16 +72,19 @@ const AdminSystem: React.FC = () => {
       const token = localStorage.getItem('authToken');
       const newValue = editingConfig[configKey];
 
-      const response = await fetch(`${config.apiBaseUrl}/admin/system/configs/${configKey}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          configValue: newValue,
-        }),
-      });
+      const response = await fetch(
+        `${config.apiBaseUrl}/admin/system/configs/${configKey}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            configValue: newValue,
+          }),
+        }
+      );
 
       const result = await response.json();
 
@@ -146,9 +147,7 @@ const AdminSystem: React.FC = () => {
         <div className='bg-white rounded-lg shadow overflow-hidden'>
           <div className='px-6 py-4 border-b border-gray-200'>
             <h2 className='text-lg font-semibold text-gray-900'>系统设置</h2>
-            <p className='text-sm text-gray-500 mt-1'>
-              管理系统的全局配置参数
-            </p>
+            <p className='text-sm text-gray-500 mt-1'>管理系统的全局配置参数</p>
           </div>
 
           <div className='divide-y divide-gray-200'>
@@ -157,8 +156,11 @@ const AdminSystem: React.FC = () => {
                 暂无配置项
               </div>
             ) : (
-              configList.map((item) => (
-                <div key={item.configKey} className='px-6 py-4 hover:bg-gray-50'>
+              configList.map(item => (
+                <div
+                  key={item.configKey}
+                  className='px-6 py-4 hover:bg-gray-50'
+                >
                   <div className='flex items-start gap-4'>
                     <div className='flex-1'>
                       <div className='flex items-center gap-2 mb-1'>
@@ -176,11 +178,30 @@ const AdminSystem: React.FC = () => {
                       )}
                       <div className='flex items-center gap-2'>
                         <input
-                          type={item.configType === 'NUMBER' ? 'number' : item.configType === 'BOOLEAN' ? 'checkbox' : 'text'}
-                          value={editingConfig[item.configKey] !== undefined ? editingConfig[item.configKey] : item.configValue}
-                          checked={item.configType === 'BOOLEAN' ? (editingConfig[item.configKey] !== undefined ? editingConfig[item.configKey] === 'true' : item.configValue === 'true') : undefined}
-                          onChange={(e) => {
-                            const value = item.configType === 'BOOLEAN' ? String(e.target.checked) : e.target.value;
+                          type={
+                            item.configType === 'NUMBER'
+                              ? 'number'
+                              : item.configType === 'BOOLEAN'
+                                ? 'checkbox'
+                                : 'text'
+                          }
+                          value={
+                            editingConfig[item.configKey] !== undefined
+                              ? editingConfig[item.configKey]
+                              : item.configValue
+                          }
+                          checked={
+                            item.configType === 'BOOLEAN'
+                              ? editingConfig[item.configKey] !== undefined
+                                ? editingConfig[item.configKey] === 'true'
+                                : item.configValue === 'true'
+                              : undefined
+                          }
+                          onChange={e => {
+                            const value =
+                              item.configType === 'BOOLEAN'
+                                ? String(e.target.checked)
+                                : e.target.value;
                             handleConfigChange(item.configKey, value);
                           }}
                           className='flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm'
@@ -188,7 +209,10 @@ const AdminSystem: React.FC = () => {
                         />
                         <button
                           onClick={() => handleSaveConfig(item.configKey)}
-                          disabled={saving || editingConfig[item.configKey] === undefined}
+                          disabled={
+                            saving ||
+                            editingConfig[item.configKey] === undefined
+                          }
                           className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm'
                         >
                           保存
@@ -207,4 +231,3 @@ const AdminSystem: React.FC = () => {
 };
 
 export default AdminSystem;
-

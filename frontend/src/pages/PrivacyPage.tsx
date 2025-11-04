@@ -159,7 +159,8 @@ const PrivacyPage: React.FC = () => {
                 </p>
                 <ul className='list-disc list-inside space-y-2 text-gray-700 mb-6'>
                   <li>
-                    <strong>服务提供商</strong>：与帮助我们提供服务的第三方合作伙伴共享
+                    <strong>服务提供商</strong>
+                    ：与帮助我们提供服务的第三方合作伙伴共享
                   </li>
                   <li>
                     <strong>法律要求</strong>：根据法律法规要求披露信息
@@ -365,4 +366,3 @@ const PrivacyPage: React.FC = () => {
 };
 
 export default PrivacyPage;
-

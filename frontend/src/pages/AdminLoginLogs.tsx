@@ -40,6 +40,7 @@ const AdminLoginLogs: React.FC = () => {
 
   useEffect(() => {
     fetchLogs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   const fetchLogs = async () => {
@@ -75,7 +76,7 @@ const AdminLoginLogs: React.FC = () => {
         }
 
         setLogs(logsList);
-        setTotal(filterDate ? logsList.length : (result.data.total || 0));
+        setTotal(filterDate ? logsList.length : result.data.total || 0);
       } else {
         setError(result.message || '获取登录日志失败');
       }
@@ -155,7 +156,7 @@ const AdminLoginLogs: React.FC = () => {
               </tr>
             </thead>
             <tbody className='bg-white divide-y divide-gray-200'>
-              {logs.map((log) => (
+              {logs.map(log => (
                 <tr key={log.id} className='hover:bg-gray-50'>
                   <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
                     {new Date(log.createdAt).toLocaleString('zh-CN')}
@@ -214,4 +215,3 @@ const AdminLoginLogs: React.FC = () => {
 };
 
 export default AdminLoginLogs;
-

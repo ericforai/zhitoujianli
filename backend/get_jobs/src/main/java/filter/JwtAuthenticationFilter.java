@@ -70,6 +70,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
                 log.debug("✅ JWT认证成功: userId={}, email={}", userId, email);
+
+                // 6. ✅ 自动迁移用户数据（如果需要）
+                try {
+                    if (util.UserDataPathUtil.hasLegacyDataToMigrate()) {
+                        log.info("🔄 检测到旧格式用户数据，开始自动迁移: userId={}", userId);
+                        util.UserDataMigrationUtil.MigrationResult result = util.UserDataMigrationUtil.migrateCurrentUserData();
+                        log.info("✅ 用户数据迁移结果: {}", result);
+                    }
+                } catch (Exception e) {
+                    log.warn("⚠️ 用户数据迁移失败（不影响正常使用）: {}", e.getMessage());
+                }
             } else {
                 log.debug("⚠️  未找到JWT Token，使用匿名访问");
             }
