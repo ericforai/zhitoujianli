@@ -188,7 +188,11 @@
 <a name='L123'></a><a href='#L123'>123</a>
 <a name='L124'></a><a href='#L124'>124</a>
 <a name='L125'></a><a href='#L125'>125</a>
-<a name='L126'></a><a href='#L126'>126</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a>
+<a name='L129'></a><a href='#L129'>129</a>
+<a name='L130'></a><a href='#L130'>130</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -221,6 +225,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -229,28 +234,15 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -261,6 +253,23 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -309,7 +318,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -346,14 +354,16 @@ const AdminRoute: React.FC&lt;AdminRouteProps&gt; = <span class="cstat-no" title
     const checkAdminStatus = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >      try {</span>
         // 多次尝试获取，确保localStorage已保存
-        let token = <span class="cstat-no" title="statement not covered" >localStorage.getItem('authToken') || localStorage.getItem('token');</span>
+        let token =
+<span class="cstat-no" title="statement not covered" >          localStorage.getItem('authToken') || localStorage.getItem('token');</span>
         let userType = <span class="cstat-no" title="statement not covered" >localStorage.getItem('userType');</span>
 &nbsp;
         // 如果第一次没获取到，等待一下再试
 <span class="cstat-no" title="statement not covered" >        if (!token || userType !== 'admin') {</span>
 <span class="cstat-no" title="statement not covered" >          console.warn('⚠️ 第一次检查失败，等待100ms后重试...');</span>
 <span class="cstat-no" title="statement not covered" >          await new Promise(<span class="fstat-no" title="function not covered" >re</span>solve =&gt; <span class="cstat-no" title="statement not covered" >setTimeout(resolve, 100))</span>;</span>
-<span class="cstat-no" title="statement not covered" >          token = localStorage.getItem('authToken') || localStorage.getItem('token');</span>
+<span class="cstat-no" title="statement not covered" >          token =</span>
+            localStorage.getItem('authToken') || localStorage.getItem('token');
 <span class="cstat-no" title="statement not covered" >          userType = localStorage.getItem('userType');</span>
         }
 &nbsp;
@@ -362,7 +372,9 @@ const AdminRoute: React.FC&lt;AdminRouteProps&gt; = <span class="cstat-no" title
           tokenLength: token?.length || 0,
           userType,
           pathname: window.location.pathname,
-          allKeys: Object.keys(localStorage).filter(<span class="fstat-no" title="function not covered" >k </span>=&gt; <span class="cstat-no" title="statement not covered" >k.includes('token') || k.includes('Type') || k === 'userType')</span>
+          allKeys: Object.keys(localStorage).filter(
+<span class="fstat-no" title="function not covered" >            k </span>=&gt; <span class="cstat-no" title="statement not covered" >k.includes('token') || k.includes('Type') || k === 'userType'</span>
+          ),
         });
 &nbsp;
         // 检查token和userType
@@ -378,7 +390,7 @@ const AdminRoute: React.FC&lt;AdminRouteProps&gt; = <span class="cstat-no" title
 <span class="cstat-no" title="statement not covered" >                acc[k] = localStorage.getItem(k)?.substring(0, 30) + '...';</span>
               }
 <span class="cstat-no" title="statement not covered" >              return acc;</span>
-            }, {} as any)
+            }, {} as any),
           });
 &nbsp;
           // 延迟重定向，给localStorage更多时间恢复
@@ -386,7 +398,8 @@ const AdminRoute: React.FC&lt;AdminRouteProps&gt; = <span class="cstat-no" title
 <span class="cstat-no" title="statement not covered" >          await new Promise(<span class="fstat-no" title="function not covered" >re</span>solve =&gt; <span class="cstat-no" title="statement not covered" >setTimeout(resolve, 500))</span>;</span>
 &nbsp;
           // 最后一次检查
-          const finalToken = <span class="cstat-no" title="statement not covered" >localStorage.getItem('authToken') || localStorage.getItem('token');</span>
+          const finalToken =
+<span class="cstat-no" title="statement not covered" >            localStorage.getItem('authToken') || localStorage.getItem('token');</span>
           const finalUserType = <span class="cstat-no" title="statement not covered" >localStorage.getItem('userType');</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >          if (!finalToken || finalUserType !== 'admin') {</span>
@@ -437,7 +450,6 @@ const AdminRoute: React.FC&lt;AdminRouteProps&gt; = <span class="cstat-no" title
 };
 &nbsp;
 export default AdminRoute;
-&nbsp;
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -445,7 +457,7 @@ export default AdminRoute;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-03T15:06:15.921Z
+                at 2025-11-04T03:38:30.296Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

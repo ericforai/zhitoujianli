@@ -80,15 +80,27 @@ public class Boss {
     static BossConfig config = BossConfig.init();
 
     /**
-     * 获取数据文件路径（修复SpotBugs硬编码路径问题）
-     * 使用相对路径，支持跨平台部署
+     * 获取数据文件路径（用户隔离）
+     * 支持多用户模式，每个用户有独立的黑名单数据
      *
      * @return 数据文件路径
      */
     private static String getDataPath() {
-        // 使用相对路径，避免硬编码
-        String userDir = System.getProperty("user.dir");
-        return userDir + File.separator + "src" + File.separator + "main" + File.separator + "java" + File.separator + "boss" + File.separator + "data.json";
+        String userId = System.getenv("BOSS_USER_ID");
+
+        if (userId == null || userId.isEmpty()) {
+            // 未设置用户ID，使用默认路径（向后兼容）
+            log.info("未检测到BOSS_USER_ID环境变量，使用默认数据文件");
+            String userDir = System.getProperty("user.dir");
+            return userDir + File.separator + "src" + File.separator + "main" + File.separator + "java" + File.separator + "boss" + File.separator + "data.json";
+        }
+
+        // ✅ 用户隔离模式：使用用户数据目录
+        // 清理userId中的非法字符（安全性）
+        String safeUserId = userId.replaceAll("[^a-zA-Z0-9_-]", "_");
+        String dataPath = "user_data" + File.separator + safeUserId + File.separator + "blacklist.json";
+        log.info("✅ 多用户模式，黑名单数据路径: {}", dataPath);
+        return dataPath;
     }
 
     /**
@@ -141,8 +153,12 @@ public class Boss {
     }
 
     public static void main(String[] args) {
+        // ✅ 检查是否为"只登录"模式（用于二维码登录）
+        boolean loginOnly = args.length > 0 && "login-only".equals(args[0]);
+
         log.info("Boss程序启动，环境检查开始...");
-        log.info("运行模式: {}", System.getProperty("maven.compiler.fork") != null ? "Web UI调用" : "终端直接运行");
+        log.info("运行模式: {}", loginOnly ? "只登录模式（二维码登录）" :
+                 (System.getProperty("maven.compiler.fork") != null ? "Web UI调用" : "终端直接运行"));
 
         loadData(dataPath);
         // 使用Playwright前检查环境
@@ -153,7 +169,18 @@ public class Boss {
 
             startDate = new Date();
             login();
-            config.getCityCode().forEach(Boss::postJobByCity);
+
+            // ✅ 只有非"只登录"模式才执行投递
+            if (!loginOnly) {
+                log.info("开始执行自动投递任务...");
+                config.getCityCode().forEach(Boss::postJobByCity);
+            } else {
+                log.info("✅ 「只登录」模式完成，不执行投递任务");
+                log.info("✅ Boss Cookie已保存，后续可直接启动投递任务");
+                // 只登录模式立即退出
+                PlaywrightUtil.close();
+                return;
+            }
         } catch (Exception e) {
             log.error("Boss程序执行异常: {}", e.getMessage(), e);
             // 清理资源

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
  * 2. 重定向所有日志输出
  * 3. 避免与Spring Boot线程池冲突
  * 4. 简化配置加载
+ * 5. 支持"只登录"模式（用于二维码登录）
  */
 public class IsolatedBossRunner {
 
@@ -20,6 +21,8 @@ public class IsolatedBossRunner {
     /**
      * 在隔离环境中运行Boss程序
      * @param args 程序参数
+     *             args[0] = "login-only" : 只登录，不投递（用于二维码登录）
+     *             args[0] = 其他或无参数 : 执行完整投递流程
      */
     public static void main(String[] args) {
         try {
@@ -30,7 +33,13 @@ public class IsolatedBossRunner {
             log.info("执行模式: WebUI隔离环境");
             log.info("线程名称: {}", Thread.currentThread().getName());
 
-            // 直接调用Boss.main方法
+            // ✅ 检查是否为只登录模式
+            boolean loginOnly = args.length > 0 && "login-only".equals(args[0]);
+            if (loginOnly) {
+                log.info("🔑 运行模式: 只登录（二维码扫码），不执行投递");
+            }
+
+            // 直接调用Boss.main方法，传递参数
             Boss.main(args);
 
             log.info("=== Boss程序隔离执行完成 ===");

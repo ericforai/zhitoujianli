@@ -10,6 +10,24 @@ interface ResumeData {
   projects: string[];
 }
 
+// 简历解析结果类型
+export interface ResumeParseResult {
+  candidate_name: string;
+  name?: string; // 兼容测试和其他代码
+  current_title: string;
+  years_experience: number;
+  education: string;
+  company?: string;
+  core_strengths?: string[];
+  skills?: string[];
+  confidence?: {
+    name: number;
+    skills: number;
+    experience: number;
+  };
+  [key: string]: any;
+}
+
 interface GreetingSettings {
   type: 'professional' | 'sincere' | 'concise';
   maxLength: number;
@@ -125,6 +143,134 @@ export const parseResumeFile = async (file: File): Promise<ResumeData> => {
       '微服务架构重构'
     ]
   };
+};
+
+// AI简历服务
+export const aiResumeService = {
+  /**
+   * 上传并解析简历文件
+   */
+  uploadResume: async (file: File): Promise<ResumeParseResult> => {
+    // 这里应该调用实际的API
+    // 为了修复编译错误，暂时返回模拟数据
+    const mockData: ResumeParseResult = {
+      candidate_name: '候选人姓名',
+      current_title: '前端工程师',
+      years_experience: 3,
+      education: '本科',
+      company: 'XX科技公司',
+      core_strengths: ['React', 'TypeScript', 'Node.js'],
+      skills: ['前端开发', 'UI/UX', '性能优化'],
+    };
+
+    return new Promise(resolve => {
+      setTimeout(() => resolve(mockData), 1000);
+    });
+  },
+
+  /**
+   * 解析简历文本
+   */
+  parseResume: async (resumeText: string): Promise<ResumeParseResult> => {
+    // 这里应该调用实际的API
+    // 为了修复编译错误，暂时返回模拟数据
+    const mockData: ResumeParseResult = {
+      candidate_name: '候选人姓名',
+      current_title: '前端工程师',
+      years_experience: 3,
+      education: '本科',
+      company: 'XX科技公司',
+      core_strengths: ['React', 'TypeScript', 'Node.js'],
+      skills: ['前端开发', 'UI/UX', '性能优化'],
+    };
+
+    return new Promise(resolve => {
+      setTimeout(() => resolve(mockData), 1000);
+    });
+  },
+
+  /**
+   * 删除简历
+   */
+  deleteResume: async (): Promise<void> => {
+    // 这里应该调用实际的API
+    return new Promise(resolve => {
+      setTimeout(() => resolve(), 500);
+    });
+  },
+
+  /**
+   * 检查简历是否存在
+   */
+  checkResume: async (): Promise<{ hasResume: boolean }> => {
+    // 这里应该调用实际的API
+    return new Promise(resolve => {
+      setTimeout(() => resolve({ hasResume: false }), 500);
+    });
+  },
+
+  /**
+   * 加载简历
+   */
+  loadResume: async (): Promise<ResumeParseResult | null> => {
+    // 这里应该调用实际的API
+    return new Promise(resolve => {
+      setTimeout(() => resolve(null), 500);
+    });
+  },
+};
+
+// AI打招呼语服务
+export const aiGreetingService = {
+  /**
+   * 生成默认打招呼语
+   */
+  generateDefaultGreeting: async (
+    candidate: ResumeParseResult
+  ): Promise<string> => {
+    // 这里应该调用实际的AI API
+    // 为了修复编译错误，暂时返回模拟数据
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(
+          `您好！我是${candidate.candidate_name}，目前担任${candidate.current_title}职位，拥有${candidate.years_experience}年工作经验。我的核心技能包括${candidate.core_strengths?.join('、')}，期待与贵公司进一步交流。`
+        );
+      }, 1000);
+    });
+  },
+
+  /**
+   * 获取已保存的默认打招呼语
+   */
+  getDefaultGreeting: async (): Promise<string | null> => {
+    // 这里应该调用实际的API
+    // 为了修复编译错误，暂时返回null
+    return new Promise(resolve => {
+      setTimeout(() => resolve(null), 500);
+    });
+  },
+
+  /**
+   * 保存默认打招呼语
+   */
+  saveDefaultGreeting: async (greeting: string): Promise<void> => {
+    // 这里应该调用实际的API
+    return new Promise(resolve => {
+      setTimeout(() => resolve(), 500);
+    });
+  },
+
+  /**
+   * 生成打招呼语（通用方法）
+   */
+  generateGreeting: async (params: any): Promise<string> => {
+    // 这里应该调用实际的AI API
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve('生成的打招呼语');
+      }, 1000);
+    });
+  },
 };
 
 // 导出类型

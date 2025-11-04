@@ -111,8 +111,12 @@ public class BossLoginController {
                 try {
                     log.info("🚀 异步启动Boss程序以生成登录二维码...");
 
-                    // 启动Boss程序并等待二维码生成
-                    CompletableFuture<Void> bossFuture = bossExecutionService.executeBossProgram(System.getProperty("java.io.tmpdir") + File.separator + "boss_login.log", false);
+                    // ✅ 启动Boss程序（只登录模式，不执行投递）
+                    CompletableFuture<Void> bossFuture = bossExecutionService.executeBossProgram(
+                        System.getProperty("java.io.tmpdir") + File.separator + "boss_login.log",
+                        false,  // headless=false（有头模式，用于生成二维码）
+                        true    // loginOnly=true（只登录，不投递）
+                    );
 
                     // 等待二维码生成（最多等待30秒）
                     int maxWaitTime = 30; // 30秒

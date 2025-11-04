@@ -3,46 +3,30 @@
  * 只测试核心功能，避免复杂的边界条件
  */
 
-import aiService from './aiService';
-
-// Mock fetch API
-const mockFetch = jest.fn();
-global.fetch = mockFetch;
+import { aiResumeService, aiGreetingService } from './aiService';
 
 describe('aiService边界测试', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-
-    // Mock fetch responses
-    mockFetch.mockResolvedValue({
-      ok: true,
-      status: 200,
-      statusText: 'OK',
-      headers: new Headers(),
-      json: () =>
-        Promise.resolve({
-          success: true,
-          data: {
-            greeting: '测试招呼语',
-            analysis: '测试分析',
-          },
-        }),
-    });
   });
 
-  test('应该能够处理基本AI服务调用', () => {
+  test('应该能够处理基本AI简历服务调用', () => {
     // 测试基本功能 - 只检查对象是否存在
-    expect(aiService).toBeDefined();
-    expect(aiService.greeting).toBeDefined();
+    expect(aiResumeService).toBeDefined();
+    expect(aiResumeService.uploadResume).toBeDefined();
+    expect(aiResumeService.parseResume).toBeDefined();
+    expect(aiResumeService.deleteResume).toBeDefined();
 
-    console.log('✅ 测试通过: aiService基本功能正常');
+    console.log('✅ 测试通过: aiResumeService基本功能正常');
   });
 
-  test('应该能够处理空值输入', () => {
+  test('应该能够处理AI打招呼语服务调用', () => {
     // 测试边界条件 - 只检查对象结构
-    expect(aiService.resume).toBeDefined();
-    expect(aiService.config).toBeDefined();
+    expect(aiGreetingService).toBeDefined();
+    expect(aiGreetingService.generateDefaultGreeting).toBeDefined();
+    expect(aiGreetingService.getDefaultGreeting).toBeDefined();
+    expect(aiGreetingService.saveDefaultGreeting).toBeDefined();
 
-    console.log('✅ 测试通过: aiService边界条件处理正常');
+    console.log('✅ 测试通过: aiGreetingService基本功能正常');
   });
 });

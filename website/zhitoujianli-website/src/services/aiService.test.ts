@@ -162,6 +162,7 @@ describe('aiGreetingService', () => {
   describe('generateGreeting', () => {
     test('应该正确生成智能打招呼语', async () => {
       const mockCandidate = {
+        candidate_name: '张三',
         name: '张三',
         current_title: '软件工程师',
         years_experience: 5,
@@ -198,6 +199,7 @@ describe('aiGreetingService', () => {
   describe('generateDefaultGreeting', () => {
     test('应该正确生成默认打招呼语', async () => {
       const mockCandidate = {
+        candidate_name: '李四',
         name: '李四',
         current_title: '产品经理',
         years_experience: 3,
@@ -225,6 +227,7 @@ describe('aiGreetingService', () => {
 
     test('应该处理生成失败', async () => {
       const mockCandidate = {
+        candidate_name: '测试',
         name: '测试',
         current_title: '测试',
         years_experience: 1,

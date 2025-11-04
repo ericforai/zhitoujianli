@@ -28,7 +28,7 @@ public class BossExecutionService {
      * 使用独立的JVM进程避免线程和资源冲突
      */
     public CompletableFuture<Void> executeBossProgram(String logFilePath) {
-        return executeBossProgram(logFilePath, false); // false=有头模式（用于调试投递问题）
+        return executeBossProgram(logFilePath, false, false); // false=有头模式，false=执行完整投递
     }
 
     /**
@@ -37,6 +37,16 @@ public class BossExecutionService {
      * @param headless 是否使用无头模式
      */
     public CompletableFuture<Void> executeBossProgram(String logFilePath, boolean headless) {
+        return executeBossProgram(logFilePath, headless, false); // false=执行完整投递
+    }
+
+    /**
+     * 异步执行Boss程序 - 完全隔离模式
+     * @param logFilePath 日志文件路径
+     * @param headless 是否使用无头模式
+     * @param loginOnly 是否只登录不投递（用于二维码登录）
+     */
+    public CompletableFuture<Void> executeBossProgram(String logFilePath, boolean headless, boolean loginOnly) {
         // 在异步执行前获取用户ID和SecurityContext，避免在异步线程中SecurityContext丢失
         final String userId = util.UserContextUtil.sanitizeUserId(util.UserContextUtil.getCurrentUserId());
         final org.springframework.security.core.context.SecurityContext securityContext =
@@ -50,7 +60,8 @@ public class BossExecutionService {
             try {
                 // 使用预先获取的用户ID（支持多用户隔离）
 
-                log.info("开始执行Boss程序，用户: {}, 隔离执行环境，头模式: {}", userId, headless ? "无头" : "有头");
+                log.info("开始执行Boss程序，用户: {}, 隔离执行环境，头模式: {}, 只登录: {}",
+                        userId, headless ? "无头" : "有头", loginOnly ? "是" : "否");
 
                 // 确保日志文件存在
                 File logFile = new File(logFilePath);
@@ -61,11 +72,11 @@ public class BossExecutionService {
                     writeLogHeader(logWriter);
 
                 // 创建独立的Boss进程（传递用户ID以支持多用户隔离）
-                ProcessBuilder pb = createIsolatedBossProcess(userId, headless);
+                ProcessBuilder pb = createIsolatedBossProcess(userId, headless, loginOnly);
 
                 // 为Boss程序设置用户ID环境变量（多用户支持）
                 pb.environment().put("BOSS_USER_ID", userId);
-                log.info("📋 已设置Boss程序环境变量: BOSS_USER_ID={}", userId);
+                log.info("📋 已设置Boss程序环境变量: BOSS_USER_ID={}, loginOnly={}", userId, loginOnly);
 
                     logWriter.write(formatTimestamp() + " - 启动独立Boss进程（用户: " + userId + "）...%n");
                     logWriter.flush();
@@ -136,8 +147,9 @@ public class BossExecutionService {
      * 创建完全隔离的Boss进程
      * @param userId 用户ID（支持多用户隔离）
      * @param headless 是否使用无头模式
+     * @param loginOnly 是否只登录不投递（用于二维码登录）
      */
-    private ProcessBuilder createIsolatedBossProcess(String userId, boolean headless) throws IOException {
+    private ProcessBuilder createIsolatedBossProcess(String userId, boolean headless, boolean loginOnly) throws IOException {
         String javaHome = System.getProperty("java.home");
         String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
 
@@ -146,7 +158,20 @@ public class BossExecutionService {
         String fullClasspath = "target/classes:" + mavenClasspath;
 
         // Boss程序的完全隔离JVM参数
-        String[] command = {
+        // ✅ 如果是只登录模式，添加 "login-only" 参数
+        String[] command = loginOnly ? new String[] {
+            javaBin,
+            "-Xms256m", "-Xmx1024m",  // 限制内存使用
+            "-XX:+UseG1GC",           // 使用G1垃圾收集器
+            "-XX:+DisableExplicitGC", // 禁用显式GC
+            "-Djava.awt.headless=" + headless, // 动态头模式
+            "-Dfile.encoding=UTF-8",   // 设置文件编码
+            "-Dsun.java.command=boss.IsolatedBossRunner", // 设置主类
+            "-Dboss.user.id=" + userId, // 🔧 修复：使用动态用户ID支持多用户隔离
+            "-cp", fullClasspath,      // 设置classpath
+            "boss.IsolatedBossRunner", // Boss隔离运行器
+            "login-only"               // ✅ 只登录参数
+        } : new String[] {
             javaBin,
             "-Xms256m", "-Xmx1024m",  // 限制内存使用
             "-XX:+UseG1GC",           // 使用G1垃圾收集器

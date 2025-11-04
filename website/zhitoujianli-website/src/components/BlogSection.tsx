@@ -1,6 +1,6 @@
 const BlogSection = () => {
   return (
-    <section className='py-28 bg-gray-50'>
+    <section id='blog' className='py-28 bg-gray-50 scroll-mt-32'>
       <div className='max-w-6xl mx-auto px-6 sm:px-8 lg:px-12'>
         <div className='text-center mb-16'>
           <h2 className='text-2xl md:text-3xl font-bold text-gray-900 mb-4 font-chinese'>
@@ -36,8 +36,10 @@ const BlogSection = () => {
               <h3 className='text-xl font-semibold text-gray-900 mb-2'>简历优化技巧</h3>
               <p className='text-gray-600 mb-4'>学习如何打造一份脱颖而出的简历，提高面试邀请率</p>
               <a
-                href='http://localhost:4321/blog/resume-optimization-tips/'
+                href='https://blog.zhitoujianli.com/blog/resume-optimization-tips/'
                 className='text-indigo-600 hover:text-indigo-800 font-medium'
+                target='_blank'
+                rel='noopener noreferrer'
               >
                 阅读更多 →
               </a>
@@ -67,8 +69,10 @@ const BlogSection = () => {
               <h3 className='text-xl font-semibold text-gray-900 mb-2'>面试准备完全指南</h3>
               <p className='text-gray-600 mb-4'>从准备到成功的全流程指导，助你自信应对面试</p>
               <a
-                href='http://localhost:4321/blog/interview-preparation-guide/'
+                href='https://blog.zhitoujianli.com/blog/interview-preparation-guide/'
                 className='text-indigo-600 hover:text-indigo-800 font-medium'
+                target='_blank'
+                rel='noopener noreferrer'
               >
                 阅读更多 →
               </a>
@@ -98,8 +102,10 @@ const BlogSection = () => {
               <h3 className='text-xl font-semibold text-gray-900 mb-2'>智投简历介绍</h3>
               <p className='text-gray-600 mb-4'>了解智投简历的AI技术，让求职更智能高效</p>
               <a
-                href='http://localhost:4321/blog/zhitoujianli-introduction/'
+                href='https://blog.zhitoujianli.com/blog/zhitoujianli-introduction/'
                 className='text-indigo-600 hover:text-indigo-800 font-medium'
+                target='_blank'
+                rel='noopener noreferrer'
               >
                 阅读更多 →
               </a>
@@ -109,8 +115,10 @@ const BlogSection = () => {
 
         <div className='text-center'>
           <a
-            href='http://localhost:4321/blog/'
+            href='https://blog.zhitoujianli.com/'
             className='bg-gradient-primary text-white px-8 py-3 rounded-lg text-lg font-semibold hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg inline-flex items-center space-x-2'
+            target='_blank'
+            rel='noopener noreferrer'
           >
             <span>访问博客</span>
             <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
