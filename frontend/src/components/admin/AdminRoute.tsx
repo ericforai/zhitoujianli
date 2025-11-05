@@ -20,77 +20,28 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   useEffect(() => {
     console.log('🔍 AdminRoute组件已加载，开始检查管理员状态');
     console.log('📍 当前路径:', window.location.pathname);
-    console.log('📋 localStorage内容:', {
-      token: !!localStorage.getItem('token'),
-      authToken: !!localStorage.getItem('authToken'),
-      userType: localStorage.getItem('userType'),
-      allKeys: Object.keys(localStorage),
-    });
 
-    // 检查是否为管理员
-    const checkAdminStatus = async () => {
+    // 🔧 修复：简化检查逻辑，避免循环
+    const checkAdminStatus = () => {
       try {
-        // 多次尝试获取，确保localStorage已保存
-        let token =
+        const token =
           localStorage.getItem('authToken') || localStorage.getItem('token');
-        let userType = localStorage.getItem('userType');
-
-        // 如果第一次没获取到，等待一下再试
-        if (!token || userType !== 'admin') {
-          console.warn('⚠️ 第一次检查失败，等待100ms后重试...');
-          await new Promise(resolve => setTimeout(resolve, 100));
-          token =
-            localStorage.getItem('authToken') || localStorage.getItem('token');
-          userType = localStorage.getItem('userType');
-        }
+        const userType = localStorage.getItem('userType');
 
         console.log('🔍 AdminRoute检查:', {
-          token: !!token,
-          tokenLength: token?.length || 0,
+          hasToken: !!token,
           userType,
           pathname: window.location.pathname,
-          allKeys: Object.keys(localStorage).filter(
-            k => k.includes('token') || k.includes('Type') || k === 'userType'
-          ),
         });
 
         // 检查token和userType
         if (!token || userType !== 'admin') {
-          console.error('❌ 管理员认证失败:', {
-            hasToken: !!token,
-            hasAuthToken: !!localStorage.getItem('authToken'),
-            hasToken2: !!localStorage.getItem('token'),
-            userType,
-            currentPath: window.location.pathname,
-            allLocalStorage: Object.keys(localStorage).reduce((acc, k) => {
-              if (k.includes('token') || k === 'userType') {
-                acc[k] = localStorage.getItem(k)?.substring(0, 30) + '...';
-              }
-              return acc;
-            }, {} as any),
-          });
-
-          // 延迟重定向，给localStorage更多时间恢复
-          console.warn('⚠️ 等待500ms后再检查...');
-          await new Promise(resolve => setTimeout(resolve, 500));
-
-          // 最后一次检查
-          const finalToken =
-            localStorage.getItem('authToken') || localStorage.getItem('token');
-          const finalUserType = localStorage.getItem('userType');
-
-          if (!finalToken || finalUserType !== 'admin') {
-            console.error('❌ 最终认证失败，将重定向到登录页');
-            setIsAdmin(false);
-            setIsLoading(false);
-            return;
-          }
-
-          console.log('✅ 延迟检查通过，继续渲染');
+          console.error('❌ 管理员认证失败，重定向到登录页');
+          setIsAdmin(false);
+          setIsLoading(false);
+          return;
         }
 
-        // 验证token是否有效（可选，可以调用后端API验证）
-        // 这里简化处理，只要token存在且userType是admin就认为合法
         console.log('✅ 管理员认证通过，渲染子组件');
         setIsAdmin(true);
         setIsLoading(false);

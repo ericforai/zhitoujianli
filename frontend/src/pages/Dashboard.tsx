@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useBossDelivery } from '../hooks/useBossDelivery';
 import { useBossLoginStatus } from '../hooks/useBossLoginStatus';
 import { useQRCodeLogin } from '../hooks/useQRCodeLogin';
+import { bossService, DeliveryDetail } from '../services/bossService';
 import logger from '../utils/logger';
 
 /**
@@ -52,6 +53,11 @@ const Dashboard: React.FC = () => {
   // 日志弹窗状态
   const [showLogs, setShowLogs] = useState(false);
 
+  // 投递详情弹窗状态
+  const [showDeliveryDetails, setShowDeliveryDetails] = useState(false);
+  const [deliveryDetails, setDeliveryDetails] = useState<DeliveryDetail[]>([]);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+
   // 认证状态检查和日志记录
   authLogger.debug('Dashboard组件开始渲染', { isLoading, isAuthenticated });
 
@@ -82,6 +88,25 @@ const Dashboard: React.FC = () => {
 
   // 记录数据加载开始
   authLogger.debug('开始加载Dashboard数据');
+
+  // 获取今日投递详情
+  const handleShowDeliveryDetails = async () => {
+    setLoadingDetails(true);
+    setShowDeliveryDetails(true);
+    try {
+      const response = await bossService.getTodayDeliveryDetails();
+      if (response.success && response.data) {
+        setDeliveryDetails(response.data.deliveries);
+      } else {
+        setDeliveryDetails([]);
+      }
+    } catch (error) {
+      console.error('获取投递详情失败:', error);
+      setDeliveryDetails([]);
+    } finally {
+      setLoadingDetails(false);
+    }
+  };
 
   // 定义工作流程步骤
   const getWorkflowSteps = (): WorkflowStep[] => {
@@ -179,6 +204,8 @@ const Dashboard: React.FC = () => {
               value={bossStatus.deliveryCount || 0}
               icon='📊'
               color='blue'
+              onClick={handleShowDeliveryDetails}
+              clickable
             />
             <StatCard
               title='运行状态'
@@ -364,6 +391,76 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* 今日投递详情弹窗 */}
+      {showDeliveryDetails && (
+        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
+          <div className='bg-white rounded-lg p-6 max-w-4xl w-full max-h-[80vh] overflow-hidden'>
+            <div className='flex items-center justify-between mb-4'>
+              <h3 className='text-lg font-semibold'>📊 今日投递详情</h3>
+              <button
+                onClick={() => setShowDeliveryDetails(false)}
+                className='text-gray-400 hover:text-gray-600'
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className='overflow-y-auto max-h-[60vh]'>
+              {loadingDetails ? (
+                <div className='flex justify-center items-center py-12'>
+                  <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600'></div>
+                </div>
+              ) : deliveryDetails.length > 0 ? (
+                <div className='space-y-3'>
+                  {deliveryDetails.map((delivery, index) => (
+                    <div
+                      key={index}
+                      className='bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors'
+                    >
+                      <div className='flex items-start justify-between'>
+                        <div className='flex-1'>
+                          <h4 className='font-semibold text-gray-900 mb-1'>
+                            {delivery.position}
+                          </h4>
+                          <p className='text-sm text-gray-600 mb-1'>
+                            🏢 {delivery.company}
+                          </p>
+                          <p className='text-xs text-gray-500'>
+                            ⏰ {delivery.time}
+                          </p>
+                        </div>
+                        <div className='ml-4'>
+                          <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800'>
+                            已投递
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className='text-center py-12'>
+                  <div className='text-4xl mb-4'>📭</div>
+                  <p className='text-gray-600'>今日暂无投递记录</p>
+                </div>
+              )}
+            </div>
+
+            <div className='flex justify-between items-center mt-4 pt-4 border-t'>
+              <div className='text-sm text-gray-600'>
+                共 {deliveryDetails.length} 条投递记录
+              </div>
+              <button
+                onClick={() => setShowDeliveryDetails(false)}
+                className='bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors'
+              >
+                关闭
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -374,19 +471,33 @@ interface StatCardProps {
   value: number | string;
   icon: string;
   color: 'blue' | 'green';
+  onClick?: () => void;
+  clickable?: boolean;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, icon }) => {
+const StatCard: React.FC<StatCardProps> = ({
+  title,
+  value,
+  icon,
+  onClick,
+  clickable,
+}) => {
+  const cardClass = clickable
+    ? 'cursor-pointer hover:shadow-lg transition-shadow duration-200'
+    : '';
+
   return (
-    <Card>
-      <div className='flex items-center justify-between'>
-        <div>
-          <p className='text-sm text-gray-600 mb-1'>{title}</p>
-          <p className='text-2xl font-bold text-gray-900'>{value}</p>
+    <div onClick={onClick} className={cardClass}>
+      <Card>
+        <div className='flex items-center justify-between'>
+          <div>
+            <p className='text-sm text-gray-600 mb-1'>{title}</p>
+            <p className='text-2xl font-bold text-gray-900'>{value}</p>
+          </div>
+          <div className='text-3xl'>{icon}</div>
         </div>
-        <div className='text-3xl'>{icon}</div>
-      </div>
-    </Card>
+      </Card>
+    </div>
   );
 };
 

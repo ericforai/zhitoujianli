@@ -76,7 +76,7 @@ const DeliveryConfig: React.FC = () => {
     }
   };
 
-  if (!config) {
+  if (!config || loading) {
     return (
       <div className='flex items-center justify-center py-12'>
         <div className='text-center'>
@@ -86,6 +86,31 @@ const DeliveryConfig: React.FC = () => {
       </div>
     );
   }
+
+  // 确保配置对象有默认值
+  const safeConfig = {
+    bossConfig: config.bossConfig || {
+      keywords: [],
+      cities: [],
+      salaryRange: { minSalary: 0, maxSalary: 100 },
+      experienceRequirement: '不限',
+      educationRequirement: '不限',
+      enableSmartGreeting: true,
+    },
+    deliveryStrategy: config.deliveryStrategy || {
+      enableAutoDelivery: false,
+      deliveryFrequency: 10,
+      maxDailyDelivery: 50,
+      deliveryInterval: 300,
+      matchThreshold: 0.7,
+    },
+    blacklistConfig: config.blacklistConfig || {
+      companyBlacklist: [],
+      positionBlacklist: [],
+      keywordBlacklist: [],
+      enableBlacklistFilter: false,
+    },
+  };
 
   return (
     <div className='space-y-6'>
@@ -175,7 +200,7 @@ const DeliveryConfig: React.FC = () => {
       <div>
         {activeTab === 'boss' && (
           <BossConfig
-            config={config.bossConfig}
+            config={safeConfig.bossConfig}
             onConfigChange={handleBossConfigChange}
             loading={loading}
           />
@@ -183,7 +208,7 @@ const DeliveryConfig: React.FC = () => {
 
         {activeTab === 'strategy' && (
           <DeliverySettings
-            strategy={config.deliveryStrategy}
+            strategy={safeConfig.deliveryStrategy}
             onStrategyChange={handleStrategyChange}
             loading={loading}
           />
@@ -191,7 +216,7 @@ const DeliveryConfig: React.FC = () => {
 
         {activeTab === 'blacklist' && (
           <BlacklistManager
-            blacklistConfig={config.blacklistConfig}
+            blacklistConfig={safeConfig.blacklistConfig}
             onBlacklistChange={handleBlacklistChange}
             loading={loading}
           />
@@ -205,11 +230,13 @@ const DeliveryConfig: React.FC = () => {
           <div className='bg-white rounded-lg p-4'>
             <h5 className='font-medium text-gray-900 mb-2'>Boss直聘</h5>
             <div className='space-y-1 text-sm text-gray-600'>
-              <p>关键词: {config.bossConfig.keywords?.length || 0} 个</p>
-              <p>城市: {config.bossConfig.cities?.length || 0} 个</p>
+              <p>关键词: {safeConfig.bossConfig.keywords?.length || 0} 个</p>
+              <p>城市: {safeConfig.bossConfig.cities?.length || 0} 个</p>
               <p>
                 智能打招呼:{' '}
-                {config.bossConfig.enableSmartGreeting ? '已启用' : '未启用'}
+                {safeConfig.bossConfig.enableSmartGreeting
+                  ? '已启用'
+                  : '未启用'}
               </p>
             </div>
           </div>
@@ -218,14 +245,15 @@ const DeliveryConfig: React.FC = () => {
             <div className='space-y-1 text-sm text-gray-600'>
               <p>
                 自动投递:{' '}
-                {config.deliveryStrategy.enableAutoDelivery
+                {safeConfig.deliveryStrategy.enableAutoDelivery
                   ? '已启用'
                   : '未启用'}
               </p>
               <p>
-                投递频率: {config.deliveryStrategy.deliveryFrequency} 次/小时
+                投递频率: {safeConfig.deliveryStrategy.deliveryFrequency}{' '}
+                次/小时
               </p>
-              <p>每日限额: {config.deliveryStrategy.maxDailyDelivery} 次</p>
+              <p>每日限额: {safeConfig.deliveryStrategy.maxDailyDelivery} 次</p>
             </div>
           </div>
           <div className='bg-white rounded-lg p-4'>
@@ -233,17 +261,17 @@ const DeliveryConfig: React.FC = () => {
             <div className='space-y-1 text-sm text-gray-600'>
               <p>
                 过滤开关:{' '}
-                {config.blacklistConfig.enableBlacklistFilter
+                {safeConfig.blacklistConfig.enableBlacklistFilter
                   ? '已启用'
                   : '未启用'}
               </p>
               <p>
                 公司黑名单:{' '}
-                {config.blacklistConfig.companyBlacklist?.length || 0} 个
+                {safeConfig.blacklistConfig.companyBlacklist?.length || 0} 个
               </p>
               <p>
                 职位黑名单:{' '}
-                {config.blacklistConfig.positionBlacklist?.length || 0} 个
+                {safeConfig.blacklistConfig.positionBlacklist?.length || 0} 个
               </p>
             </div>
           </div>

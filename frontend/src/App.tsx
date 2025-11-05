@@ -19,6 +19,8 @@ import ResumeDelivery from './components/ResumeDelivery';
 import SmartGreeting from './components/SmartGreeting';
 import StandaloneApiTest from './components/StandaloneApiTest';
 import TestLogin from './components/TestLogin';
+import Terms from './components/Terms';
+import Privacy from './components/Privacy';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
 import BlogPage from './pages/BlogPage';
@@ -27,6 +29,14 @@ import ContactPage from './pages/ContactPage';
 import Dashboard from './pages/Dashboard';
 import FeaturesPage from './pages/FeaturesPage';
 import PricingPage from './pages/PricingPage';
+
+// 管理员后台页面
+import AdminRoute from './components/admin/AdminRoute';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminUsers from './pages/AdminUsers';
+import AdminLoginLogs from './pages/AdminLoginLogs';
+import AdminFeatures from './pages/AdminFeatures';
+import AdminSystem from './pages/AdminSystem';
 
 // 主页组件
 const HomePage: React.FC = () => {
@@ -73,6 +83,10 @@ function App() {
             <Route path='/blog' element={<BlogPage />} />
             <Route path='/contact' element={<ContactPage />} />
 
+            {/* 法律文档页面 */}
+            <Route path='/terms' element={<Terms />} />
+            <Route path='/privacy' element={<Privacy />} />
+
             {/* 受保护的路由 - 需要登录 */}
             <Route
               path='/resume-delivery'
@@ -105,6 +119,48 @@ function App() {
                 <PrivateRoute>
                   <ConfigPage />
                 </PrivateRoute>
+              }
+            />
+
+            {/* 管理员后台路由 - 需要管理员权限 */}
+            <Route
+              path='/admin/dashboard'
+              element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path='/admin/users'
+              element={
+                <AdminRoute>
+                  <AdminUsers />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path='/admin/login-logs'
+              element={
+                <AdminRoute>
+                  <AdminLoginLogs />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path='/admin/features'
+              element={
+                <AdminRoute>
+                  <AdminFeatures />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path='/admin/system'
+              element={
+                <AdminRoute>
+                  <AdminSystem />
+                </AdminRoute>
               }
             />
 

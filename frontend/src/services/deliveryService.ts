@@ -27,7 +27,7 @@ export const deliveryConfigService = {
    * 获取投递配置
    */
   getDeliveryConfig: async (): Promise<ApiResponse<DeliveryConfig>> => {
-    const response = await apiClient.get('/api/delivery/config/config');
+    const response = await apiClient.get('/delivery/config/config');
     return response.data;
   },
 
@@ -37,7 +37,7 @@ export const deliveryConfigService = {
   updateDeliveryConfig: async (
     config: DeliveryConfig
   ): Promise<ApiResponse<DeliveryConfig>> => {
-    const response = await apiClient.put('/api/delivery/config/config', config);
+    const response = await apiClient.put('/delivery/config/config', config);
     return response.data;
   },
 
@@ -48,7 +48,7 @@ export const deliveryConfigService = {
     config: DeliveryConfig
   ): Promise<ApiResponse<{ valid: boolean; message: string }>> => {
     const response = await apiClient.post(
-      '/api/delivery/config/config/test',
+      '/delivery/config/config/test',
       config
     );
     return response.data;
@@ -58,7 +58,7 @@ export const deliveryConfigService = {
    * 获取Boss直聘配置
    */
   getBossConfig: async (): Promise<ApiResponse<BossConfig>> => {
-    const response = await apiClient.get('/api/delivery/config/boss-config');
+    const response = await apiClient.get('/delivery/config/boss-config');
     return response.data;
   },
 
@@ -69,7 +69,7 @@ export const deliveryConfigService = {
     bossConfig: BossConfig
   ): Promise<ApiResponse<BossConfig>> => {
     const response = await apiClient.put(
-      '/api/delivery/config/boss-config',
+      '/delivery/config/boss-config',
       bossConfig
     );
     return response.data;
@@ -79,7 +79,7 @@ export const deliveryConfigService = {
    * 获取投递策略配置（从完整配置中提取）
    */
   getDeliveryStrategy: async (): Promise<ApiResponse<DeliveryStrategy>> => {
-    const response = await apiClient.get('/api/delivery/config/config');
+    const response = await apiClient.get('/delivery/config/config');
     const config = response.data.data;
     return {
       ...response.data,
@@ -93,10 +93,10 @@ export const deliveryConfigService = {
   updateDeliveryStrategy: async (
     strategy: DeliveryStrategy
   ): Promise<ApiResponse<DeliveryStrategy>> => {
-    const configResponse = await apiClient.get('/api/delivery/config');
+    const configResponse = await apiClient.get('/delivery/config');
     const config = configResponse.data.data;
     config.deliveryStrategy = strategy;
-    const response = await apiClient.put('/api/delivery/config/config', config);
+    const response = await apiClient.put('/delivery/config/config', config);
     return {
       ...response.data,
       data: strategy,
@@ -107,7 +107,7 @@ export const deliveryConfigService = {
    * 获取打招呼语配置（从完整配置中提取）
    */
   getGreetingConfig: async (): Promise<ApiResponse<GreetingConfig>> => {
-    const response = await apiClient.get('/api/delivery/config/config');
+    const response = await apiClient.get('/delivery/config/config');
     const config = response.data.data;
     return {
       ...response.data,
@@ -121,10 +121,10 @@ export const deliveryConfigService = {
   updateGreetingConfig: async (
     greetingConfig: GreetingConfig
   ): Promise<ApiResponse<GreetingConfig>> => {
-    const configResponse = await apiClient.get('/api/delivery/config');
+    const configResponse = await apiClient.get('/delivery/config');
     const config = configResponse.data.data;
     config.greetingConfig = greetingConfig;
-    const response = await apiClient.put('/api/delivery/config/config', config);
+    const response = await apiClient.put('/delivery/config/config', config);
     return {
       ...response.data,
       data: greetingConfig,
@@ -135,7 +135,7 @@ export const deliveryConfigService = {
    * 获取黑名单配置
    */
   getBlacklistConfig: async (): Promise<ApiResponse<BlacklistConfig>> => {
-    const response = await apiClient.get('/api/delivery/config/blacklist');
+    const response = await apiClient.get('/delivery/config/blacklist');
     return response.data;
   },
 
@@ -146,7 +146,7 @@ export const deliveryConfigService = {
     type: 'company' | 'position' | 'keyword',
     value: string
   ): Promise<ApiResponse<void>> => {
-    const response = await apiClient.post('/api/delivery/config/blacklist', {
+    const response = await apiClient.post('/delivery/config/blacklist', {
       type,
       value,
     });
@@ -157,9 +157,7 @@ export const deliveryConfigService = {
    * 删除黑名单项
    */
   deleteBlacklistItem: async (id: string): Promise<ApiResponse<void>> => {
-    const response = await apiClient.delete(
-      `/api/delivery/config/blacklist/${id}`
-    );
+    const response = await apiClient.delete(`/delivery/config/blacklist/${id}`);
     return response.data;
   },
 };

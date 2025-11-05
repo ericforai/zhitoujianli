@@ -122,9 +122,21 @@ const Navigation = () => {
           <div className='hidden md:flex items-center space-x-3'>
             {isLoggedIn ? (
               <div className='flex items-center space-x-3'>
-                <Button as='a' href='/dashboard' variant='primary' size='sm'>
-                  工作台
-                </Button>
+                {/* 根据用户类型显示不同的按钮 */}
+                {localStorage.getItem('userType') === 'admin' ? (
+                  <Button
+                    as='a'
+                    href='/admin/dashboard'
+                    variant='primary'
+                    size='sm'
+                  >
+                    管理后台
+                  </Button>
+                ) : (
+                  <Button as='a' href='/dashboard' variant='primary' size='sm'>
+                    工作台
+                  </Button>
+                )}
 
                 {/* 用户信息 - 简约设计 */}
                 <div className='flex items-center space-x-2 px-3 py-1.5 bg-gray-50 rounded-lg'>
@@ -247,13 +259,24 @@ const Navigation = () => {
             <div className='pt-4 pb-3 border-t border-gray-200 space-y-3'>
               {isLoggedIn ? (
                 <>
-                  <a
-                    href='/dashboard'
-                    className='block px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white text-center rounded-lg font-medium transition-colors duration-200'
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    工作台
-                  </a>
+                  {/* 根据用户类型显示不同的按钮 */}
+                  {localStorage.getItem('userType') === 'admin' ? (
+                    <a
+                      href='/admin/dashboard'
+                      className='block px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white text-center rounded-lg font-medium transition-colors duration-200'
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      管理后台
+                    </a>
+                  ) : (
+                    <a
+                      href='/dashboard'
+                      className='block px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white text-center rounded-lg font-medium transition-colors duration-200'
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      工作台
+                    </a>
+                  )}
                   <div className='flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg'>
                     <div className='flex items-center space-x-3'>
                       <div className='h-9 w-9 bg-blue-600 rounded-full flex items-center justify-center'>

@@ -67,6 +67,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         authLogger.debug('初始化认证状态...');
 
+        // 🔧 修复：管理员跳过初始化检查，避免调用普通用户API导致循环
+        const userType = localStorage.getItem('userType');
+        if (userType === 'admin') {
+          authLogger.debug('✅ 检测到管理员用户，跳过getCurrentUser验证');
+          // 🔧 修复：管理员也要设置user状态，避免被监听逻辑清除
+          const cachedUser = authService.getCachedUser();
+          if (cachedUser) {
+            setUser(cachedUser);
+            authLogger.debug('✅ 已恢复管理员用户状态');
+          } else {
+            // 即使没有缓存，也创建一个基本的user对象
+            setUser({
+              userId: 'admin',
+              email: 'admin@zhitoujianli.com',
+              username: 'admin',
+            } as User);
+            authLogger.debug('✅ 已创建临时管理员用户对象');
+          }
+          setIsLoading(false);
+          return;
+        }
+
         // 检查是否有有效的Token
         if (authService.isAuthenticated()) {
           authLogger.debug('发现Token，尝试获取用户信息');
@@ -112,7 +134,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     initAuth();
-  }, [navigate]);
+  }, []);
 
   /**
    * 邮箱密码登录
@@ -125,10 +147,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         const result = await authService.loginByEmail(email, password);
 
         if (result.success && result.user) {
+          // 🔧 修复：先设置用户状态（只设置一次）
           setUser(result.user);
-          authLogger.info('登录成功', { userId: result.user.userId });
+          console.log('📍 检查点1: 登录API调用成功', {
+            hasUser: !!result.user,
+            hasToken: !!result.token,
+          });
+          console.log('📍 检查点2: 用户状态已设置', {
+            userId: result.user.userId,
+          });
 
-          // 🔧 修复：登录成功后跳转到后端8080，并通过Cookie传递Token
           // 设置Token到Cookie，供后端8080使用
           const token = result.token || localStorage.getItem('token');
           if (token) {
@@ -142,10 +170,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             authLogger.info('✅ 已设置auth_token Cookie用于后端认证');
           }
 
-          // 跳转到前端Boss投递页面
-          const frontendUrl = '/boss-delivery';
-          authLogger.info('🚀 跳转到Boss投递页面:', frontendUrl);
-          navigate(frontendUrl, { replace: true });
+          // 🔧 修复：使用 result.user 和 localStorage 而不是 state 中的 user
+          const userType = localStorage.getItem('userType');
+          const isAdmin =
+            userType === 'admin' || email === 'admin@zhitoujianli.com';
+
+          console.log('📍 检查点3: 准备跳转', {
+            isAdmin,
+            userType,
+            email,
+            'result.user': result.user,
+            targetPath: isAdmin ? '/admin/dashboard' : '/boss-delivery',
+            'localStorage.userType': localStorage.getItem('userType'),
+            'localStorage.authToken': !!localStorage.getItem('authToken'),
+          });
+
+          // 立即跳转，不再检查 user state
+          if (isAdmin) {
+            console.log('🚀 管理员登录成功，跳转到管理后台');
+            console.log(
+              '🔍 执行navigate前的location:',
+              window.location.pathname
+            );
+            navigate('/admin/dashboard', { replace: true });
+            console.log('📍 检查点4: navigate 已调用 (/admin/dashboard)');
+            console.log(
+              '🔍 执行navigate后的location:',
+              window.location.pathname
+            );
+          } else {
+            console.log('🚀 普通用户登录成功，跳转到Boss投递页面');
+            navigate('/boss-delivery', { replace: true });
+            console.log('📍 检查点4: navigate 已调用 (/boss-delivery)');
+          }
         } else {
           throw new Error(result.message || '登录失败');
         }
@@ -154,7 +211,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         throw error;
       }
     },
-    [navigate]
+    [navigate] // 🔧 修复：移除 user 依赖，避免不必要的重新创建
   );
 
   /**
@@ -268,11 +325,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
    * 如果用户被清除（如Token过期），自动跳转到登录页
    */
   useEffect(() => {
+    // 跳过管理员用户的检查（管理员登录后有独立的跳转逻辑）
+    const userType = localStorage.getItem('userType');
+    if (userType === 'admin') {
+      authLogger.debug('✅ 跳过管理员用户的认证状态检查');
+      return;
+    }
+
+    // 🔧 修复：添加额外检查，避免在登录过程中误判
+    // 如果 isLoading 为 true，或者刚登录成功（token 存在但 user 还在设置中），不执行清理
     if (!user && !isLoading && authService.isAuthenticated()) {
-      authLogger.warn('认证状态不一致，可能Token已过期');
-      // Token存在但用户信息为空，清除Token
-      authService.logout();
-      navigate('/login', { replace: true });
+      // 等待一小段时间，确保 setUser 已完成
+      const timer = setTimeout(() => {
+        // 再次检查，如果 user 仍然为空，才清除
+        const currentUserType = localStorage.getItem('userType');
+        if (!user && currentUserType !== 'admin') {
+          authLogger.warn('认证状态不一致，可能Token已过期');
+          authService.logout();
+          navigate('/login', { replace: true });
+        }
+      }, 100);
+
+      return () => clearTimeout(timer);
     }
   }, [user, isLoading, navigate]);
 

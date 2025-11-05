@@ -76,7 +76,8 @@ function getApiConfig(): ApiConfig {
   // 生产环境配置
   if (ENV === 'production') {
     return {
-      baseURL: process.env.REACT_APP_API_URL || `${protocol}//${hostname}:8080`,
+      // 🔧 修复：使用 /api 路径，由 Nginx 代理到后端 8080 端口
+      baseURL: process.env.REACT_APP_API_URL || '/api',
       domain: hostname,
       isProduction: true,
       isSecure: protocol === 'https:',

@@ -80,6 +80,7 @@ class TokenManager {
     localStorage.removeItem(CONFIG_CONSTANTS.TOKEN_KEY);
     localStorage.removeItem(CONFIG_CONSTANTS.AUTH_TOKEN_KEY);
     localStorage.removeItem(CONFIG_CONSTANTS.USER_KEY);
+    localStorage.removeItem('userType'); // 🔧 清除管理员标识
 
     // 清除Cookie
     const domain = getCookieDomain();
@@ -227,28 +228,30 @@ const handleLoginResponse = (response: LoginResponse): LoginResponse => {
 export const authService = {
   /**
    * 邮箱密码登录
-   * 🔧 自动检测管理员邮箱并调用对应的API
+   * 🔧 修复：自动检测管理员邮箱并调用对应API
    */
   loginByEmail: async (
     email: string,
     password: string
   ): Promise<LoginResponse> => {
-    // 🔧 检测管理员邮箱
+    // 检测是否为管理员邮箱
     const isAdmin = email === 'admin@zhitoujianli.com';
-    const loginEndpoint = isAdmin ? '/admin/auth/login' : '/auth/login/email';
 
-    console.log(`🔐 登录检测: ${email} -> ${isAdmin ? '管理员' : '普通用户'} (API: ${loginEndpoint})`);
+    // 🔧 修复：在发送请求之前先设置管理员标识，确保时序正确
+    if (isAdmin) {
+      localStorage.setItem('userType', 'admin');
+      console.log('✅ 预先设置管理员标识: userType=admin');
+    }
+
+    const loginEndpoint = isAdmin ? '/admin/auth/login' : '/auth/login/email';
+    console.log(
+      `🔐 登录检测: ${email} -> ${isAdmin ? '管理员' : '普通用户'} (API: ${loginEndpoint})`
+    );
 
     const response = await apiClient.post<LoginResponse>(loginEndpoint, {
       email,
       password,
     });
-
-    // 如果是管理员登录，设置userType标识
-    if (isAdmin) {
-      localStorage.setItem('userType', 'admin');
-      console.log('✅ 已设置管理员标识: userType=admin');
-    }
 
     return handleLoginResponse(response.data);
   },

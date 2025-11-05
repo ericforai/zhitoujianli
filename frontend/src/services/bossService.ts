@@ -59,6 +59,21 @@ export interface LogsResponse {
   message?: string;
 }
 
+export interface DeliveryDetail {
+  time: string;
+  company: string;
+  position: string;
+}
+
+export interface TodayDeliveriesResponse {
+  success: boolean;
+  data?: {
+    count: number;
+    deliveries: DeliveryDetail[];
+  };
+  message?: string;
+}
+
 /**
  * Boss投递服务
  */
@@ -116,6 +131,21 @@ export const bossService = {
     } catch (error: any) {
       console.error('获取Boss日志失败:', error);
       throw new Error(error.response?.data?.message || '获取日志失败');
+    }
+  },
+
+  /**
+   * 获取今日投递详情列表
+   */
+  getTodayDeliveryDetails: async (): Promise<TodayDeliveriesResponse> => {
+    try {
+      const response = await bossApiClient.get<TodayDeliveriesResponse>(
+        '/boss/today-deliveries'
+      );
+      return response.data;
+    } catch (error: any) {
+      console.error('获取今日投递详情失败:', error);
+      throw new Error(error.response?.data?.message || '获取详情失败');
     }
   },
 
