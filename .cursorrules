@@ -151,7 +151,7 @@ mvn clean package -DskipTests
 **禁止创建任何其他前端目录：**
 ```bash
 ❌ 禁止：mkdir frontend2
-❌ 禁止：mkdir frontend_new  
+❌ 禁止：mkdir frontend_new
 ❌ 禁止：mkdir frontend_FINAL
 ❌ 禁止：mkdir website
 ❌ 禁止：在任何website/目录下开发前端
