@@ -61,3 +61,9 @@ react.log
 *.pem
 *.p12get_jobs-*.jar
 backend/deploy/*.jar
+
+# User data (contains sensitive user information)
+backend/get_jobs/user_data/
+
+# Cursor AI database
+.cursorrules-database

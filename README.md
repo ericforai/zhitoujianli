@@ -404,6 +404,10 @@ REACT_APP_ENV=development
 BASE_URL=https://api.deepseek.com
 API_KEY=your_api_key
 MODEL=deepseek-chat
+
+# Boss程序配置（v2.2.4+必需）
+USER_DATA_DIR=/opt/zhitoujianli/backend/user_data  # 用户数据目录（智能打招呼必需）
+BOSS_WORK_DIR=/opt/zhitoujianli/backend            # Boss程序工作目录
 ```
 
 ### 数据库配置
@@ -455,6 +459,12 @@ spring:
 - [三层访问控制系统](docs/security/THREE_TIER_ACCESS_CONTROL_SYSTEM.md)
 
 ## 👨‍💻 开发指南
+
+### 📚 必读文档
+
+- [编码规范](docs/CODING_STANDARDS.md) ⭐ **强制遵守**
+- [常见错误预防指南](docs/PREVENT_COMMON_ERRORS.md) ⭐ **避免低级错误**
+- [代码规范检查脚本](scripts/check-code-standards.sh)
 
 ### 开发工作流
 
@@ -794,6 +804,40 @@ open target/site/jacoco/index.html  # macOS
 - ✅ 重写 README.md：完整的架构说明、开发指南
 - ✅ 添加详细的命令列表和使用说明
 - ✅ 完善 Git 提交规范和代码规范文档
+
+### v2.2.4 (2025-11-05) - 智能打招呼修复版
+
+**核心修复**
+
+- ✅ 修复智能打招呼语路径查找失败问题
+- ✅ 使用绝对路径 + 环境变量查找简历文件
+- ✅ 增强路径诊断日志（记录工作目录、绝对路径）
+- ✅ 优化BossExecutionService环境变量传递
+- ✅ 添加详细的故障排查文档
+
+**技术改进**
+
+- ✅ 多级降级策略（环境变量 → 工作目录 → 绝对路径）
+- ✅ 添加 `USER_DATA_DIR` 和 `BOSS_WORK_DIR` 环境变量
+- ✅ 从 `/etc/zhitoujianli/backend.env` 读取配置
+- ✅ 监控指标和告警规则文档
+
+**文档更新**
+
+- ✅ 更新 `SMART_GREETING_USAGE.md`（添加5个常见问题解决方案）
+- ✅ 创建 `TROUBLESHOOTING_SMART_GREETING.md`（详细故障排查）
+- ✅ 创建 `SMART_GREETING_FIX_SUMMARY.md`（修复总结）
+
+**升级说明**：
+
+升级到v2.2.4后，需要添加环境变量：
+```bash
+echo "USER_DATA_DIR=/opt/zhitoujianli/backend/user_data" >> /etc/zhitoujianli/backend.env
+echo "BOSS_WORK_DIR=/opt/zhitoujianli/backend" >> /etc/zhitoujianli/backend.env
+systemctl restart zhitoujianli-backend.service
+```
+
+---
 
 ### v2.0.2 (2025-01-27)
 

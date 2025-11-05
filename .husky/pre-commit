@@ -25,8 +25,12 @@ if [ -d "frontend" ]; then
 fi
 
 # 后端代码检查（已禁用测试）
-if [ -d "backend/get_jobs" ]; then
+# 只在有 Java 文件被修改时才运行
+JAVA_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.java$' || true)
+
+if [ -n "$JAVA_FILES" ] && [ -d "backend/get_jobs" ]; then
   echo "⚙️ 检查后端代码（跳过测试）..."
+  echo "📝 检测到 Java 文件改动，运行代码质量检查..."
   cd backend/get_jobs
 
   # Checkstyle检查
@@ -42,6 +46,8 @@ if [ -d "backend/get_jobs" ]; then
   mvn pmd:check
 
   cd ../..
+elif [ -d "backend/get_jobs" ]; then
+  echo "⚙️ 未检测到 Java 文件改动，跳过后端代码检查"
 fi
 
 echo "✅ 代码质量检查完成！"
