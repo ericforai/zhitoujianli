@@ -42,7 +42,10 @@ public class StatisticsService {
 
         long totalUsers = userRepository.countTotalUsers();
         long activeUsers = userRepository.countActiveUsers();
-        long todayNewUsers = userRepository.countTodayNewUsers();
+
+        // 获取今天的开始时间（00:00:00）
+        LocalDateTime startOfToday = LocalDateTime.now().toLocalDate().atStartOfDay();
+        long todayNewUsers = userRepository.countTodayNewUsers(startOfToday);
 
         LocalDateTime weekStart = LocalDateTime.now().minusDays(7);
         long weekNewUsers = userRepository.countNewUsersBetween(weekStart, LocalDateTime.now());

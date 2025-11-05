@@ -110,9 +110,10 @@ public class AdminLoginController {
                     "success", true,
                     "message", "登录成功",
                     "token", token,
-                    "admin", Map.of(
-                            "id", admin.getId(),
+                    "user", Map.of(
+                            "userId", admin.getId().toString(),
                             "username", admin.getUsername(),
+                            "email", admin.getUsername(),
                             "adminType", admin.getAdminType(),
                             "adminTypeName", admin.getAdminType().getDisplayName()
                     )

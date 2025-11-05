@@ -78,7 +78,7 @@ public class BossExecutionService {
                 pb.environment().put("BOSS_USER_ID", userId);
                 log.info("📋 已设置Boss程序环境变量: BOSS_USER_ID={}, loginOnly={}", userId, loginOnly);
 
-                    logWriter.write(formatTimestamp() + " - 启动独立Boss进程（用户: " + userId + "）...%n");
+                    logWriter.write(formatTimestamp() + " - 启动独立Boss进程（用户: " + userId + "）...\n");
                     logWriter.flush();
 
                     // 启动进程
@@ -112,19 +112,19 @@ public class BossExecutionService {
                     boolean errorFinished = errorLatch.await(5, TimeUnit.SECONDS);
 
                     if (!outputFinished) {
-                        logWriter.write(formatTimestamp() + " - WARNING: 输出日志线程未在5秒内完成%n");
+                        logWriter.write(formatTimestamp() + " - WARNING: 输出日志线程未在5秒内完成\n");
                     }
                     if (!errorFinished) {
-                        logWriter.write(formatTimestamp() + " - WARNING: 错误日志线程未在5秒内完成%n");
+                        logWriter.write(formatTimestamp() + " - WARNING: 错误日志线程未在5秒内完成\n");
                     }
 
                     if (!finished) {
-                        logWriter.write(formatTimestamp() + " - WARNING: Boss程序超时未完成%n");
+                        logWriter.write(formatTimestamp() + " - WARNING: Boss程序超时未完成\n");
                         process.destroyForcibly();
                         log.error("Boss程序超时，强制终止");
                     } else {
                         int exitCode = process.exitValue();
-                        logWriter.write(formatTimestamp() + " - Boss程序完成，退出码: " + exitCode + "%n");
+                        logWriter.write(formatTimestamp() + " - Boss程序完成，退出码: " + exitCode + "\n");
                         log.info("Boss程序执行完成，退出码: {}", exitCode);
                     }
 
@@ -185,6 +185,7 @@ public class BossExecutionService {
         };
 
         ProcessBuilder pb = new ProcessBuilder(command);
+        // 工作目录保持在项目目录（需要classpath.txt等文件）
         pb.directory(new File("/root/zhitoujianli/backend/get_jobs"));
 
         // 设置环境变量
@@ -232,9 +233,14 @@ public class BossExecutionService {
      */
     private void loadAndSetEnvVariables(ProcessBuilder pb) {
         try {
-            // 读取.env文件
-            File envFile = new File("/root/zhitoujianli/backend/get_jobs/.env");
+            // ✅ 优先读取生产环境配置文件
+            File prodEnvFile = new File("/etc/zhitoujianli/backend.env");
+            File devEnvFile = new File("/root/zhitoujianli/backend/get_jobs/.env");
+
+            File envFile = prodEnvFile.exists() ? prodEnvFile : devEnvFile;
+
             if (envFile.exists()) {
+                log.info("📂 从环境变量文件加载配置: {}", envFile.getAbsolutePath());
                 java.nio.file.Files.lines(envFile.toPath())
                     .filter(line -> !line.trim().isEmpty() && !line.trim().startsWith("#"))
                     .forEach(line -> {
@@ -242,16 +248,36 @@ public class BossExecutionService {
                         if (parts.length == 2) {
                             String key = parts[0].trim();
                             String value = parts[1].trim();
-                            // 只传递AI相关的环境变量
-                            if (key.contains("API") || key.contains("DEEPSEEK") || key.contains("MODEL") || key.equals("BASE_URL")) {
+                            // ✅ 传递AI相关和Boss路径相关的环境变量
+                            if (key.contains("API") ||
+                                key.contains("DEEPSEEK") ||
+                                key.contains("MODEL") ||
+                                key.equals("BASE_URL") ||
+                                key.equals("USER_DATA_DIR") ||
+                                key.equals("BOSS_WORK_DIR")) {
                                 pb.environment().put(key, value);
-                                log.debug("传递环境变量到Boss进程: {}=***", key);
+                                if (key.contains("KEY") || key.contains("SECRET")) {
+                                    log.debug("传递环境变量到Boss进程: {}=***", key);
+                                } else {
+                                    log.debug("传递环境变量到Boss进程: {}={}", key, value);
+                                }
                             }
                         }
                     });
             } else {
                 log.warn(".env文件不存在: {}", envFile.getAbsolutePath());
             }
+
+            // ✅ 如果环境变量未设置，使用默认值
+            if (!pb.environment().containsKey("USER_DATA_DIR")) {
+                pb.environment().put("USER_DATA_DIR", "/opt/zhitoujianli/backend/user_data");
+                log.info("设置默认USER_DATA_DIR: /opt/zhitoujianli/backend/user_data");
+            }
+            if (!pb.environment().containsKey("BOSS_WORK_DIR")) {
+                pb.environment().put("BOSS_WORK_DIR", "/opt/zhitoujianli/backend");
+                log.info("设置默认BOSS_WORK_DIR: /opt/zhitoujianli/backend");
+            }
+
         } catch (Exception e) {
             log.error("加载.env文件失败，AI服务可能无法使用", e);
         }
@@ -288,7 +314,7 @@ public class BossExecutionService {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     synchronized (logWriter) {
-                        logWriter.write(line + "%n");
+                        logWriter.write(line + "\n");
                         logWriter.flush();
                     }
                 }
@@ -319,11 +345,11 @@ public class BossExecutionService {
      * 写入日志头部信息
      */
     private void writeLogHeader(FileWriter logWriter) throws IOException {
-        logWriter.write("=== Boss程序隔离执行环境 ===%n");
-        logWriter.write(formatTimestamp() + " - 隔离执行服务启动%n");
-        logWriter.write(formatTimestamp() + " - JVM版本: " + System.getProperty("java.version") + "%n");
-        logWriter.write(formatTimestamp() + " - 工作目录: " + System.getProperty("user.dir") + "%n");
-        logWriter.write(formatTimestamp() + " - 内存限制: 1GB%n");
+        logWriter.write("=== Boss程序隔离执行环境 ===\n");
+        logWriter.write(formatTimestamp() + " - 隔离执行服务启动\n");
+        logWriter.write(formatTimestamp() + " - JVM版本: " + System.getProperty("java.version") + "\n");
+        logWriter.write(formatTimestamp() + " - 工作目录: " + System.getProperty("user.dir") + "\n");
+        logWriter.write(formatTimestamp() + " - 内存限制: 1GB\n");
         logWriter.flush();
     }
 
@@ -332,15 +358,15 @@ public class BossExecutionService {
      */
     private void writeErrorLog(String logFilePath, Exception e) {
         try (FileWriter writer = new FileWriter(logFilePath, StandardCharsets.UTF_8, true)) {
-            writer.write(formatTimestamp() + " - EXCEPTION: " + e.getMessage() + "%n");
-            writer.write(formatTimestamp() + " - EXCEPTION_TYPE: " + e.getClass().getSimpleName() + "%n");
+            writer.write(formatTimestamp() + " - EXCEPTION: " + e.getMessage() + "\n");
+            writer.write(formatTimestamp() + " - EXCEPTION_TYPE: " + e.getClass().getSimpleName() + "\n");
 
             if (e.getMessage().contains("Playwright")) {
-                writer.write(formatTimestamp() + " - TROUBLESHOOTING: Playwright浏览器初始化失败%n");
+                writer.write(formatTimestamp() + " - TROUBLESHOOTING: Playwright浏览器初始化失败\n");
             } else if (e.getMessage().contains("port")) {
-                writer.write(formatTimestamp() + " - TROUBLESHOOTING: 端口冲突检测%n");
+                writer.write(formatTimestamp() + " - TROUBLESHOOTING: 端口冲突检测\n");
             } else if (e.getMessage().contains("memory")) {
-                writer.write(formatTimestamp() + " - TROUBLESHOOTING: 内存不足检测%n");
+                writer.write(formatTimestamp() + " - TROUBLESHOOTING: 内存不足检测\n");
             }
 
             writer.flush();

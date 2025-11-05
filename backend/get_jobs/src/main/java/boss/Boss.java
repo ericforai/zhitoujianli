@@ -71,13 +71,13 @@ public class Boss {
     static String homeUrl = "https://www.zhipin.com";
     static String baseUrl = "https://www.zhipin.com/web/geek/job?";
     static Set<String> blackCompanies;
-    static Set<String> blackRecruiters;
     static Set<String> blackJobs;
     static List<Job> resultList = new ArrayList<>();
     static String dataPath = getDataPath();  // 修复SpotBugs：使用动态路径
     static String cookiePath = initCookiePath();  // 多用户支持：动态Cookie路径
     static Date startDate;
     static BossConfig config = BossConfig.init();
+    static DeliveryController deliveryController; // 投递控制器（频率限制+每日限额）
 
     /**
      * 获取数据文件路径（用户隔离）
@@ -95,10 +95,11 @@ public class Boss {
             return userDir + File.separator + "src" + File.separator + "main" + File.separator + "java" + File.separator + "boss" + File.separator + "data.json";
         }
 
-        // ✅ 用户隔离模式：使用用户数据目录
+        // ✅ 用户隔离模式：使用统一的配置目录（绝对路径）
         // 清理userId中的非法字符（安全性）
         String safeUserId = userId.replaceAll("[^a-zA-Z0-9_-]", "_");
-        String dataPath = "user_data" + File.separator + safeUserId + File.separator + "blacklist.json";
+        // ✅ 使用绝对路径，统一配置目录到 /opt/zhitoujianli/backend/user_data
+        String dataPath = "/opt/zhitoujianli/backend/user_data" + File.separator + safeUserId + File.separator + "blacklist.json";
         log.info("✅ 多用户模式，黑名单数据路径: {}", dataPath);
         return dataPath;
     }
@@ -138,7 +139,6 @@ public class Boss {
                 // 创建文件并写入初始JSON结构
                 Map<String, Set<String>> initialData = new HashMap<>();
                 initialData.put("blackCompanies", new HashSet<>());
-                initialData.put("blackRecruiters", new HashSet<>());
                 initialData.put("blackJobs", new HashSet<>());
                 String initialJson = customJsonFormat(initialData);
                 Files.write(Paths.get(dataPath), initialJson.getBytes(StandardCharsets.UTF_8));
@@ -161,6 +161,16 @@ public class Boss {
                  (System.getProperty("maven.compiler.fork") != null ? "Web UI调用" : "终端直接运行"));
 
         loadData(dataPath);
+
+        // ✅ 初始化投递控制器
+        if (config != null && config.getDeliveryStrategy() != null) {
+            deliveryController = new DeliveryController(config.getDeliveryStrategy());
+            log.info("📊 投递控制器已初始化");
+        } else {
+            log.warn("⚠️ 未找到投递策略配置，将使用默认值");
+            deliveryController = new DeliveryController(new BossConfig.DeliveryStrategy());
+        }
+
         // 使用Playwright前检查环境
         try {
             log.info("初始化Playwright环境...");
@@ -356,11 +366,7 @@ public class Boss {
                         log.info("【{}】第{}个岗位：{}公司{}在黑名单中，跳过", keyword, i + 1, jobName, bossCompany);
                         continue;
                     }
-                    String bossJobTitle = bossTitleInfo[1];
-                    if (blackRecruiters.stream().anyMatch(bossJobTitle::contains)) {
-                        log.info("【{}】第{}个岗位：{}招聘者职位{}在黑名单中，跳过", keyword, i + 1, jobName, bossJobTitle);
-                        continue;
-                    }
+                    // 招聘者职位黑名单已删除（前端不支持此功能）
 
                     // 创建Job对象
                     Job job = new Job();
@@ -373,11 +379,34 @@ public class Boss {
 
                     log.info("【{}】第{}个岗位：准备投递{}，公司：{}，Boss：{}", keyword, i + 1, jobName, bossCompany, bossName);
 
+                    // ✅ 投递策略检查（频率限制、每日限额、投递间隔等）
+                    if (deliveryController != null) {
+                        // 暂时使用匹配度1.0（未实现AI匹配时的默认值）
+                        // TODO: 后续集成AI匹配度评分
+                        if (!deliveryController.canDeliver(1.0)) {
+                            log.warn("【{}】第{}个岗位：投递策略限制，跳过 - {}", keyword, i + 1, deliveryController.getStatistics());
+                            continue;
+                        }
+                    }
+
                     // 执行投递
                     resumeSubmission(page, keyword, job);
                     postCount++;
 
-                    log.info("【{}】第{}个岗位：投递完成！", keyword, i + 1);
+                    // ✅ 记录投递（更新计数器）
+                    if (deliveryController != null) {
+                        deliveryController.recordDelivery();
+                    }
+
+                    log.info("【{}】第{}个岗位：投递完成！{}", keyword, i + 1,
+                        deliveryController != null ? deliveryController.getStatistics() : "");
+
+                    // ✅ 应用投递间隔
+                    if (deliveryController != null && i < postCount - 1) {
+                        long waitTime = deliveryController.getRecommendedWaitTime();
+                        log.info("⏳ 投递间隔等待: {}秒", waitTime / 1000);
+                        Thread.sleep(waitTime);
+                    }
 
                 } catch (Exception e) {
                     log.error("【{}】第{}个岗位处理异常：{}", keyword, i + 1, e.getMessage(), e);
@@ -473,7 +502,6 @@ public class Boss {
             updateListData();
             Map<String, Set<String>> data = new HashMap<>();
             data.put("blackCompanies", blackCompanies);
-            data.put("blackRecruiters", blackRecruiters);
             data.put("blackJobs", blackJobs);
             String json = customJsonFormat(data);
             Files.write(Paths.get(path), json.getBytes(StandardCharsets.UTF_8));
@@ -578,20 +606,109 @@ public class Boss {
         return sb.toString();
     }
 
+    /**
+     * 加载黑名单数据
+     * ⚠️ 优先从config.json的blacklistConfig读取，向后兼容blacklist.json
+     */
     private static void loadData(String path) {
         try {
+            // ✅ 优先从config.json读取黑名单（与前端统一）
+            if (loadBlacklistFromConfig()) {
+                log.info("✅ 已从config.json加载黑名单配置");
+                return;
+            }
+
+            // 备用方案：从旧版blacklist.json读取（向后兼容）
             String json = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
             parseJson(json);
+            log.info("✅ 已从blacklist.json加载黑名单（向后兼容）");
         } catch (IOException e) {
-            log.error("读取【{}】数据失败！", path);
+            log.warn("读取黑名单数据失败：{}，使用空黑名单", e.getMessage());
+            // 初始化为空集合
+            blackCompanies = new HashSet<>();
+            blackJobs = new HashSet<>();
         }
+    }
+
+    /**
+     * 从config.json的blacklistConfig读取黑名单（新方案）
+     *
+     * @return true=成功加载, false=未找到配置
+     */
+    private static boolean loadBlacklistFromConfig() {
+        try {
+            String userId = System.getenv("BOSS_USER_ID");
+            if (userId == null || userId.isEmpty()) {
+                return false;
+            }
+
+            // ✅ 使用绝对路径，统一配置目录到 /opt/zhitoujianli/backend/user_data
+            String configPath = "/opt/zhitoujianli/backend/user_data/" + userId + "/config.json";
+            File configFile = new File(configPath);
+            log.info("🔍 尝试加载黑名单配置文件: {}", configFile.getAbsolutePath());
+            if (!configFile.exists()) {
+                log.warn("⚠️ 用户配置文件不存在: {}", configFile.getAbsolutePath());
+                return false;
+            }
+            log.info("✅ 找到配置文件，大小: {} bytes", configFile.length());
+
+            ObjectMapper mapper = new ObjectMapper();
+            @SuppressWarnings("unchecked")
+            Map<String, Object> userConfig = mapper.readValue(configFile, Map.class);
+            log.info("📄 成功解析JSON，顶层字段数: {}", userConfig.keySet().size());
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> blacklistConfig = (Map<String, Object>) userConfig.get("blacklistConfig");
+            if (blacklistConfig == null) {
+                log.warn("⚠️ 配置中没有blacklistConfig字段，顶层字段：{}", userConfig.keySet());
+                return false;
+            }
+            log.info("📋 blacklistConfig字段数: {}", blacklistConfig.keySet().size());
+
+            // 检查是否启用黑名单过滤
+            Boolean enabled = (Boolean) blacklistConfig.get("enableBlacklistFilter");
+            log.info("📝 黑名单过滤开关: enableBlacklistFilter={}", enabled);
+            if (enabled == null || !enabled) {
+                log.info("⚠️ 黑名单过滤已禁用");
+                blackCompanies = new HashSet<>();
+                blackJobs = new HashSet<>();
+                return true;
+            }
+
+            // 读取黑名单（字段名与前端统一）
+            log.info("📝 读取公司黑名单: companyBlacklist={}", blacklistConfig.get("companyBlacklist"));
+            log.info("📝 读取职位黑名单: positionBlacklist={}", blacklistConfig.get("positionBlacklist"));
+
+            blackCompanies = new HashSet<>(getListFromConfig(blacklistConfig, "companyBlacklist"));
+            blackJobs = new HashSet<>(getListFromConfig(blacklistConfig, "positionBlacklist"));
+
+            log.info("📋 黑名单配置加载成功:");
+            log.info("  - 公司黑名单: {} 个", blackCompanies.size());
+            log.info("  - 职位黑名单: {} 个", blackJobs.size());
+
+            return true;
+
+        } catch (Exception e) {
+            log.error("从config.json加载黑名单失败: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 从配置Map中安全获取List
+     */
+    @SuppressWarnings("unchecked")
+    private static List<String> getListFromConfig(Map<String, Object> config, String key) {
+        Object value = config.get(key);
+        if (value instanceof List) {
+            return (List<String>) value;
+        }
+        return new ArrayList<>();
     }
 
     private static void parseJson(String json) {
         JSONObject jsonObject = new JSONObject(json);
         blackCompanies = jsonObject.getJSONArray("blackCompanies").toList().stream().map(Object::toString)
-                .collect(Collectors.toSet());
-        blackRecruiters = jsonObject.getJSONArray("blackRecruiters").toList().stream().map(Object::toString)
                 .collect(Collectors.toSet());
         blackJobs = jsonObject.getJSONArray("blackJobs").toList().stream().map(Object::toString)
                 .collect(Collectors.toSet());
@@ -1385,27 +1502,51 @@ public class Boss {
             }
         }
 
+        // ✅ 使用绝对路径查找简历文件（修复路径查找失败问题）
+        // 优先使用环境变量，否则使用默认路径
+        String userDataBaseDir = System.getenv("USER_DATA_DIR");
+        if (userDataBaseDir == null || userDataBaseDir.isEmpty()) {
+            // 备用方案：使用工作目录 + user_data
+            String workDir = System.getProperty("user.dir");
+            if (workDir != null && new File(workDir + "/user_data").exists()) {
+                userDataBaseDir = workDir + "/user_data";
+            } else {
+                // 最终备用方案：使用生产环境绝对路径
+                userDataBaseDir = "/opt/zhitoujianli/backend/user_data";
+            }
+        }
+
+        log.info("【打招呼语】当前工作目录: {}", System.getProperty("user.dir"));
+        log.info("【打招呼语】用户数据目录: {}", userDataBaseDir);
+
         String[] possiblePaths = {
-            "user_data/" + userId + "/candidate_resume.json",  // 原始格式：luwenrong123_sina_com
-            "user_data/" + emailUserId + "/candidate_resume.json",  // 邮箱格式：luwenrong123@sina.com
-            "user_data/" + userId + "/resume.json",  // 兼容旧格式
-            "user_data/" + emailUserId + "/resume.json"  // 邮箱格式旧文件名
+            userDataBaseDir + "/" + userId + "/candidate_resume.json",  // 原始格式：luwenrong123_sina_com
+            userDataBaseDir + "/" + emailUserId + "/candidate_resume.json",  // 邮箱格式：luwenrong123@sina.com
+            userDataBaseDir + "/" + userId + "/resume.json",  // 兼容旧格式
+            userDataBaseDir + "/" + emailUserId + "/resume.json"  // 邮箱格式旧文件名
         };
 
         File resumeFile = null;
         String resumePath = null;
         for (String path : possiblePaths) {
             File file = new File(path);
+            log.debug("【打招呼语】尝试路径: {} (绝对路径: {}, 存在: {})",
+                path, file.getAbsolutePath(), file.exists());
             if (file.exists()) {
                 resumeFile = file;
                 resumePath = path;
-                log.info("【打招呼语】找到简历文件: {}", path);
+                log.info("【打招呼语】✅ 找到简历文件: {} (绝对路径: {})", path, file.getAbsolutePath());
                 break;
             }
         }
 
         if (resumeFile == null) {
-            log.warn("【打招呼语】未找到简历文件，已尝试的路径: {}", String.join(", ", possiblePaths));
+            log.error("【打招呼语】❌ 未找到简历文件，已尝试的路径: {}", String.join(", ", possiblePaths));
+            log.error("【打招呼语】绝对路径列表: {}",
+                Arrays.stream(possiblePaths)
+                    .map(p -> new File(p).getAbsolutePath())
+                    .collect(Collectors.joining(", ")));
+            log.warn("【打招呼语】降级使用默认招呼语");
             return sayHi;
         }
 

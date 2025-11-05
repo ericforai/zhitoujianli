@@ -117,6 +117,65 @@ public class BossConfig {
     private List<String> deadStatus;
 
     /**
+     * 投递策略配置
+     */
+    private DeliveryStrategy deliveryStrategy;
+
+    /**
+     * 投递策略内部类
+     */
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class DeliveryStrategy {
+        /**
+         * 是否启用自动投递
+         */
+        private Boolean enableAutoDelivery = false;
+
+        /**
+         * 投递频率（次/小时）
+         */
+        private Integer deliveryFrequency = 10;
+
+        /**
+         * 每日最大投递数
+         */
+        private Integer maxDailyDelivery = 100;
+
+        /**
+         * 投递间隔（秒）
+         */
+        private Integer deliveryInterval = 300;
+
+        /**
+         * 匹配度阈值（0.0-1.0）
+         */
+        private Double matchThreshold = 0.7;
+
+        /**
+         * 投递时间范围
+         */
+        private TimeRange deliveryTimeRange;
+    }
+
+    /**
+     * 时间范围内部类
+     */
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class TimeRange {
+        /**
+         * 开始时间 (HH:mm格式)
+         */
+        private String startTime = "00:00";
+
+        /**
+         * 结束时间 (HH:mm格式)
+         */
+        private String endTime = "23:59";
+    }
+
+    /**
      * 尝试加载用户配置
      * 优先从用户数据目录读取配置，如果不存在则返回null
      */
@@ -131,13 +190,12 @@ public class BossConfig {
                 userId = System.getProperty("boss.user.id");
             }
 
-            // 3. 如果仍未设置，则使用默认用户（保持向后兼容）
+            // 3. ⚠️ 多租户模式 - 必须提供用户ID
             if (userId == null || userId.isEmpty()) {
-                userId = "default_user";
-                log.info("未检测到BOSS_USER_ID环境变量，使用默认用户: {}", userId);
-            } else {
-                log.info("✅ 从环境变量获取用户ID: BOSS_USER_ID={}", userId);
+                log.error("❌ 未检测到BOSS_USER_ID环境变量，多租户模式必须提供用户ID！");
+                return null;
             }
+            log.info("✅ 从环境变量获取用户ID: BOSS_USER_ID={}", userId);
 
             // 4. 构建用户配置路径
             String userConfigPath = "user_data/" + userId + "/config.json";
@@ -162,6 +220,23 @@ public class BossConfig {
 
             // 转换为BossConfig对象
             BossConfig config = mapper.convertValue(bossConfigMap, BossConfig.class);
+
+            // ✅ 读取投递策略配置（如果存在）
+            @SuppressWarnings("unchecked")
+            Map<String, Object> deliveryStrategyMap = (Map<String, Object>) userConfig.get("deliveryStrategy");
+            if (deliveryStrategyMap != null) {
+                DeliveryStrategy strategy = mapper.convertValue(deliveryStrategyMap, DeliveryStrategy.class);
+                config.setDeliveryStrategy(strategy);
+                log.info("📊 投递策略已加载: 自动投递={}, 频率={}/小时, 每日限额={}, 间隔={}秒",
+                    strategy.getEnableAutoDelivery(),
+                    strategy.getDeliveryFrequency(),
+                    strategy.getMaxDailyDelivery(),
+                    strategy.getDeliveryInterval());
+            } else {
+                log.info("⚠️ 未找到投递策略配置，使用默认值");
+                config.setDeliveryStrategy(new DeliveryStrategy());
+            }
+
             log.info("✅ 成功加载用户配置: userId={}", userId);
             log.info("📋 配置详情: keywords={}, salary={}, cityCode={}, experience={}, waitTime={}",
                     config.getKeywords(), config.getSalary(), config.getCityCode(),

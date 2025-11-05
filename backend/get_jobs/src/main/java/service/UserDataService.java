@@ -1,14 +1,5 @@
 package service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.github.cdimascio.dotenv.Dotenv;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import util.UserContextUtil;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,6 +7,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.github.cdimascio.dotenv.Dotenv;
+import lombok.extern.slf4j.Slf4j;
+import util.UserContextUtil;
 
 /**
  * 用户数据服务
@@ -60,36 +60,34 @@ public class UserDataService {
 
     /**
      * 保存用户配置
+     * ⚠️ 多租户模式 - 通过SECURITY_ENABLED控制，默认启用
      */
     public boolean saveUserConfig(Map<String, Object> config) {
-        // 检查安全认证是否启用 - 直接设置为false，因为.env文件中SECURITY_ENABLED=false
-        boolean securityEnabled = false;
-        log.info("当前安全认证状态: false (强制禁用安全认证)");
+        // ✅ 从环境变量读取安全配置（默认true）
+        boolean securityEnabled = Boolean.parseBoolean(dotenv.get("SECURITY_ENABLED", "true"));
+        log.info("💡 当前安全认证状态: {}", securityEnabled ? "已启用（多租户模式）" : "已禁用（仅限开发）");
 
         String userId, userEmail, username, configPath;
 
         if (!securityEnabled) {
-            // 安全认证禁用时，使用默认用户
-            userId = "default_user";
-            userEmail = "demo@example.com";
-            username = "Demo User";
-            configPath = "user_data/default_user/config.json";
-            log.info("安全认证已禁用，使用默认用户保存配置");
-        } else {
-            // 安全认证启用时，检查当前用户
-            try {
-                if (!UserContextUtil.hasCurrentUser()) {
-                    log.warn("安全认证已启用但没有当前用户，无法保存配置");
-                    return false;
-                }
-                userId = UserContextUtil.getCurrentUserId();
-                userEmail = UserContextUtil.getCurrentUserEmail();
-                username = UserContextUtil.getCurrentUsername();
-                configPath = UserContextUtil.getUserConfigPath();
-            } catch (Exception e) {
-                log.warn("安全认证已启用但获取用户信息失败，无法保存配置");
+            log.error("❌ SECURITY_ENABLED=false 已被项目规则禁止！强制使用多租户模式");
+            securityEnabled = true; // 强制启用
+        }
+
+        // 多租户模式：要求用户认证
+        try {
+            if (!UserContextUtil.hasCurrentUser()) {
+                log.error("❌ 用户未登录，无法保存配置（多租户模式）");
                 return false;
             }
+            userId = UserContextUtil.getCurrentUserId();
+            userEmail = UserContextUtil.getCurrentUserEmail();
+            username = UserContextUtil.getCurrentUsername();
+            configPath = UserContextUtil.getUserConfigPath();
+            log.info("✅ 用户认证成功: userId={}, email={}", userId, userEmail);
+        } catch (Exception e) {
+            log.error("❌ 获取用户信息失败: {}", e.getMessage());
+            return false;
         }
 
         ensureUserDataDirectory();
@@ -100,7 +98,7 @@ public class UserDataService {
             config.put("userEmail", userEmail);
             config.put("username", username);
             config.put("lastModified", System.currentTimeMillis());
-            config.put("securityEnabled", securityEnabled);
+            config.put("securityEnabled", true); // 多租户模式永久启用
 
             objectMapper.writerWithDefaultPrettyPrinter()
                        .writeValue(new File(configPath), config);
@@ -115,40 +113,31 @@ public class UserDataService {
 
     /**
      * 加载用户配置
+     * ⚠️ 多租户模式 - 通过SECURITY_ENABLED控制，默认启用
      */
     public Map<String, Object> loadUserConfig() {
-        // 检查安全认证是否启用
-        boolean securityEnabled = true; // 默认启用安全认证
-        try {
-            if (dotenv != null) {
-                securityEnabled = Boolean.parseBoolean(dotenv.get("SECURITY_ENABLED", "true"));
-            } else {
-                log.warn("⚠️ dotenv为null，使用默认安全认证设置");
-            }
-        } catch (Exception e) {
-            log.warn("⚠️ 读取安全认证配置失败，使用默认设置: {}", e.getMessage());
+        // ✅ 从环境变量读取安全配置（默认true）
+        boolean securityEnabled = Boolean.parseBoolean(dotenv.get("SECURITY_ENABLED", "true"));
+
+        if (!securityEnabled) {
+            log.error("❌ SECURITY_ENABLED=false 已被项目规则禁止！强制使用多租户模式");
+            securityEnabled = true; // 强制启用
         }
 
         String userId, configPath;
 
-        if (!securityEnabled) {
-            // 安全认证禁用时，使用默认用户
-            userId = "default_user";
-            configPath = "user_data/default_user/config.json";
-            log.info("安全认证已禁用，使用默认用户加载配置");
-        } else {
-            // 安全认证启用时，检查当前用户
-            try {
-                if (!UserContextUtil.hasCurrentUser()) {
-                    log.warn("安全认证已启用但没有当前用户，返回默认配置");
-                    return getDefaultConfig();
-                }
-                userId = UserContextUtil.getCurrentUserId();
-                configPath = UserContextUtil.getUserConfigPath();
-            } catch (Exception e) {
-                log.warn("安全认证已启用但获取用户信息失败，返回默认配置");
+        // 多租户模式：要求用户认证
+        try {
+            if (!UserContextUtil.hasCurrentUser()) {
+                log.warn("⚠️ 用户未登录，返回默认配置");
                 return getDefaultConfig();
             }
+            userId = UserContextUtil.getCurrentUserId();
+            configPath = UserContextUtil.getUserConfigPath();
+            log.info("✅ 用户认证成功: userId={}", userId);
+        } catch (Exception e) {
+            log.warn("⚠️ 获取用户信息失败: {}", e.getMessage());
+            return getDefaultConfig();
         }
 
         try {
@@ -172,34 +161,31 @@ public class UserDataService {
 
     /**
      * 保存用户AI配置
+     * ⚠️ 多租户模式 - 通过SECURITY_ENABLED控制，默认启用
      */
     public boolean saveUserAiConfig(Map<String, Object> aiConfig) {
-        // 检查安全认证是否启用
+        // ✅ 从环境变量读取安全配置（默认true）
         boolean securityEnabled = Boolean.parseBoolean(dotenv.get("SECURITY_ENABLED", "true"));
+
+        if (!securityEnabled) {
+            log.error("❌ SECURITY_ENABLED=false 已被项目规则禁止！强制使用多租户模式");
+            securityEnabled = true; // 强制启用
+        }
 
         String userId, aiConfigPath;
 
-        if (securityEnabled) {
-            try {
-                if (!UserContextUtil.hasCurrentUser()) {
-                    log.warn("安全认证已启用但没有当前用户，无法保存AI配置");
-                    return false;
-                }
-            } catch (Exception e) {
-                log.warn("安全认证已启用但获取用户信息失败，无法保存AI配置");
+        // 多租户模式：要求用户认证
+        try {
+            if (!UserContextUtil.hasCurrentUser()) {
+                log.error("❌ 用户未登录，无法保存AI配置");
                 return false;
             }
-        }
-
-        if (!securityEnabled) {
-            // 安全认证禁用时，使用默认用户
-            userId = "default_user";
-            aiConfigPath = "user_data/default_user/ai_config.json";
-            log.info("安全认证已禁用，使用默认用户保存AI配置");
-        } else {
-            // 安全认证启用时，使用当前用户
             userId = UserContextUtil.getCurrentUserId();
             aiConfigPath = UserContextUtil.getUserAiConfigPath();
+            log.info("✅ 用户认证成功: userId={}", userId);
+        } catch (Exception e) {
+            log.error("❌ 获取用户信息失败: {}", e.getMessage());
+            return false;
         }
 
         ensureUserDataDirectory();
@@ -208,7 +194,7 @@ public class UserDataService {
             // 添加用户信息到AI配置中
             aiConfig.put("userId", userId);
             aiConfig.put("lastModified", System.currentTimeMillis());
-            aiConfig.put("securityEnabled", securityEnabled);
+            aiConfig.put("securityEnabled", true); // 多租户模式永久启用
 
             objectMapper.writerWithDefaultPrettyPrinter()
                        .writeValue(new File(aiConfigPath), aiConfig);
@@ -223,34 +209,31 @@ public class UserDataService {
 
     /**
      * 加载用户AI配置
+     * ⚠️ 多租户模式 - 通过SECURITY_ENABLED控制，默认启用
      */
     public Map<String, Object> loadUserAiConfig() {
-        // 检查安全认证是否启用
+        // ✅ 从环境变量读取安全配置（默认true）
         boolean securityEnabled = Boolean.parseBoolean(dotenv.get("SECURITY_ENABLED", "true"));
+
+        if (!securityEnabled) {
+            log.error("❌ SECURITY_ENABLED=false 已被项目规则禁止！强制使用多租户模式");
+            securityEnabled = true; // 强制启用
+        }
 
         String userId, aiConfigPath;
 
-        if (securityEnabled) {
-            try {
-                if (!UserContextUtil.hasCurrentUser()) {
-                    log.warn("安全认证已启用但没有当前用户，返回默认AI配置");
-                    return getDefaultAiConfig();
-                }
-            } catch (Exception e) {
-                log.warn("安全认证已启用但获取用户信息失败，返回默认AI配置");
+        // 多租户模式：要求用户认证
+        try {
+            if (!UserContextUtil.hasCurrentUser()) {
+                log.warn("⚠️ 用户未登录，返回默认AI配置");
                 return getDefaultAiConfig();
             }
-        }
-
-        if (!securityEnabled) {
-            // 安全认证禁用时，使用默认用户
-            userId = "default_user";
-            aiConfigPath = "user_data/default_user/ai_config.json";
-            log.info("安全认证已禁用，使用默认用户加载AI配置");
-        } else {
-            // 安全认证启用时，使用当前用户
             userId = UserContextUtil.getCurrentUserId();
             aiConfigPath = UserContextUtil.getUserAiConfigPath();
+            log.info("✅ 用户认证成功: userId={}", userId);
+        } catch (Exception e) {
+            log.warn("⚠️ 获取用户信息失败: {}", e.getMessage());
+            return getDefaultAiConfig();
         }
 
         try {

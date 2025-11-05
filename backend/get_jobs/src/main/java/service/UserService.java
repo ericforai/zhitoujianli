@@ -3,6 +3,8 @@ package service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -160,6 +162,36 @@ public class UserService {
     public boolean isUserDeleted(String email) {
         Optional<User> user = userRepository.findByEmail(email);
         return user.map(User::isDeleted).orElse(false);
+    }
+
+    // ==================== 管理员功能 ====================
+
+    /**
+     * 分页获取用户列表
+     */
+    public Page<User> getUsers(Pageable pageable) {
+        return userRepository.findAll(pageable);
+    }
+
+    /**
+     * 根据ID获取用户详情
+     */
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("用户不存在: userId=" + userId));
+    }
+
+    /**
+     * 更新用户激活状态
+     */
+    @Transactional
+    public void updateUserStatus(Long userId, Boolean active) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("用户不存在: userId=" + userId));
+
+        user.setActive(active);
+        userRepository.save(user);
+        log.info("✅ 用户状态更新成功: userId={}, active={}", userId, active);
     }
 }
 

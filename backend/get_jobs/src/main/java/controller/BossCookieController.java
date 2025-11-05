@@ -6,9 +6,14 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.springframework.http.HttpHeaders;
@@ -479,8 +484,8 @@ public class BossCookieController {
     }
 
     /**
-     * 获取投递统计数量
-     * @return 投递成功数量
+     * 获取今日投递统计数量
+     * @return 今日投递成功数量
      */
     private long getDeliveryCount() {
         try {
@@ -488,6 +493,10 @@ public class BossCookieController {
             if (userId == null || userId.isEmpty()) {
                 userId = "default_user";
             }
+
+            // 获取今天的日期
+            LocalDate today = LocalDate.now();
+            log.debug("统计今日投递数量，当前日期: {}", today);
 
             // 构建可能的日志文件路径（支持多种用户ID格式）
             String[] possibleLogPaths = {
@@ -499,12 +508,29 @@ public class BossCookieController {
             for (String logPath : possibleLogPaths) {
                 File logFile = new File(logPath);
                 if (logFile.exists()) {
-                    log.debug("找到日志文件: {}, 统计投递数量", logPath);
+                    log.debug("找到日志文件: {}, 统计今日投递数量", logPath);
 
-                    // 统计"投递完成"的日志行数
+                    // 统计今日"投递完成"的日志行数
                     try (Stream<String> lines = Files.lines(Paths.get(logPath))) {
-                        long count = lines.filter(line -> line.contains("投递完成")).count();
-                        log.info("从日志文件 {} 统计到投递数量: {}", logPath, count);
+                        long count = lines
+                            .filter(line -> line.contains("投递完成"))
+                            .filter(line -> {
+                                // 解析日志时间戳，格式：2025-11-05 11:56:53.254
+                                try {
+                                    // 提取日期部分（前10个字符）
+                                    if (line.length() >= 10) {
+                                        String dateStr = line.substring(0, 10);
+                                        LocalDate logDate = LocalDate.parse(dateStr);
+                                        return logDate.equals(today);
+                                    }
+                                } catch (Exception e) {
+                                    // 解析失败，跳过该行
+                                    log.trace("解析日志行日期失败: {}", line);
+                                }
+                                return false;
+                            })
+                            .count();
+                        log.info("从日志文件 {} 统计到今日投递数量: {}", logPath, count);
                         return count;
                     } catch (IOException e) {
                         log.warn("读取日志文件失败: {}", logPath, e);
@@ -608,6 +634,125 @@ public class BossCookieController {
             error.put("message", "停止任务失败: " + e.getMessage());
             return ResponseEntity.status(500).body(error);
         }
+    }
+
+    /**
+     * 获取今日投递详情列表
+     */
+    @GetMapping("/today-deliveries")
+    public ResponseEntity<Map<String, Object>> getTodayDeliveryDetails() {
+        try {
+            String userId = UserContextUtil.getCurrentUserId();
+            if (userId == null || userId.isEmpty()) {
+                userId = "default_user";
+            }
+
+            // 获取今天的日期
+            LocalDate today = LocalDate.now();
+            log.debug("获取今日投递详情，当前日期: {}", today);
+
+            // 构建可能的日志文件路径
+            String[] possibleLogPaths = {
+                "/tmp/boss_delivery_" + userId + ".log",
+                "/tmp/boss_delivery_" + userId.replace("@", "_").replace(".", "_") + ".log",
+                "/tmp/boss_delivery_" + userId.replace("_", "@") + ".log"
+            };
+
+            List<Map<String, String>> deliveries = new ArrayList<>();
+
+            for (String logPath : possibleLogPaths) {
+                File logFile = new File(logPath);
+                if (logFile.exists()) {
+                    log.debug("解析日志文件: {}", logPath);
+                    deliveries = parseTodayDeliveries(logPath, today);
+                    break;
+                }
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("data", Map.of(
+                "count", deliveries.size(),
+                "deliveries", deliveries
+            ));
+
+            log.info("今日投递详情获取成功，共{}条记录", deliveries.size());
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("获取今日投递详情失败", e);
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "获取详情失败: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
+    }
+
+    /**
+     * 解析日志文件，提取今日投递记录
+     */
+    private List<Map<String, String>> parseTodayDeliveries(String logPath, LocalDate today) {
+        List<Map<String, String>> deliveries = new ArrayList<>();
+
+        try (Stream<String> lines = Files.lines(Paths.get(logPath))) {
+            List<String> logLines = lines.toList();
+
+            // 正则表达式模式
+            // 投递完成日志格式：2025-11-05 11:56:53.254 [main] INFO boss.Boss - 投递完成 | 岗位：XXX | 招呼语：...
+            Pattern deliveryPattern = Pattern.compile("(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}).*投递完成.*岗位：([^|]+)");
+            // 准备投递日志格式：准备投递XXX，公司：YYY
+            Pattern preparePattern = Pattern.compile("准备投递([^，]+)，公司：([^，]+)");
+
+            for (int i = 0; i < logLines.size(); i++) {
+                String line = logLines.get(i);
+
+                // 检查是否是投递完成记录
+                if (line.contains("投递完成")) {
+                    Matcher matcher = deliveryPattern.matcher(line);
+                    if (matcher.find()) {
+                        String timestamp = matcher.group(1);
+                        String position = matcher.group(2).trim();
+
+                        // 检查是否是今日记录
+                        try {
+                            LocalDate logDate = LocalDate.parse(timestamp.substring(0, 10));
+                            if (!logDate.equals(today)) {
+                                continue;
+                            }
+                        } catch (Exception e) {
+                            log.trace("解析日期失败: {}", timestamp);
+                            continue;
+                        }
+
+                        // 向前查找"准备投递"日志获取公司信息
+                        String company = "未知公司";
+                        for (int j = i - 1; j >= Math.max(0, i - 50); j--) {
+                            String prevLine = logLines.get(j);
+                            if (prevLine.contains("准备投递") && prevLine.contains(position)) {
+                                Matcher prepareMatcher = preparePattern.matcher(prevLine);
+                                if (prepareMatcher.find()) {
+                                    company = prepareMatcher.group(2).trim();
+                                    break;
+                                }
+                            }
+                        }
+
+                        // 添加投递记录
+                        Map<String, String> delivery = new HashMap<>();
+                        delivery.put("time", timestamp);
+                        delivery.put("company", company);
+                        delivery.put("position", position);
+                        deliveries.add(delivery);
+
+                        log.debug("解析到投递记录: 时间={}, 公司={}, 岗位={}", timestamp, company, position);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            log.error("读取日志文件失败: {}", logPath, e);
+        }
+
+        return deliveries;
     }
 
     /**

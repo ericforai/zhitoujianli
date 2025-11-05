@@ -60,27 +60,27 @@ public interface UserPlanRepository extends JpaRepository<UserPlan, Long> {
     /**
      * 查询即将过期的套餐（N天内）
      */
-    @Query("SELECT up FROM UserPlan up WHERE up.status = 'ACTIVE' " +
+    @Query("SELECT up FROM UserPlan up WHERE up.status = entity.UserPlan$PlanStatus.ACTIVE " +
            "AND up.endDate IS NOT NULL AND up.endDate BETWEEN :today AND :expireDate")
     List<UserPlan> findExpiringSoon(@Param("today") LocalDate today, @Param("expireDate") LocalDate expireDate);
 
     /**
      * 查询已过期的套餐
      */
-    @Query("SELECT up FROM UserPlan up WHERE up.status = 'ACTIVE' " +
+    @Query("SELECT up FROM UserPlan up WHERE up.status = entity.UserPlan$PlanStatus.ACTIVE " +
            "AND up.endDate IS NOT NULL AND up.endDate < :today")
     List<UserPlan> findExpired(@Param("today") LocalDate today);
 
     /**
      * 统计活跃套餐数量
      */
-    @Query("SELECT COUNT(up) FROM UserPlan up WHERE up.status = 'ACTIVE'")
+    @Query("SELECT COUNT(up) FROM UserPlan up WHERE up.status = entity.UserPlan$PlanStatus.ACTIVE")
     long countActivePlans();
 
     /**
      * 统计指定套餐类型的活跃套餐数量
      */
-    @Query("SELECT COUNT(up) FROM UserPlan up WHERE up.planType = :planType AND up.status = 'ACTIVE'")
+    @Query("SELECT COUNT(up) FROM UserPlan up WHERE up.planType = :planType AND up.status = entity.UserPlan$PlanStatus.ACTIVE")
     long countActivePlansByType(@Param("planType") PlanType planType);
 }
 

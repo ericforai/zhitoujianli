@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import enums.AdminType;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,53 +21,79 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "admin_users")
 public class AdminUser {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
      * 用户ID（来自Authing）
      */
+    @Column(name = "user_id")
     private String userId;
+
+    /**
+     * 用户名（登录用）
+     */
+    @Column(name = "username", unique = true, nullable = false)
+    private String username;
+
+    /**
+     * 密码（BCrypt加密）
+     */
+    @Column(name = "password", nullable = false)
+    private String password;
 
     /**
      * 管理员类型
      */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "admin_type", nullable = false)
     private AdminType adminType;
 
     /**
      * 权限配置（JSON格式）
      */
+    @Transient
     private Map<String, Object> permissions;
 
     /**
      * 是否激活
      */
+    @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
     /**
      * 创建者用户ID
      */
+    @Column(name = "created_by")
     private String createdBy;
 
     /**
      * 备注信息
      */
+    @Column(name = "remarks")
     private String remarks;
 
     /**
      * 最后登录时间
      */
+    @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 
     /**
      * 创建时间
      */
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     /**
      * 更新时间
      */
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     /**

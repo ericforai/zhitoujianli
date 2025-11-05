@@ -267,7 +267,8 @@ public class AdminService {
         // 预设的超级管理员用户ID列表
         List<String> superAdminIds = List.of(
             "super_admin_001",  // 默认超级管理员
-            "admin@autoresume.com", // 邮箱方式
+            "admin@autoresume.com", // 邮箱方式（旧）
+            "admin@zhitoujianli.com", // 邮箱方式（新）- 当前系统使用
             "68dba0e3d9c27ebb0d93aa42"  // Authing用户ID
         );
 
