@@ -30,8 +30,8 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: validate # 🔒 生产环境禁止自动修改表结构
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
