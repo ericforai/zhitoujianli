@@ -1,13 +1,69 @@
-const Contact = () => {
+import React from 'react';
+
+interface ContactProps {
+  plan?: 'pro' | 'enterprise';
+}
+
+/**
+ * 联系我们组件
+ * 支持显示不同套餐的咨询提示
+ * @param plan - 套餐类型（pro: 专业版，enterprise: 企业版）
+ */
+const Contact: React.FC<ContactProps> = ({ plan }) => {
+  // 根据plan参数显示不同的标题和描述
+  const getTitle = () => {
+    if (plan === 'pro') {
+      return '专业版升级咨询';
+    } else if (plan === 'enterprise') {
+      return '企业版咨询';
+    }
+    return '有问题？我们随时为你解答';
+  };
+
+  const getDescription = () => {
+    if (plan === 'pro') {
+      return '您正在咨询专业版套餐（¥99/月），我们的客服将为您提供详细介绍和专属优惠';
+    } else if (plan === 'enterprise') {
+      return '您正在咨询企业版套餐（¥299/月），我们的销售顾问将为您提供定制化解决方案';
+    }
+    return '有任何疑问或建议，欢迎联系我们';
+  };
+
+  const getIcon = () => {
+    if (plan === 'pro') {
+      return '💼';
+    } else if (plan === 'enterprise') {
+      return '🏢';
+    }
+    return null;
+  };
+
   return (
     <section id='contact' className='py-28 bg-white'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+        {/* 显示套餐咨询提示（如果有） */}
+        {plan && (
+          <div className='max-w-4xl mx-auto mb-8'>
+            <div className='bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 p-6 rounded-lg shadow-sm'>
+              <div className='flex items-start'>
+                <span className='text-3xl mr-4'>{getIcon()}</span>
+                <div>
+                  <h3 className='text-lg font-semibold text-gray-900 mb-2'>
+                    {getTitle()}
+                  </h3>
+                  <p className='text-gray-700'>{getDescription()}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className='text-center mb-20'>
           <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-6 font-chinese'>
-            有问题？我们随时为你解答
+            {plan ? '联系我们' : getTitle()}
           </h2>
           <p className='text-xl text-gray-600 max-w-2xl mx-auto'>
-            有任何疑问或建议，欢迎联系我们
+            {plan ? '请通过以下方式联系我们的客服团队' : getDescription()}
           </p>
         </div>
 

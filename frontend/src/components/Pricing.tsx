@@ -1,10 +1,42 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 /**
  * 价格方案组件
  * 展示智投简历的定价方案和套餐选择
  */
 const Pricing: React.FC = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  /**
+   * 处理免费使用按钮点击
+   * 已登录用户跳转到仪表盘，未登录用户跳转到注册页面
+   */
+  const handleFreePlan = () => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    } else {
+      navigate('/register');
+    }
+  };
+
+  /**
+   * 处理立即升级按钮点击（专业版）
+   * 跳转到联系页面，并传递plan=pro参数以显示专业版咨询提示
+   */
+  const handleProPlan = () => {
+    navigate('/contact?plan=pro');
+  };
+
+  /**
+   * 处理联系销售按钮点击（企业版）
+   * 跳转到联系页面，并传递plan=enterprise参数以显示企业版咨询提示
+   */
+  const handleEnterprisePlan = () => {
+    navigate('/contact?plan=enterprise');
+  };
+
   const pricingPlans = [
     {
       name: '基础版',
@@ -21,6 +53,7 @@ const Pricing: React.FC = () => {
       buttonText: '免费使用',
       buttonClass: 'bg-gray-600 hover:bg-gray-700',
       popular: false,
+      onClick: handleFreePlan,
     },
     {
       name: '专业版',
@@ -40,25 +73,27 @@ const Pricing: React.FC = () => {
       buttonText: '立即升级',
       buttonClass: 'bg-blue-600 hover:bg-blue-700',
       popular: true,
+      onClick: handleProPlan,
     },
     {
-      name: '企业版',
+      name: '旗舰版',
       price: '¥299',
       period: '/月',
-      description: '适合HR和企业用户',
+      description: '适合高频求职者',
       features: [
-        '批量简历处理',
-        '企业级岗位匹配',
-        '团队协作功能',
-        '无限制投递次数',
-        '高级数据分析',
-        'API接口调用',
-        '专属客户经理',
-        '定制化服务',
+        '专业版全部功能',
+        '无限次投递机会',
+        'VIP岗位优先推荐',
+        '专属求职顾问服务',
+        '简历深度优化',
+        '面试技巧辅导',
+        '职业规划咨询',
+        '优先客服响应',
       ],
-      buttonText: '联系销售',
+      buttonText: '联系客服',
       buttonClass: 'bg-green-600 hover:bg-green-700',
       popular: false,
+      onClick: handleEnterprisePlan,
     },
   ];
 
@@ -76,12 +111,12 @@ const Pricing: React.FC = () => {
         </div>
 
         {/* 价格卡片 */}
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch'>
           {pricingPlans.map((plan, index) => (
             <div
               key={index}
-              className={`relative bg-white rounded-2xl shadow-lg p-8 ${
-                plan.popular ? 'ring-2 ring-blue-500 scale-105' : ''
+              className={`relative bg-white rounded-2xl shadow-lg p-8 flex flex-col h-full ${
+                plan.popular ? 'ring-2 ring-blue-500' : ''
               }`}
             >
               {/* 热门标签 */}
@@ -110,7 +145,7 @@ const Pricing: React.FC = () => {
               </div>
 
               {/* 功能列表 */}
-              <ul className='space-y-4 mb-8'>
+              <ul className='space-y-4 mb-8 flex-grow'>
                 {plan.features.map((feature, featureIndex) => (
                   <li key={featureIndex} className='flex items-start'>
                     <svg
@@ -131,9 +166,10 @@ const Pricing: React.FC = () => {
                 ))}
               </ul>
 
-              {/* 按钮 */}
+              {/* 按钮 - 使用 mt-auto 推到底部 */}
               <button
-                className={`w-full ${plan.buttonClass} text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105`}
+                onClick={plan.onClick}
+                className={`w-full ${plan.buttonClass} text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 mt-auto`}
               >
                 {plan.buttonText}
               </button>

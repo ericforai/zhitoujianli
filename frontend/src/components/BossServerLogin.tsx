@@ -186,11 +186,12 @@ const BossServerLogin: React.FC<BossServerLoginProps> = ({
 
               {/* 二维码显示 */}
               {qrcodeImage && (
-                <div className='bg-white p-4 rounded-lg border-2 border-blue-200'>
+                <div className='bg-white p-6 rounded-lg border-2 border-blue-200 flex justify-center items-center'>
                   <img
                     src={qrcodeImage}
                     alt='Boss直聘登录二维码'
-                    className='w-full max-w-md mx-auto'
+                    className='w-80 h-80 object-contain'
+                    style={{ minWidth: '320px', minHeight: '320px' }}
                   />
                 </div>
               )}

@@ -159,7 +159,7 @@ public class PlaywrightUtil {
         // 创建浏览器实例
         BROWSER = PLAYWRIGHT.chromium().launch(options);
 
-        // 创建桌面浏览器上下文
+        // 创建桌面浏览器上下文 - 增强反检测配置
         DESKTOP_CONTEXT = BROWSER.newContext(new Browser.NewContextOptions()
                 .setViewportSize(1920, 1080)
                 .setUserAgent(
@@ -170,7 +170,46 @@ public class PlaywrightUtil {
                 .setLocale("zh-CN")
                 .setTimezoneId("Asia/Shanghai")
                 .setGeolocation(39.9042, 116.4074) // 北京坐标
-                .setPermissions(Arrays.asList("geolocation")));
+                .setPermissions(Arrays.asList("geolocation"))
+                // ✅ 新增：设置关键HTTP头，防止被识别为自动化
+                .setExtraHTTPHeaders(Map.of(
+                    "sec-ch-ua", "\"Google Chrome\";v=\"131\", \"Chromium\";v=\"131\", \"Not_A Brand\";v=\"24\"",
+                    "sec-ch-ua-mobile", "?0",
+                    "sec-ch-ua-platform", "\"macOS\"",
+                    "accept-language", "zh-CN,zh;q=0.9,en;q=0.8",
+                    "accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+                    "accept-encoding", "gzip, deflate, br"
+                )));
+
+        // ✅ 关键修复：在Context创建后立即注入反检测脚本
+        // 必须在创建任何页面之前注入，否则首次加载时Boss会检测到自动化特征
+        String earlyStealthScript = """
+                // 移除webdriver标识（最关键）
+                Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
+
+                // 删除所有Chrome自动化标识
+                const deleteProps = ['cdc_adoQpoasnfa76pfcZLmcfl_Array', 'cdc_adoQpoasnfa76pfcZLmcfl_JSON',
+                    'cdc_adoQpoasnfa76pfcZLmcfl_Object', 'cdc_adoQpoasnfa76pfcZLmcfl_Promise',
+                    'cdc_adoQpoasnfa76pfcZLmcfl_Proxy', 'cdc_adoQpoasnfa76pfcZLmcfl_Symbol'];
+                deleteProps.forEach(prop => delete window[prop]);
+
+                // 模拟真实Chrome环境
+                window.navigator.chrome = {
+                    runtime: {},
+                    loadTimes: function() {},
+                    csi: function() {},
+                    app: {}
+                };
+
+                // 设置语言和插件
+                Object.defineProperty(navigator, 'languages', {get: () => ['zh-CN', 'zh', 'en']});
+                Object.defineProperty(navigator, 'plugins', {
+                    get: () => [{name: 'Chrome PDF Plugin'}, {name: 'Chrome PDF Viewer'}, {name: 'Native Client'}]
+                });
+                """;
+
+        DESKTOP_CONTEXT.addInitScript(earlyStealthScript);
+        log.info("✅ 已在Context级别注入反检测脚本（在所有页面加载前生效）");
 
         // 创建移动设备浏览器上下文
         MOBILE_CONTEXT = BROWSER.newContext(new Browser.NewContextOptions()

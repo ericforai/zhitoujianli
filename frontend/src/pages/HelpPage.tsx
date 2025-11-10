@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
 import Container from '../components/common/Container';
+import SEOHead from '../components/seo/SEOHead';
 
 /**
  * 帮助中心页面
@@ -103,6 +104,13 @@ const HelpPage: React.FC = () => {
 
   return (
     <div className='min-h-screen bg-gray-50'>
+      <SEOHead
+        path='/help'
+        breadcrumbs={[
+          { name: '首页', url: 'https://zhitoujianli.com/' },
+          { name: '帮助中心', url: 'https://zhitoujianli.com/help' },
+        ]}
+      />
       <Navigation />
 
       {/* Hero Section */}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Container from './common/Container';
+import SEOHead from './seo/SEOHead';
 
 /**
  * 隐私政策页面
@@ -13,6 +14,7 @@ import Container from './common/Container';
 const Privacy: React.FC = () => {
   return (
     <div className='min-h-screen bg-gray-50'>
+      <SEOHead path='/privacy' />
       {/* 头部导航 */}
       <header className='bg-white shadow-sm'>
         <Container size='xl'>

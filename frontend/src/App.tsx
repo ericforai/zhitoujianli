@@ -21,6 +21,7 @@ import StandaloneApiTest from './components/StandaloneApiTest';
 import TestLogin from './components/TestLogin';
 import Terms from './components/Terms';
 import Privacy from './components/Privacy';
+import SEOHead from './components/seo/SEOHead';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
 import { AuthProvider } from './contexts/AuthContext';
@@ -46,6 +47,11 @@ import AdminSystem from './pages/AdminSystem';
 const HomePage: React.FC = () => {
   return (
     <div className='min-h-screen bg-white'>
+      <SEOHead
+        path='/'
+        includeOrganizationSchema={true}
+        includeSoftwareSchema={true}
+      />
       <Navigation />
       <HeroSection />
       <Features />

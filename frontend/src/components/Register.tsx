@@ -11,6 +11,7 @@
 
 import React, { useEffect, useState } from 'react';
 import config from '../config/environment';
+import SEOHead from './seo/SEOHead';
 import { authService } from '../services/authService';
 import './Register.css';
 
@@ -241,239 +242,242 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-6 px-4'>
-      <div className='w-full max-w-md'>
-        {/* Logo和标题 - 水平排列 */}
-        <div className='flex items-center gap-3 mb-6 animate-fade-in'>
-          {/* Logo图标 */}
-          <div className='flex-shrink-0 inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg'>
-            <svg
-              className='w-6 h-6 text-white'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
-              />
-            </svg>
-          </div>
-          {/* 文字内容 */}
-          <div className='flex flex-col'>
-            <h1 className='text-3xl font-bold text-gray-900 mb-1 font-inter'>
-              智投简历
-            </h1>
-            <p className='text-gray-600 text-base font-medium'>
-              创建账号，开启智能求职之旅
-            </p>
-          </div>
-        </div>
-
-        {/* 注册卡片 - 玻璃拟态效果 */}
-        <div className='bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-6'>
-          <div className='text-center mb-6'>
-            <h2 className='text-xl font-bold text-gray-900 font-inter'>
-              注册新账号
-            </h2>
-          </div>
-
-          {/* 错误提示 */}
-          {error && (
-            <div className='mb-4 p-3 bg-red-50/80 backdrop-blur-sm border border-red-200/50 rounded-xl text-red-700 text-sm font-medium'>
-              {error}
-            </div>
-          )}
-
-          {/* 成功提示 */}
-          {success && (
-            <div className='mb-4 p-3 bg-green-50/80 backdrop-blur-sm border border-green-200/50 rounded-xl text-green-700 text-sm font-medium'>
-              {success}
-            </div>
-          )}
-
-          {/* 注册表单 */}
-          <form onSubmit={handleRegister} className='space-y-4'>
-            {/* 邮箱输入 */}
-            <div>
-              <label
-                htmlFor='email'
-                className='block text-sm font-semibold text-gray-700 mb-2 font-inter'
+    <>
+      <SEOHead path='/register' />
+      <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-6 px-4'>
+        <div className='w-full max-w-md'>
+          {/* Logo和标题 - 水平排列 */}
+          <div className='flex items-center gap-3 mb-6 animate-fade-in'>
+            {/* Logo图标 */}
+            <div className='flex-shrink-0 inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg'>
+              <svg
+                className='w-6 h-6 text-white'
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
               >
-                邮箱地址 <span className='text-red-500'>*</span>
-              </label>
-              <div className='flex space-x-2'>
-                <input
-                  id='email'
-                  type='email'
-                  required
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  className='flex-1 px-4 py-3 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all duration-300 text-base font-inter placeholder-gray-400 hover:bg-white/80'
-                  placeholder='your@email.com'
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
                 />
-                <button
-                  type='button'
-                  onClick={handleSendVerificationCode}
-                  disabled={loading || codeCountdown > 0}
-                  className='px-4 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transform transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-inter text-xs whitespace-nowrap'
-                >
-                  {codeCountdown > 0 ? `${codeCountdown}s` : '发送验证码'}
-                </button>
-              </div>
+              </svg>
+            </div>
+            {/* 文字内容 */}
+            <div className='flex flex-col'>
+              <h1 className='text-3xl font-bold text-gray-900 mb-1 font-inter'>
+                智投简历
+              </h1>
+              <p className='text-gray-600 text-base font-medium'>
+                创建账号，开启智能求职之旅
+              </p>
+            </div>
+          </div>
+
+          {/* 注册卡片 - 玻璃拟态效果 */}
+          <div className='bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-6'>
+            <div className='text-center mb-6'>
+              <h2 className='text-xl font-bold text-gray-900 font-inter'>
+                注册新账号
+              </h2>
             </div>
 
-            {codeSent && (
-              <div>
-                <label
-                  htmlFor='verificationCode'
-                  className='block text-sm font-semibold text-gray-700 mb-2 font-inter'
-                >
-                  邮箱验证码 <span className='text-red-500'>*</span>
-                </label>
-                <div className='flex space-x-2'>
-                  <input
-                    id='verificationCode'
-                    type='text'
-                    required
-                    value={verificationCode}
-                    onChange={e => setVerificationCode(e.target.value)}
-                    className='flex-1 px-4 py-3 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all duration-300 text-base font-inter placeholder-gray-400 hover:bg-white/80 disabled:bg-gray-100/60'
-                    placeholder='请输入6位验证码'
-                    maxLength={6}
-                    disabled={emailVerified}
-                  />
-                  <button
-                    type='button'
-                    onClick={handleVerifyEmailCode}
-                    disabled={!verificationCode || loading || emailVerified}
-                    className='px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transform transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-inter text-xs whitespace-nowrap'
-                  >
-                    {emailVerified ? '已验证' : '验证'}
-                  </button>
-                </div>
-                <p className='mt-1 text-xs text-gray-600 font-inter'>
-                  验证码已发送到 {email}，请在5分钟内输入
-                </p>
-                {emailVerified && (
-                  <p className='mt-1 text-xs text-green-600 font-medium'>
-                    ✓ 邮箱验证成功，可以继续注册
-                  </p>
-                )}
+            {/* 错误提示 */}
+            {error && (
+              <div className='mb-4 p-3 bg-red-50/80 backdrop-blur-sm border border-red-200/50 rounded-xl text-red-700 text-sm font-medium'>
+                {error}
               </div>
             )}
 
-            <div>
-              <label
-                htmlFor='password'
-                className='block text-sm font-semibold text-gray-700 mb-2 font-inter'
-              >
-                密码 <span className='text-red-500'>*</span>
-              </label>
-              <input
-                id='password'
-                type='password'
-                required
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className='w-full px-4 py-3 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all duration-300 text-base font-inter placeholder-gray-400 hover:bg-white/80'
-                placeholder='至少6位'
-                minLength={6}
-              />
-            </div>
+            {/* 成功提示 */}
+            {success && (
+              <div className='mb-4 p-3 bg-green-50/80 backdrop-blur-sm border border-green-200/50 rounded-xl text-green-700 text-sm font-medium'>
+                {success}
+              </div>
+            )}
 
-            <div>
-              <label
-                htmlFor='confirmPassword'
-                className='block text-sm font-semibold text-gray-700 mb-2 font-inter'
-              >
-                确认密码 <span className='text-red-500'>*</span>
-              </label>
-              <input
-                id='confirmPassword'
-                type='password'
-                required
-                value={confirmPassword}
-                onChange={e => setConfirmPassword(e.target.value)}
-                className='w-full px-4 py-3 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all duration-300 text-base font-inter placeholder-gray-400 hover:bg-white/80'
-                placeholder='再次输入密码'
-                minLength={6}
-              />
-            </div>
-
-            {/* 自定义注册按钮 */}
-            <button
-              type='submit'
-              disabled={loading}
-              className='w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transform transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-inter text-base'
-            >
-              {loading ? (
-                <div className='flex items-center justify-center'>
-                  <svg
-                    className='animate-spin -ml-1 mr-3 h-5 w-5 text-white'
-                    fill='none'
-                    viewBox='0 0 24 24'
+            {/* 注册表单 */}
+            <form onSubmit={handleRegister} className='space-y-4'>
+              {/* 邮箱输入 */}
+              <div>
+                <label
+                  htmlFor='email'
+                  className='block text-sm font-semibold text-gray-700 mb-2 font-inter'
+                >
+                  邮箱地址 <span className='text-red-500'>*</span>
+                </label>
+                <div className='flex space-x-2'>
+                  <input
+                    id='email'
+                    type='email'
+                    required
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    className='flex-1 px-4 py-3 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all duration-300 text-base font-inter placeholder-gray-400 hover:bg-white/80'
+                    placeholder='your@email.com'
+                  />
+                  <button
+                    type='button'
+                    onClick={handleSendVerificationCode}
+                    disabled={loading || codeCountdown > 0}
+                    className='px-4 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transform transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-inter text-xs whitespace-nowrap'
                   >
-                    <circle
-                      className='opacity-25'
-                      cx='12'
-                      cy='12'
-                      r='10'
-                      stroke='currentColor'
-                      strokeWidth='4'
-                    ></circle>
-                    <path
-                      className='opacity-75'
-                      fill='currentColor'
-                      d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                    ></path>
-                  </svg>
-                  注册中...
+                    {codeCountdown > 0 ? `${codeCountdown}s` : '发送验证码'}
+                  </button>
                 </div>
-              ) : (
-                '注册'
-              )}
-            </button>
-          </form>
+              </div>
 
-          {/* 登录链接和协议提示 */}
-          <div className='mt-6 space-y-3'>
-            <div className='text-center'>
-              <span className='text-sm text-gray-600 font-inter'>
-                已有账号？
-              </span>
-              <a
-                href='/login'
-                className='ml-1 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline transition-all duration-200 font-inter'
+              {codeSent && (
+                <div>
+                  <label
+                    htmlFor='verificationCode'
+                    className='block text-sm font-semibold text-gray-700 mb-2 font-inter'
+                  >
+                    邮箱验证码 <span className='text-red-500'>*</span>
+                  </label>
+                  <div className='flex space-x-2'>
+                    <input
+                      id='verificationCode'
+                      type='text'
+                      required
+                      value={verificationCode}
+                      onChange={e => setVerificationCode(e.target.value)}
+                      className='flex-1 px-4 py-3 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all duration-300 text-base font-inter placeholder-gray-400 hover:bg-white/80 disabled:bg-gray-100/60'
+                      placeholder='请输入6位验证码'
+                      maxLength={6}
+                      disabled={emailVerified}
+                    />
+                    <button
+                      type='button'
+                      onClick={handleVerifyEmailCode}
+                      disabled={!verificationCode || loading || emailVerified}
+                      className='px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transform transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-inter text-xs whitespace-nowrap'
+                    >
+                      {emailVerified ? '已验证' : '验证'}
+                    </button>
+                  </div>
+                  <p className='mt-1 text-xs text-gray-600 font-inter'>
+                    验证码已发送到 {email}，请在5分钟内输入
+                  </p>
+                  {emailVerified && (
+                    <p className='mt-1 text-xs text-green-600 font-medium'>
+                      ✓ 邮箱验证成功，可以继续注册
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div>
+                <label
+                  htmlFor='password'
+                  className='block text-sm font-semibold text-gray-700 mb-2 font-inter'
+                >
+                  密码 <span className='text-red-500'>*</span>
+                </label>
+                <input
+                  id='password'
+                  type='password'
+                  required
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className='w-full px-4 py-3 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all duration-300 text-base font-inter placeholder-gray-400 hover:bg-white/80'
+                  placeholder='至少6位'
+                  minLength={6}
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor='confirmPassword'
+                  className='block text-sm font-semibold text-gray-700 mb-2 font-inter'
+                >
+                  确认密码 <span className='text-red-500'>*</span>
+                </label>
+                <input
+                  id='confirmPassword'
+                  type='password'
+                  required
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  className='w-full px-4 py-3 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all duration-300 text-base font-inter placeholder-gray-400 hover:bg-white/80'
+                  placeholder='再次输入密码'
+                  minLength={6}
+                />
+              </div>
+
+              {/* 自定义注册按钮 */}
+              <button
+                type='submit'
+                disabled={loading}
+                className='w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transform transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-inter text-base'
               >
-                立即登录
-              </a>
-            </div>
-            {/* 底部提示 - 移入卡片内 */}
-            <div className='text-center text-xs text-gray-500 font-inter pt-2 border-t border-gray-200/50'>
-              <p className='mb-1'>注册即表示同意</p>
-              <div className='space-x-1'>
+                {loading ? (
+                  <div className='flex items-center justify-center'>
+                    <svg
+                      className='animate-spin -ml-1 mr-3 h-5 w-5 text-white'
+                      fill='none'
+                      viewBox='0 0 24 24'
+                    >
+                      <circle
+                        className='opacity-25'
+                        cx='12'
+                        cy='12'
+                        r='10'
+                        stroke='currentColor'
+                        strokeWidth='4'
+                      ></circle>
+                      <path
+                        className='opacity-75'
+                        fill='currentColor'
+                        d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                      ></path>
+                    </svg>
+                    注册中...
+                  </div>
+                ) : (
+                  '注册'
+                )}
+              </button>
+            </form>
+
+            {/* 登录链接和协议提示 */}
+            <div className='mt-6 space-y-3'>
+              <div className='text-center'>
+                <span className='text-sm text-gray-600 font-inter'>
+                  已有账号？
+                </span>
                 <a
-                  href='/terms'
-                  className='text-blue-600 hover:text-blue-700 hover:underline transition-colors duration-200'
+                  href='/login'
+                  className='ml-1 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline transition-all duration-200 font-inter'
                 >
-                  用户协议
+                  立即登录
                 </a>
-                <span>和</span>
-                <a
-                  href='/privacy'
-                  className='text-blue-600 hover:text-blue-700 hover:underline transition-colors duration-200'
-                >
-                  隐私政策
-                </a>
+              </div>
+              {/* 底部提示 - 移入卡片内 */}
+              <div className='text-center text-xs text-gray-500 font-inter pt-2 border-t border-gray-200/50'>
+                <p className='mb-1'>注册即表示同意</p>
+                <div className='space-x-1'>
+                  <a
+                    href='/terms'
+                    className='text-blue-600 hover:text-blue-700 hover:underline transition-colors duration-200'
+                  >
+                    用户协议
+                  </a>
+                  <span>和</span>
+                  <a
+                    href='/privacy'
+                    className='text-blue-600 hover:text-blue-700 hover:underline transition-colors duration-200'
+                  >
+                    隐私政策
+                  </a>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

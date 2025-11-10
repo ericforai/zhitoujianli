@@ -323,20 +323,39 @@ public class BossLocalLoginController {
                 try {
                     String statusContent = Files.readString(Paths.get(statusFile));
 
-                    // ✅ 新增：检查文件修改时间，超过5分钟自动失效
+                    // ✅ 新增：检查文件修改时间，超过3分钟自动失效
                     long lastModified = status.lastModified();
                     long now = System.currentTimeMillis();
                     long ageMinutes = (now - lastModified) / (1000 * 60);
 
-                    if (ageMinutes > 5) {
+                    if (ageMinutes >= 3) {
                         log.warn("⚠️ 登录状态文件已超时（{}分钟），自动清理", ageMinutes);
                         status.delete();
-                    } else if ("waiting".equals(statusContent.trim()) || "success".equals(statusContent.trim())) {
-                        log.warn("⚠️ 已有登录任务在运行");
+
+                        // ✅ 清理可能存在的二维码文件
+                        String qrcodePath = System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode_" + safeUserId + ".png";
+                        new File(qrcodePath).delete();
+
+                        log.info("✅ 已清理超时的登录任务，允许重新启动");
+                    } else if ("waiting".equals(statusContent.trim())) {
+                        log.warn("⚠️ 已有登录任务在运行（{}分钟）", ageMinutes);
                         return ResponseEntity.badRequest().body(Map.of(
                             "success", false,
                             "message", "已有登录任务在运行，请稍候（已运行" + ageMinutes + "分钟）"
                         ));
+                    } else if ("success".equals(statusContent.trim())) {
+                        // success状态保留较短时间即可，因为Cookie已经保存
+                        if (ageMinutes < 1) {
+                            log.info("⚠️ 登录刚刚成功，请勿重复启动");
+                            return ResponseEntity.badRequest().body(Map.of(
+                                "success", false,
+                                "message", "登录已成功，无需重复启动"
+                            ));
+                        } else {
+                            // 超过1分钟的success状态自动清理
+                            log.info("✅ 清理旧的成功状态文件");
+                            status.delete();
+                        }
                     }
                 } catch (Exception e) {
                     // 忽略读取错误，继续执行

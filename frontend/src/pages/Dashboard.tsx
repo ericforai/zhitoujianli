@@ -4,6 +4,7 @@ import Button from '../components/common/Button';
 import Card from '../components/common/Card';
 import Container from '../components/common/Container';
 import Navigation from '../components/Navigation';
+import SEOHead from '../components/seo/SEOHead';
 import WorkflowTimeline, { WorkflowStep } from '../components/WorkflowTimeline';
 import { useAuth } from '../contexts/AuthContext';
 import { useBossDelivery } from '../hooks/useBossDelivery';
@@ -189,6 +190,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className='min-h-screen bg-gray-50'>
+      <SEOHead path='/dashboard' />
       <Navigation />
 
       {/* 主内容区 */}

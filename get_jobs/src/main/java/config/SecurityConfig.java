@@ -140,6 +140,7 @@ public class SecurityConfig {
                     "/api/jobs/**",
                     "/api/user/**",
                     "/api/resume/**",
+                    "/api/delivery/**",  // 投递相关API需要认证
                     "/api/config",      // 用户配置API
                     "/api/ai-config",   // 用户AI配置API
                     "/api/resume",      // 用户简历API

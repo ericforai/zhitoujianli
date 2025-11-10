@@ -176,12 +176,12 @@ public class Boss {
         log.info("开始执行Boss任务: userId={}, loginOnly={}", this.userId, loginOnly);
 
         try {
-            // 初始化Playwright
+            // ✅ 恢复原始逻辑：先init()无参数，让login()内部决定是否切换模式
             log.info("初始化Playwright环境...");
             PlaywrightUtil.init();
             log.info("Playwright初始化成功");
 
-            // 登录（传递loginOnly参数，避免不必要的模式切换）
+            // 登录
             this.startDate = new Date();
             login(loginOnly);
 
@@ -2144,13 +2144,12 @@ public class Boss {
         // 这会造成严重后果：用户A的投递会发送到用户B的Boss账号
         // 正确做法：每个用户必须使用自己的Boss账号登录，不能共享Cookie
 
+        // ✅ 恢复原始逻辑：根据是否需要登录来切换模式
         if (needLogin) {
             log.info("Cookie无效，切换到有头模式进行登录...");
-            // 切换到有头模式进行登录
             PlaywrightUtil.switchToHeaded();
         } else {
             log.info("Cookie有效，使用无头模式...");
-            // 使用无头模式
             PlaywrightUtil.switchToHeadless();
         }
 
@@ -2174,18 +2173,23 @@ public class Boss {
                 log.warn("⚠️ Cookie文件存在但运行时失效（检测到登录弹窗），需要重新登录");
                 needLogin = true;
 
-                // 切换到有头模式进行重新登录
-                log.info("切换到有头模式进行重新登录...");
-                PlaywrightUtil.switchToHeaded();
+                // ⚠️ Cookie运行时失效，需要重新登录
+                // 如果当前是无头模式，则需要切换到有头模式
+                if (PlaywrightUtil.isHeadless()) {
+                    log.info("Cookie运行时失效，切换到有头模式进行重新登录...");
+                    PlaywrightUtil.switchToHeaded();
+                } else {
+                    log.info("Cookie运行时失效，当前已是有头模式，直接重新登录");
+                }
 
                 // 重新导航到首页并登录
                 page.navigate(homeUrl);
                 PlaywrightUtil.sleep(1);
                 scanLogin();
 
-                // 登录成功后，如果不是login-only模式，则切换回无头模式
+                // 登录成功后，如果是正常投递模式（非login-only），切换回无头模式提升性能
                 if (!loginOnly) {
-                    log.info("重新登录成功，切换到无头模式...");
+                    log.info("重新登录成功，切换到无头模式继续投递...");
                     PlaywrightUtil.switchToHeadless();
                 } else {
                     log.info("重新登录成功（login-only模式），保持当前模式");
@@ -2202,15 +2206,20 @@ public class Boss {
         } else {
             // Cookie无效，需要登录
             log.info("需要登录，启动登录流程...");
+
+            // ✅ 恢复：在扫码登录前启用反检测（Nov 7版本的逻辑）
+            PlaywrightUtil.initStealth();
+            log.info("✅ 已启用反检测模式");
+
             scanLogin();
 
-            // 登录成功后，如果不是login-only模式，则切换到无头模式
-            // login-only模式下会立即关闭浏览器，无需切换
+            // 登录成功后，如果是正常投递模式，切换到无头模式提升性能
+            // login-only模式保持有头模式（虽然即将关闭，但避免不必要的切换）
             if (!loginOnly) {
-                log.info("登录成功，切换到无头模式...");
+                log.info("登录成功，切换到无头模式继续投递...");
                 PlaywrightUtil.switchToHeadless();
             } else {
-                log.info("登录成功（login-only模式），保持当前模式，即将关闭浏览器");
+                log.info("登录成功（login-only模式），保持有头模式，即将关闭浏览器");
             }
         }
     }
@@ -2335,14 +2344,44 @@ public class Boss {
                     log.info("✅ 登录状态已更新为waiting (用户: {})", safeUserId);
                 } else {
                     log.warn("⚠️ 尝试了所有选择器都未找到二维码元素");
-                    // 作为备选方案，截取整个页面
-                    log.info("🔄 备选方案：截取整个登录页面");
+                    // 作为备选方案，截取整个页面，然后裁剪中心区域
+                    log.info("🔄 备选方案：截取整个登录页面并裁剪二维码区域");
                     // ✅ 修复：按用户隔离二维码文件和状态文件
                     String userId = System.getenv("BOSS_USER_ID");
                     String safeUserId = userId != null ? userId.replaceAll("[^a-zA-Z0-9_-]", "_") : "default";
-                    page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get(System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode_" + safeUserId + ".png")));
+                    String fullPagePath = System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode_full_" + safeUserId + ".png";
+                    String qrcodePath = System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode_" + safeUserId + ".png";
+
+                    // 截取整个页面
+                    page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get(fullPagePath)));
+
+                    // ✅ 裁剪中心区域（二维码通常在页面中央）
+                    // 使用Playwright的clip功能截取中心区域
+                    try {
+                        // 获取页面尺寸
+                        int pageWidth = 1920;
+                        int pageHeight = 1080;
+
+                        // 计算中心区域：宽高各取40%，居中显示
+                        int cropWidth = (int)(pageWidth * 0.4);  // 768px
+                        int cropHeight = (int)(pageHeight * 0.4); // 432px
+                        int cropX = (pageWidth - cropWidth) / 2;
+                        int cropY = (pageHeight - cropHeight) / 2;
+
+                        page.screenshot(new Page.ScreenshotOptions()
+                            .setPath(Paths.get(qrcodePath))
+                            .setClip(cropX, cropY, cropWidth, cropHeight));
+
+                        log.info("✅ 已裁剪二维码中心区域: {}x{} from ({}, {})", cropWidth, cropHeight, cropX, cropY);
+                    } catch (Exception e) {
+                        log.warn("裁剪失败，使用完整页面: {}", e.getMessage());
+                        // 如果裁剪失败，使用完整页面
+                        Files.copy(Paths.get(fullPagePath), Paths.get(qrcodePath),
+                            java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    }
+
                     Files.write(Paths.get(System.getProperty("java.io.tmpdir") + File.separator + "boss_login_status_" + safeUserId + ".txt"), "waiting".getBytes(StandardCharsets.UTF_8));
-                    log.info("✅ 已截取完整页面作为二维码 (用户: {})", safeUserId);
+                    log.info("✅ 二维码截图已保存 (用户: {})", safeUserId);
                 }
             } catch (Exception screenshotEx) {
                 log.error("二维码截图失败", screenshotEx);
@@ -2381,13 +2420,25 @@ public class Boss {
                     List<com.microsoft.playwright.options.Cookie> cookies = page.context().cookies();
 
                     // 每10次循环输出一次详细信息（避免日志过多）
-                    if ((System.currentTimeMillis() - startTime) / 1000 % 10 == 0) {
-                        log.info("🔍 登录检测 - URL: {}, Cookie数量: {}", currentUrl, cookies.size());
-                        // 输出关键Cookie
-                        cookies.stream()
-                            .filter(c -> c.name.equals("wt2") || c.name.equals("_uab_collina") || c.name.equals("geek_zp_token"))
-                            .forEach(c -> log.info("   🍪 关键Cookie: {} = {} (domain: {})",
-                                c.name, c.value.substring(0, Math.min(20, c.value.length())) + "...", c.domain));
+                    long elapsedSeconds = (System.currentTimeMillis() - startTime) / 1000;
+                    if (elapsedSeconds % 10 == 0) {
+                        log.info("🔍 登录检测 - URL: {}, Cookie数量: {}, 已等待: {}秒", currentUrl, cookies.size(), elapsedSeconds);
+
+                        // 输出所有Cookie名称（诊断模式）
+                        if (elapsedSeconds % 30 == 0) {
+                            log.info("📋 当前所有Cookie:");
+                            cookies.forEach(c -> log.info("   🍪 {} = {} (domain: {})",
+                                c.name, c.value.substring(0, Math.min(15, c.value.length())) + "...", c.domain));
+                        }
+
+                        // 检查关键Cookie
+                        boolean hasWt2 = cookies.stream().anyMatch(c -> c.name.equals("wt2"));
+                        boolean hasGeekToken = cookies.stream().anyMatch(c -> c.name.equals("geek_zp_token"));
+                        if (hasWt2 || hasGeekToken) {
+                            log.info("   ✅ 发现关键Cookie: wt2={}, geek_zp_token={}", hasWt2, hasGeekToken);
+                        } else {
+                            log.warn("   ❌ 未发现登录Cookie (wt2/geek_zp_token)");
+                        }
                     }
 
                     // 方式1: 检测URL变化（扫码成功后会跳转离开登录页）
@@ -2435,22 +2486,20 @@ public class Boss {
                             log.info("✅ 方式3成功：检测到关键Session Cookie (wt2)，登录成功！");
                             log.info("   🍪 Cookie详情 - wt2: ✓, geek_zp_token: {}, _uab_collina: {}, 总数: {}",
                                 hasGeekToken ? "✓" : "✗", hasUabCollina ? "✓" : "✗", cookies.size());
+                        } else {
+                            // ✅ 新增：如果Cookie数量一直是9个，尝试刷新页面（Boss可能需要刷新才能设置Cookie）
+                            if (elapsedSeconds > 0 && elapsedSeconds % 30 == 0 && cookies.size() <= 10) {
+                                log.warn("⚠️ Cookie数量未增加（{}个），尝试刷新页面触发Cookie设置...", cookies.size());
+                                page.reload();
+                                PlaywrightUtil.sleep(2);
+                            }
                         }
                     }
 
-                    // 方式4: 检测二维码是否消失（扫码确认后二维码会消失或变成"登录成功"提示）
-                    if (!login) {
-                        try {
-                            Locator qrcode = page.locator(LOGIN_SCAN_SWITCH);
-                            if (qrcode.count() == 0) {
-                                // 二维码元素消失，可能登录成功
-                                login = true;
-                                log.info("✅ 方式4成功：二维码元素已消失，判定为登录成功");
-                            }
-                        } catch (Exception ignored) {
-                            // 忽略检测失败
-                        }
-                    }
+                    // ❌ 已删除方式4：二维码消失检测（误判率太高）
+                    // 原逻辑：如果找不到二维码元素就认为登录成功
+                    // 问题：找不到可能是选择器错误、页面未加载完，不能作为登录成功的依据
+                    // 只依赖真正可靠的标志：wt2 Cookie、URL跳转、登录后元素
                     // ===== 改进部分结束 =====
 
                     if (login) {

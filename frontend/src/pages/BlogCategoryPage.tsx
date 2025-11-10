@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
+import SEOHead from '../components/seo/SEOHead';
 
 /**
  * 博客分类页面
@@ -217,6 +218,17 @@ const BlogCategoryPage: React.FC = () => {
 
   return (
     <div className='min-h-screen bg-white'>
+      <SEOHead
+        path={`/blog/${category}`}
+        breadcrumbs={[
+          { name: '首页', url: 'https://zhitoujianli.com/' },
+          { name: '博客', url: 'https://zhitoujianli.com/blog' },
+          {
+            name: currentCategory.title,
+            url: `https://zhitoujianli.com/blog/${category}`,
+          },
+        ]}
+      />
       <Navigation />
 
       {/* 分类头部 */}

@@ -9,6 +9,7 @@
 import React, { useEffect, useState } from 'react';
 import DeliveryConfig from '../components/DeliveryConfig';
 import Navigation from '../components/Navigation';
+import SEOHead from '../components/seo/SEOHead';
 import CompleteResumeManager from '../components/ResumeManagement/CompleteResumeManager';
 import { useAuth } from '../contexts/AuthContext';
 import logger from '../utils/logger';
@@ -52,6 +53,7 @@ const ConfigPage: React.FC = () => {
 
   return (
     <div className='min-h-screen bg-gray-50'>
+      <SEOHead path='/config' />
       <Navigation />
 
       <div className='max-w-7xl mx-auto px-4 py-8'>

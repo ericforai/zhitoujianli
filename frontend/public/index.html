@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Google tag (gtag.js) -->
+    <!-- Google Analytics -->
     <script
       async
       src="https://www.googletagmanager.com/gtag/js?id=G-S6YNCB5EDV"
@@ -15,31 +15,90 @@
       gtag('config', 'G-S6YNCB5EDV');
     </script>
 
+    <!-- 百度统计 -->
+    <script>
+      var _hmt = _hmt || [];
+      (function() {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?2c9f06c803ae303bff22ada442c6c271";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- 基础SEO Meta标签 -->
+    <title>智投简历 - AI智能求职助手 | 自动投递简历，精准匹配岗位</title>
     <meta
       name="description"
-      content="智投简历 - 用AI让求职更高效，智能投递、精准匹配、快速拿到心仪Offer"
+      content="智投简历是专业的AI智能求职平台，提供自动简历投递、智能职位匹配、个性化打招呼语生成服务。支持Boss直聘等主流招聘平台，让求职更高效，快速拿到心仪Offer。"
     />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+    <meta
+      name="keywords"
+      content="智投简历,智能求职,AI简历投递,自动投递简历,求职助手,简历优化,职位匹配,Boss直聘自动投递,智能打招呼语,简历解析"
+    />
+    <meta name="author" content="智投简历团队" />
+    <meta name="copyright" content="© 2025 智投简历 All Rights Reserved" />
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="baiduspider" content="index, follow" />
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>智投简历 - 让求职更智能</title>
+    <!-- 移动端优化 -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="智投简历" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#2563eb" />
+
+    <!-- 百度优化 -->
     <meta name="baidu-site-verification" content="codeva-xGT32pbUMi" />
+    <meta name="applicable-device" content="pc,mobile" />
+    <meta name="MobileOptimized" content="width" />
+    <meta name="HandheldFriendly" content="true" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://zhitoujianli.com/" />
+    <meta property="og:title" content="智投简历 - 用AI让求职更智能" />
+    <meta property="og:description" content="自动投递简历，智能匹配岗位，AI生成打招呼语。让求职效率提升10倍！" />
+    <meta property="og:image" content="https://zhitoujianli.com/og-image.jpg" />
+    <meta property="og:site_name" content="智投简历" />
+    <meta property="og:locale" content="zh_CN" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://zhitoujianli.com/" />
+    <meta name="twitter:title" content="智投简历 - 用AI让求职更智能" />
+    <meta name="twitter:description" content="自动投递简历，智能匹配岗位，AI生成打招呼语" />
+    <meta name="twitter:image" content="https://zhitoujianli.com/og-image.jpg" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://zhitoujianli.com/" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="192x192" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="%PUBLIC_URL%/logo512.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="%PUBLIC_URL%/logo192.png" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <!-- DNS Prefetch -->
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <link rel="dns-prefetch" href="https://hm.baidu.com" />
+
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://zhitoujianli.com" crossorigin />
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+
+    <!-- Alternate Languages (if applicable) -->
+    <link rel="alternate" hreflang="zh-CN" href="https://zhitoujianli.com/" />
+    <link rel="alternate" hreflang="x-default" href="https://zhitoujianli.com/" />
 
     <!-- 生产环境配置 -->
     <script src="%PUBLIC_URL%/production-config.js"></script>
