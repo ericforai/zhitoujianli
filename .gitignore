@@ -59,6 +59,7 @@ classpath.txt
 /.pnp
 .pnp.js
 /coverage
+frontend/coverage/
 react.log
 
 # Certificate and private key files
