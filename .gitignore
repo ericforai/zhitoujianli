@@ -48,6 +48,7 @@ backups/
 *.backup_*
 *.before_refactor
 *.before_*
+PRODUCTION_FRONTEND/backup_*/
 
 # Excel files (可能包含敏感数据)
 *.xlsx
