@@ -6,9 +6,16 @@ const Demo = () => {
       number: '01',
       title: '上传简历',
       description: '支持PDF、Word等多种格式',
+      colorTheme: {
+        icon: 'text-blue-500',
+        number: 'text-blue-200',
+        title: 'text-blue-600',
+        bg: 'bg-blue-50',
+        hoverBorder: 'hover:border-blue-200',
+      },
       icon: (
         <svg
-          className='w-8 h-8 text-primary-500'
+          className='w-8 h-8 text-blue-500'
           fill='none'
           stroke='currentColor'
           viewBox='0 0 24 24'
@@ -26,9 +33,16 @@ const Demo = () => {
       number: '02',
       title: '匹配JD',
       description: 'AI智能分析岗位匹配度',
+      colorTheme: {
+        icon: 'text-emerald-500',
+        number: 'text-emerald-200',
+        title: 'text-emerald-600',
+        bg: 'bg-emerald-50',
+        hoverBorder: 'hover:border-emerald-200',
+      },
       icon: (
         <svg
-          className='w-8 h-8 text-secondary-500'
+          className='w-8 h-8 text-emerald-500'
           fill='none'
           stroke='currentColor'
           viewBox='0 0 24 24'
@@ -46,9 +60,16 @@ const Demo = () => {
       number: '03',
       title: '智能打招呼',
       description: '生成个性化开场白',
+      colorTheme: {
+        icon: 'text-purple-500',
+        number: 'text-purple-200',
+        title: 'text-purple-600',
+        bg: 'bg-purple-50',
+        hoverBorder: 'hover:border-purple-200',
+      },
       icon: (
         <svg
-          className='w-8 h-8 text-accent-blue'
+          className='w-8 h-8 text-purple-500'
           fill='none'
           stroke='currentColor'
           viewBox='0 0 24 24'
@@ -65,10 +86,10 @@ const Demo = () => {
   ];
 
   return (
-    <section id='demo' className='py-20 bg-gray-50'>
+    <section id='demo' className='py-28 bg-white'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-        <div className='text-center mb-16'>
-          <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4 font-chinese'>
+        <div className='text-center mb-20'>
+          <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-6 font-chinese'>
             只需三步，轻松开启智能求职
           </h2>
           <p className='text-xl text-gray-600 max-w-2xl mx-auto'>
@@ -76,39 +97,37 @@ const Demo = () => {
           </p>
         </div>
 
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
+        <div className='flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6'>
           {steps.map((step, index) => (
-            <div key={index} className='relative'>
-              <div className='text-center p-8 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300'>
-                <div className='flex justify-center mb-6'>{step.icon}</div>
-                <div className='text-4xl font-bold text-gray-300 mb-4'>
-                  {step.number}
+            <React.Fragment key={index}>
+              <div className='w-full md:w-auto flex-1 max-w-sm'>
+                <div
+                  className={`text-center p-8 ${step.colorTheme.bg} rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border-2 border-transparent ${step.colorTheme.hoverBorder}`}
+                >
+                  <div className='flex justify-center mb-6'>{step.icon}</div>
+                  <div
+                    className={`text-4xl font-bold ${step.colorTheme.number} mb-4`}
+                  >
+                    {step.number}
+                  </div>
+                  <h3
+                    className={`text-xl font-semibold ${step.colorTheme.title} mb-4 font-chinese`}
+                  >
+                    {step.title}
+                  </h3>
+                  <p className='text-gray-600'>{step.description}</p>
                 </div>
-                <h3 className='text-xl font-semibold text-gray-900 mb-4 font-chinese'>
-                  {step.title}
-                </h3>
-                <p className='text-gray-600'>{step.description}</p>
               </div>
 
               {/* Arrow */}
               {index < steps.length - 1 && (
-                <div className='hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2'>
-                  <svg
-                    className='w-8 h-8 text-gray-400'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M9 5l7 7-7 7'
-                    />
-                  </svg>
+                <div className='hidden md:flex items-center justify-center flex-shrink-0'>
+                  <span className='text-3xl text-gray-400 inline-block animate-flow-right'>
+                    ⇢
+                  </span>
                 </div>
               )}
-            </div>
+            </React.Fragment>
           ))}
         </div>
       </div>

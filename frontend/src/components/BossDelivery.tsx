@@ -3,18 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useBossDelivery } from '../hooks/useBossDelivery';
 import { useBossLoginStatus } from '../hooks/useBossLoginStatus';
-import { useQRCodeLogin } from '../hooks/useQRCodeLogin';
+import { useBossLocalLogin } from '../hooks/useBossLocalLogin';
 import { bossService, DeliveryDetail } from '../services/bossService';
 import logger from '../utils/logger';
 import Navigation from './Navigation';
 import WorkflowTimeline, { WorkflowStep } from './WorkflowTimeline';
+import BossCookieUpload from './BossCookieUpload';
 
 /**
- * Boss直聘投递组件 - 优化版UI
+ * Boss直聘投递组件 - 本地登录版本
  * 集成工作流程时间线和现代化设计
+ * 使用本地登录方案，确保多租户隔离
  *
  * @author ZhiTouJianLi Team
  * @since 2025-10-22
+ * @updated 2025-11-06 - 重构为本地登录模式
  */
 
 const BossDelivery: React.FC = () => {
@@ -25,15 +28,16 @@ const BossDelivery: React.FC = () => {
   // 创建认证日志记录器
   const authLogger = logger.createChild('BossDelivery:Auth');
 
-  // 使用自定义Hooks - 必须在组件顶层调用
+  // 使用本地登录Hook
   const {
-    showQRModal,
-    qrCodeUrl,
-    loginStatus,
-    handleQRCodeLogin,
-    closeQRModal,
-    refreshQRCode,
-  } = useQRCodeLogin();
+    showUploadModal,
+    hasCookie,
+    isValid,
+    openUploadModal,
+    closeUploadModal,
+    handleUploadSuccess,
+    checkCookieStatus,
+  } = useBossLocalLogin();
 
   const {
     status: bossStatus,
@@ -49,7 +53,7 @@ const BossDelivery: React.FC = () => {
     isLoggedIn: isBossLoggedIn,
     isLoading: isBossStatusLoading,
     error: bossStatusError,
-    refreshStatus: refreshBossStatus,
+    // refreshStatus: refreshBossStatus, // 暂未使用
   } = useBossLoginStatus();
 
   // 投递详情弹窗状态
@@ -109,19 +113,19 @@ const BossDelivery: React.FC = () => {
 
   // 定义工作流程步骤
   const getWorkflowSteps = (): WorkflowStep[] => {
-    const isLoggedIn = loginStatus === 'success';
     const isRunning = bossStatus.isRunning;
+    const isBossLoggedIn = hasCookie && isValid; // 使用本地登录状态
 
     // 根据Boss登录状态动态显示
     const bossLoginStep: WorkflowStep = {
       id: 'login',
-      label: isBossLoggedIn ? '已登录Boss' : '扫码登录Boss',
-      icon: isBossLoggedIn ? '✅' : '📱',
+      label: isBossLoggedIn ? '已登录Boss' : '本地登录Boss',
+      icon: isBossLoggedIn ? '✅' : '🔐',
       description: isBossLoggedIn
         ? 'Boss账号已登录，可直接启动投递'
-        : '使用手机App扫描二维码登录',
+        : '在本地浏览器登录并上传Cookie',
       status: isBossLoggedIn ? 'completed' : 'active',
-      action: isBossLoggedIn ? undefined : handleQRCodeLogin,
+      action: isBossLoggedIn ? undefined : openUploadModal,
     };
 
     return [
@@ -139,19 +143,15 @@ const BossDelivery: React.FC = () => {
         label: '启动自动投递',
         icon: '▶️',
         description: '开始智能投递简历',
-        status: isRunning
-          ? 'completed'
-          : isBossLoggedIn || isLoggedIn
-            ? 'active'
-            : 'pending',
-        disabled: !(isBossLoggedIn || isLoggedIn) || isRunning,
+        status: isRunning ? 'completed' : isBossLoggedIn ? 'active' : 'pending',
+        disabled: !isBossLoggedIn || isRunning,
         action: handleStart,
       },
       {
         id: 'logs',
         label: '查看日志',
         icon: '📋',
-        description: '监控投递状态和结果',
+        description: `${bossStatus.successCount !== undefined ? `✅ 成功${bossStatus.successCount}个 ${bossStatus.blacklistCount ? `⚠️ 黑名单过滤${bossStatus.blacklistCount}个` : ''}${bossStatus.errorCount ? ` ❌ 错误${bossStatus.errorCount}个` : ''}` : '监控投递状态和结果'}`,
         status: isRunning ? 'active' : 'pending',
         action: async () => {
           await fetchLogs();
@@ -252,14 +252,16 @@ const BossDelivery: React.FC = () => {
             <div className='flex items-center justify-between'>
               <div className='flex items-center'>
                 <span className='text-lg mr-2'>
-                  {isBossLoggedIn ? '✅' : '⚠️'}
+                  {hasCookie && isValid ? '✅' : '⚠️'}
                 </span>
                 <p className='text-sm font-medium'>
-                  {isBossLoggedIn ? 'Boss账号已登录' : '需要扫码登录Boss'}
+                  {hasCookie && isValid
+                    ? 'Boss账号已登录（使用您自己的账号）'
+                    : '需要本地登录Boss（确保使用您自己的账号）'}
                 </p>
               </div>
               <button
-                onClick={refreshBossStatus}
+                onClick={checkCookieStatus}
                 className='text-xs px-3 py-1 rounded-full bg-white hover:bg-gray-50 transition-colors'
               >
                 🔄 刷新状态
@@ -282,11 +284,7 @@ const BossDelivery: React.FC = () => {
           <WorkflowTimeline
             steps={getWorkflowSteps()}
             currentStep={
-              bossStatus.isRunning
-                ? 3
-                : isBossLoggedIn || loginStatus === 'success'
-                  ? 2
-                  : 1
+              bossStatus.isRunning ? 3 : hasCookie && isValid ? 2 : 1
             }
           />
         </div>
@@ -329,64 +327,12 @@ const BossDelivery: React.FC = () => {
         </div>
       </div>
 
-      {/* 二维码登录弹窗 - 优化版 */}
-      {showQRModal && (
-        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
-          <div className='bg-white rounded-lg p-8 max-w-2xl w-full mx-4'>
-            <div className='flex justify-between items-center mb-6'>
-              <h3 className='text-xl font-semibold text-gray-900'>
-                扫码登录Boss直聘
-              </h3>
-              <button
-                onClick={closeQRModal}
-                className='text-gray-400 hover:text-gray-600 text-2xl'
-              >
-                ✕
-              </button>
-            </div>
-            <div className='text-center'>
-              {qrCodeUrl ? (
-                <div>
-                  <div className='mb-6 flex justify-center'>
-                    <img
-                      src={qrCodeUrl}
-                      alt='登录二维码'
-                      className='rounded-xl shadow-2xl'
-                      style={{
-                        width: '600px',
-                        height: '600px',
-                        objectFit: 'cover',
-                        objectPosition: 'center center',
-                      }}
-                    />
-                  </div>
-                  <p className='text-lg text-gray-600 mb-6'>
-                    📱 请使用Boss直聘App扫描上方二维码登录
-                  </p>
-                  <div className='flex justify-center space-x-4'>
-                    <button
-                      onClick={refreshQRCode}
-                      className='px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-lg font-medium'
-                    >
-                      🔄 刷新二维码
-                    </button>
-                    <button
-                      onClick={closeQRModal}
-                      className='px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-lg font-medium'
-                    >
-                      取消
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className='py-12'>
-                  <div className='animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-6'></div>
-                  <p className='text-lg text-gray-600'>正在生成二维码...</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+      {/* Boss本地登录弹窗 - 新方案 */}
+      {showUploadModal && (
+        <BossCookieUpload
+          onSuccess={handleUploadSuccess}
+          onCancel={closeUploadModal}
+        />
       )}
 
       {/* 日志查看弹窗 */}

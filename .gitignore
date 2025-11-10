@@ -44,6 +44,10 @@ Thumbs.db
 # Backup files
 backups/
 *_backup_*/
+*.backup
+*.backup_*
+*.before_refactor
+*.before_*
 
 # Excel files (可能包含敏感数据)
 *.xlsx

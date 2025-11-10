@@ -63,10 +63,10 @@ const Features = () => {
   ];
 
   return (
-    <section id='features' className='py-20 bg-gray-50'>
+    <section id='features' className='py-28 bg-gray-50'>
       <Container size='xl'>
-        <div className='text-center mb-16'>
-          <h2 className='text-4xl font-bold text-gray-900 mb-4'>
+        <div className='text-center mb-20'>
+          <h2 className='text-4xl font-bold text-gray-900 mb-6'>
             三大核心功能
           </h2>
           <p className='text-xl text-gray-600 max-w-2xl mx-auto'>
@@ -74,7 +74,7 @@ const Features = () => {
           </p>
         </div>
 
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-10'>
           {features.map((feature, index) => (
             <Card key={index} hover padding='lg'>
               <div className='text-center'>

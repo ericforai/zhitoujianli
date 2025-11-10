@@ -86,10 +86,10 @@ const JDMatching = () => {
   };
 
   return (
-    <section id='jd-matching' className='py-20 bg-white'>
+    <section id='jd-matching' className='py-28 bg-white'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-        <div className='text-center mb-16'>
-          <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4 font-chinese'>
+        <div className='text-center mb-20'>
+          <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-6 font-chinese'>
             JD智能匹配度分析
           </h2>
           <p className='text-xl text-gray-600 max-w-2xl mx-auto'>
@@ -97,56 +97,199 @@ const JDMatching = () => {
           </p>
         </div>
 
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
+        <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 items-start'>
           {/* 左侧：输入区域 */}
-          <div className='space-y-6'>
+          <div className='space-y-6 flex flex-col'>
+            {/* 使用说明卡片 - 新增 */}
+            <div className='bg-gradient-to-br from-indigo-50 to-blue-50 p-6 rounded-xl border border-indigo-100 shadow-sm'>
+              <div className='flex items-center mb-4'>
+                <div className='w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mr-3'>
+                  <svg
+                    className='w-6 h-6 text-indigo-600'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+                    />
+                  </svg>
+                </div>
+                <h3 className='text-lg font-bold text-gray-900'>使用说明</h3>
+              </div>
+              <ul className='space-y-2 text-sm text-gray-700'>
+                <li className='flex items-start'>
+                  <span className='mr-2 text-indigo-600 font-bold'>1.</span>
+                  <span>在下方输入框中粘贴您的简历内容和目标岗位JD</span>
+                </li>
+                <li className='flex items-start'>
+                  <span className='mr-2 text-indigo-600 font-bold'>2.</span>
+                  <span>
+                    确保内容完整，包含工作经历、技能、项目经验等关键信息
+                  </span>
+                </li>
+                <li className='flex items-start'>
+                  <span className='mr-2 text-indigo-600 font-bold'>3.</span>
+                  <span>
+                    点击&ldquo;开始智能分析&rdquo;按钮，AI将为您生成详细的匹配度报告
+                  </span>
+                </li>
+              </ul>
+            </div>
+
             {/* 简历输入 */}
-            <div className='bg-gray-50 p-6 rounded-lg'>
-              <h3 className='text-lg font-semibold mb-4'>1. 输入简历内容</h3>
+            <div className='bg-white p-7 rounded-xl shadow-md border border-gray-100'>
+              <div className='flex items-center mb-4'>
+                <div className='w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3'>
+                  <span className='text-blue-600 font-bold text-lg'>1</span>
+                </div>
+                <h3 className='text-lg font-bold text-gray-900'>
+                  输入简历内容
+                </h3>
+              </div>
               <textarea
                 value={resumeText}
                 onChange={e => setResumeText(e.target.value)}
                 placeholder='请粘贴您的简历内容，包括个人信息、工作经历、技能、项目经验等...'
-                className='w-full h-40 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none'
+                className='w-full h-40 px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none transition-all'
               />
-              <p className='text-sm text-gray-500 mt-2'>
-                支持文本格式，建议包含完整的工作经历和技能信息
-              </p>
+              <div className='mt-3 flex items-start'>
+                <svg
+                  className='w-4 h-4 text-gray-400 mr-2 mt-0.5 flex-shrink-0'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+                  />
+                </svg>
+                <p className='text-sm text-gray-600 leading-relaxed'>
+                  支持文本格式，建议包含完整的工作经历和技能信息，内容越详细分析越精准
+                </p>
+              </div>
             </div>
 
             {/* JD输入 */}
-            <div className='bg-gray-50 p-6 rounded-lg'>
-              <h3 className='text-lg font-semibold mb-4'>2. 输入岗位JD</h3>
+            <div className='bg-white p-7 rounded-xl shadow-md border border-gray-100'>
+              <div className='flex items-center mb-4'>
+                <div className='w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3'>
+                  <span className='text-purple-600 font-bold text-lg'>2</span>
+                </div>
+                <h3 className='text-lg font-bold text-gray-900'>输入岗位JD</h3>
+              </div>
               <textarea
                 value={jdText}
                 onChange={e => setJdText(e.target.value)}
                 placeholder='请粘贴目标岗位的职位描述，包括岗位要求、技能要求、经验要求等...'
-                className='w-full h-40 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none'
+                className='w-full h-40 px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none transition-all'
               />
-              <p className='text-sm text-gray-500 mt-2'>
-                详细的JD内容有助于更精准的匹配度分析
-              </p>
+              <div className='mt-3 flex items-start'>
+                <svg
+                  className='w-4 h-4 text-gray-400 mr-2 mt-0.5 flex-shrink-0'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+                  />
+                </svg>
+                <p className='text-sm text-gray-600 leading-relaxed'>
+                  详细的JD内容有助于更精准的匹配度分析，建议包含岗位职责、技能要求、经验要求等
+                </p>
+              </div>
             </div>
 
             {/* 分析按钮 */}
             <button
               onClick={analyzeMatching}
-              disabled={isAnalyzing}
-              className='w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all'
+              disabled={isAnalyzing || !resumeText.trim() || !jdText.trim()}
+              className='w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02]'
             >
               {isAnalyzing ? (
                 <div className='flex items-center justify-center space-x-2'>
-                  <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
+                  <div className='w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
                   <span>AI分析中...</span>
                 </div>
               ) : (
-                '开始智能分析'
+                <div className='flex items-center justify-center space-x-2'>
+                  <svg
+                    className='w-5 h-5'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M13 10V3L4 14h7v7l9-11h-7z'
+                    />
+                  </svg>
+                  <span>开始智能分析</span>
+                </div>
               )}
             </button>
+
+            {/* 分析维度说明 - 新增 */}
+            <div className='bg-gradient-to-br from-gray-50 to-blue-50 p-6 rounded-xl border border-gray-200'>
+              <h4 className='text-base font-semibold text-gray-900 mb-4 flex items-center'>
+                <svg
+                  className='w-5 h-5 text-gray-600 mr-2'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'
+                  />
+                </svg>
+                分析维度
+              </h4>
+              <div className='grid grid-cols-2 gap-3'>
+                <div className='bg-white p-3 rounded-lg text-center shadow-sm'>
+                  <div className='text-lg font-bold text-blue-600 mb-1'>
+                    技能
+                  </div>
+                  <div className='text-xs text-gray-600'>技能匹配度</div>
+                </div>
+                <div className='bg-white p-3 rounded-lg text-center shadow-sm'>
+                  <div className='text-lg font-bold text-purple-600 mb-1'>
+                    经验
+                  </div>
+                  <div className='text-xs text-gray-600'>工作经验匹配</div>
+                </div>
+                <div className='bg-white p-3 rounded-lg text-center shadow-sm'>
+                  <div className='text-lg font-bold text-green-600 mb-1'>
+                    教育
+                  </div>
+                  <div className='text-xs text-gray-600'>教育背景匹配</div>
+                </div>
+                <div className='bg-white p-3 rounded-lg text-center shadow-sm'>
+                  <div className='text-lg font-bold text-orange-600 mb-1'>
+                    项目
+                  </div>
+                  <div className='text-xs text-gray-600'>项目经历匹配</div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* 右侧：分析结果 */}
-          <div className='space-y-6'>
+          <div className='space-y-6 flex flex-col min-h-[600px]'>
             {matchingResult ? (
               <>
                 {/* 总体匹配度 */}
@@ -373,29 +516,205 @@ const JDMatching = () => {
               </>
             ) : (
               /* 默认状态 */
-              <div className='bg-gray-50 p-8 rounded-lg text-center'>
-                <div className='w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4'>
-                  <svg
-                    className='w-8 h-8 text-indigo-600'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'
-                    />
-                  </svg>
+              <>
+                {/* 等待分析状态 - 增强视觉重量 */}
+                <div className='bg-gradient-to-br from-indigo-50 to-purple-50 p-10 rounded-xl text-center border-2 border-indigo-100 shadow-md'>
+                  <div className='w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg'>
+                    <svg
+                      className='w-12 h-12 text-white'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'
+                      />
+                    </svg>
+                  </div>
+                  <h3 className='text-2xl font-bold text-gray-900 mb-3'>
+                    等待分析
+                  </h3>
+                  <p className='text-gray-700 text-base leading-relaxed max-w-sm mx-auto'>
+                    输入简历和JD内容后，点击&ldquo;开始智能分析&rdquo;按钮，AI将为您提供详细的匹配度分析报告
+                  </p>
                 </div>
-                <h3 className='text-lg font-medium text-gray-900 mb-2'>
-                  等待分析
-                </h3>
-                <p className='text-gray-600 text-sm'>
-                  输入简历和JD内容后，点击&ldquo;开始智能分析&rdquo;按钮
-                </p>
-              </div>
+
+                {/* 分析优势展示 - 增强视觉重量 */}
+                <div className='bg-white p-8 rounded-xl shadow-lg border border-gray-100'>
+                  <div className='flex items-center mb-6'>
+                    <div className='w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3'>
+                      <svg
+                        className='w-6 h-6 text-green-600'
+                        fill='none'
+                        stroke='currentColor'
+                        viewBox='0 0 24 24'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
+                        />
+                      </svg>
+                    </div>
+                    <h3 className='text-xl font-bold text-gray-900'>
+                      为什么要做匹配分析？
+                    </h3>
+                  </div>
+                  <div className='space-y-4'>
+                    <div className='flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors'>
+                      <div className='w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
+                        <svg
+                          className='w-4 h-4 text-green-600'
+                          fill='currentColor'
+                          viewBox='0 0 20 20'
+                        >
+                          <path
+                            fillRule='evenodd'
+                            d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+                            clipRule='evenodd'
+                          />
+                        </svg>
+                      </div>
+                      <div>
+                        <span className='text-base font-medium text-gray-900 block mb-1'>
+                          提前了解自己的竞争力
+                        </span>
+                        <span className='text-sm text-gray-600'>
+                          通过数据化分析，清晰了解与目标岗位的匹配程度
+                        </span>
+                      </div>
+                    </div>
+                    <div className='flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors'>
+                      <div className='w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
+                        <svg
+                          className='w-4 h-4 text-blue-600'
+                          fill='currentColor'
+                          viewBox='0 0 20 20'
+                        >
+                          <path
+                            fillRule='evenodd'
+                            d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+                            clipRule='evenodd'
+                          />
+                        </svg>
+                      </div>
+                      <div>
+                        <span className='text-base font-medium text-gray-900 block mb-1'>
+                          发现技能短板，针对性提升
+                        </span>
+                        <span className='text-sm text-gray-600'>
+                          识别缺失的关键技能，制定精准的学习和提升计划
+                        </span>
+                      </div>
+                    </div>
+                    <div className='flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors'>
+                      <div className='w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
+                        <svg
+                          className='w-4 h-4 text-purple-600'
+                          fill='currentColor'
+                          viewBox='0 0 20 20'
+                        >
+                          <path
+                            fillRule='evenodd'
+                            d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+                            clipRule='evenodd'
+                          />
+                        </svg>
+                      </div>
+                      <div>
+                        <span className='text-base font-medium text-gray-900 block mb-1'>
+                          优化简历，提高通过率
+                        </span>
+                        <span className='text-sm text-gray-600'>
+                          根据匹配分析结果，有针对性地优化简历内容
+                        </span>
+                      </div>
+                    </div>
+                    <div className='flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors'>
+                      <div className='w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
+                        <svg
+                          className='w-4 h-4 text-orange-600'
+                          fill='currentColor'
+                          viewBox='0 0 20 20'
+                        >
+                          <path
+                            fillRule='evenodd'
+                            d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+                            clipRule='evenodd'
+                          />
+                        </svg>
+                      </div>
+                      <div>
+                        <span className='text-base font-medium text-gray-900 block mb-1'>
+                          节省盲目投递的时间
+                        </span>
+                        <span className='text-sm text-gray-600'>
+                          精准定位匹配度高的岗位，避免无效投递，提高求职效率
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 示例预览卡片 - 新增 */}
+                <div className='bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-xl border border-indigo-100'>
+                  <h4 className='text-lg font-semibold text-gray-900 mb-4 flex items-center'>
+                    <svg
+                      className='w-5 h-5 text-indigo-600 mr-2'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M13 10V3L4 14h7v7l9-11h-7z'
+                      />
+                    </svg>
+                    分析报告预览
+                  </h4>
+                  <div className='space-y-3'>
+                    <div className='bg-white p-4 rounded-lg shadow-sm'>
+                      <div className='flex items-center justify-between mb-2'>
+                        <span className='text-sm font-medium text-gray-700'>
+                          总体匹配度
+                        </span>
+                        <span className='text-lg font-bold text-green-600'>
+                          82分
+                        </span>
+                      </div>
+                      <div className='w-full bg-gray-200 rounded-full h-2'>
+                        <div
+                          className='bg-gradient-to-r from-indigo-500 to-purple-600 h-2 rounded-full'
+                          style={{ width: '82%' }}
+                        ></div>
+                      </div>
+                    </div>
+                    <div className='grid grid-cols-2 gap-3'>
+                      <div className='bg-white p-3 rounded-lg shadow-sm text-center'>
+                        <div className='text-2xl font-bold text-blue-600 mb-1'>
+                          85分
+                        </div>
+                        <div className='text-xs text-gray-600'>技能匹配</div>
+                      </div>
+                      <div className='bg-white p-3 rounded-lg shadow-sm text-center'>
+                        <div className='text-2xl font-bold text-purple-600 mb-1'>
+                          78分
+                        </div>
+                        <div className='text-xs text-gray-600'>经验匹配</div>
+                      </div>
+                    </div>
+                    <p className='text-xs text-gray-600 text-center mt-2'>
+                      * 以上为示例数据，实际分析结果以AI分析为准
+                    </p>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -470,6 +789,22 @@ const JDMatching = () => {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* 底部CTA - 引导注册 */}
+        <div className='mt-12 bg-gradient-to-r from-indigo-500 to-purple-600 p-8 rounded-lg text-white text-center'>
+          <h3 className='text-2xl font-semibold mb-2'>
+            想要体验完整的匹配分析？
+          </h3>
+          <p className='text-base opacity-90 mb-6'>
+            注册后即可使用AI智能匹配分析，提升求职成功率
+          </p>
+          <a
+            href='/register'
+            className='inline-block bg-white text-indigo-600 py-3 px-8 rounded-lg font-medium hover:bg-gray-100 transition-colors'
+          >
+            立即注册
+          </a>
         </div>
       </div>
     </section>

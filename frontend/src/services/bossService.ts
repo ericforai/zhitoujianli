@@ -45,6 +45,12 @@ export interface BossStatus {
   isRunning: boolean;
   logFile?: string;
   deliveryCount?: number;
+  // 🔧 v3.1.3 增强统计信息
+  successCount?: number;
+  skippedCount?: number;
+  errorCount?: number;
+  blacklistCount?: number;
+  totalProcessed?: number;
 }
 
 export interface BossTaskResponse {

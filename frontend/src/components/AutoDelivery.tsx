@@ -49,21 +49,20 @@ const AutoDelivery = () => {
     );
   };
 
-  const handleStartDelivery = () => {
-    if (selectedPlatforms.length === 0) {
-      alert('请至少选择一个招聘平台');
-      return;
-    }
-
-    // 跳转到登录页
-    window.open('http://115.190.182.95/login', '_blank');
-  };
+  // 已废弃：直接在按钮中处理跳转
+  // const handleStartDelivery = () => {
+  //   if (selectedPlatforms.length === 0) {
+  //     alert('请至少选择一个招聘平台');
+  //     return;
+  //   }
+  //   window.open('http://115.190.182.95/login', '_blank');
+  // };
 
   return (
-    <section id='auto-delivery' className='py-20 bg-gray-50'>
+    <section id='auto-delivery' className='py-28 bg-gray-50'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-        <div className='text-center mb-16'>
-          <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4 font-chinese'>
+        <div className='text-center mb-20'>
+          <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-6 font-chinese'>
             自动化投递简历
           </h2>
           <p className='text-xl text-gray-600 max-w-2xl mx-auto'>
@@ -312,23 +311,77 @@ const AutoDelivery = () => {
                   <span className='text-indigo-600 font-bold'>4.</span>
                   <span>定期查看投递结果，根据反馈调整策略</span>
                 </div>
+                <div className='flex items-start space-x-2'>
+                  <span className='text-indigo-600 font-bold'>5.</span>
+                  <span>每个平台建议设置不同的关键词，提高覆盖面</span>
+                </div>
+                <div className='flex items-start space-x-2'>
+                  <span className='text-indigo-600 font-bold'>6.</span>
+                  <span>避免在深夜投递，工作时间投递回复率更高</span>
+                </div>
               </div>
             </div>
 
-            {/* 开始投递按钮 */}
-            <div className='bg-gradient-to-r from-indigo-500 to-purple-600 p-6 rounded-lg text-white'>
-              <h3 className='text-lg font-semibold mb-2'>准备开始投递？</h3>
-              <p className='text-sm opacity-90 mb-4'>
-                登录后即可开始配置详细的投递参数
-              </p>
-              <button
-                onClick={handleStartDelivery}
-                className='w-full bg-white text-indigo-600 py-3 px-6 rounded-lg font-medium hover:bg-gray-100 transition-colors'
-              >
-                立即登录
-              </button>
+            {/* 投递效果展示 */}
+            <div className='bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-lg'>
+              <h3 className='text-lg font-semibold mb-4 text-gray-900 flex items-center'>
+                <svg
+                  className='w-5 h-5 mr-2 text-indigo-600'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'
+                  />
+                </svg>
+                投递效果
+              </h3>
+              <div className='grid grid-cols-2 gap-4'>
+                <div className='bg-white p-4 rounded-lg text-center'>
+                  <div className='text-2xl font-bold text-blue-600 mb-1'>
+                    95%
+                  </div>
+                  <div className='text-sm text-gray-600'>投递成功率</div>
+                </div>
+                <div className='bg-white p-4 rounded-lg text-center'>
+                  <div className='text-2xl font-bold text-green-600 mb-1'>
+                    10x
+                  </div>
+                  <div className='text-sm text-gray-600'>效率提升</div>
+                </div>
+                <div className='bg-white p-4 rounded-lg text-center'>
+                  <div className='text-2xl font-bold text-purple-600 mb-1'>
+                    500+
+                  </div>
+                  <div className='text-sm text-gray-600'>日均投递</div>
+                </div>
+                <div className='bg-white p-4 rounded-lg text-center'>
+                  <div className='text-2xl font-bold text-orange-600 mb-1'>
+                    24h
+                  </div>
+                  <div className='text-sm text-gray-600'>快速响应</div>
+                </div>
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* CTA - 引导注册（全宽） */}
+        <div className='mt-12 bg-gradient-to-r from-indigo-500 to-purple-600 p-8 rounded-lg text-white text-center'>
+          <h3 className='text-2xl font-semibold mb-2'>准备开始投递？</h3>
+          <p className='text-base opacity-90 mb-6'>
+            注册后即可使用所有自动化投递功能，让求职更高效
+          </p>
+          <a
+            href='/register'
+            className='inline-block bg-white text-indigo-600 py-3 px-8 rounded-lg font-medium hover:bg-gray-100 transition-colors'
+          >
+            立即注册
+          </a>
         </div>
       </div>
     </section>

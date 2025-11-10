@@ -22,13 +22,17 @@ import TestLogin from './components/TestLogin';
 import Terms from './components/Terms';
 import Privacy from './components/Privacy';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import ScrollToTop from './components/ScrollToTop';
 import { AuthProvider } from './contexts/AuthContext';
 import BlogPage from './pages/BlogPage';
+import BlogCategoryPage from './pages/BlogCategoryPage';
 import ConfigPage from './pages/ConfigPage';
 import ContactPage from './pages/ContactPage';
 import Dashboard from './pages/Dashboard';
 import FeaturesPage from './pages/FeaturesPage';
 import PricingPage from './pages/PricingPage';
+import HelpPage from './pages/HelpPage';
+import GuidePage from './pages/GuidePage';
 
 // 管理员后台页面
 import AdminRoute from './components/admin/AdminRoute';
@@ -70,6 +74,7 @@ function App() {
   return (
     <ErrorBoundary>
       <Router>
+        <ScrollToTop />
         <AuthProvider>
           <Routes>
             {/* 公开路由 */}
@@ -81,11 +86,16 @@ function App() {
             <Route path='/features' element={<FeaturesPage />} />
             <Route path='/pricing' element={<PricingPage />} />
             <Route path='/blog' element={<BlogPage />} />
+            <Route path='/blog/:category' element={<BlogCategoryPage />} />
             <Route path='/contact' element={<ContactPage />} />
 
             {/* 法律文档页面 */}
             <Route path='/terms' element={<Terms />} />
             <Route path='/privacy' element={<Privacy />} />
+
+            {/* 帮助和指南页面 */}
+            <Route path='/help' element={<HelpPage />} />
+            <Route path='/guide' element={<GuidePage />} />
 
             {/* 受保护的路由 - 需要登录 */}
             <Route

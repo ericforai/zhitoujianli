@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
@@ -61,6 +61,14 @@ const Dashboard: React.FC = () => {
   // 认证状态检查和日志记录
   authLogger.debug('Dashboard组件开始渲染', { isLoading, isAuthenticated });
 
+  // 🔒 安全修复：监听认证状态变化，如果未认证立即跳转
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      authLogger.warn('检测到未认证状态，立即跳转到登录页');
+      navigate('/login', { replace: true });
+    }
+  }, [isAuthenticated, isLoading, navigate, authLogger]);
+
   // 在认证完成前显示加载界面
   if (isLoading) {
     authLogger.debug('等待认证状态确认...');
@@ -74,10 +82,18 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  // 双重保险：理论上PrivateRoute已拦截，但作为防御性编程
+  // 🔒 安全修复：双重保险 - 如果未认证，立即跳转而不是返回null
   if (!isAuthenticated) {
-    authLogger.warn('未认证用户尝试访问Dashboard页面');
-    return null;
+    authLogger.warn('未认证用户尝试访问Dashboard页面，立即跳转');
+    // 使用 useEffect 已经处理跳转，这里返回加载界面避免闪烁
+    return (
+      <div className='min-h-screen flex items-center justify-center'>
+        <div className='text-center'>
+          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto'></div>
+          <p className='mt-4 text-gray-600'>正在跳转...</p>
+        </div>
+      </div>
+    );
   }
 
   // 认证确认，记录日志

@@ -259,26 +259,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   /**
    * 登出
+   * 🔒 安全修复：立即清除状态并强制跳转，防止停留在受保护页面
    */
   const logout = useCallback(async () => {
     try {
       authLogger.info('开始登出');
 
-      // 调用后端登出接口
+      // 🔒 安全修复：先清除本地状态，立即生效
+      setUser(null);
+
+      // 清除所有认证信息（token、cookie等）
+      // authService.logout() 内部会调用 TokenManager.clearTokens()
       await authService.logout();
 
-      // 清除本地状态
-      setUser(null);
+      authLogger.info('登出成功，立即跳转到登录页');
 
-      authLogger.info('登出成功');
-
-      // 跳转到登录页
+      // 🔒 安全修复：立即强制跳转，使用 replace 避免返回
       navigate('/login', { replace: true });
+
+      // 🔒 双重保险：如果 navigate 失败，使用 window.location 强制跳转
+      // 延迟执行，给 navigate 时间完成
+      setTimeout(() => {
+        if (window.location.pathname !== '/login') {
+          authLogger.warn('navigate 跳转失败，使用 window.location 强制跳转');
+          window.location.href = '/login';
+        }
+      }, 100);
     } catch (error) {
       authLogger.error('登出失败', error);
-      // 即使登出失败，也清除本地状态
+      // 🔒 安全修复：即使出错，也清除状态并强制跳转
       setUser(null);
+      // 确保清除token（即使API失败）
+      try {
+        await authService.logout();
+      } catch (e) {
+        // 忽略清除token时的错误
+      }
       navigate('/login', { replace: true });
+      setTimeout(() => {
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+      }, 100);
     }
   }, [navigate]);
 

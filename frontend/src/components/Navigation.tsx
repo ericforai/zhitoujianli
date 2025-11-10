@@ -6,8 +6,10 @@ import Button from './common/Button';
 const Navigation = () => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // 检查登录状态
@@ -30,16 +32,30 @@ const Navigation = () => {
     window.addEventListener('storage', handleStorageChange);
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      // 清理定时器，防止内存泄漏
+      if (closeTimeout) {
+        clearTimeout(closeTimeout);
+      }
     };
-  }, []);
+  }, [closeTimeout]);
 
+  /**
+   * 🔒 安全修复：退出登录后立即跳转，防止停留在受保护页面
+   */
   const handleLogout = async () => {
     try {
-      await authService.logout();
+      // 先清除本地状态
       setIsLoggedIn(false);
       setUser(null);
+
+      // 调用退出登录API（清除token等）
+      await authService.logout();
+
+      // 🔒 安全修复：立即强制跳转到登录页
+      window.location.href = '/login';
     } catch (error) {
       console.error('退出登录失败:', error);
+      // 🔒 安全修复：即使出错，也清除状态并强制跳转
       setIsLoggedIn(false);
       setUser(null);
       window.location.href = '/login';
@@ -100,14 +116,76 @@ const Navigation = () => {
             >
               定价
             </a>
-            <a
-              href='https://blog.zhitoujianli.com'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors duration-200'
+
+            {/* 分类下拉菜单 - 优化交互体验 */}
+            <div
+              className='relative'
+              onMouseEnter={() => {
+                // 清除关闭定时器
+                if (closeTimeout) {
+                  clearTimeout(closeTimeout);
+                  setCloseTimeout(null);
+                }
+                setIsCategoryOpen(true);
+              }}
+              onMouseLeave={() => {
+                // 延迟300ms关闭，给用户足够时间移动鼠标
+                const timeout = setTimeout(() => {
+                  setIsCategoryOpen(false);
+                }, 300);
+                setCloseTimeout(timeout);
+              }}
             >
-              博客
-            </a>
+              <button
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-1 ${
+                  location.pathname.startsWith('/blog/')
+                    ? 'text-blue-600 bg-blue-50'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                }`}
+              >
+                <span>分类</span>
+                <svg
+                  className={`w-4 h-4 transition-transform duration-200 ${isCategoryOpen ? 'rotate-180' : ''}`}
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M19 9l-7 7-7-7'
+                  />
+                </svg>
+              </button>
+
+              {/* 下拉菜单 - 移除间隙，使用padding代替margin */}
+              {isCategoryOpen && (
+                <div className='absolute left-0 top-full pt-1'>
+                  <div className='w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2'>
+                    <a
+                      href='https://blog.zhitoujianli.com/category/chan3-pin3-dong4-tai4/'
+                      className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200'
+                    >
+                      产品动态
+                    </a>
+                    <a
+                      href='https://blog.zhitoujianli.com/category/qiu2-zhi2-zhi3-nan2/'
+                      className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200'
+                    >
+                      求职指南
+                    </a>
+                    <a
+                      href='https://blog.zhitoujianli.com/category/zhi2-chang3-jian4-yi4/'
+                      className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200'
+                    >
+                      职场建议
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <a
               href='https://blog.zhitoujianli.com/about/#company'
               target='_blank'
@@ -236,15 +314,35 @@ const Navigation = () => {
             >
               定价
             </a>
-            <a
-              href='https://blog.zhitoujianli.com'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='block px-4 py-3 rounded-lg text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors duration-200'
-              onClick={() => setIsMenuOpen(false)}
-            >
-              博客
-            </a>
+
+            {/* 移动端分类链接 */}
+            <div className='space-y-1'>
+              <div className='px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider'>
+                博客分类
+              </div>
+              <a
+                href='https://blog.zhitoujianli.com/category/chan3-pin3-dong4-tai4/'
+                className='block px-4 py-3 rounded-lg text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors duration-200'
+                onClick={() => setIsMenuOpen(false)}
+              >
+                产品动态
+              </a>
+              <a
+                href='https://blog.zhitoujianli.com/category/qiu2-zhi2-zhi3-nan2/'
+                className='block px-4 py-3 rounded-lg text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors duration-200'
+                onClick={() => setIsMenuOpen(false)}
+              >
+                求职指南
+              </a>
+              <a
+                href='https://blog.zhitoujianli.com/category/zhi2-chang3-jian4-yi4/'
+                className='block px-4 py-3 rounded-lg text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors duration-200'
+                onClick={() => setIsMenuOpen(false)}
+              >
+                职场建议
+              </a>
+            </div>
+
             <a
               href='https://blog.zhitoujianli.com/about/#company'
               target='_blank'

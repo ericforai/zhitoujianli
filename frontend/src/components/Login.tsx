@@ -57,14 +57,37 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-12 px-4'>
+    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-6 px-4'>
       <div className='w-full max-w-md'>
-        {/* Logo和标题 - 添加fade-in动画 */}
-        <div className='text-center mb-10 animate-fade-in'>
-          {/* Logo图标 */}
-          <div className='inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg mb-4'>
+        {/* 返回首页按钮 */}
+        <div className='mb-4'>
+          <a
+            href='/'
+            className='inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors duration-200'
+          >
             <svg
-              className='w-8 h-8 text-white'
+              className='w-5 h-5 mr-2'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M10 19l-7-7m0 0l7-7m-7 7h18'
+              />
+            </svg>
+            <span className='font-medium'>返回首页</span>
+          </a>
+        </div>
+
+        {/* Logo和标题 - 水平排列 */}
+        <a href='/' className='flex items-center gap-3 mb-6 animate-fade-in'>
+          {/* Logo图标 */}
+          <div className='flex-shrink-0 inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg'>
+            <svg
+              className='w-6 h-6 text-white'
               fill='none'
               stroke='currentColor'
               viewBox='0 0 24 24'
@@ -77,42 +100,45 @@ const Login: React.FC = () => {
               />
             </svg>
           </div>
-          <h1 className='text-4xl font-bold text-gray-900 mb-2 font-inter'>
-            智投简历
-          </h1>
-          <p className='text-gray-600 text-lg font-medium'>
-            智能化求职投递平台
-          </p>
-        </div>
+          {/* 文字内容 */}
+          <div className='flex flex-col'>
+            <h1 className='text-3xl font-bold text-gray-900 mb-1 font-inter'>
+              智投简历
+            </h1>
+            <p className='text-gray-600 text-base font-medium'>
+              智能化求职投递平台
+            </p>
+          </div>
+        </a>
 
         {/* 登录卡片 - 玻璃拟态效果 */}
-        <div className='bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-8'>
-          <div className='text-center mb-8'>
-            <h2 className='text-2xl font-bold text-gray-900 font-inter'>
+        <div className='bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-6'>
+          <div className='text-center mb-6'>
+            <h2 className='text-xl font-bold text-gray-900 font-inter'>
               邮箱登录
             </h2>
           </div>
 
           {/* 错误提示 */}
           {error && (
-            <div className='mb-6 p-4 bg-red-50/80 backdrop-blur-sm border border-red-200/50 rounded-xl text-red-700 text-sm font-medium'>
+            <div className='mb-4 p-3 bg-red-50/80 backdrop-blur-sm border border-red-200/50 rounded-xl text-red-700 text-sm font-medium'>
               {error}
             </div>
           )}
 
           {/* 成功提示 */}
           {success && (
-            <div className='mb-6 p-4 bg-green-50/80 backdrop-blur-sm border border-green-200/50 rounded-xl text-green-700 text-sm font-medium'>
+            <div className='mb-4 p-3 bg-green-50/80 backdrop-blur-sm border border-green-200/50 rounded-xl text-green-700 text-sm font-medium'>
               {success}
             </div>
           )}
 
           {/* 邮箱登录表单 */}
-          <form onSubmit={handleEmailLogin} className='space-y-6'>
+          <form onSubmit={handleEmailLogin} className='space-y-4'>
             <div>
               <label
                 htmlFor='email'
-                className='block text-sm font-semibold text-gray-700 mb-3 font-inter'
+                className='block text-sm font-semibold text-gray-700 mb-2 font-inter'
               >
                 邮箱地址
               </label>
@@ -122,7 +148,7 @@ const Login: React.FC = () => {
                 required
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className='w-full px-4 py-4 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all duration-300 text-base font-inter placeholder-gray-400 hover:bg-white/80'
+                className='w-full px-4 py-3 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all duration-300 text-base font-inter placeholder-gray-400 hover:bg-white/80'
                 placeholder='your@email.com'
               />
             </div>
@@ -130,7 +156,7 @@ const Login: React.FC = () => {
             <div>
               <label
                 htmlFor='password'
-                className='block text-sm font-semibold text-gray-700 mb-3 font-inter'
+                className='block text-sm font-semibold text-gray-700 mb-2 font-inter'
               >
                 密码
               </label>
@@ -140,7 +166,7 @@ const Login: React.FC = () => {
                 required
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className='w-full px-4 py-4 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all duration-300 text-base font-inter placeholder-gray-400 hover:bg-white/80'
+                className='w-full px-4 py-3 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all duration-300 text-base font-inter placeholder-gray-400 hover:bg-white/80'
                 placeholder='至少6位'
               />
             </div>
@@ -149,7 +175,7 @@ const Login: React.FC = () => {
             <button
               type='submit'
               disabled={loading}
-              className='w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transform transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-inter text-lg'
+              className='w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transform transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-inter text-base'
             >
               {loading ? (
                 <div className='flex items-center justify-center'>
@@ -180,37 +206,38 @@ const Login: React.FC = () => {
             </button>
           </form>
 
-          {/* 注册链接 */}
-          <div className='mt-8 text-center'>
-            <span className='text-sm text-gray-600 font-inter'>
-              还没有账号？
-            </span>
-            <a
-              href='/register'
-              className='ml-1 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline transition-all duration-200 font-inter'
-            >
-              立即注册
-            </a>
-          </div>
-        </div>
-
-        {/* 底部提示 */}
-        <div className='text-center text-xs text-gray-500 mt-8 font-inter'>
-          <p className='mb-2'>登录即表示同意</p>
-          <div className='space-x-1'>
-            <a
-              href='/terms'
-              className='text-blue-600 hover:text-blue-700 hover:underline transition-colors duration-200'
-            >
-              用户协议
-            </a>
-            <span>和</span>
-            <a
-              href='/privacy'
-              className='text-blue-600 hover:text-blue-700 hover:underline transition-colors duration-200'
-            >
-              隐私政策
-            </a>
+          {/* 注册链接和协议提示 */}
+          <div className='mt-6 space-y-3'>
+            <div className='text-center'>
+              <span className='text-sm text-gray-600 font-inter'>
+                还没有账号？
+              </span>
+              <a
+                href='/register'
+                className='ml-1 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline transition-all duration-200 font-inter'
+              >
+                立即注册
+              </a>
+            </div>
+            {/* 底部提示 - 移入卡片内 */}
+            <div className='text-center text-xs text-gray-500 font-inter pt-2 border-t border-gray-200/50'>
+              <p className='mb-1'>登录即表示同意</p>
+              <div className='space-x-1'>
+                <a
+                  href='/terms'
+                  className='text-blue-600 hover:text-blue-700 hover:underline transition-colors duration-200'
+                >
+                  用户协议
+                </a>
+                <span>和</span>
+                <a
+                  href='/privacy'
+                  className='text-blue-600 hover:text-blue-700 hover:underline transition-colors duration-200'
+                >
+                  隐私政策
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>

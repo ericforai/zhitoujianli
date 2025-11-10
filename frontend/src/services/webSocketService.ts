@@ -4,6 +4,7 @@
  * @author ZhiTouJianLi Team
  * @since 2025-01-03
  * @updated 2025-10-11 - 改进内存管理，删除重复Hook实现
+ * @updated 2025-11-07 - 添加JWT Token验证，防止未认证连接
  */
 
 import config from '../config/environment';
@@ -15,6 +16,16 @@ import {
   SuccessMessage,
   WebSocketMessage,
 } from '../types/api';
+
+/**
+ * 从localStorage获取JWT Token
+ */
+function getAuthToken(): string | null {
+  // 优先从localStorage获取Token
+  const token =
+    localStorage.getItem('token') || localStorage.getItem('auth_token');
+  return token;
+}
 
 type WebSocketEventHandler = (data: any) => void;
 
@@ -31,6 +42,8 @@ class WebSocketManager {
 
   /**
    * 连接WebSocket
+   *
+   * ✅ 安全修复：连接时携带JWT Token进行身份验证
    */
   connect(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -47,8 +60,24 @@ class WebSocketManager {
       this.isConnecting = true;
 
       try {
-        // 使用统一配置的WebSocket URL
-        const wsUrl = config.wsBaseUrl;
+        // 1. 获取JWT Token
+        const token = getAuthToken();
+
+        if (!token) {
+          this.isConnecting = false;
+          const error = new Error(
+            '❌ 未登录，无法建立WebSocket连接（缺少Token）'
+          );
+          console.error(error.message);
+          reject(error);
+          return;
+        }
+
+        // 2. 构建带Token的WebSocket URL
+        const baseUrl = config.wsBaseUrl;
+        const wsUrl = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}token=${encodeURIComponent(token)}`;
+
+        console.log('🔐 正在建立WebSocket连接（已携带Token）...');
 
         this.ws = new WebSocket(wsUrl);
 

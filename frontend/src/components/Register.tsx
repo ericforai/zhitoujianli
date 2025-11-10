@@ -241,14 +241,14 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-12 px-4'>
+    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-6 px-4'>
       <div className='w-full max-w-md'>
-        {/* Logo和标题 - 添加fade-in动画 */}
-        <div className='text-center mb-10 animate-fade-in'>
+        {/* Logo和标题 - 水平排列 */}
+        <div className='flex items-center gap-3 mb-6 animate-fade-in'>
           {/* Logo图标 */}
-          <div className='inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg mb-4'>
+          <div className='flex-shrink-0 inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg'>
             <svg
-              className='w-8 h-8 text-white'
+              className='w-6 h-6 text-white'
               fill='none'
               stroke='currentColor'
               viewBox='0 0 24 24'
@@ -261,61 +261,64 @@ const Register: React.FC = () => {
               />
             </svg>
           </div>
-          <h1 className='text-4xl font-bold text-gray-900 mb-2 font-inter'>
-            智投简历
-          </h1>
-          <p className='text-gray-600 text-lg font-medium'>
-            创建账号，开启智能求职之旅
-          </p>
+          {/* 文字内容 */}
+          <div className='flex flex-col'>
+            <h1 className='text-3xl font-bold text-gray-900 mb-1 font-inter'>
+              智投简历
+            </h1>
+            <p className='text-gray-600 text-base font-medium'>
+              创建账号，开启智能求职之旅
+            </p>
+          </div>
         </div>
 
         {/* 注册卡片 - 玻璃拟态效果 */}
-        <div className='bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-8'>
-          <div className='text-center mb-8'>
-            <h2 className='text-2xl font-bold text-gray-900 font-inter'>
+        <div className='bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-6'>
+          <div className='text-center mb-6'>
+            <h2 className='text-xl font-bold text-gray-900 font-inter'>
               注册新账号
             </h2>
           </div>
 
           {/* 错误提示 */}
           {error && (
-            <div className='mb-6 p-4 bg-red-50/80 backdrop-blur-sm border border-red-200/50 rounded-xl text-red-700 text-sm font-medium'>
+            <div className='mb-4 p-3 bg-red-50/80 backdrop-blur-sm border border-red-200/50 rounded-xl text-red-700 text-sm font-medium'>
               {error}
             </div>
           )}
 
           {/* 成功提示 */}
           {success && (
-            <div className='mb-6 p-4 bg-green-50/80 backdrop-blur-sm border border-green-200/50 rounded-xl text-green-700 text-sm font-medium'>
+            <div className='mb-4 p-3 bg-green-50/80 backdrop-blur-sm border border-green-200/50 rounded-xl text-green-700 text-sm font-medium'>
               {success}
             </div>
           )}
 
           {/* 注册表单 */}
-          <form onSubmit={handleRegister} className='space-y-6'>
+          <form onSubmit={handleRegister} className='space-y-4'>
             {/* 邮箱输入 */}
             <div>
               <label
                 htmlFor='email'
-                className='block text-sm font-semibold text-gray-700 mb-3 font-inter'
+                className='block text-sm font-semibold text-gray-700 mb-2 font-inter'
               >
                 邮箱地址 <span className='text-red-500'>*</span>
               </label>
-              <div className='flex space-x-3'>
+              <div className='flex space-x-2'>
                 <input
                   id='email'
                   type='email'
                   required
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className='flex-1 px-4 py-4 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all duration-300 text-base font-inter placeholder-gray-400 hover:bg-white/80'
+                  className='flex-1 px-4 py-3 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all duration-300 text-base font-inter placeholder-gray-400 hover:bg-white/80'
                   placeholder='your@email.com'
                 />
                 <button
                   type='button'
                   onClick={handleSendVerificationCode}
                   disabled={loading || codeCountdown > 0}
-                  className='px-6 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transform transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-inter text-sm whitespace-nowrap'
+                  className='px-4 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transform transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-inter text-xs whitespace-nowrap'
                 >
                   {codeCountdown > 0 ? `${codeCountdown}s` : '发送验证码'}
                 </button>
@@ -326,18 +329,18 @@ const Register: React.FC = () => {
               <div>
                 <label
                   htmlFor='verificationCode'
-                  className='block text-sm font-semibold text-gray-700 mb-3 font-inter'
+                  className='block text-sm font-semibold text-gray-700 mb-2 font-inter'
                 >
                   邮箱验证码 <span className='text-red-500'>*</span>
                 </label>
-                <div className='flex space-x-3'>
+                <div className='flex space-x-2'>
                   <input
                     id='verificationCode'
                     type='text'
                     required
                     value={verificationCode}
                     onChange={e => setVerificationCode(e.target.value)}
-                    className='flex-1 px-4 py-4 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all duration-300 text-base font-inter placeholder-gray-400 hover:bg-white/80 disabled:bg-gray-100/60'
+                    className='flex-1 px-4 py-3 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all duration-300 text-base font-inter placeholder-gray-400 hover:bg-white/80 disabled:bg-gray-100/60'
                     placeholder='请输入6位验证码'
                     maxLength={6}
                     disabled={emailVerified}
@@ -346,16 +349,16 @@ const Register: React.FC = () => {
                     type='button'
                     onClick={handleVerifyEmailCode}
                     disabled={!verificationCode || loading || emailVerified}
-                    className='px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transform transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-inter text-sm whitespace-nowrap'
+                    className='px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transform transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-inter text-xs whitespace-nowrap'
                   >
                     {emailVerified ? '已验证' : '验证'}
                   </button>
                 </div>
-                <p className='mt-2 text-sm text-gray-600 font-inter'>
+                <p className='mt-1 text-xs text-gray-600 font-inter'>
                   验证码已发送到 {email}，请在5分钟内输入
                 </p>
                 {emailVerified && (
-                  <p className='mt-2 text-sm text-green-600 font-medium'>
+                  <p className='mt-1 text-xs text-green-600 font-medium'>
                     ✓ 邮箱验证成功，可以继续注册
                   </p>
                 )}
@@ -365,7 +368,7 @@ const Register: React.FC = () => {
             <div>
               <label
                 htmlFor='password'
-                className='block text-sm font-semibold text-gray-700 mb-3 font-inter'
+                className='block text-sm font-semibold text-gray-700 mb-2 font-inter'
               >
                 密码 <span className='text-red-500'>*</span>
               </label>
@@ -375,7 +378,7 @@ const Register: React.FC = () => {
                 required
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className='w-full px-4 py-4 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all duration-300 text-base font-inter placeholder-gray-400 hover:bg-white/80'
+                className='w-full px-4 py-3 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all duration-300 text-base font-inter placeholder-gray-400 hover:bg-white/80'
                 placeholder='至少6位'
                 minLength={6}
               />
@@ -384,7 +387,7 @@ const Register: React.FC = () => {
             <div>
               <label
                 htmlFor='confirmPassword'
-                className='block text-sm font-semibold text-gray-700 mb-3 font-inter'
+                className='block text-sm font-semibold text-gray-700 mb-2 font-inter'
               >
                 确认密码 <span className='text-red-500'>*</span>
               </label>
@@ -394,7 +397,7 @@ const Register: React.FC = () => {
                 required
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
-                className='w-full px-4 py-4 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all duration-300 text-base font-inter placeholder-gray-400 hover:bg-white/80'
+                className='w-full px-4 py-3 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all duration-300 text-base font-inter placeholder-gray-400 hover:bg-white/80'
                 placeholder='再次输入密码'
                 minLength={6}
               />
@@ -404,7 +407,7 @@ const Register: React.FC = () => {
             <button
               type='submit'
               disabled={loading}
-              className='w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transform transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-inter text-lg'
+              className='w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transform transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-inter text-base'
             >
               {loading ? (
                 <div className='flex items-center justify-center'>
@@ -435,35 +438,38 @@ const Register: React.FC = () => {
             </button>
           </form>
 
-          {/* 登录链接 */}
-          <div className='mt-8 text-center'>
-            <span className='text-sm text-gray-600 font-inter'>已有账号？</span>
-            <a
-              href='/login'
-              className='ml-1 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline transition-all duration-200 font-inter'
-            >
-              立即登录
-            </a>
-          </div>
-        </div>
-
-        {/* 底部提示 */}
-        <div className='text-center text-xs text-gray-500 mt-8 font-inter'>
-          <p className='mb-2'>注册即表示同意</p>
-          <div className='space-x-1'>
-            <a
-              href='/terms'
-              className='text-blue-600 hover:text-blue-700 hover:underline transition-colors duration-200'
-            >
-              用户协议
-            </a>
-            <span>和</span>
-            <a
-              href='/privacy'
-              className='text-blue-600 hover:text-blue-700 hover:underline transition-colors duration-200'
-            >
-              隐私政策
-            </a>
+          {/* 登录链接和协议提示 */}
+          <div className='mt-6 space-y-3'>
+            <div className='text-center'>
+              <span className='text-sm text-gray-600 font-inter'>
+                已有账号？
+              </span>
+              <a
+                href='/login'
+                className='ml-1 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline transition-all duration-200 font-inter'
+              >
+                立即登录
+              </a>
+            </div>
+            {/* 底部提示 - 移入卡片内 */}
+            <div className='text-center text-xs text-gray-500 font-inter pt-2 border-t border-gray-200/50'>
+              <p className='mb-1'>注册即表示同意</p>
+              <div className='space-x-1'>
+                <a
+                  href='/terms'
+                  className='text-blue-600 hover:text-blue-700 hover:underline transition-colors duration-200'
+                >
+                  用户协议
+                </a>
+                <span>和</span>
+                <a
+                  href='/privacy'
+                  className='text-blue-600 hover:text-blue-700 hover:underline transition-colors duration-200'
+                >
+                  隐私政策
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
