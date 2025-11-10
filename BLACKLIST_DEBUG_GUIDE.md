@@ -112,3 +112,16 @@ readlink -f /opt/zhitoujianli/backend/get_jobs-latest.jar
 **⚠️ 重要提醒**: 每次修改黑名单配置后，需要重新启动投递程序才能生效！
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
