@@ -1,6 +1,7 @@
 package controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 
@@ -25,17 +26,25 @@ public class BossWebSocketController implements WebSocketHandler {
     private final Map<String, CountDownLatch> loginWaiters = new ConcurrentHashMap<>();
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+    public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
+        // ✅ 从握手验证的 attributes 中获取 userId（已通过JWT验证）
         String userId = getUserIdFromSession(session);
+
+        if (userId == null || userId.isEmpty()) {
+            log.error("❌ WebSocket会话缺少userId（JWT验证失败），拒绝连接");
+            session.close(CloseStatus.NOT_ACCEPTABLE.withReason("未认证用户"));
+            return;
+        }
+
         userSessions.put(userId, session);
-        log.info("用户连接WebSocket: {}", userId);
+        log.info("✅ 用户连接WebSocket: userId={}", userId);
 
         // 发送欢迎消息
         sendMessage(session, createMessage("welcome", "连接成功，等待指令"));
     }
 
     @Override
-    public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
+    public void handleMessage(@NonNull WebSocketSession session, @NonNull WebSocketMessage<?> message) throws Exception {
         String payload = message.getPayload().toString();
         String userId = getUserIdFromSession(session);
 
@@ -69,7 +78,7 @@ public class BossWebSocketController implements WebSocketHandler {
     }
 
     @Override
-    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+    public void handleTransportError(@NonNull WebSocketSession session, @NonNull Throwable exception) throws Exception {
         String userId = getUserIdFromSession(session);
         log.error("WebSocket传输错误: {}", userId, exception);
 
@@ -79,7 +88,7 @@ public class BossWebSocketController implements WebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
+    public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus closeStatus) throws Exception {
         String userId = getUserIdFromSession(session);
         log.info("用户断开WebSocket连接: {} - {}", userId, closeStatus);
 
@@ -242,21 +251,26 @@ public class BossWebSocketController implements WebSocketHandler {
     }
 
     /**
-     * 从会话中获取用户ID
+     * 从会话中获取用户ID（已通过JWT验证）
+     *
+     * ✅ 安全修复：不再从查询参数获取userId（防止前端伪造）
+     * 现在从 JwtHandshakeInterceptor 验证后的 attributes 中获取
      */
     private String getUserIdFromSession(WebSocketSession session) {
-        // 从查询参数或路径中获取用户ID
-        String query = session.getUri().getQuery();
-        if (query != null && query.contains("userId=")) {
-            return query.substring(query.indexOf("userId=") + 7);
+        // ✅ 从验证过的 attributes 获取 userId（由JwtHandshakeInterceptor设置）
+        Object userId = session.getAttributes().get("userId");
+        if (userId != null) {
+            return userId.toString();
         }
-        return session.getId(); // 回退到会话ID
+
+        // ⚠️ 如果attributes中没有userId，说明JWT验证失败
+        log.error("❌ 会话中缺少userId（JWT验证可能失败）");
+        return null;
     }
 
     /**
      * 解析消息
      */
-    @SuppressWarnings("unchecked")
     private Map<String, Object> parseMessage(String payload) {
         // 简单的JSON解析，实际项目中应该使用Jackson
         try {

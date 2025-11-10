@@ -29,12 +29,24 @@ import org.springframework.web.bind.annotation.RestController;
 import service.BossExecutionService;
 
 /**
- * Boss直聘登录控制器
- * 提供二维码扫码登录功能
+ * Boss直聘登录控制器（已废弃）
+ *
+ * ⚠️ 此控制器已废弃 - 服务器端二维码生成依赖图形界面，在生产环境无法使用
+ *
+ * 请使用 BossLocalLoginController 替代：
+ * - 用户在本地浏览器登录Boss
+ * - 提取Cookie并上传到服务器
+ * - 支持完整的多租户隔离
+ *
+ * @deprecated 使用BossLocalLoginController替代
+ * @author ZhiTouJianLi Team
+ * @since 2025-09-30
+ * @updated 2025-11-06 - 标记为废弃，推荐本地登录方案
  */
 @RestController
 @RequestMapping("/api/boss/login")
 @CrossOrigin(origins = "*")
+@Deprecated
 public class BossLoginController {
 
     private static final Logger log = LoggerFactory.getLogger(BossLoginController.class);
@@ -61,13 +73,19 @@ public class BossLoginController {
     private static volatile long loginStartTime = 0;
 
     /**
-     * 启动登录流程
-     * 触发Boss程序在Xvfb上启动浏览器
+     * 启动登录流程（已废弃）
+     *
+     * ⚠️ 服务器端二维码生成依赖图形界面，在生产环境无法使用
+     *
+     * @deprecated 使用BossLocalLoginController的本地登录方案
      */
     @PostMapping("/start")
+    @Deprecated
     public ResponseEntity<Map<String, Object>> startLogin() {
         // 获取当前用户ID（多用户支持）
         String userId = util.UserContextUtil.getCurrentUserId();
+        log.warn("⚠️ 用户{}调用了已废弃的接口 /api/boss/login/start", userId);
+        log.warn("⚠️ 推荐使用本地登录方案: /api/boss/local-login/guide");
         log.info("收到启动登录请求，用户: {}", userId);
 
         Map<String, Object> response = new HashMap<>();
@@ -182,11 +200,17 @@ public class BossLoginController {
     }
 
     /**
-     * 获取二维码图片
-     * 返回Boss登录页面的二维码截图
+     * 获取二维码图片（已废弃）
+     *
+     * ⚠️ 服务器端二维码生成在生产环境无法使用
+     *
+     * @deprecated 使用本地登录方案
      */
     @GetMapping("/qrcode")
+    @Deprecated
     public ResponseEntity<?> getQRCode(@RequestParam(value = "format", required = false) String format) {
+        log.warn("⚠️ 调用了已废弃的接口 /api/boss/login/qrcode");
+        log.warn("⚠️ 服务器无图形界面，无法生成二维码，请使用本地登录方案");
         // 为链路追踪生成traceId并写入响应头
         String traceId = java.util.UUID.randomUUID().toString();
         MDC.put("traceId", traceId);
@@ -246,8 +270,8 @@ public class BossLoginController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            // 获取当前用户ID
-            String userId = util.UserContextUtil.getCurrentUserId();
+            // ✅ 修复：统一使用sanitizeUserId()确保用户ID格式一致
+            String userId = util.UserContextUtil.sanitizeUserId(util.UserContextUtil.getCurrentUserId());
             log.info("检查用户{}的Boss登录状态", userId);
 
             // 检查Cookie文件是否存在且有效
@@ -342,15 +366,18 @@ public class BossLoginController {
      */
     /**
      * 清理登录文件（多用户支持）
-     * @param userId 用户ID，如果为null则清理全局文件
+     * @param userId 用户ID
      */
     private void cleanupLoginFiles(String userId) {
         try {
-            if (userId != null && !userId.equals("default_user")) {
-                // 多用户模式：清理用户特定的Cookie文件
-                String userCookiePath = "/tmp/boss_cookies_" + userId + ".json";
+            // ❌ 已删除default_user判断（所有用户都需要清理自己的Cookie）
+            if (userId != null) {
+                // ✅ 修复：确保userId已sanitize（如果传入的是原始格式，需要sanitize）
+                String safeUserId = userId.contains("@") ? util.UserContextUtil.sanitizeUserId(userId) : userId;
+                // 清理用户特定的Cookie文件
+                String userCookiePath = "/tmp/boss_cookies_" + safeUserId + ".json";
                 Files.deleteIfExists(Paths.get(userCookiePath));
-                log.info("清理用户{}的Cookie文件: {}", userId, userCookiePath);
+                log.info("清理用户{}的Cookie文件: {}", safeUserId, userCookiePath);
             }
 
             // 清理全局登录文件（二维码和状态）
@@ -364,9 +391,18 @@ public class BossLoginController {
 
     /**
      * 清理登录文件（向后兼容：无用户ID参数）
+     * @deprecated 建议使用 cleanupLoginFiles(String userId)
      */
+    @Deprecated
     private void cleanupLoginFiles() {
-        cleanupLoginFiles("default_user");
+        log.warn("⚠️ 调用了过时的cleanupLoginFiles()方法，请使用带userId参数的版本");
+        // 清理全局登录文件（二维码和状态）
+        try {
+            Files.deleteIfExists(Paths.get(QRCODE_PATH));
+            Files.deleteIfExists(Paths.get(LOGIN_STATUS_FILE));
+        } catch (IOException e) {
+            log.warn("清理登录文件失败", e);
+        }
     }
 
     /**
@@ -377,27 +413,14 @@ public class BossLoginController {
     private boolean checkCookieValidity(String userId) {
         try {
             // 获取可能的Cookie文件路径
-            String[] possiblePaths;
+            // ❌ 已删除default_user fallback机制（多租户隔离要求）
+            // 每个用户只检查自己的Cookie文件
             String sanitizedUserId = util.UserContextUtil.sanitizeUserId(userId);
 
-            if ("default_user".equals(sanitizedUserId)) {
-                // 默认用户：使用统一路径
-                possiblePaths = new String[]{
-                    "/tmp/boss_cookies.json",  // 新的统一路径（第一优先级）
-                    "src/main/java/boss/cookie.json",  // 开发环境（fallback）
-                    "/root/zhitoujianli/backend/get_jobs/src/main/java/boss/cookie.json",  // 生产环境（fallback）
-                    "/opt/zhitoujianli/backend/src/main/java/boss/cookie.json"  // 备用路径（fallback）
-                };
-            } else {
-                // 多用户模式：优先检查用户特定的Cookie文件，但也要检查default_user的cookie
-                // 因为Boss程序可能使用default_user保存cookie，即使有认证用户
-                possiblePaths = new String[]{
-                    "/tmp/boss_cookies_" + sanitizedUserId + ".json",  // 用户特定Cookie（第一优先级）
-                    "/tmp/boss_cookies_default_user.json", // 检查default_user的cookie（新增）
-                    "/tmp/boss_cookies.json",  // 默认Cookie（fallback）
-                    "user_data/" + sanitizedUserId + "/boss_cookie.json"  // 用户数据目录（fallback）
-                };
-            }
+            String[] possiblePaths = {
+                "/tmp/boss_cookies_" + sanitizedUserId + ".json",  // 用户特定Cookie（第一优先级）
+                "user_data/" + sanitizedUserId + "/boss_cookie.json"  // 用户数据目录（第二优先级）
+            };
 
             // 检查每个可能的路径
             for (String path : possiblePaths) {

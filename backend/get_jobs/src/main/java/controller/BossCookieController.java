@@ -32,23 +32,36 @@ import lombok.extern.slf4j.Slf4j;
 import util.UserContextUtil;
 
 /**
- * Boss程序Cookie管理控制器
- * 用于处理Boss直聘登录Cookie的配置和管理
+ * Boss程序Cookie管理控制器（已废弃）
+ *
+ * ⚠️ 此控制器已废弃，请使用 BossLocalLoginController
+ *
+ * @deprecated 使用BossLocalLoginController替代，支持完整的多用户隔离
+ * @author ZhiTouJianLi Team
+ * @since 2025-09-30
+ * @updated 2025-11-06 - 标记为废弃
  */
 @RestController
 @RequestMapping("/api/boss")
 @Slf4j
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080", "http://115.190.182.95:3000"})
+@Deprecated
 public class BossCookieController {
 
-    private static final String COOKIE_FILE_PATH = "src/main/java/boss/cookie.json";
-
     /**
-     * 保存Boss登录Cookie
+     * 保存Boss登录Cookie（已废弃）
+     *
+     * @deprecated 使用 /api/boss/local-login/cookie/upload 替代
      */
     @PostMapping("/cookie")
+    @Deprecated
     public Map<String, Object> saveCookie(@RequestBody Map<String, Object> request) {
+        log.warn("⚠️ 调用了已废弃的接口 /api/boss/cookie，请使用 /api/boss/local-login/cookie/upload");
+
         try {
+            // ✅ 多租户支持：获取当前用户ID
+            String userId = UserContextUtil.sanitizeUserId(UserContextUtil.getCurrentUserId());
+
             String zpToken = (String) request.get("zp_token");
             String session = (String) request.get("session");
 
@@ -59,50 +72,46 @@ public class BossCookieController {
                 );
             }
 
+            // ✅ 使用用户隔离的Cookie路径
+            String cookiePath = "/tmp/boss_cookies_" + userId + ".json";
+            log.info("保存Cookie到用户隔离路径: userId={}, path={}", userId, cookiePath);
+
             // 构建Cookie JSON
             String cookieJson = String.format(
-                "[{%n" +
-                "  \"name\": \"zp_token\",%n" +
-                "  \"value\": \"%s\",%n" +
-                "  \"domain\": \".zhipin.com\",%n" +
-                "  \"path\": \"/\",%n" +
-                "  \"expires\": -1,%n" +
-                "  \"httpOnly\": false,%n" +
-                "  \"secure\": false,%n" +
-                "  \"sameSite\": \"Lax\"%n" +
-                "},%n" +
-                "{%n" +
-                "  \"name\": \"session\",%n" +
-                "  \"value\": \"%s\",%n" +
-                "  \"domain\": \".zhipin.com\",%n" +
-                "  \"path\": \"/\",%n" +
-                "  \"expires\": -1,%n" +
-                "  \"httpOnly\": true,%n" +
-                "  \"secure\": false,%n" +
-                "  \"sameSite\": \"Lax\"%n" +
+                "[{\n" +
+                "  \"name\": \"zp_token\",\n" +
+                "  \"value\": \"%s\",\n" +
+                "  \"domain\": \".zhipin.com\",\n" +
+                "  \"path\": \"/\",\n" +
+                "  \"expires\": -1,\n" +
+                "  \"httpOnly\": false,\n" +
+                "  \"secure\": false,\n" +
+                "  \"sameSite\": \"Lax\"\n" +
+                "},\n" +
+                "{\n" +
+                "  \"name\": \"session\",\n" +
+                "  \"value\": \"%s\",\n" +
+                "  \"domain\": \".zhipin.com\",\n" +
+                "  \"path\": \"/\",\n" +
+                "  \"expires\": -1,\n" +
+                "  \"httpOnly\": true,\n" +
+                "  \"secure\": false,\n" +
+                "  \"sameSite\": \"Lax\"\n" +
                 "}]",
                 zpToken, session
             );
 
-            // 确保目录存在
-            File cookieFile = new File(COOKIE_FILE_PATH);
-            File parentDir = cookieFile.getParentFile();
-            if (parentDir != null && !parentDir.exists()) {
-                if (!parentDir.mkdirs()) {
-                    log.warn("创建目录失败");
-                }
-            }
-
-            // 写入Cookie文件
-            try (FileWriter writer = new FileWriter(cookieFile, StandardCharsets.UTF_8)) {
+            // 写入Cookie文件（/tmp目录无需创建）
+            try (FileWriter writer = new FileWriter(cookiePath, StandardCharsets.UTF_8)) {
                 writer.write(cookieJson);
             }
 
-            log.info("Boss Cookie保存成功");
+            log.info("✅ Boss Cookie保存成功: userId={}, path={}", userId, cookiePath);
             return Map.of(
                 "success", true,
-                "message", "Cookie保存成功，可以启动Boss程序",
-                "cookie_file", COOKIE_FILE_PATH
+                "message", "Cookie保存成功（已废弃接口，建议使用新接口）",
+                "cookie_file", cookiePath,
+                "userId", userId
             );
 
         } catch (Exception e) {
@@ -115,26 +124,37 @@ public class BossCookieController {
     }
 
     /**
-     * 获取当前Cookie配置
+     * 获取当前Cookie配置（已废弃）
+     *
+     * @deprecated 使用 /api/boss/local-login/cookie/status 替代
      */
     @GetMapping("/cookie")
+    @Deprecated
     public Map<String, Object> getCookie() {
+        log.warn("⚠️ 调用了已废弃的接口 /api/boss/cookie，请使用 /api/boss/local-login/cookie/status");
+
         try {
-            File cookieFile = new File(COOKIE_FILE_PATH);
+            // ✅ 多租户支持：获取当前用户ID
+            String userId = UserContextUtil.sanitizeUserId(UserContextUtil.getCurrentUserId());
+            String cookiePath = "/tmp/boss_cookies_" + userId + ".json";
+
+            File cookieFile = new File(cookiePath);
             if (!cookieFile.exists()) {
                 return Map.of(
                     "success", false,
                     "message", "Cookie文件不存在",
-                    "has_cookie", false
+                    "has_cookie", false,
+                    "userId", userId
                 );
             }
 
-            String cookieContent = Files.readString(Paths.get(COOKIE_FILE_PATH));
+            String cookieContent = Files.readString(Paths.get(cookiePath));
             return Map.of(
                 "success", true,
                 "message", "获取Cookie成功",
                 "has_cookie", true,
-                "cookie_content", cookieContent
+                "cookie_content", cookieContent,
+                "userId", userId
             );
 
         } catch (Exception e) {
@@ -148,20 +168,33 @@ public class BossCookieController {
     }
 
     /**
-     * 清除Cookie配置
+     * 清除Cookie配置（已废弃）
+     *
+     * @deprecated 使用 /api/boss/local-login/cookie/clear 替代
      */
     @DeleteMapping("/cookie")
+    @Deprecated
     public Map<String, Object> clearCookie() {
+        log.warn("⚠️ 调用了已废弃的接口 DELETE /api/boss/cookie，请使用 /api/boss/local-login/cookie/clear");
+
         try {
-            File cookieFile = new File(COOKIE_FILE_PATH);
+            // ✅ 多租户支持：获取当前用户ID
+            String userId = UserContextUtil.sanitizeUserId(UserContextUtil.getCurrentUserId());
+            String cookiePath = "/tmp/boss_cookies_" + userId + ".json";
+
+            File cookieFile = new File(cookiePath);
             if (cookieFile.exists()) {
-                cookieFile.delete();
-                log.info("Boss Cookie已清除");
+                if (cookieFile.delete()) {
+                    log.info("✅ Boss Cookie已清除: userId={}, path={}", userId, cookiePath);
+                } else {
+                    log.warn("⚠️ Cookie文件删除失败: {}", cookiePath);
+                }
             }
 
             return Map.of(
                 "success", true,
-                "message", "Cookie已清除"
+                "message", "Cookie已清除",
+                "userId", userId
             );
 
         } catch (Exception e) {
@@ -197,13 +230,18 @@ public class BossCookieController {
     }
 
     /**
-     * 生成用户本地运行脚本
+     * 生成用户本地运行脚本（已废弃）
+     *
+     * @deprecated 不再使用本地脚本方案
      */
     @PostMapping("/generate-script")
+    @Deprecated
     public ResponseEntity<String> generateUserScript(@RequestParam String userId) {
         try {
-            // 检查Cookie状态
-            File cookieFile = new File(COOKIE_FILE_PATH);
+            // ✅ 多租户支持：使用用户隔离的Cookie路径
+            String safeUserId = UserContextUtil.sanitizeUserId(userId);
+            String cookiePath = "/tmp/boss_cookies_" + safeUserId + ".json";
+            File cookieFile = new File(cookiePath);
             boolean hasValidCookie = cookieFile.exists() && cookieFile.length() > 10;
 
             // 生成脚本内容
@@ -226,13 +264,18 @@ public class BossCookieController {
     }
 
     /**
-     * 启动Boss投递任务（混合模式）
+     * 启动Boss投递任务（混合模式）（已废弃）
+     *
+     * @deprecated 使用 /api/boss/start-task 替代
      */
     @PostMapping("/start-hybrid-delivery")
+    @Deprecated
     public Map<String, Object> startHybridDelivery(@RequestParam String userId) {
         try {
-            // 检查Cookie状态
-            File cookieFile = new File(COOKIE_FILE_PATH);
+            // ✅ 多租户支持：使用用户隔离的Cookie路径
+            String safeUserId = UserContextUtil.sanitizeUserId(userId);
+            String cookiePath = "/tmp/boss_cookies_" + safeUserId + ".json";
+            File cookieFile = new File(cookiePath);
             boolean hasValidCookie = cookieFile.exists() && cookieFile.length() > 10;
 
             if (hasValidCookie) {
@@ -468,11 +511,18 @@ public class BossCookieController {
             boolean isRunning = checkBossProcessRunning();
             status.put("isRunning", isRunning);
 
-            // 获取投递统计（修复：不再硬编码为0）
-            long deliveryCount = getDeliveryCount();
-            status.put("deliveryCount", deliveryCount);
+            // 🔧 增强统计：获取详细的投递统计信息
+            Map<String, Long> deliveryStats = getDetailedDeliveryStats();
+            status.put("deliveryCount", deliveryStats.get("success"));  // 向后兼容
+            status.put("successCount", deliveryStats.get("success"));
+            status.put("skippedCount", deliveryStats.get("skipped"));
+            status.put("errorCount", deliveryStats.get("error"));
+            status.put("blacklistCount", deliveryStats.get("blacklist"));
+            status.put("totalProcessed", deliveryStats.get("total"));
 
-            log.info("Boss状态检查结果: isRunning={}, deliveryCount={}", isRunning, deliveryCount);
+            log.info("Boss状态检查结果: isRunning={}, 成功={}, 跳过={}, 错误={}, 黑名单={}",
+                isRunning, deliveryStats.get("success"), deliveryStats.get("skipped"),
+                deliveryStats.get("error"), deliveryStats.get("blacklist"));
             return ResponseEntity.ok(status);
         } catch (Exception e) {
             log.error("获取Boss状态失败", e);
@@ -484,25 +534,117 @@ public class BossCookieController {
     }
 
     /**
+     * 获取详细的投递统计（成功、跳过、错误、黑名单）
+     *
+     * ✅ 修复：使用严格的正则表达式解析，确保与parseTodayDeliveries()统计逻辑一致
+     * 解决"今日投递"数字显示不一致的问题（主界面5个 vs 弹窗2个）
+     */
+    private Map<String, Long> getDetailedDeliveryStats() {
+        Map<String, Long> stats = new HashMap<>();
+        stats.put("success", 0L);
+        stats.put("skipped", 0L);
+        stats.put("error", 0L);
+        stats.put("blacklist", 0L);
+        stats.put("total", 0L);
+
+        try {
+            String userId = UserContextUtil.sanitizeUserId(UserContextUtil.getCurrentUserId());
+            String logFilePath = "/tmp/boss_delivery_" + userId + ".log";
+
+            File logFile = new File(logFilePath);
+            if (!logFile.exists()) {
+                log.debug("日志文件不存在: {}", logFilePath);
+                return stats;
+            }
+
+            LocalDate today = LocalDate.now();
+
+            // ✅ 使用正则表达式严格解析日志格式，避免误统计
+            Pattern deliveryPattern = Pattern.compile("(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}).*投递完成");
+            Pattern blacklistPattern = Pattern.compile("(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}).*在黑名单中，跳过");
+            Pattern errorPattern = Pattern.compile("(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}).*岗位处理异常");
+
+            long successCount = 0;
+            long blacklistCount = 0;
+            long errorCount = 0;
+
+            try (java.io.BufferedReader reader = Files.newBufferedReader(Paths.get(logFilePath), StandardCharsets.UTF_8)) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // ✅ 使用正则表达式匹配并提取时间戳
+                    Matcher successMatcher = deliveryPattern.matcher(line);
+                    Matcher blacklistMatcher = blacklistPattern.matcher(line);
+                    Matcher errorMatcher = errorPattern.matcher(line);
+
+                    if (successMatcher.find()) {
+                        // ✅ 严格验证是否是今天的记录
+                        if (isLogDateToday(successMatcher.group(1), today)) {
+                            successCount++;
+                        }
+                    } else if (blacklistMatcher.find()) {
+                        if (isLogDateToday(blacklistMatcher.group(1), today)) {
+                            blacklistCount++;
+                        }
+                    } else if (errorMatcher.find()) {
+                        if (isLogDateToday(errorMatcher.group(1), today)) {
+                            errorCount++;
+                        }
+                    }
+                }
+            }
+
+            stats.put("success", successCount);
+            stats.put("blacklist", blacklistCount);
+            stats.put("error", errorCount);
+            stats.put("skipped", blacklistCount + errorCount);
+            stats.put("total", successCount + blacklistCount + errorCount);
+
+            log.debug("今日投递统计: 成功={}, 黑名单={}, 错误={}, 总计={}",
+                successCount, blacklistCount, errorCount, successCount + blacklistCount + errorCount);
+
+        } catch (Exception e) {
+            log.error("统计投递数据失败", e);
+        }
+
+        return stats;
+    }
+
+    /**
+     * 辅助方法：检查日志时间戳是否是今天
+     *
+     * @param timestamp 日志时间戳（格式：yyyy-MM-dd HH:mm:ss）
+     * @param today 今天的日期
+     * @return true如果是今天，false否则
+     */
+    private boolean isLogDateToday(String timestamp, LocalDate today) {
+        try {
+            LocalDate logDate = LocalDate.parse(timestamp.substring(0, 10));
+            return logDate.equals(today);
+        } catch (Exception e) {
+            log.trace("解析日期失败: {}", timestamp);
+            return false;
+        }
+    }
+
+    /**
      * 获取今日投递统计数量
      * @return 今日投递成功数量
      */
     private long getDeliveryCount() {
         try {
-            String userId = UserContextUtil.getCurrentUserId();
-            if (userId == null || userId.isEmpty()) {
-                userId = "default_user";
-            }
+            // ✅ 使用sanitizeUserId()确保与其他接口使用相同的用户ID格式
+            String userId = UserContextUtil.sanitizeUserId(
+                UserContextUtil.getCurrentUserId()
+            );
 
             // 获取今天的日期
             LocalDate today = LocalDate.now();
             log.debug("统计今日投递数量，当前日期: {}", today);
 
-            // 构建可能的日志文件路径（支持多种用户ID格式）
+            // ✅ 修复：统一使用sanitizeUserId()确保日志文件名格式一致
+            // userId已经是sanitize过的，直接使用
             String[] possibleLogPaths = {
-                "/tmp/boss_delivery_" + userId + ".log",
-                "/tmp/boss_delivery_" + userId.replace("@", "_").replace(".", "_") + ".log",
-                "/tmp/boss_delivery_" + userId.replace("_", "@") + ".log"
+                "/tmp/boss_delivery_" + userId + ".log"
             };
 
             for (String logPath : possibleLogPaths) {
@@ -642,20 +784,18 @@ public class BossCookieController {
     @GetMapping("/today-deliveries")
     public ResponseEntity<Map<String, Object>> getTodayDeliveryDetails() {
         try {
-            String userId = UserContextUtil.getCurrentUserId();
-            if (userId == null || userId.isEmpty()) {
-                userId = "default_user";
-            }
+            // ❌ 已删除default_user fallback（UserContextUtil会在未登录时抛出异常）
+            // ✅ 修复：统一使用sanitizeUserId()确保用户ID格式一致
+            String userId = UserContextUtil.sanitizeUserId(UserContextUtil.getCurrentUserId());
 
             // 获取今天的日期
             LocalDate today = LocalDate.now();
             log.debug("获取今日投递详情，当前日期: {}", today);
 
-            // 构建可能的日志文件路径
+            // ✅ 修复：统一使用sanitizeUserId()确保日志文件名格式一致
+            // userId已经是sanitize过的，直接使用
             String[] possibleLogPaths = {
-                "/tmp/boss_delivery_" + userId + ".log",
-                "/tmp/boss_delivery_" + userId.replace("@", "_").replace(".", "_") + ".log",
-                "/tmp/boss_delivery_" + userId.replace("_", "@") + ".log"
+                "/tmp/boss_delivery_" + userId + ".log"
             };
 
             List<Map<String, String>> deliveries = new ArrayList<>();

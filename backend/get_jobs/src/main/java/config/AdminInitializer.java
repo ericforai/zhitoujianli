@@ -85,12 +85,16 @@ public class AdminInitializer implements CommandLineRunner {
 
             adminUserRepository.save(admin);
 
-            log.info("✅ 默认管理员账号创建成功: username={}, password={}",
-                     DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD);
+            // ⚠️ 安全：不在日志中输出明文密码
+            log.info("✅ 默认管理员账号创建成功: username={}", DEFAULT_ADMIN_USERNAME);
             log.info("📝 默认管理员登录信息:");
             log.info("   用户名: {}", DEFAULT_ADMIN_USERNAME);
-            log.info("   密码: {}", DEFAULT_ADMIN_PASSWORD);
+            log.info("   密码: [已加密，请查看配置文件]");
             log.info("   类型: {}", AdminType.SUPER_ADMIN.getDisplayName());
+            // 仅在开发环境输出密码（通过环境变量控制）
+            if ("dev".equals(System.getenv("SPRING_PROFILES_ACTIVE"))) {
+                log.warn("⚠️ 开发环境：默认管理员密码: {}", DEFAULT_ADMIN_PASSWORD);
+            }
 
         } catch (Exception e) {
             log.error("❌ 初始化默认管理员失败", e);

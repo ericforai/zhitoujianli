@@ -39,8 +39,9 @@ public class SimpleSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // 从.env文件读取安全认证开关（支持多用户模式）
-        boolean securityEnabled = Boolean.parseBoolean(dotenv.get("SECURITY_ENABLED", "false"));
-        log.info("Spring Security配置: securityEnabled={} (从.env读取)", securityEnabled);
+        // ⚠️ 生产环境必须启用安全认证，默认值设为true
+        boolean securityEnabled = Boolean.parseBoolean(dotenv.get("SECURITY_ENABLED", "true"));
+        log.info("Spring Security配置: securityEnabled={} (从.env读取，默认true)", securityEnabled);
 
         http
             // 禁用CSRF，因为使用JWT

@@ -37,30 +37,75 @@ public class SecurityConfig {
         // 从.env文件中读取安全开关配置
         boolean securityEnabled = Boolean.parseBoolean(dotenv.get("SECURITY_ENABLED", "true"));
         http
-            // 禁用CSRF，因为使用JWT
-            .csrf(csrf -> csrf.disable())
+            // 🔒 CSRF配置：API使用JWT，Web表单启用CSRF
+            .csrf(csrf -> {
+                if (securityEnabled) {
+                    // 生产环境：对API禁用CSRF（使用JWT），对表单启用CSRF
+                    csrf.ignoringRequestMatchers("/api/**", "/auth/**");
+                } else {
+                    // 开发环境：全部禁用
+                    csrf.disable();
+                }
+            })
 
-            // 配置CORS，允许前端访问
+            // 🔒 配置CORS，严格限制允许的源
             .cors(cors -> cors.configurationSource(request -> {
                 var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                corsConfig.setAllowedOriginPatterns(java.util.Arrays.asList(
-                    "http://localhost:3000",
-                    "http://localhost:3001",
-                    "http://localhost:4321",
-                    "http://127.0.0.1:3000",
-                    "https://zhitoujianli.com",
-                    "https://www.zhitoujianli.com",
-                    "https://*.zhitoujianli.com"
+
+                // 根据环境动态配置允许的源
+                boolean isProduction = securityEnabled;
+                if (isProduction) {
+                    // 生产环境：仅允许官方域名
+                    corsConfig.setAllowedOriginPatterns(java.util.Arrays.asList(
+                        "https://zhitoujianli.com",
+                        "https://www.zhitoujianli.com"
+                    ));
+                } else {
+                    // 开发环境：允许本地开发端口
+                    corsConfig.setAllowedOriginPatterns(java.util.Arrays.asList(
+                        "http://localhost:3000",
+                        "http://localhost:3001",
+                        "http://localhost:4321",
+                        "http://127.0.0.1:3000",
+                        "https://zhitoujianli.com",
+                        "https://www.zhitoujianli.com"
+                    ));
+                }
+
+                corsConfig.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+                // 🔒 明确指定允许的头部，避免使用 "*"
+                corsConfig.setAllowedHeaders(java.util.Arrays.asList(
+                    "Authorization",
+                    "Content-Type",
+                    "X-Requested-With",
+                    "Accept",
+                    "Origin",
+                    "Access-Control-Request-Method",
+                    "Access-Control-Request-Headers"
                 ));
-                corsConfig.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                corsConfig.setAllowedHeaders(java.util.Arrays.asList("*"));
+                corsConfig.setExposedHeaders(java.util.Arrays.asList("Authorization"));
                 corsConfig.setAllowCredentials(true);
                 corsConfig.setMaxAge(3600L);
                 return corsConfig;
             }))
 
             // 配置会话管理为无状态
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+            // 🔒 添加安全响应头
+            .headers(headers -> headers
+                .frameOptions(frame -> frame.deny()) // 防止Clickjacking
+                .xssProtection(xss -> xss.headerValue("1; mode=block")) // XSS保护
+                .contentSecurityPolicy(csp -> csp.policyDirectives(
+                    "default-src 'self'; " +
+                    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; " +
+                    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+                    "font-src 'self' https://fonts.gstatic.com; " +
+                    "img-src 'self' data: https:; " +
+                    "connect-src 'self' https://zhitoujianli.com https://api.deepseek.com"
+                ))
+                .contentTypeOptions(content -> content.disable()) // 防止MIME类型嗅探
+            );
 
         if (!securityEnabled) {
             // 如果安全认证被禁用，允许所有请求

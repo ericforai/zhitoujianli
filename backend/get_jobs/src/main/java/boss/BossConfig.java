@@ -22,9 +22,9 @@ import utils.JobUtils;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BossConfig {
     /**
-     * 用于打招呼的语句
+     * 默认打招呼语（统一字段名）
      */
-    private String sayHi;
+    private String defaultGreeting;
 
     /**
      * 开发者模式
@@ -37,9 +37,9 @@ public class BossConfig {
     private List<String> keywords;
 
     /**
-     * 城市编码
+     * 城市列表（统一字段名）
      */
-    private List<String> cityCode;
+    private List<String> cities;
 
     /**
      * 自定义城市编码映射
@@ -52,9 +52,9 @@ public class BossConfig {
     private List<String> industry;
 
     /**
-     * 工作经验要求
+     * 工作经验要求（统一字段名）
      */
-    private List<String> experience;
+    private String experienceRequirement;
 
     /**
      * 工作类型
@@ -62,24 +62,24 @@ public class BossConfig {
     private String jobType;
 
     /**
-     * 薪资范围
+     * 薪资范围（统一字段名）
      */
-    private List<String> salary;
+    private Map<String, Object> salaryRange;
 
     /**
-     * 学历要求列表
+     * 学历要求（统一字段名）
      */
-    private List<String> degree;
+    private String educationRequirement;
 
     /**
-     * 公司规模列表
+     * 公司规模列表（统一字段名）
      */
-    private List<String> scale;
+    private List<String> companySize;
 
     /**
-     * 公司融资阶段列表
+     * 公司融资阶段列表（统一字段名）
      */
-    private List<String> stage;
+    private List<String> financingStage;
 
     /**
      * 是否开放AI检测
@@ -197,29 +197,55 @@ public class BossConfig {
             }
             log.info("✅ 从环境变量获取用户ID: BOSS_USER_ID={}", userId);
 
-            // 4. 构建用户配置路径
-            String userConfigPath = "user_data/" + userId + "/config.json";
+            // 4. 构建用户配置路径（使用绝对路径）
+            // ✅ 修复：确保userId已sanitize（环境变量中的userId应该已经是sanitize过的）
+            // 但为了安全，再次sanitize（如果环境变量被修改）
+            String safeUserId = userId.replaceAll("[^a-zA-Z0-9_-]", "_");
+
+            // 🔧 修复：使用环境变量USER_DATA_DIR构建绝对路径
+            String userDataBaseDir = System.getenv("USER_DATA_DIR");
+            if (userDataBaseDir == null || userDataBaseDir.isEmpty()) {
+                // 备用方案：使用默认路径
+                userDataBaseDir = "/opt/zhitoujianli/backend/user_data";
+                log.info("📂 未设置USER_DATA_DIR环境变量，使用默认路径: {}", userDataBaseDir);
+            } else {
+                log.info("📂 从环境变量读取USER_DATA_DIR: {}", userDataBaseDir);
+            }
+
+            String userConfigPath = userDataBaseDir + "/" + safeUserId + "/config.json";
+            log.info("🔍 尝试加载用户配置文件: {}", userConfigPath);
+
             File userConfigFile = new File(userConfigPath);
 
             if (!userConfigFile.exists()) {
-                log.info("用户配置文件不存在: {} （用户: {}）", userConfigPath, userId);
+                log.error("❌ 用户配置文件不存在: {} （用户: {}）", userConfigPath, userId);
+                log.info("💡 请确保配置文件存在于正确路径，或在前端配置页面保存配置");
                 return null;
             }
+
+            log.info("✅ 找到用户配置文件: {}, 大小: {} bytes", userConfigPath, userConfigFile.length());
 
             // 读取用户配置
             ObjectMapper mapper = new ObjectMapper();
             Map<String, Object> userConfig = mapper.readValue(userConfigFile, Map.class);
 
-            // 提取boss配置部分
+            // 🔧 统一字段：只使用bossConfig（已删除boss字段）
             @SuppressWarnings("unchecked")
-            Map<String, Object> bossConfigMap = (Map<String, Object>) userConfig.get("boss");
+            Map<String, Object> bossConfigMap = (Map<String, Object>) userConfig.get("bossConfig");
+
             if (bossConfigMap == null) {
-                log.warn("用户配置中没有boss部分");
+                log.error("❌ 用户配置中没有bossConfig部分，请在前端保存配置");
+                log.info("💡 提示：请访问前端「Boss直聘配置」页面保存配置");
                 return null;
             }
 
-            // 转换为BossConfig对象
+            log.info("✅ 从bossConfig字段加载配置");
+
+            // 🔧 v3.1.0 字段完全统一 - 不再需要映射
+            // 直接使用前端字段名，删除所有映射代码
             BossConfig config = mapper.convertValue(bossConfigMap, BossConfig.class);
+
+            log.info("✅ 字段已完全统一，无需映射");
 
             // ✅ 读取投递策略配置（如果存在）
             @SuppressWarnings("unchecked")
@@ -237,10 +263,21 @@ public class BossConfig {
                 config.setDeliveryStrategy(new DeliveryStrategy());
             }
 
-            log.info("✅ 成功加载用户配置: userId={}", userId);
-            log.info("📋 配置详情: keywords={}, salary={}, cityCode={}, experience={}, waitTime={}",
-                    config.getKeywords(), config.getSalary(), config.getCityCode(),
-                    config.getExperience(), config.getWaitTime());
+            log.info("✅ 成功加载用户配置: userId={}, 配置文件: {}", userId, userConfigPath);
+            log.info("📋 配置详情: keywords={}, salaryRange={}, cities={}, experienceReq={}, waitTime={}",
+                    config.getKeywords(), config.getSalaryRange(), config.getCities(),
+                    config.getExperienceRequirement(), config.getWaitTime());
+
+            // 【新增】详细输出关键词列表，便于排查
+            if (config.getKeywords() != null && !config.getKeywords().isEmpty()) {
+                log.info("🔑 搜索关键词列表（共{}个）:", config.getKeywords().size());
+                for (int i = 0; i < config.getKeywords().size(); i++) {
+                    log.info("   {}. {}", i + 1, config.getKeywords().get(i));
+                }
+            } else {
+                log.warn("⚠️ 警告：未配置搜索关键词！");
+            }
+
             return config;
 
         } catch (Exception e) {
@@ -249,27 +286,52 @@ public class BossConfig {
         }
     }
 
+    /**
+     * 为指定用户加载配置（方案B完全实例化）
+     *
+     * @param userId 用户ID
+     * @return BossConfig实例
+     */
+    public static BossConfig loadForUser(String userId) {
+        // 委托给init()方法，因为init()已经从环境变量读取BOSS_USER_ID
+        return init();
+    }
+
     @SneakyThrows
     public static BossConfig init() {
         // 优先尝试读取用户配置
         BossConfig config = tryLoadUserConfig();
         if (config == null) {
             // 如果用户配置不存在，使用默认配置
-            log.info("用户配置不存在，使用默认配置");
+            log.warn("⚠️ 用户配置未找到或加载失败，将使用系统默认配置（config.yaml）");
             config = JobUtils.getConfig(BossConfig.class);
+
+            // 【新增】输出默认配置的关键词列表
+            if (config != null && config.getKeywords() != null && !config.getKeywords().isEmpty()) {
+                log.info("📋 默认配置关键词列表（共{}个）:", config.getKeywords().size());
+                for (int i = 0; i < config.getKeywords().size(); i++) {
+                    log.info("   {}. {}", i + 1, config.getKeywords().get(i));
+                }
+            }
         } else {
-            log.info("使用用户自定义配置");
+            log.info("✅ 使用用户自定义配置（已从config.json加载）");
+        }
+
+        // 【安全检查】确保配置不为空
+        if (config == null) {
+            log.error("❌ 配置加载失败，无法继续执行");
+            throw new IllegalStateException("Boss配置加载失败");
         }
 
         // 验证打招呼语是否为空，如果为空则尝试从default_greeting.json读取
-        if (config.getSayHi() == null || config.getSayHi().trim().isEmpty()) {
+        if (config.getDefaultGreeting() == null || config.getDefaultGreeting().trim().isEmpty()) {
             log.warn("⚠️ 用户的打招呼语为空，尝试从default_greeting.json读取...");
 
             try {
                 // 尝试从default_greeting.json读取打招呼语
                 String defaultGreeting = loadDefaultGreetingFromFile();
                 if (defaultGreeting != null && !defaultGreeting.trim().isEmpty()) {
-                    config.setSayHi(defaultGreeting);
+                    config.setDefaultGreeting(defaultGreeting);
                     log.info("✅ 已从default_greeting.json加载打招呼语，长度: {}字", defaultGreeting.length());
                 } else {
                     log.warn("⚠️ default_greeting.json中也未找到打招呼语");
@@ -280,7 +342,7 @@ public class BossConfig {
                 log.info("💡 建议：1. 上传简历 2. 生成AI默认打招呼语 3. 保存到Boss配置");
             }
         } else {
-            log.info("✅ 打招呼语已设置，长度: {}字", config.getSayHi().length());
+            log.info("✅ 打招呼语已设置，长度: {}字", config.getDefaultGreeting().length());
         }
 
         // 【新增】如果enableSmartGreeting未配置，默认启用
@@ -291,17 +353,17 @@ public class BossConfig {
             log.info("✅ enableSmartGreeting已配置: {}", config.getEnableSmartGreeting());
         }
 
+        // 🔧 v3.1.0 枚举转换逻辑 - 使用统一字段名
+
         // 转换工作类型
-        config.setJobType(BossEnum.JobType.forValue(config.getJobType()).getCode());
-        // 转换薪资范围
-        if (config.getSalary() != null && !config.getSalary().isEmpty()) {
-            String salaryValue = config.getSalary().get(0);
-            config.setSalary(List.of(BossEnum.Salary.forValue(salaryValue).getCode()));
+        if (config.getJobType() != null && !config.getJobType().isEmpty()) {
+            config.setJobType(BossEnum.JobType.forValue(config.getJobType()).getCode());
         }
-        // 转换城市编码
-        if (config.getCityCode() != null) {
-            final BossConfig finalConfig = config; // 创建final引用
-            List<String> convertedCityCodes = config.getCityCode().stream()
+
+        // 转换城市编码（cities字段）
+        if (config.getCities() != null && !config.getCities().isEmpty()) {
+            final BossConfig finalConfig = config;
+            List<String> convertedCityCodes = config.getCities().stream()
                     .map(city -> {
                         // 优先从自定义映射中获取
                         if (finalConfig.getCustomCityCode() != null && finalConfig.getCustomCityCode().containsKey(city)) {
@@ -311,32 +373,63 @@ public class BossConfig {
                         return BossEnum.CityCode.forValue(city).getCode();
                     })
                     .collect(Collectors.toList());
-            config.setCityCode(convertedCityCodes);
+            config.setCities(convertedCityCodes);
+            log.debug("✓ 城市编码转换: {} → {}", config.getCities(), convertedCityCodes);
         }
 
-        // 转换工作经验要求
-        if (config.getExperience() != null) {
-            config.setExperience(config.getExperience().stream().map(value -> BossEnum.Experience.forValue(value).getCode()).collect(Collectors.toList()));
+        // 转换工作经验要求（experienceRequirement字段）
+        if (config.getExperienceRequirement() != null && !config.getExperienceRequirement().isEmpty()) {
+            String expCode = BossEnum.Experience.forValue(config.getExperienceRequirement()).getCode();
+            config.setExperienceRequirement(expCode);
+            log.debug("✓ 经验要求转换: {} → {}", config.getExperienceRequirement(), expCode);
         }
 
-        // 转换学历要求
-        if (config.getDegree() != null) {
-            config.setDegree(config.getDegree().stream().map(value -> BossEnum.Degree.forValue(value).getCode()).collect(Collectors.toList()));
+        // 转换学历要求（educationRequirement字段）
+        if (config.getEducationRequirement() != null && !config.getEducationRequirement().isEmpty()) {
+            String degreeCode = BossEnum.Degree.forValue(config.getEducationRequirement()).getCode();
+            config.setEducationRequirement(degreeCode);
+            log.debug("✓ 学历要求转换: {} → {}", config.getEducationRequirement(), degreeCode);
         }
 
-        // 转换公司规模
-        if (config.getScale() != null) {
-            config.setScale(config.getScale().stream().map(value -> BossEnum.Scale.forValue(value).getCode()).collect(Collectors.toList()));
+        // 转换公司规模（companySize字段）
+        if (config.getCompanySize() != null && !config.getCompanySize().isEmpty()) {
+            List<String> convertedScales = config.getCompanySize().stream()
+                    .map(value -> BossEnum.Scale.forValue(value).getCode())
+                    .collect(Collectors.toList());
+            config.setCompanySize(convertedScales);
         }
 
-        // 转换公司融资阶段
-        if (config.getStage() != null) {
-            config.setStage(config.getStage().stream().map(value -> BossEnum.Financing.forValue(value).getCode()).collect(Collectors.toList()));
+        // 转换公司融资阶段（financingStage字段）
+        if (config.getFinancingStage() != null && !config.getFinancingStage().isEmpty()) {
+            List<String> convertedStages = config.getFinancingStage().stream()
+                    .map(value -> BossEnum.Financing.forValue(value).getCode())
+                    .collect(Collectors.toList());
+            config.setFinancingStage(convertedStages);
         }
 
         // 转换行业
-        if (config.getIndustry() != null) {
-            config.setIndustry(config.getIndustry().stream().map(value -> BossEnum.Industry.forValue(value).getCode()).collect(Collectors.toList()));
+        if (config.getIndustry() != null && !config.getIndustry().isEmpty()) {
+            List<String> convertedIndustries = config.getIndustry().stream()
+                    .map(value -> BossEnum.Industry.forValue(value).getCode())
+                    .collect(Collectors.toList());
+            config.setIndustry(convertedIndustries);
+        }
+
+        // 🔧转换薪资范围（salaryRange字段：对象格式 → Boss API格式）
+        if (config.getSalaryRange() != null) {
+            Map<String, Object> salaryRange = config.getSalaryRange();
+            Object minSalary = salaryRange.get("minSalary");
+            Object maxSalary = salaryRange.get("maxSalary");
+
+            if (minSalary != null && maxSalary != null) {
+                // 构建薪资字符串
+                String salaryStr = minSalary + "K-" + maxSalary + "K";
+                // 转换为Boss API编码
+                String salaryCode = BossEnum.Salary.forValue(salaryStr).getCode();
+                // 存回salaryRange（保持对象格式，但添加code字段）
+                salaryRange.put("code", salaryCode);
+                log.debug("✓ 薪资范围转换: {}K-{}K → {}", minSalary, maxSalary, salaryCode);
+            }
         }
 
         return config;
@@ -349,24 +442,29 @@ public class BossConfig {
     @SneakyThrows
     private static String loadDefaultGreetingFromFile() {
         try {
-            // 获取当前用户ID
+            // 获取当前用户ID（优先级：环境变量 > 系统属性）
             String userId = System.getenv("BOSS_USER_ID");
             if (userId == null || userId.isEmpty()) {
                 userId = System.getProperty("boss.user.id");
             }
             if (userId == null || userId.isEmpty()) {
-                userId = "default_user";
+                // ❌ 不再使用default_user fallback（多租户隔离要求）
+                log.error("❌ 未提供用户ID（BOSS_USER_ID或boss.user.id），无法加载默认打招呼语");
+                return null;
             }
 
             log.debug("尝试为用户 {} 加载默认打招呼语", userId);
 
-            // 尝试多种可能的文件路径
+            // ✅ 修复：统一使用sanitize后的格式，但保留向后兼容（尝试多种格式）
+            // 优先使用sanitize后的格式，然后尝试其他格式以兼容旧数据
+            String safeUserId = userId.replaceAll("[^a-zA-Z0-9_-]", "_");
             String[] possiblePaths = {
-                "user_data/" + userId + "/default_greeting.json",  // 标准格式
-                "user_data/" + userId.replace("_", "@") + "/default_greeting.json",  // 邮箱格式
-                "user_data/" + userId.replace("@", "_").replace(".", "_") + "/default_greeting.json",  // 安全格式
-                "user_data/" + userId.replace("_sina_com", "@sina.com") + "/default_greeting.json",  // 特殊格式转换
-                "user_data/" + userId.replace("_", "@").replace("_com", ".com") + "/default_greeting.json"  // 通用格式转换
+                "user_data/" + safeUserId + "/default_greeting.json",  // ✅ 优先：sanitize后的标准格式
+                "user_data/" + userId + "/default_greeting.json",  // 向后兼容：原始格式
+                "user_data/" + userId.replace("_", "@") + "/default_greeting.json",  // 向后兼容：邮箱格式
+                "user_data/" + userId.replace("@", "_").replace(".", "_") + "/default_greeting.json",  // 向后兼容：安全格式
+                "user_data/" + userId.replace("_sina_com", "@sina.com") + "/default_greeting.json",  // 向后兼容：特殊格式转换
+                "user_data/" + userId.replace("_", "@").replace("_com", ".com") + "/default_greeting.json"  // 向后兼容：通用格式转换
             };
 
             for (String path : possiblePaths) {

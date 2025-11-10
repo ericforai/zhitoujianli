@@ -7,9 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import util.UserContextUtil;
-
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.poi.hwpf.HWPFDocument;
@@ -25,9 +22,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import ai.AiService;
 import ai.CandidateResumeService;
 import lombok.extern.slf4j.Slf4j;
+import util.UserContextUtil;
 
 /**
  * 候选人简历管理控制器
@@ -265,19 +265,20 @@ public class CandidateResumeController {
                             ObjectMapper mapper = new ObjectMapper();
                             Map<String, Object> config = mapper.readValue(configFile, Map.class);
 
-                            // 确保boss字段存在
-                            Map<String, Object> boss = (Map<String, Object>) config.get("boss");
-                            if (boss == null) {
-                                boss = new HashMap<>();
-                                config.put("boss", boss);
+                            // 🔧 统一字段：使用bossConfig.defaultGreeting
+                            @SuppressWarnings("unchecked")
+                            Map<String, Object> bossConfig = (Map<String, Object>) config.get("bossConfig");
+                            if (bossConfig == null) {
+                                bossConfig = new HashMap<>();
+                                config.put("bossConfig", bossConfig);
                             }
 
-                            // 更新sayHi字段
-                            boss.put("sayHi", greeting);
+                            // 更新defaultGreeting字段
+                            bossConfig.put("defaultGreeting", greeting);
 
                             // 保存回文件
                             mapper.writerWithDefaultPrettyPrinter().writeValue(configFile, config);
-                            log.info("✅ 【默认打招呼语】已更新到Boss配置: {} -> boss.sayHi", configPath);
+                            log.info("✅ 【默认打招呼语】已更新到Boss配置: {} -> bossConfig.defaultGreeting", configPath);
                         } else {
                             log.debug("【默认打招呼语】配置文件不存在: {}", configPath);
                         }

@@ -68,154 +68,155 @@ public class Boss {
     }
 
     private static final Logger log = LoggerFactory.getLogger(Boss.class);
-    static String homeUrl = "https://www.zhipin.com";
-    static String baseUrl = "https://www.zhipin.com/web/geek/job?";
-    static Set<String> blackCompanies;
-    static Set<String> blackJobs;
-    static List<Job> resultList = new ArrayList<>();
-    static String dataPath = getDataPath();  // 修复SpotBugs：使用动态路径
-    static String cookiePath = initCookiePath();  // 多用户支持：动态Cookie路径
-    static Date startDate;
-    static BossConfig config = BossConfig.init();
-    static DeliveryController deliveryController; // 投递控制器（频率限制+每日限额）
+
+    // ========== 实例变量（方案B完全实例化重构） ==========
+    private final String userId;
+    private final String homeUrl = "https://www.zhipin.com";
+    private final String baseUrl = "https://www.zhipin.com/web/geek/job?";
+    private final String dataPath;
+    private final String cookiePath;
+    private final BossConfig config;
+    private Set<String> blackCompanies;
+    private Set<String> blackJobs;
+    private List<Job> resultList;
+    private DeliveryController deliveryController;
+    private Date startDate;
 
     /**
-     * 获取数据文件路径（用户隔离）
-     * 支持多用户模式，每个用户有独立的黑名单数据
+     * Boss构造函数（方案B完全实例化）
      *
+     * @param userId 用户ID
+     */
+    public Boss(String userId) {
+        if (userId == null || userId.isEmpty()) {
+            throw new IllegalArgumentException("用户ID不能为空");
+        }
+
+        this.userId = userId;
+        String safeUserId = userId.replaceAll("[^a-zA-Z0-9_-]", "_");
+
+        // 初始化路径
+        this.dataPath = buildDataPath(safeUserId);
+        this.cookiePath = buildCookiePath(safeUserId);
+
+        // 加载配置
+        this.config = BossConfig.loadForUser(userId);
+
+        // 初始化集合
+        this.resultList = new ArrayList<>();
+        this.blackCompanies = new HashSet<>();
+        this.blackJobs = new HashSet<>();
+
+        // 加载数据
+        loadData(this.dataPath);
+
+        // 初始化控制器
+        if (this.config != null && this.config.getDeliveryStrategy() != null) {
+            this.deliveryController = new DeliveryController(this.config.getDeliveryStrategy());
+        } else {
+            this.deliveryController = new DeliveryController(new BossConfig.DeliveryStrategy());
+        }
+
+        log.info("✅ Boss实例已创建: userId={}, dataPath={}, cookiePath={}",
+            userId, this.dataPath, this.cookiePath);
+    }
+
+    /**
+     * 构建数据文件路径（用户隔离）
+     *
+     * @param safeUserId 安全的用户ID
      * @return 数据文件路径
      */
-    private static String getDataPath() {
-        String userId = System.getenv("BOSS_USER_ID");
-
-        if (userId == null || userId.isEmpty()) {
-            // 未设置用户ID，使用默认路径（向后兼容）
-            log.info("未检测到BOSS_USER_ID环境变量，使用默认数据文件");
-            String userDir = System.getProperty("user.dir");
-            return userDir + File.separator + "src" + File.separator + "main" + File.separator + "java" + File.separator + "boss" + File.separator + "data.json";
-        }
-
-        // ✅ 用户隔离模式：使用统一的配置目录（绝对路径）
-        // 清理userId中的非法字符（安全性）
-        String safeUserId = userId.replaceAll("[^a-zA-Z0-9_-]", "_");
-        // ✅ 使用绝对路径，统一配置目录到 /opt/zhitoujianli/backend/user_data
-        String dataPath = "/opt/zhitoujianli/backend/user_data" + File.separator + safeUserId + File.separator + "blacklist.json";
-        log.info("✅ 多用户模式，黑名单数据路径: {}", dataPath);
-        return dataPath;
+    private static String buildDataPath(String safeUserId) {
+        return "/opt/zhitoujianli/backend/user_data" + File.separator + safeUserId + File.separator + "blacklist.json";
     }
 
     /**
-     * 初始化Cookie文件路径（支持多用户隔离）
-     * 根据BOSS_USER_ID环境变量动态生成路径
+     * 构建Cookie文件路径（用户隔离）
      *
+     * @param safeUserId 安全的用户ID
      * @return Cookie文件路径
      */
-    private static String initCookiePath() {
-        String userId = System.getenv("BOSS_USER_ID");
-        if (userId == null || userId.isEmpty()) {
-            log.info("未检测到BOSS_USER_ID环境变量，使用默认Cookie路径");
-            return System.getProperty("java.io.tmpdir") + File.separator + "boss_cookies.json";  // 使用系统临时目录
-        }
-
-        // 清理userId中的非法字符（安全性）
-        String safeUserId = userId.replaceAll("[^a-zA-Z0-9_-]", "_");
-        String cookiePath = System.getProperty("java.io.tmpdir") + File.separator + "boss_cookies_" + safeUserId + ".json";
-        log.info("✅ 多用户模式，Cookie路径: {}", cookiePath);
-        return cookiePath;
-    }
-
-    static {
-        try {
-            // 检查dataPath文件是否存在，不存在则创建
-            File dataFile = new File(dataPath);
-            if (!dataFile.exists()) {
-                // 确保父目录存在
-                File parentDir = dataFile.getParentFile();
-                if (parentDir != null && !parentDir.exists()) {
-                    if (!parentDir.mkdirs()) {
-                        log.warn("创建目录失败");
-                    }
-                }
-                // 创建文件并写入初始JSON结构
-                Map<String, Set<String>> initialData = new HashMap<>();
-                initialData.put("blackCompanies", new HashSet<>());
-                initialData.put("blackJobs", new HashSet<>());
-                String initialJson = customJsonFormat(initialData);
-                Files.write(Paths.get(dataPath), initialJson.getBytes(StandardCharsets.UTF_8));
-                log.info("创建数据文件: {}", dataPath);
-            }
-
-            // Cookie文件使用/tmp目录，无需预创建
-            // /tmp目录始终存在且可写，PlaywrightUtil会在需要时自动创建文件
-        } catch (IOException e) {
-            log.error("创建文件时发生异常: {}", e.getMessage());
-        }
+    private static String buildCookiePath(String safeUserId) {
+        return System.getProperty("java.io.tmpdir") + File.separator + "boss_cookies_" + safeUserId + ".json";
     }
 
     public static void main(String[] args) {
-        // ✅ 检查是否为"只登录"模式（用于二维码登录）
-        boolean loginOnly = args.length > 0 && "login-only".equals(args[0]);
-
-        log.info("Boss程序启动，环境检查开始...");
-        log.info("运行模式: {}", loginOnly ? "只登录模式（二维码登录）" :
-                 (System.getProperty("maven.compiler.fork") != null ? "Web UI调用" : "终端直接运行"));
-
-        loadData(dataPath);
-
-        // ✅ 初始化投递控制器
-        if (config != null && config.getDeliveryStrategy() != null) {
-            deliveryController = new DeliveryController(config.getDeliveryStrategy());
-            log.info("📊 投递控制器已初始化");
-        } else {
-            log.warn("⚠️ 未找到投递策略配置，将使用默认值");
-            deliveryController = new DeliveryController(new BossConfig.DeliveryStrategy());
+        // 获取用户ID
+        String userId = System.getenv("BOSS_USER_ID");
+        if (userId == null || userId.isEmpty()) {
+            userId = System.getProperty("boss.user.id");
         }
 
-        // 使用Playwright前检查环境
+        if (userId == null || userId.isEmpty()) {
+            log.error("❌ 多租户模式必须提供用户ID");
+            throw new IllegalArgumentException("缺少用户ID（环境变量BOSS_USER_ID或系统属性boss.user.id）");
+        }
+
+        // 清理用户ID
+        String safeUserId = userId.replaceAll("[^a-zA-Z0-9_-]", "_");
+
+        // 解析参数
+        boolean loginOnly = args.length > 0 && "login-only".equals(args[0]);
+
+        log.info("Boss程序启动: userId={}, 模式={}", safeUserId,
+            loginOnly ? "只登录（二维码登录）" : "完整投递");
+
+        // 创建实例并执行
+        Boss boss = new Boss(userId);
+        boss.execute(loginOnly);
+    }
+
+    /**
+     * 执行Boss任务
+     *
+     * @param loginOnly 是否只登录模式
+     */
+    public void execute(boolean loginOnly) {
+        log.info("开始执行Boss任务: userId={}, loginOnly={}", this.userId, loginOnly);
+
         try {
+            // 初始化Playwright
             log.info("初始化Playwright环境...");
             PlaywrightUtil.init();
             log.info("Playwright初始化成功");
 
-            startDate = new Date();
-            login();
+            // 登录（传递loginOnly参数，避免不必要的模式切换）
+            this.startDate = new Date();
+            login(loginOnly);
 
-            // ✅ 只有非"只登录"模式才执行投递
+            // 执行投递（如果不是只登录模式）
             if (!loginOnly) {
                 log.info("开始执行自动投递任务...");
-                config.getCityCode().forEach(Boss::postJobByCity);
+                this.config.getCities().forEach(this::postJobByCity);
             } else {
                 log.info("✅ 「只登录」模式完成，不执行投递任务");
                 log.info("✅ Boss Cookie已保存，后续可直接启动投递任务");
-                // 只登录模式立即退出
                 PlaywrightUtil.close();
                 return;
             }
-        } catch (Exception e) {
-            log.error("Boss程序执行异常: {}", e.getMessage(), e);
-            // 清理资源
-            try {
-                PlaywrightUtil.close();
-            } catch (Exception ex) {
-                log.error("清理Playwright资源失败: {}", ex.getMessage());
+
+            // 打印结果
+            log.info(this.resultList.isEmpty() ? "未发起新的聊天..." : "新发起聊天公司如下:%n{}",
+                    this.resultList.stream().map(Object::toString).collect(Collectors.joining("%n")));
+            if (this.config.getDebugger() == null || !this.config.getDebugger()) {
+                printResult();
             }
+        } catch (Exception e) {
+            log.error("Boss任务执行失败: {}", e.getMessage(), e);
+            PlaywrightUtil.close();
             throw e;
-        }
-        log.info(resultList.isEmpty() ? "未发起新的聊天..." : "新发起聊天公司如下:%n{}",
-                resultList.stream().map(Object::toString).collect(Collectors.joining("%n")));
-        if (config.getDebugger() == null || !config.getDebugger()) {
-            printResult();
         }
     }
 
-    private static void printResult() {
-        String message = String.format("%nBoss投递完成，共发起%d个聊天，用时%s", resultList.size(),
-                formatDuration(startDate, new Date()));
+    private void printResult() {
+        String message = String.format("%nBoss投递完成，共发起%d个聊天，用时%s", this.resultList.size(),
+                formatDuration(this.startDate, new Date()));
         log.info(message);
         sendMessageByTime(message);
-        saveData(dataPath);
-        resultList.clear();
-        if (config.getDebugger() == null || !config.getDebugger()) {
+        saveData(this.dataPath);
+        this.resultList.clear();
+        if (this.config.getDebugger() == null || !this.config.getDebugger()) {
             PlaywrightUtil.close();
         }
 
@@ -230,9 +231,9 @@ public class Boss {
         }
     }
 
-    private static void postJobByCity(String cityCode) {
+    private void postJobByCity(String cityCode) {
         String searchUrl = getSearchUrl(cityCode);
-        for (String keyword : config.getKeywords()) {
+        for (String keyword : this.config.getKeywords()) {
             int postCount = 0;
             // 使用 URLEncoder 对关键词进行编码
             String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
@@ -353,7 +354,10 @@ public class Boss {
                     String[] bossInfo = splitBossName(bossNameRaw);
                     String bossName = bossInfo[0];
                     String bossActive = bossInfo[1];
-                    if (config.getDeadStatus().stream().anyMatch(bossActive::contains)) {
+
+                    // 🔧 修复空指针：检查deadStatus是否为null
+                    if (config.getDeadStatus() != null &&
+                        config.getDeadStatus().stream().anyMatch(bossActive::contains)) {
                         log.info("【{}】第{}个岗位：{}Boss状态异常，跳过", keyword, i + 1, jobName);
                         continue;
                     }
@@ -383,7 +387,7 @@ public class Boss {
                     if (deliveryController != null) {
                         // 暂时使用匹配度1.0（未实现AI匹配时的默认值）
                         // TODO: 后续集成AI匹配度评分
-                        if (!deliveryController.canDeliver(1.0)) {
+                        if (!this.deliveryController.canDeliver(1.0)) {
                             log.warn("【{}】第{}个岗位：投递策略限制，跳过 - {}", keyword, i + 1, deliveryController.getStatistics());
                             continue;
                         }
@@ -395,7 +399,7 @@ public class Boss {
 
                     // ✅ 记录投递（更新计数器）
                     if (deliveryController != null) {
-                        deliveryController.recordDelivery();
+                        this.deliveryController.recordDelivery();
                     }
 
                     log.info("【{}】第{}个岗位：投递完成！{}", keyword, i + 1,
@@ -475,7 +479,7 @@ public class Boss {
         return new String[]{company, job};
     }
 
-    private static boolean isJobsPresent() {
+    private boolean isJobsPresent() {
         try {
             // 判断页面是否存在岗位的元素
             PlaywrightUtil.waitForElement(JOB_LIST_CONTAINER);
@@ -486,18 +490,63 @@ public class Boss {
         }
     }
 
-    private static String getSearchUrl(String cityCode) {
-        return baseUrl + JobUtils.appendParam("city", cityCode) +
-                JobUtils.appendParam("jobType", config.getJobType()) +
-                JobUtils.appendListParam("salary", config.getSalary()) +
-                JobUtils.appendListParam("experience", config.getExperience()) +
-                JobUtils.appendListParam("degree", config.getDegree()) +
-                JobUtils.appendListParam("scale", config.getScale()) +
+    private String getSearchUrl(String cityCode) {
+        return this.baseUrl + JobUtils.appendParam("city", cityCode) +
+                JobUtils.appendParam("jobType", this.config.getJobType()) +
+                JobUtils.appendListParam("salary", convertSalaryRange(this.config.getSalaryRange())) +
+                JobUtils.appendListParam("experience", convertToList(config.getExperienceRequirement())) +
+                JobUtils.appendListParam("degree", convertToList(config.getEducationRequirement())) +
+                JobUtils.appendListParam("scale", config.getCompanySize()) +
                 JobUtils.appendListParam("industry", config.getIndustry()) +
-                JobUtils.appendListParam("stage", config.getStage());
+                JobUtils.appendListParam("stage", config.getFinancingStage());
     }
 
-    private static void saveData(String path) {
+    /**
+     * 将salaryRange对象转换为URL参数格式
+     * 前端格式: {minSalary: 30, maxSalary: 50, unit: "K", code: "405"}
+     * URL参数格式: ["405"] (Boss API编码)
+     */
+    private List<String> convertSalaryRange(Map<String, Object> salaryRange) {
+        if (salaryRange == null || salaryRange.isEmpty()) {
+            return List.of(); // 返回空列表，让Boss使用默认
+        }
+
+        // 优先使用已转换的code（在init()中生成）
+        if (salaryRange.containsKey("code")) {
+            return List.of((String) salaryRange.get("code"));
+        }
+
+        // 如果没有code，尝试构建并转换
+        Object minObj = salaryRange.get("minSalary");
+        Object maxObj = salaryRange.get("maxSalary");
+
+        if (minObj != null && maxObj != null) {
+            String salaryStr = minObj + "K-" + maxObj + "K";
+            try {
+                String code = BossEnum.Salary.forValue(salaryStr).getCode();
+                return List.of(code);
+            } catch (Exception e) {
+                log.warn("薪资范围转换失败: {}, 使用默认值", salaryStr);
+                return List.of();
+            }
+        }
+
+        return List.of();
+    }
+
+    /**
+     * 将单个字符串转换为列表（已转换为编码）
+     * 用于experienceRequirement, educationRequirement等字段
+     * 注意：这些字段在init()中已经被转换为Boss API编码
+     */
+    private List<String> convertToList(String value) {
+        if (value == null || value.isEmpty()) {
+            return List.of();
+        }
+        return List.of(value);
+    }
+
+    private void saveData(String path) {
         try {
             updateListData();
             Map<String, Set<String>> data = new HashMap<>();
@@ -510,7 +559,7 @@ public class Boss {
         }
     }
 
-    private static void updateListData() {
+    private void updateListData() {
         com.microsoft.playwright.Page page = PlaywrightUtil.getPageObject();
         page.navigate("https://www.zhipin.com/web/geek/chat");
         PlaywrightUtil.sleep(3);
@@ -568,7 +617,7 @@ public class Boss {
                             }
                             companyName = companyName.replaceAll("\\.{3}", "");
                             if (companyName.matches(".*(\\p{IsHan}{2,}|[a-zA-Z]{4,}).*")) {
-                                blackCompanies.add(companyName);
+                                this.blackCompanies.add(companyName);
                             }
                         }
                     }
@@ -592,17 +641,17 @@ public class Boss {
         log.info("黑名单公司数量：{}", blackCompanies.size());
     }
 
-    private static String customJsonFormat(Map<String, Set<String>> data) {
+    private String customJsonFormat(Map<String, Set<String>> data) {
         StringBuilder sb = new StringBuilder();
-        sb.append("{%n");
+        sb.append("{\n");
         for (Map.Entry<String, Set<String>> entry : data.entrySet()) {
-            sb.append("    \"").append(entry.getKey()).append("\": [%n");
-            sb.append(entry.getValue().stream().map(s -> "        \"" + s + "\"").collect(Collectors.joining(",%n")));
+            sb.append("    \"").append(entry.getKey()).append("\": [\n");
+            sb.append(entry.getValue().stream().map(s -> "        \"" + s + "\"").collect(Collectors.joining(",\n")));
 
-            sb.append("%n    ],%n");
+            sb.append("\n    ],\n");
         }
         sb.delete(sb.length() - 2, sb.length());
-        sb.append("%n}");
+        sb.append("\n}");
         return sb.toString();
     }
 
@@ -610,7 +659,7 @@ public class Boss {
      * 加载黑名单数据
      * ⚠️ 优先从config.json的blacklistConfig读取，向后兼容blacklist.json
      */
-    private static void loadData(String path) {
+    private void loadData(String path) {
         try {
             // ✅ 优先从config.json读取黑名单（与前端统一）
             if (loadBlacklistFromConfig()) {
@@ -625,8 +674,8 @@ public class Boss {
         } catch (IOException e) {
             log.warn("读取黑名单数据失败：{}，使用空黑名单", e.getMessage());
             // 初始化为空集合
-            blackCompanies = new HashSet<>();
-            blackJobs = new HashSet<>();
+            this.blackCompanies = new HashSet<>();
+            this.blackJobs = new HashSet<>();
         }
     }
 
@@ -635,7 +684,7 @@ public class Boss {
      *
      * @return true=成功加载, false=未找到配置
      */
-    private static boolean loadBlacklistFromConfig() {
+    private boolean loadBlacklistFromConfig() {
         try {
             String userId = System.getenv("BOSS_USER_ID");
             if (userId == null || userId.isEmpty()) {
@@ -670,8 +719,8 @@ public class Boss {
             log.info("📝 黑名单过滤开关: enableBlacklistFilter={}", enabled);
             if (enabled == null || !enabled) {
                 log.info("⚠️ 黑名单过滤已禁用");
-                blackCompanies = new HashSet<>();
-                blackJobs = new HashSet<>();
+                this.blackCompanies = new HashSet<>();
+                this.blackJobs = new HashSet<>();
                 return true;
             }
 
@@ -679,8 +728,8 @@ public class Boss {
             log.info("📝 读取公司黑名单: companyBlacklist={}", blacklistConfig.get("companyBlacklist"));
             log.info("📝 读取职位黑名单: positionBlacklist={}", blacklistConfig.get("positionBlacklist"));
 
-            blackCompanies = new HashSet<>(getListFromConfig(blacklistConfig, "companyBlacklist"));
-            blackJobs = new HashSet<>(getListFromConfig(blacklistConfig, "positionBlacklist"));
+            this.blackCompanies = new HashSet<>(getListFromConfig(blacklistConfig, "companyBlacklist"));
+            this.blackJobs = new HashSet<>(getListFromConfig(blacklistConfig, "positionBlacklist"));
 
             log.info("📋 黑名单配置加载成功:");
             log.info("  - 公司黑名单: {} 个", blackCompanies.size());
@@ -698,7 +747,7 @@ public class Boss {
      * 从配置Map中安全获取List
      */
     @SuppressWarnings("unchecked")
-    private static List<String> getListFromConfig(Map<String, Object> config, String key) {
+    private List<String> getListFromConfig(Map<String, Object> config, String key) {
         Object value = config.get(key);
         if (value instanceof List) {
             return (List<String>) value;
@@ -706,16 +755,16 @@ public class Boss {
         return new ArrayList<>();
     }
 
-    private static void parseJson(String json) {
+    private void parseJson(String json) {
         JSONObject jsonObject = new JSONObject(json);
-        blackCompanies = jsonObject.getJSONArray("blackCompanies").toList().stream().map(Object::toString)
+        this.blackCompanies = jsonObject.getJSONArray("blackCompanies").toList().stream().map(Object::toString)
                 .collect(Collectors.toSet());
-        blackJobs = jsonObject.getJSONArray("blackJobs").toList().stream().map(Object::toString)
+        this.blackJobs = jsonObject.getJSONArray("blackJobs").toList().stream().map(Object::toString)
                 .collect(Collectors.toSet());
     }
 
     @SneakyThrows
-    private static void resumeSubmission(com.microsoft.playwright.Page page, String keyword, Job job) {
+    private void resumeSubmission(com.microsoft.playwright.Page page, String keyword, Job job) {
         // 随机延迟，模拟人类思考时间
         PlaywrightUtil.randomSleepMillis(3000, 6000);
 
@@ -1224,7 +1273,7 @@ public class Boss {
 
         // 7. 发送图片简历（可选）
         boolean imgResume = false;
-        if (config.getSendImgResume()) {
+        if (config.getSendImgResume() != null && config.getSendImgResume()) {
             try {
                 URL resourceUrl = Boss.class.getResource("/resume.jpg");
                 if (resourceUrl != null) {
@@ -1266,7 +1315,7 @@ public class Boss {
 
             // 10. 成功投递加入结果
             if (sendSuccess) {
-                resultList.add(job);
+                this.resultList.add(job);
             }
         } catch (Exception e) {
             log.error("关闭详情页异常：{}", e.getMessage());
@@ -1291,10 +1340,10 @@ public class Boss {
      * 期望的最低薪资如果比岗位最高薪资还小，则不符合（薪资给的太少）
      * 期望的最高薪资如果比岗位最低薪资还小，则不符合(要求太高满足不了)
      */
-    private static boolean isSalaryNotExpected(String salary) {
+    private boolean isSalaryNotExpected(String salary) {
         try {
             // 1. 如果没有期望薪资范围，直接返回 false，表示"薪资并非不符合预期"
-            List<Integer> expectedSalary = config.getExpectedSalary();
+            List<Integer> expectedSalary = this.config.getExpectedSalary();
             if (!hasExpectedSalary(expectedSalary)) {
                 return false;
             }
@@ -1425,8 +1474,8 @@ public class Boss {
         PlaywrightUtil.sleep(1);
     }
 
-    private static boolean isDeadHR(com.microsoft.playwright.Page page) {
-        if (config.getFilterDeadHR() == null || !config.getFilterDeadHR()) {
+    private boolean isDeadHR(com.microsoft.playwright.Page page) {
+        if (this.config.getFilterDeadHR() == null || !this.config.getFilterDeadHR()) {
             return false;
         }
         try {
@@ -1436,6 +1485,10 @@ public class Boss {
                 String activeTimeText = activeTimeLocator.textContent();
                 log.info("{}：{}", getCompanyAndHR(page), activeTimeText);
                 // 如果 HR 活跃状态符合预期，则返回 true
+                // 🔧 修复空指针：如果deadStatus未配置，默认不过滤
+                if (config.getDeadStatus() == null || config.getDeadStatus().isEmpty()) {
+                    return false; // 未配置deadStatus，不过滤任何HR
+                }
                 return containsDeadStatus(activeTimeText, config.getDeadStatus());
             }
         } catch (Exception e) {
@@ -1453,7 +1506,7 @@ public class Boss {
         return false;// 如果没有找到，返回 false
     }
 
-    private static String getCompanyAndHR(com.microsoft.playwright.Page page) {
+    private String getCompanyAndHR(com.microsoft.playwright.Page page) {
         Locator recruiterLocator = page.locator(RECRUITER_INFO);
         if (recruiterLocator.count() > 0) {
             return recruiterLocator.textContent().replaceAll("%n", "");
@@ -1461,12 +1514,12 @@ public class Boss {
         return "未知公司和HR";
     }
 
-    private static void closeWindow(ArrayList<String> tabs) {
+    private void closeWindow(ArrayList<String> tabs) {
         log.warn("closeWindow方法已废弃，请使用playwright的page.close()方法");
         // 该方法已废弃，在playwright中直接使用page.close()
     }
 
-    private static AiFilter checkJob(String keyword, String jobName, String jd) {
+    private AiFilter checkJob(String keyword, String jobName, String jd) {
         AiConfig aiConfig = AiConfig.init();
         String requestMessage = String.format(aiConfig.getPrompt(), aiConfig.getIntroduce(), jd, aiConfig.getGreetingStyle());
         String result = AiService.sendRequest(requestMessage);
@@ -1477,8 +1530,9 @@ public class Boss {
      * 生成打招呼语消息
      * 优先使用智能AI生成，失败时回退到默认招呼语
      */
-    private static String generateGreetingMessage(String keyword, Job job, String fullJobDescription) {
-        String sayHi = config.getSayHi().replaceAll("[\\r\\n]", "");
+    private String generateGreetingMessage(String keyword, Job job, String fullJobDescription) {
+        String defaultGreeting = this.config.getDefaultGreeting();
+        String sayHi = (defaultGreeting != null ? defaultGreeting : "").replaceAll("[\\r\\n]", "");
 
         // 检查是否启用智能打招呼
         if (config.getEnableSmartGreeting() == null || !config.getEnableSmartGreeting()) {
@@ -1487,7 +1541,17 @@ public class Boss {
         }
 
         // 支持多种用户ID格式和文件名（candidate_resume.json优先）
-        String userId = System.getProperty("boss.user.id", "default_user");
+        // 获取用户ID（优先级：系统属性 > 环境变量）
+        String userId = System.getProperty("boss.user.id");
+        if (userId == null || userId.isEmpty()) {
+            userId = System.getenv("BOSS_USER_ID");
+        }
+        if (userId == null || userId.isEmpty()) {
+            // ❌ 不再使用default_user fallback（多租户隔离要求）
+            log.error("【打招呼语】❌ 未提供用户ID（boss.user.id或BOSS_USER_ID），无法生成智能打招呼语");
+            log.warn("【打招呼语】降级使用默认招呼语");
+            return sayHi; // 直接返回默认打招呼语，不尝试读取简历
+        }
 
         // 修复用户ID转换逻辑：luwenrong123_sina_com -> luwenrong123@sina.com
         // 策略：将最后一个_com替换为.com，将倒数第二个_替换为@
@@ -1594,7 +1658,7 @@ public class Boss {
      * 抓取完整岗位描述（详情页）
      * 包括：职位详情、岗位职责、任职要求等所有文本
      */
-    private static String extractFullJobDescription(com.microsoft.playwright.Page detailPage) {
+    private String extractFullJobDescription(com.microsoft.playwright.Page detailPage) {
         try {
             StringBuilder fullJD = new StringBuilder();
 
@@ -1666,7 +1730,7 @@ public class Boss {
         return new Integer[0];
     }
 
-    private static boolean isLimit(com.microsoft.playwright.Page page) {
+    private boolean isLimit(com.microsoft.playwright.Page page) {
         try {
             PlaywrightUtil.sleep(1);
             Locator dialogLocator = page.locator(DIALOG_CON);
@@ -1685,7 +1749,7 @@ public class Boss {
      * @param page 页面对象
      * @return 是否存在登录弹窗
      */
-    private static boolean checkLoginDialogPresent(com.microsoft.playwright.Page page) {
+    private boolean checkLoginDialogPresent(com.microsoft.playwright.Page page) {
         try {
             // 检查是否存在登录弹窗遮罩
             Locator loginMask = page.locator(Locators.LOGIN_DIALOG_MASK);
@@ -1713,7 +1777,7 @@ public class Boss {
      * @param page 页面对象
      * @return 是否关闭了弹窗
      */
-    private static boolean checkAndCloseLoginDialog(com.microsoft.playwright.Page page) {
+    private boolean checkAndCloseLoginDialog(com.microsoft.playwright.Page page) {
         try {
             // 检查是否存在登录弹窗遮罩
             Locator loginMask = page.locator(Locators.LOGIN_DIALOG_MASK);
@@ -1775,7 +1839,7 @@ public class Boss {
      * @param maxWaitSeconds 最大等待时间（秒）
      * @return 是否成功处理了弹窗
      */
-    private static boolean waitAndHandleLoginDialog(com.microsoft.playwright.Page page, int maxWaitSeconds) {
+    private boolean waitAndHandleLoginDialog(com.microsoft.playwright.Page page, int maxWaitSeconds) {
         int waitTime = 0;
         while (waitTime < maxWaitSeconds) {
             if (checkAndCloseLoginDialog(page)) {
@@ -1794,7 +1858,7 @@ public class Boss {
      * @param description 操作描述（用于日志）
      * @return 是否点击成功
      */
-    private static boolean safeClick(com.microsoft.playwright.Page page, Locator locator, String description) {
+    private boolean safeClick(com.microsoft.playwright.Page page, Locator locator, String description) {
         try {
             // 点击前检查并处理登录弹窗
             if (checkAndCloseLoginDialog(page)) {
@@ -1824,7 +1888,7 @@ public class Boss {
      * @param job 岗位信息
      * @return 是否发送成功
      */
-    private static boolean tryAlternativeMessageSending(com.microsoft.playwright.Page page, Job job) {
+    private boolean tryAlternativeMessageSending(com.microsoft.playwright.Page page, Job job) {
         try {
             log.info("尝试备用方案发送消息: {}", job.getJobName());
 
@@ -1989,7 +2053,7 @@ public class Boss {
      * @param page 页面对象
      * @return 是否发送成功
      */
-    private static boolean verifyMessageSent(com.microsoft.playwright.Page page) {
+    private boolean verifyMessageSent(com.microsoft.playwright.Page page) {
         try {
             // 等待页面更新
             PlaywrightUtil.sleep(2);
@@ -2051,7 +2115,7 @@ public class Boss {
      * @param page 页面对象
      * @param job 岗位信息
      */
-    private static void captureDebugScreenshot(com.microsoft.playwright.Page page, Job job) {
+    private void captureDebugScreenshot(com.microsoft.playwright.Page page, Job job) {
         try {
             String timestamp = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
             String filename = String.format(System.getProperty("java.io.tmpdir") + File.separator + "boss_debug_%s_%s.png",
@@ -2069,31 +2133,16 @@ public class Boss {
     }
 
     @SneakyThrows
-    private static void login() {
-        log.info("开始Boss直聘登录流程...");
+    private void login(boolean loginOnly) {
+        log.info("开始Boss直聘登录流程... (loginOnly={})", loginOnly);
 
         // 检查是否需要登录
         boolean needLogin = !PlaywrightUtil.isCookieValid(cookiePath);
 
-        // 如果当前用户的Cookie无效，尝试使用default_user的Cookie作为fallback
-        if (needLogin) {
-            String defaultCookiePath = System.getProperty("java.io.tmpdir") + File.separator + "boss_cookies_default_user.json";
-            if (PlaywrightUtil.isCookieValid(defaultCookiePath)) {
-                log.info("当前用户Cookie无效，但发现default_user的Cookie，尝试复制使用...");
-                try {
-                    // 复制default_user的Cookie到当前用户
-                    java.nio.file.Files.copy(
-                        java.nio.file.Paths.get(defaultCookiePath),
-                        java.nio.file.Paths.get(cookiePath),
-                        java.nio.file.StandardCopyOption.REPLACE_EXISTING
-                    );
-                    log.info("✅ 已复制default_user的Cookie到: {}", cookiePath);
-                    needLogin = false; // Cookie复制成功，不需要重新登录
-                } catch (Exception e) {
-                    log.warn("复制Cookie失败: {}", e.getMessage());
-                }
-            }
-        }
+        // ❌ 已删除：Cookie共享机制（2025-11-06修复多租户隔离BUG）
+        // 原代码会从default_user复制Cookie，导致多个用户共享同一个Boss登录状态！
+        // 这会造成严重后果：用户A的投递会发送到用户B的Boss账号
+        // 正确做法：每个用户必须使用自己的Boss账号登录，不能共享Cookie
 
         if (needLogin) {
             log.info("Cookie无效，切换到有头模式进行登录...");
@@ -2134,9 +2183,13 @@ public class Boss {
                 PlaywrightUtil.sleep(1);
                 scanLogin();
 
-                // 登录成功后切换回无头模式
-                log.info("重新登录成功，切换到无头模式...");
-                PlaywrightUtil.switchToHeadless();
+                // 登录成功后，如果不是login-only模式，则切换回无头模式
+                if (!loginOnly) {
+                    log.info("重新登录成功，切换到无头模式...");
+                    PlaywrightUtil.switchToHeadless();
+                } else {
+                    log.info("重新登录成功（login-only模式），保持当前模式");
+                }
 
                 // 重新加载页面
                 page.navigate(homeUrl);
@@ -2151,13 +2204,18 @@ public class Boss {
             log.info("需要登录，启动登录流程...");
             scanLogin();
 
-            // 登录成功后切换到无头模式
-            log.info("登录成功，切换到无头模式...");
-            PlaywrightUtil.switchToHeadless();
+            // 登录成功后，如果不是login-only模式，则切换到无头模式
+            // login-only模式下会立即关闭浏览器，无需切换
+            if (!loginOnly) {
+                log.info("登录成功，切换到无头模式...");
+                PlaywrightUtil.switchToHeadless();
+            } else {
+                log.info("登录成功（login-only模式），保持当前模式，即将关闭浏览器");
+            }
         }
     }
 
-    private static void waitForSliderVerify(com.microsoft.playwright.Page page) {
+    private void waitForSliderVerify(com.microsoft.playwright.Page page) {
         String SLIDER_URL = "https://www.zhipin.com/web/user/safe/verify-slider";
         // 最多等待5分钟（防呆，防止死循环）
         long start = System.currentTimeMillis();
@@ -2182,7 +2240,7 @@ public class Boss {
     }
 
 
-    private static boolean isLoginRequired() {
+    private boolean isLoginRequired() {
         try {
             com.microsoft.playwright.Page page = PlaywrightUtil.getPageObject();
             Locator buttonLocator = page.locator(LOGIN_BTNS);
@@ -2208,10 +2266,10 @@ public class Boss {
     }
 
     @SneakyThrows
-    private static void scanLogin() {
+    private void scanLogin() {
         // 访问登录页面
         com.microsoft.playwright.Page page = PlaywrightUtil.getPageObject();
-        page.navigate(homeUrl + "/web/user/?ka=header-login");
+        page.navigate(this.homeUrl + "/web/user/?ka=header-login");
         PlaywrightUtil.sleep(1);
 
         // 1. 如果已经登录，则直接返回
@@ -2264,22 +2322,27 @@ public class Boss {
                 }
 
                 if (qrcodeElement != null) {
-                    // 截取二维码图片并保存
-                    String qrcodePath = System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode.png";
+                    // ✅ 修复：按用户隔离二维码文件和状态文件
+                    String userId = System.getenv("BOSS_USER_ID");
+                    String safeUserId = userId != null ? userId.replaceAll("[^a-zA-Z0-9_-]", "_") : "default";
+                    String qrcodePath = System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode_" + safeUserId + ".png";
                     qrcodeElement.screenshot(new Locator.ScreenshotOptions().setPath(Paths.get(qrcodePath)));
-                    log.info("✅ 二维码截图已保存: {} (使用选择器: {})", qrcodePath, successSelector);
+                    log.info("✅ 二维码截图已保存: {} (使用选择器: {}, 用户: {})", qrcodePath, successSelector, safeUserId);
 
                     // 更新登录状态文件为waiting
-                    String statusFile = System.getProperty("java.io.tmpdir") + File.separator + "boss_login_status.txt";
+                    String statusFile = System.getProperty("java.io.tmpdir") + File.separator + "boss_login_status_" + safeUserId + ".txt";
                     Files.write(Paths.get(statusFile), "waiting".getBytes(StandardCharsets.UTF_8));
-                    log.info("✅ 登录状态已更新为waiting");
+                    log.info("✅ 登录状态已更新为waiting (用户: {})", safeUserId);
                 } else {
                     log.warn("⚠️ 尝试了所有选择器都未找到二维码元素");
                     // 作为备选方案，截取整个页面
                     log.info("🔄 备选方案：截取整个登录页面");
-                    page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get(System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode.png")));
-                    Files.write(Paths.get(System.getProperty("java.io.tmpdir") + File.separator + "boss_login_status.txt"), "waiting".getBytes(StandardCharsets.UTF_8));
-                    log.info("✅ 已截取完整页面作为二维码");
+                    // ✅ 修复：按用户隔离二维码文件和状态文件
+                    String userId = System.getenv("BOSS_USER_ID");
+                    String safeUserId = userId != null ? userId.replaceAll("[^a-zA-Z0-9_-]", "_") : "default";
+                    page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get(System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode_" + safeUserId + ".png")));
+                    Files.write(Paths.get(System.getProperty("java.io.tmpdir") + File.separator + "boss_login_status_" + safeUserId + ".txt"), "waiting".getBytes(StandardCharsets.UTF_8));
+                    log.info("✅ 已截取完整页面作为二维码 (用户: {})", safeUserId);
                 }
             } catch (Exception screenshotEx) {
                 log.error("二维码截图失败", screenshotEx);
@@ -2298,9 +2361,12 @@ public class Boss {
                 long elapsed = System.currentTimeMillis() - startTime;
                 if (elapsed >= TIMEOUT) {
                     log.error("超过15分钟未完成登录，程序退出...");
-                    // 更新登录状态为failed
+                    // ✅ 修复：按用户隔离状态文件
                     try {
-                        Files.write(Paths.get(System.getProperty("java.io.tmpdir") + File.separator + "boss_login_status.txt"), "failed".getBytes(StandardCharsets.UTF_8));
+                        String userId = System.getenv("BOSS_USER_ID");
+                        String safeUserId = userId != null ? userId.replaceAll("[^a-zA-Z0-9_-]", "_") : "default";
+                        Files.write(Paths.get(System.getProperty("java.io.tmpdir") + File.separator + "boss_login_status_" + safeUserId + ".txt"), "failed".getBytes(StandardCharsets.UTF_8));
+                        log.info("✅ 登录状态已更新为failed (用户: {})", safeUserId);
                     } catch (Exception e) {
                         log.error("更新登录状态失败", e);
                     }
@@ -2308,18 +2374,97 @@ public class Boss {
                 }
 
                 try {
-                    // 判断页面上是否出现职位列表容器
-                    Locator jobList = page.locator("div.job-list-container");
-                    if (jobList.isVisible()) {
+                    // ===== 改进：多种方式检测登录成功 =====
+                    String currentUrl = page.url();
+
+                    // 获取所有Cookie用于调试
+                    List<com.microsoft.playwright.options.Cookie> cookies = page.context().cookies();
+
+                    // 每10次循环输出一次详细信息（避免日志过多）
+                    if ((System.currentTimeMillis() - startTime) / 1000 % 10 == 0) {
+                        log.info("🔍 登录检测 - URL: {}, Cookie数量: {}", currentUrl, cookies.size());
+                        // 输出关键Cookie
+                        cookies.stream()
+                            .filter(c -> c.name.equals("wt2") || c.name.equals("_uab_collina") || c.name.equals("geek_zp_token"))
+                            .forEach(c -> log.info("   🍪 关键Cookie: {} = {} (domain: {})",
+                                c.name, c.value.substring(0, Math.min(20, c.value.length())) + "...", c.domain));
+                    }
+
+                    // 方式1: 检测URL变化（扫码成功后会跳转离开登录页）
+                    if (!currentUrl.contains("/web/user/?ka=header-login") &&
+                        currentUrl.contains("zhipin.com")) {
                         login = true;
+                        log.info("✅ 方式1成功：检测到URL跳转，登录成功！URL: {}", currentUrl);
+                    }
+
+                    // 方式2: 检测多个可能的成功标志元素
+                    if (!login) {
+                        String[] successSelectors = {
+                            "div.job-list-container",      // 职位列表容器
+                            ".user-avatar",                // 用户头像
+                            ".nav-figure",                 // 导航栏头像
+                            "a[ka='header-home-logo']",   // 首页logo（登录后出现）
+                            "a[href*='/web/user/safe']",  // 用户中心链接
+                            ".menu-user",                  // 用户菜单
+                            "[class*='user-name']"        // 用户名元素
+                        };
+
+                        for (String selector : successSelectors) {
+                            try {
+                                Locator element = page.locator(selector);
+                                if (element.count() > 0 && element.first().isVisible()) {
+                                    login = true;
+                                    log.info("✅ 方式2成功：检测到登录成功标志元素: {}", selector);
+                                    break;
+                                }
+                            } catch (Exception ignored) {
+                                // 继续尝试下一个选择器
+                            }
+                        }
+                    }
+
+                    // 方式3: 检测关键Cookie存在（扫码确认后会立即设置wt2等Cookie）
+                    if (!login) {
+                        boolean hasWt2 = cookies.stream().anyMatch(c -> c.name.equals("wt2") && c.value.length() > 10);
+                        boolean hasGeekToken = cookies.stream().anyMatch(c -> c.name.equals("geek_zp_token") && c.value.length() > 10);
+                        boolean hasUabCollina = cookies.stream().anyMatch(c -> c.name.equals("_uab_collina") && c.value.length() > 10);
+
+                        // 只要有wt2 Cookie就认为登录成功（这是Boss直聘最关键的登录凭证）
+                        if (hasWt2) {
+                            login = true;
+                            log.info("✅ 方式3成功：检测到关键Session Cookie (wt2)，登录成功！");
+                            log.info("   🍪 Cookie详情 - wt2: ✓, geek_zp_token: {}, _uab_collina: {}, 总数: {}",
+                                hasGeekToken ? "✓" : "✗", hasUabCollina ? "✓" : "✗", cookies.size());
+                        }
+                    }
+
+                    // 方式4: 检测二维码是否消失（扫码确认后二维码会消失或变成"登录成功"提示）
+                    if (!login) {
+                        try {
+                            Locator qrcode = page.locator(LOGIN_SCAN_SWITCH);
+                            if (qrcode.count() == 0) {
+                                // 二维码元素消失，可能登录成功
+                                login = true;
+                                log.info("✅ 方式4成功：二维码元素已消失，判定为登录成功");
+                            }
+                        } catch (Exception ignored) {
+                            // 忽略检测失败
+                        }
+                    }
+                    // ===== 改进部分结束 =====
+
+                    if (login) {
                         log.info("用户已登录！");
                         // 登录成功，保存Cookie
                         PlaywrightUtil.saveCookies(cookiePath);
 
                         // ===== 新增：更新登录状态为success =====
                         try {
-                            Files.write(Paths.get(System.getProperty("java.io.tmpdir") + File.separator + "boss_login_status.txt"), "success".getBytes(StandardCharsets.UTF_8));
-                            log.info("✅ 登录状态已更新为success");
+                            // ✅ 修复：按用户隔离状态文件
+                            String userId = System.getenv("BOSS_USER_ID");
+                            String safeUserId = userId != null ? userId.replaceAll("[^a-zA-Z0-9_-]", "_") : "default";
+                            Files.write(Paths.get(System.getProperty("java.io.tmpdir") + File.separator + "boss_login_status_" + safeUserId + ".txt"), "success".getBytes(StandardCharsets.UTF_8));
+                            log.info("✅ 登录状态已更新为success (用户: {})", safeUserId);
                         } catch (Exception e) {
                             log.error("更新登录状态失败", e);
                         }
@@ -2346,7 +2491,7 @@ public class Boss {
      * @param scanner 用于读取控制台输入
      * @return 用户是否在指定时间内按回车
      */
-    private static boolean waitForUserInputOrTimeout(Scanner scanner) {
+    private boolean waitForUserInputOrTimeout(Scanner scanner) {
         long end = System.currentTimeMillis() + 2000;
         while (System.currentTimeMillis() < end) {
             try {

@@ -45,13 +45,10 @@ public class BlacklistController {
      * 获取用户config.json配置路径
      */
     private String getConfigPath() {
+        // ❌ 已删除default_user fallback（UserContextUtil会在未登录时抛出异常）
+        // ✅ 修复：统一使用sanitizeUserId()确保用户ID格式一致
         String userId = UserContextUtil.getCurrentUserId();
-        if (userId == null || userId.isEmpty()) {
-            userId = "default_user";
-        }
-
-        // 兼容旧的字段名
-        String sanitizedUserId = userId.replace("@", "_").replace(".", "_");
+        String sanitizedUserId = UserContextUtil.sanitizeUserId(userId);
         return "user_data/" + sanitizedUserId + "/config.json";
     }
 
@@ -182,11 +179,10 @@ public class BlacklistController {
      */
     private void saveToBlacklistJson(List<String> companyBlacklist,
                                       List<String> positionBlacklist) throws Exception {
+        // ❌ 已删除default_user fallback（UserContextUtil会在未登录时抛出异常）
+        // ✅ 修复：统一使用sanitizeUserId()确保用户ID格式一致
         String userId = UserContextUtil.getCurrentUserId();
-        if (userId == null || userId.isEmpty()) {
-            userId = "default_user";
-        }
-        String sanitizedUserId = userId.replace("@", "_").replace(".", "_");
+        String sanitizedUserId = UserContextUtil.sanitizeUserId(userId);
         String blacklistPath = "user_data/" + sanitizedUserId + "/blacklist.json";
 
         // 构建blacklist.json格式（Boss程序字段名）

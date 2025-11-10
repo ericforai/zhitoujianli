@@ -145,25 +145,30 @@ public class UserDataMigrationService {
     }
 
     /**
-     * 迁移Cookie文件到新用户
+     * ❌ 已禁用：Cookie迁移功能
+     *
+     * 【重要】每个用户必须使用自己的Boss账号登录！
+     * 不能共享Cookie，否则会导致用户A的投递发送到用户B的Boss账号！
+     *
+     * 修复说明：2025-11-06
+     * - 问题：系统会复制default_user的Cookie给新用户
+     * - 后果：多个用户共享同一个Boss登录状态，导致投递错乱
+     * - 解决：禁用Cookie迁移，要求每个用户独立登录Boss
      *
      * @param targetUserId 目标用户ID
      */
     private void migrateCookieFile(String targetUserId) {
-        try {
-            Path defaultCookie = Paths.get("/tmp/boss_cookies.json");
-            if (!Files.exists(defaultCookie)) {
-                log.info("默认Cookie文件不存在，跳过迁移");
-                return;
-            }
+        log.warn("⚠️ Cookie迁移已禁用 - 用户 {} 需要独立登录自己的Boss账号", targetUserId);
+        log.warn("⚠️ 多租户隔离要求：每个用户必须使用自己的Boss账号，不能共享Cookie");
 
-            Path targetCookie = Paths.get("/tmp/boss_cookies_" + targetUserId + ".json");
-            Files.copy(defaultCookie, targetCookie, StandardCopyOption.REPLACE_EXISTING);
-            log.info("✅ 已迁移Cookie文件: {} -> {}", defaultCookie.getFileName(), targetCookie.getFileName());
-
-        } catch (IOException e) {
-            log.warn("迁移Cookie文件失败（不影响主流程）: {}", e.getMessage());
-        }
+        // ❌ 以下代码已禁用（2025-11-06修复多租户隔离BUG）
+        // 原代码会导致用户共享Boss登录状态！
+        //
+        // Path defaultCookie = Paths.get("/tmp/boss_cookies.json");
+        // if (Files.exists(defaultCookie)) {
+        //     Path targetCookie = Paths.get("/tmp/boss_cookies_" + targetUserId + ".json");
+        //     Files.copy(defaultCookie, targetCookie, StandardCopyOption.REPLACE_EXISTING);
+        // }
     }
 
     /**

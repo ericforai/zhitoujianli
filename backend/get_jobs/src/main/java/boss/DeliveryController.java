@@ -329,14 +329,18 @@ public class DeliveryController {
             }
 
             if (userId == null || userId.isEmpty()) {
-                userId = "default_user";
+                // ❌ 不再使用default_user fallback（多租户隔离要求）
+                log.error("❌ 未提供用户ID（boss.user.id或BOSS_USER_ID），无法读取投递日志");
+                return 0; // 返回0表示未找到投递记录
             }
 
-            // 构建可能的日志文件路径
+            // ✅ 修复：统一使用sanitizeUserId()确保日志文件名格式一致
+            // 不再尝试多种格式，统一使用sanitize后的格式
+            String safeUserId = userId.contains("@") || userId.contains(".")
+                ? userId.replaceAll("[^a-zA-Z0-9_-]", "_")
+                : userId;
             String[] possibleLogPaths = {
-                "/tmp/boss_delivery_" + userId + ".log",
-                "/tmp/boss_delivery_" + userId.replace("@", "_").replace(".", "_") + ".log",
-                "/tmp/boss_delivery_" + userId.replace("_", "@") + ".log"
+                "/tmp/boss_delivery_" + safeUserId + ".log"
             };
 
             LocalDate today = LocalDate.now();

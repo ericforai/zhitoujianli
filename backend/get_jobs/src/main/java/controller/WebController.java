@@ -60,54 +60,21 @@ public class WebController {
     public String index(Model model, HttpServletRequest request, HttpServletResponse response) {
         try {
             // 移除登录检查 - 无需认证即可访问
-            /*
-            if (!UserContextUtil.isAuthenticated()) {
-                log.warn("未登录用户试图访问后台管理页面，重定向到登录页面");
+            // 已注释掉认证检查，允许匿名访问
 
-                // 检查是否为AJAX请求
-                String requestedWith = request.getHeader("X-Requested-With");
-                String acceptHeader = request.getHeader("Accept");
-
-                if ("XMLHttpRequest".equals(requestedWith) ||
-                    (acceptHeader != null && acceptHeader.contains("application/json"))) {
-                    // AJAX请求返回JSON错误
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.setContentType("application/json;charset=UTF-8");
-                    try {
-                        response.getWriter().write(
-                            "{\"success\":false,\"message\":\"需要登录认证\",\"redirectTo\":\"" + request.getScheme() + "://" + request.getServerName() + (request.getServerPort() != 80 && request.getServerPort() != 443 ? ":" + request.getServerPort() : "") + "/login\"}"
-                        );
-                        return new String[0];
-                    } catch (IOException e) {
-                        log.error("返回JSON错误响应失败", e);
-                    }
-                } else {
-                    // 浏览器请求重定向到首页登录
-                    return "redirect:" + request.getScheme() + "://" + request.getServerName() + (request.getServerPort() != 80 && request.getServerPort() != 443 ? ":" + request.getServerPort() : "") + "/login";
-                }
-            }
-<<<<<<< HEAD
-
-            // 已登录用户，显示后台管理页面
-            String userId = UserContextUtil.getCurrentUserId();
-            String userEmail = UserContextUtil.getCurrentUserEmail();
-            log.info("已登录用户访问后台管理: userId={}, email={}", userId, userEmail);
-
-=======
-            */
-
-            // 获取当前登录用户信息（兼容安全认证禁用的情况）
-            String userId = "default_user";
-            String userEmail = "demo@example.com";
+            // 尝试获取用户信息（如果已登录）
+            String userId = null;
+            String userEmail = null;
             try {
                 if (UserContextUtil.hasCurrentUser()) {
                     userId = UserContextUtil.getCurrentUserId();
                     userEmail = UserContextUtil.getCurrentUserEmail();
+                    log.info("已登录用户访问后台管理: userId={}, email={}", userId, userEmail);
                 }
             } catch (Exception e) {
-                log.info("安全认证已禁用，使用默认用户");
+                log.debug("获取用户信息失败（用户未登录）: {}", e.getMessage());
             }
-            log.info("已登录用户访问后台管理: userId={}, email={}", userId, userEmail);
+
             // 加载当前配置
             Map<String, Object> config = loadConfig();
             model.addAttribute("config", config);
@@ -153,7 +120,7 @@ public class WebController {
             log.info("开始保存配置，接收到的配置: {}", config);
 
             // 使用UserDataService保存配置（已包含用户ID获取和路径生成逻辑）
-            // UserDataService会根据SECURITY_ENABLED配置自动选择使用default_user或真实用户ID
+            // ❌ 已删除：UserDataService不再支持default_user（安全认证永远启用）
             boolean success = userDataService.saveUserConfig(config);
 
             Map<String, Object> response = new HashMap<>();
@@ -588,26 +555,21 @@ public class WebController {
     private Map<String, Object> getDefaultConfig() {
         Map<String, Object> config = new HashMap<>();
 
-        // Boss配置
-        Map<String, Object> boss = new HashMap<>();
-        boss.put("debugger", false);
-        boss.put("sayHi", ""); // 空字符串，强制用户生成个性化打招呼语
-        boss.put("keywords", Arrays.asList("市场总监", "市场营销", "品牌营销"));
-        boss.put("industry", Arrays.asList("不限"));
-        boss.put("cityCode", Arrays.asList("上海"));
-        boss.put("experience", Arrays.asList("10年以上"));
-        boss.put("jobType", "不限");
-        boss.put("salary", Arrays.asList("30K以上"));
-        boss.put("degree", Arrays.asList("不限"));
-        boss.put("scale", Arrays.asList("不限"));
-        boss.put("stage", Arrays.asList("不限"));
-        boss.put("expectedSalary", Arrays.asList(30, 50));
-        boss.put("waitTime", 10);
-        boss.put("filterDeadHR", true);
-        boss.put("enableAI", false);
-        boss.put("sendImgResume", false);
-        boss.put("deadStatus", Arrays.asList("3月前活跃", "半年前活跃", "1年前活跃", "2年前活跃"));
-        config.put("boss", boss);
+        // 🔧 统一字段：只使用bossConfig（已删除boss字段）
+        Map<String, Object> bossConfig = new HashMap<>();
+        bossConfig.put("keywords", Arrays.asList("市场总监", "市场营销", "品牌营销"));
+        bossConfig.put("cities", Arrays.asList("上海"));
+        bossConfig.put("experienceRequirement", "10年以上");
+        bossConfig.put("jobType", "不限");
+        bossConfig.put("salaryRange", Map.of("minSalary", 30, "maxSalary", 50, "unit", "K"));
+        bossConfig.put("educationRequirement", "不限");
+        bossConfig.put("companySize", Arrays.asList("不限"));
+        bossConfig.put("financingStage", Arrays.asList("不限"));
+        bossConfig.put("industry", Arrays.asList("不限"));
+        bossConfig.put("filterDeadHR", false);  // 默认不过滤，让用户投递更多岗位
+        bossConfig.put("enableSmartGreeting", true);
+        bossConfig.put("defaultGreeting", ""); // 空字符串，强制用户生成个性化打招呼语
+        config.put("bossConfig", bossConfig);
 
         // AI配置
         Map<String, Object> ai = new HashMap<>();

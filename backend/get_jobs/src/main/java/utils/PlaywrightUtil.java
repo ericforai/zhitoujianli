@@ -112,8 +112,12 @@ public class PlaywrightUtil {
         java.io.File chromeFile = new java.io.File(chromePath);
 
         BrowserType.LaunchOptions options = new BrowserType.LaunchOptions()
-                .setHeadless(HEADLESS_MODE) // 动态头模式
-                .setSlowMo(100) // 增加操作延迟，模拟人类行为
+                .setHeadless(HEADLESS_MODE); // 动态头模式
+
+        // 根据头模式设置不同的浏览器参数
+        if (HEADLESS_MODE) {
+            // 无头模式：优化性能参数
+            options.setSlowMo(100) // 增加操作延迟，模拟人类行为
                 .setArgs(Arrays.asList(
                     "--disable-blink-features=AutomationControlled",
                     "--disable-dev-shm-usage",
@@ -123,23 +127,26 @@ public class PlaywrightUtil {
                     "--disable-features=VizDisplayCompositor",
                     "--disable-extensions",
                     "--disable-plugins",
-                    "--disable-images",
-                    "--disable-javascript",
                     "--disable-default-apps",
                     "--disable-background-timer-throttling",
                     "--disable-backgrounding-occluded-windows",
                     "--disable-renderer-backgrounding"
+                    // ✅ 移除了 --disable-images 和 --disable-javascript
+                    // 这两个参数会导致Boss直聘扫码登录完全无法工作
                 ));
-
-        // 如果有头模式，添加显示相关参数
-        if (!HEADLESS_MODE) {
-            options.setArgs(Arrays.asList(
-                "--disable-blink-features=AutomationControlled",
-                "--disable-web-security",
-                "--disable-features=VizDisplayCompositor",
-                "--no-first-run",
-                "--no-default-browser-check"
-            ));
+        } else {
+            // 有头模式：完整功能参数（用于登录和调试）
+            options.setSlowMo(50) // 有头模式稍快一点
+                .setArgs(Arrays.asList(
+                    "--disable-blink-features=AutomationControlled",
+                    "--no-sandbox",
+                    "--disable-dev-shm-usage",
+                    "--no-first-run",
+                    "--no-default-browser-check",
+                    "--disable-infobars",
+                    "--window-size=1280,1024"
+                    // ✅ 保留JavaScript和图片，确保扫码登录正常工作
+                ));
         }
 
         if (chromeFile.exists()) {

@@ -104,8 +104,8 @@ public class BossExecutionService {
                     outputThread.start();
                     errorThread.start();
 
-                    // 等待进程完成，最长30分钟
-                    boolean finished = process.waitFor(30, TimeUnit.MINUTES);
+                    // 等待进程完成，最长60分钟（支持更多岗位投递）
+                    boolean finished = process.waitFor(60, TimeUnit.MINUTES);
 
                     // 等待日志线程完成，检查返回值
                     boolean outputFinished = outputLatch.await(5, TimeUnit.SECONDS);

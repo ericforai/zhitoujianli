@@ -63,37 +63,20 @@ public class AutoDeliveryController {
     @PostMapping("/start")
     public ResponseEntity<ApiResponse<Map<String, Object>>> startDelivery() {
         try {
-            // 1. 获取当前登录用户ID
-            String userId = UserContextUtil.getCurrentUserId();
-            if (userId == null || userId.isEmpty() || "default_user".equals(userId)) {
-                // 对于默认用户，直接使用默认cookie文件
-                log.info("使用默认用户进行Boss投递");
-                userId = "default_user";
-            }
-
+            // 1. 获取当前登录用户ID（已强制认证，不会返回null）
+            // ✅ 使用sanitizeUserId()确保与登录状态检查使用相同的Cookie文件路径
+            String userId = UserContextUtil.sanitizeUserId(
+                UserContextUtil.getCurrentUserId()
+            );
             log.info("用户 {} 请求启动自动投递", userId);
 
             // 2. 检查用户是否已有Boss账号登录（检查cookie文件）
-            // 【多用户支持】根据userId动态确定Cookie路径
-            String[] possiblePaths;
-            if ("default_user".equals(userId)) {
-                // 默认用户：使用统一路径
-                possiblePaths = new String[]{
-                    "/tmp/boss_cookies.json",  // 新的统一路径（第一优先级）
-                    "src/main/java/boss/cookie.json",  // 开发环境（fallback）
-                    "/root/zhitoujianli/backend/get_jobs/src/main/java/boss/cookie.json",  // 生产环境（fallback）
-                    "/opt/zhitoujianli/backend/src/main/java/boss/cookie.json"  // 备用路径（fallback）
-                };
-            } else {
-                // 多用户模式：优先检查用户特定的Cookie文件，但也要检查default_user的cookie
-                // 因为Boss程序可能使用default_user保存cookie
-                possiblePaths = new String[]{
-                    "/tmp/boss_cookies_" + userId + ".json",  // 用户特定Cookie（第一优先级）
-                    "/tmp/boss_cookies_default_user.json",    // default_user的Cookie（第二优先级）
-                    "/tmp/boss_cookies.json",                 // 默认Cookie（第三优先级）
-                    "user_data/" + userId + "/boss_cookie.json"  // 用户数据目录（第四优先级）
-                };
-            }
+            // ❌ 已删除default_user fallback机制（2025-11-06修复多租户隔离BUG）
+            // 每个用户必须使用自己的Boss账号登录，不能共享Cookie
+            String[] possiblePaths = {
+                "/tmp/boss_cookies_" + userId + ".json",        // 用户特定Cookie（第一优先级）
+                "user_data/" + userId + "/boss_cookie.json"     // 用户数据目录（第二优先级）
+            };
 
             File cookieFile = null;
             for (String path : possiblePaths) {
@@ -121,7 +104,9 @@ public class AutoDeliveryController {
             }
 
             // 4. 启动Boss投递程序
-            String logPath = "/tmp/boss_delivery_" + userId + ".log";
+            // ✅ 修复：统一使用sanitizeUserId()确保日志文件名格式一致
+            String safeUserId = UserContextUtil.sanitizeUserId(userId);
+            String logPath = "/tmp/boss_delivery_" + safeUserId + ".log";
             CompletableFuture<Void> task = bossExecutionService.executeBossProgram(logPath, false);
 
             // 注册进程到用户任务映射
@@ -156,7 +141,10 @@ public class AutoDeliveryController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> stopDelivery() {
         try {
             // 获取当前用户ID
-            String userId = UserContextUtil.getCurrentUserId();
+            // ✅ 使用sanitizeUserId()确保与登录状态检查使用相同的Cookie文件路径
+            String userId = UserContextUtil.sanitizeUserId(
+                UserContextUtil.getCurrentUserId()
+            );
             log.info("用户 {} 请求停止自动投递", userId);
 
             // 1. 设置状态为停止
@@ -296,7 +284,10 @@ public class AutoDeliveryController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> getDeliveryLogs(
             @RequestParam(defaultValue = "100") int lines) {
         try {
-            String userId = UserContextUtil.getCurrentUserId();
+            // ✅ 使用sanitizeUserId()确保与登录状态检查使用相同的日志文件路径
+            String userId = UserContextUtil.sanitizeUserId(
+                UserContextUtil.getCurrentUserId()
+            );
             String logPath = "/tmp/boss_delivery_" + userId + ".log";
 
             File logFile = new File(logPath);

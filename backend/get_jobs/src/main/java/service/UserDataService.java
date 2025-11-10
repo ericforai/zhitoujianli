@@ -35,19 +35,14 @@ public class UserDataService {
 
     /**
      * 确保用户数据目录存在
+     * ❌ 已删除default_user fallback（多租户隔离要求）
+     * 安全认证永远启用，必须有当前用户
      */
     private void ensureUserDataDirectory() {
-        String userDataPath = "user_data/default_user"; // 默认路径
         try {
-            // 尝试获取用户数据路径，如果失败则使用默认路径
-            if (UserContextUtil.hasCurrentUser()) {
-                userDataPath = UserContextUtil.getUserDataPath();
-            }
-        } catch (Exception e) {
-            log.info("安全认证已禁用，使用默认用户数据目录");
-        }
+            // 获取当前用户的数据路径（会在未登录时抛出异常）
+            String userDataPath = UserContextUtil.getUserDataPath();
 
-        try {
             Path path = Paths.get(userDataPath);
             if (!Files.exists(path)) {
                 Files.createDirectories(path);
@@ -55,6 +50,7 @@ public class UserDataService {
             }
         } catch (IOException e) {
             log.error("创建用户数据目录失败: {}", e.getMessage(), e);
+            throw new RuntimeException("创建用户数据目录失败", e);
         }
     }
 

@@ -66,11 +66,9 @@ public class UserContextUtil {
             log.error("获取当前用户ID失败: {}", e.getMessage(), e);
         }
 
-        // 未登录时的处理逻辑
-        // 注意：生产环境中，Spring Security会在此之前拦截未登录请求
-        // 此处只在SECURITY_ENABLED=false时才会被执行到
-        log.info("未检测到登录用户，使用默认用户（仅在SECURITY_ENABLED=false时生效）");
-        return "default_user";
+        // 🔒 安全策略：未登录用户直接抛出异常，禁止fallback
+        log.error("❌ 安全错误：未认证用户尝试访问受保护资源");
+        throw new SecurityException("未认证用户，拒绝访问。请先登录。");
     }
 
     /**
@@ -91,9 +89,9 @@ public class UserContextUtil {
         } catch (Exception e) {
             log.warn("获取当前用户邮箱失败: {}", e.getMessage());
         }
-        // 返回默认邮箱（仅在SECURITY_ENABLED=false时生效）
-        log.info("未检测到登录用户邮箱，使用默认邮箱（仅在SECURITY_ENABLED=false时生效）");
-        return "demo@example.com";
+        // 🔒 安全策略：未登录用户直接抛出异常
+        log.error("❌ 安全错误：未认证用户尝试获取邮箱");
+        throw new SecurityException("未认证用户，拒绝访问邮箱信息");
     }
 
     /**
@@ -116,9 +114,9 @@ public class UserContextUtil {
         } catch (Exception e) {
             log.warn("获取当前用户名失败: {}", e.getMessage());
         }
-        // 返回默认用户名（仅在SECURITY_ENABLED=false时生效）
-        log.info("未检测到登录用户名，使用默认用户名（仅在SECURITY_ENABLED=false时生效）");
-        return "Demo User";
+        // 🔒 安全策略：未登录用户直接抛出异常
+        log.error("❌ 安全错误：未认证用户尝试获取用户名");
+        throw new SecurityException("未认证用户，拒绝访问用户名信息");
     }
 
     /**
@@ -164,17 +162,29 @@ public class UserContextUtil {
     /**
      * 获取用户数据存储路径
      * 为每个用户创建独立的数据目录
+     *
+     * ⚠️ 多租户模式：必须要求用户已登录，不允许返回默认路径
      */
     public static String getUserDataPath() {
-        String userId = getCurrentUserId();
-        if (userId != null) {
-            // 清理用户ID，确保文件系统安全
-            String cleanUserId = userId.replaceAll("[^a-zA-Z0-9_-]", "_");
-            String userDataPath = "user_data/" + cleanUserId;
-            log.debug("用户数据路径: {}", userDataPath);
-            return userDataPath;
+        String userId = getCurrentUserId(); // 如果未登录会抛出SecurityException
+        if (userId == null || userId.isEmpty()) {
+            // 🔒 安全策略：未登录用户不允许访问数据路径
+            log.error("❌ 安全错误：未认证用户尝试获取数据路径");
+            throw new SecurityException("未认证用户，拒绝访问数据路径");
         }
-        return "user_data/default";
+
+        // 清理用户ID，确保文件系统安全
+        String cleanUserId = userId.replaceAll("[^a-zA-Z0-9_-]", "_");
+
+        // 防止路径遍历攻击
+        if (cleanUserId.contains("..") || cleanUserId.startsWith("/") || cleanUserId.startsWith("\\")) {
+            log.error("❌ 非法的用户ID格式: {}", userId);
+            throw new SecurityException("非法的用户ID格式");
+        }
+
+        String userDataPath = "user_data/" + cleanUserId;
+        log.debug("用户数据路径: {}", userDataPath);
+        return userDataPath;
     }
 
     /**
