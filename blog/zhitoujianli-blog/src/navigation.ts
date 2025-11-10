@@ -15,15 +15,15 @@ export const headerData = {
       links: [
         {
           text: '产品动态',
-          href: getPermalink('chan3-pin3-dong4-tai4', 'category'),
+          href: '/category/chan3-pin3-dong4-tai4/',
         },
         {
           text: '求职指南',
-          href: getPermalink('qiu2-zhi2-zhi3-nan2', 'category'),
+          href: '/category/qiu2-zhi2-zhi3-nan2/',
         },
         {
           text: '职场建议',
-          href: getPermalink('zhi2-chang3-jian4-yi4', 'category'),
+          href: '/category/zhi2-chang3-jian4-yi4/',
         },
       ],
     },
@@ -50,9 +50,9 @@ export const footerData = {
     {
       title: '博客分类',
       links: [
-        { text: '产品动态', href: getPermalink('chan3-pin3-dong4-tai4', 'category') },
-        { text: '求职指南', href: getPermalink('qiu2-zhi2-zhi3-nan2', 'category') },
-        { text: '职场建议', href: getPermalink('zhi2-chang3-jian4-yi4', 'category') },
+        { text: '产品动态', href: '/category/chan3-pin3-dong4-tai4/' },
+        { text: '求职指南', href: '/category/qiu2-zhi2-zhi3-nan2/' },
+        { text: '职场建议', href: '/category/zhi2-chang3-jian4-yi4/' },
         { text: '最新文章', href: getBlogPermalink() },
       ],
     },

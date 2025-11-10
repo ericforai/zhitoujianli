@@ -35,6 +35,15 @@ module.exports = {
           info: '#3b82f6',
         }
       },
+      keyframes: {
+        'flow-right': {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '50%': { transform: 'translateX(8px)' },
+        },
+      },
+      animation: {
+        'flow-right': 'flow-right 1.5s ease-in-out infinite',
+      },
     },
   },
   plugins: [],

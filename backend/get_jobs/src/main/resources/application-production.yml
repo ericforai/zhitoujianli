@@ -26,7 +26,7 @@ spring:
 
 # 安全认证开关
 security:
-  enabled: false
+  enabled: true  # 🔒 生产环境必须启用认证
 
 # JWT配置
 jwt:
