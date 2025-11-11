@@ -1,6 +1,6 @@
 # Boss扫码登录核心规则
 
-**版本：** v3.1.0 ✅ 已验证  
+**版本：** v3.1.0 ✅ 已验证
 **更新：** 2025-11-10
 
 ---
@@ -76,6 +76,27 @@ Cookie数量: 9 → 13+
 
 ---
 
-**最后更新：** 2025-11-10  
-**验证用户：** luwenrong123@sina.com
+---
+
+## 🐛 Playwright崩溃修复（v3.1.1）
+
+**问题：** 投递进行到一半时崩溃
+```
+Error: Cannot find module './../../../package.json'
+退出码: 143
+```
+
+**修复：**
+```java
+// 设置固定工作目录，避免/tmp清理
+String playwrightWorkDir = "/opt/zhitoujianli/backend/.playwright-cache";
+new File(playwrightWorkDir).mkdirs();
+pb.environment().put("PLAYWRIGHT_NODEJS_PATH", playwrightWorkDir);
+```
+
+---
+
+**最后更新：** 2025-11-11  
+**验证用户：** luwenrong123@sina.com, 285366268@qq.com
+
 
