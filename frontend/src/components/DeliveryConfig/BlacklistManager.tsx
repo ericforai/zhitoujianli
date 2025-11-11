@@ -11,10 +11,11 @@ import {
   blacklistService,
   BlacklistData,
 } from '../../services/blacklistService';
+import type { ApiError } from '../../hooks/useErrorHandler';
 
 interface BlacklistManagerProps {
-  blacklistConfig?: any;
-  onBlacklistChange?: (config: any) => void;
+  blacklistConfig?: BlacklistData;
+  onBlacklistChange?: (config: BlacklistData) => void;
   loading?: boolean;
 }
 
@@ -45,9 +46,15 @@ const BlacklistManager: React.FC<BlacklistManagerProps> = () => {
       } else {
         setErrorMessage(response.message);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      // ✅ 修复：使用unknown类型替代any
       console.error('加载黑名单配置失败:', error);
-      setErrorMessage(error.message || '加载黑名单配置失败');
+      const apiError = error as ApiError | Error;
+      const errorMessage =
+        apiError instanceof Error
+          ? apiError.message
+          : apiError?.response?.data?.message || '加载黑名单配置失败';
+      setErrorMessage(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -71,9 +78,15 @@ const BlacklistManager: React.FC<BlacklistManagerProps> = () => {
       } else {
         setErrorMessage(response.message);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      // ✅ 修复：使用unknown类型替代any
       console.error('保存黑名单配置失败:', error);
-      setErrorMessage(error.message || '保存黑名单配置失败');
+      const apiError = error as ApiError | Error;
+      const errorMessage =
+        apiError instanceof Error
+          ? apiError.message
+          : apiError?.response?.data?.message || '保存黑名单配置失败';
+      setErrorMessage(errorMessage);
     } finally {
       setSaving(false);
     }

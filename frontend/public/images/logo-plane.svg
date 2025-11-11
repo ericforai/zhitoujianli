@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- 背景（可选，用于调试） -->
+  <!-- <rect width="200" height="200" fill="white"/> -->
+
+  <!-- 尾迹效果 - 圆点和短线 -->
+  <g id="trail" opacity="0.8">
+    <!-- 青色圆点和线 -->
+    <circle cx="45" cy="140" r="4" fill="#14B8A6"/>
+    <circle cx="30" cy="155" r="3" fill="#14B8A6"/>
+    <rect x="55" y="148" width="12" height="3" rx="1.5" fill="#14B8A6" transform="rotate(25 61 149.5)"/>
+
+    <!-- 蓝色圆点和线 -->
+    <circle cx="68" cy="125" r="3.5" fill="#3B82F6"/>
+    <rect x="38" y="168" width="10" height="3" rx="1.5" fill="#3B82F6" transform="rotate(25 43 169.5)"/>
+    <circle cx="52" cy="175" r="2.5" fill="#3B82F6"/>
+
+    <!-- 灰色圆点和线 -->
+    <circle cx="72" cy="145" r="3" fill="#9CA3AF"/>
+    <rect x="48" y="132" width="8" height="2.5" rx="1.25" fill="#9CA3AF" transform="rotate(25 52 133.25)"/>
+    <circle cx="62" cy="162" r="2" fill="#9CA3AF"/>
+    <rect x="35" y="145" width="6" height="2" rx="1" fill="#9CA3AF" transform="rotate(25 38 146)"/>
+  </g>
+
+  <!-- 纸飞机主体 -->
+  <g id="paper-plane" transform="translate(100, 80) rotate(25)">
+    <!-- 底部翼面（中蓝色） -->
+    <path d="M 0 0 L 60 20 L 50 35 L 0 15 Z" fill="#3B82F6">
+      <!-- 电路节点装饰 -->
+      <animate attributeName="opacity" values="1;0.9;1" dur="2s" repeatCount="indefinite"/>
+    </path>
+    <circle cx="35" cy="22" r="3" fill="white" opacity="0.9"/>
+    <line x1="35" y1="22" x2="42" y2="24" stroke="white" stroke-width="1.5" opacity="0.9"/>
+
+    <!-- 顶部翼面（亮青色） -->
+    <path d="M 0 0 L 60 -15 L 50 0 L 0 5 Z" fill="#14B8A6">
+      <animate attributeName="opacity" values="1;0.95;1" dur="2s" repeatCount="indefinite"/>
+    </path>
+    <circle cx="32" cy="-5" r="2.5" fill="#0D9488" opacity="0.7"/>
+    <line x1="32" y1="-5" x2="38" y2="-3" stroke="#0D9488" stroke-width="1" opacity="0.7"/>
+
+    <!-- 中心机身/折叠线（深海军蓝） -->
+    <path d="M 0 0 L 60 2 L 50 17.5 L 0 10 Z" fill="#1E3A8A">
+      <animate attributeName="opacity" values="1;0.85;1" dur="2s" repeatCount="indefinite"/>
+    </path>
+
+    <!-- 飞机尖端高光 -->
+    <circle cx="58" cy="2" r="3" fill="white" opacity="0.3"/>
+  </g>
+
+  <!-- 动态光晕效果（可选） -->
+  <g id="glow" opacity="0.3">
+    <circle cx="140" cy="95" r="25" fill="#3B82F6" opacity="0.1">
+      <animate attributeName="r" values="25;30;25" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.1;0.05;0.1" dur="3s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>
+

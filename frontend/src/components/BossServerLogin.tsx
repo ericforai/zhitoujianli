@@ -44,8 +44,10 @@ const BossServerLogin: React.FC<BossServerLoginProps> = ({
       startQRCodePolling();
       // 开始轮询登录状态
       startStatusPolling();
-    } catch (err: any) {
-      setError(err.message || '启动扫码登录失败');
+    } catch (err: unknown) {
+      // ✅ 修复：使用unknown类型替代any
+      const error = err as Error;
+      setError(error.message || '启动扫码登录失败');
       setStatus('failed');
     }
   };

@@ -10,9 +10,14 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import config from '../config/environment';
 import SEOHead from './seo/SEOHead';
 import { authService } from '../services/authService';
+import analyticsService from '../services/analyticsService';
+// ✅ 修复：暂时注释，后续统一错误处理时启用
+// import { useErrorHandler } from '../hooks/useErrorHandler';
+import type { ApiError } from '../hooks/useErrorHandler';
 import './Register.css';
 
 const Register: React.FC = () => {
@@ -23,6 +28,8 @@ const Register: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  // ✅ 修复：使用统一的错误处理Hook（暂时保留，后续可能使用）
+  // const { handleError: handleApiError } = useErrorHandler();
 
   // 验证码状态
   const [verificationCode, setVerificationCode] = useState('');
@@ -106,22 +113,35 @@ const Register: React.FC = () => {
       } else {
         setError(result.message || '发送验证码失败');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      // ✅ 修复：使用unknown类型替代any
       console.error('发送验证码失败:', err);
-      console.error('错误详情:', err);
+
+      const error = err as ApiError | Error;
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : (error as ApiError)?.response?.data?.message || '发送验证码失败';
 
       // 更详细的错误处理
-      if (err.name === 'TypeError' && err.message.includes('Failed to fetch')) {
-        setError('网络连接失败，请检查网络或稍后重试');
-      } else if (
-        err.name === 'TypeError' &&
-        err.message.includes('Mixed Content')
-      ) {
-        setError('安全错误：请使用 HTTPS 访问');
-      } else if (err.message.includes('HTTP')) {
-        setError(`服务器错误：${err.message}`);
+      if (error instanceof Error) {
+        if (
+          error.name === 'TypeError' &&
+          error.message.includes('Failed to fetch')
+        ) {
+          setError('网络连接失败，请检查网络或稍后重试');
+        } else if (
+          error.name === 'TypeError' &&
+          error.message.includes('Mixed Content')
+        ) {
+          setError('安全错误：请使用 HTTPS 访问');
+        } else if (error.message.includes('HTTP')) {
+          setError(`服务器错误：${error.message}`);
+        } else {
+          setError(errorMessage);
+        }
       } else {
-        setError('网络错误，请稍后重试');
+        setError(errorMessage);
       }
     } finally {
       setLoading(false);
@@ -169,15 +189,21 @@ const Register: React.FC = () => {
       } else {
         setError(result.message || '验证码验证失败');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      // ✅ 修复：使用unknown类型替代any
       console.error('验证邮箱验证码失败:', err);
-      console.error('错误详情:', err.response?.data);
+      const error = err as ApiError | Error;
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : (error as ApiError)?.response?.data?.message || '验证码验证失败';
+      console.error('错误详情:', (error as ApiError)?.response?.data);
 
       // 显示具体的后端错误信息，而不是通用的网络错误
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
+      if ((error as ApiError)?.response?.data?.message) {
+        setError((error as ApiError).response!.data!.message!);
       } else {
-        setError('网络错误，请稍后重试');
+        setError(errorMessage);
       }
     } finally {
       setLoading(false);
@@ -226,6 +252,12 @@ const Register: React.FC = () => {
       if (result.success) {
         setSuccess('注册成功！3秒后跳转到登录页...');
 
+        // 📊 跟踪注册转化事件
+        analyticsService.trackConversion('sign_up', {
+          method: 'email',
+          email: email, // 注意：实际应用中可能需要脱敏处理
+        });
+
         // 3秒后跳转到登录页
         setTimeout(() => {
           window.location.href = '/login';
@@ -233,9 +265,15 @@ const Register: React.FC = () => {
       } else {
         setError(result.message || '注册失败');
       }
-    } catch (err: any) {
-      const errorMsg = err.response?.data?.message || '注册失败，请稍后重试';
-      setError(errorMsg);
+    } catch (err: unknown) {
+      // ✅ 修复：使用unknown类型替代any
+      const error = err as ApiError | Error;
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : (error as ApiError)?.response?.data?.message ||
+            '注册失败，请稍后重试';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -246,8 +284,11 @@ const Register: React.FC = () => {
       <SEOHead path='/register' />
       <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-6 px-4'>
         <div className='w-full max-w-md'>
-          {/* Logo和标题 - 水平排列 */}
-          <div className='flex items-center gap-3 mb-6 animate-fade-in'>
+          {/* Logo和标题 - 水平排列，可点击返回首页 */}
+          <Link
+            to='/'
+            className='flex items-center gap-3 mb-6 animate-fade-in cursor-pointer hover:opacity-80 transition-opacity duration-200'
+          >
             {/* Logo图标 */}
             <div className='flex-shrink-0 inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg'>
               <svg
@@ -270,16 +311,16 @@ const Register: React.FC = () => {
                 智投简历
               </h1>
               <p className='text-gray-600 text-base font-medium'>
-                创建账号，开启智能求职之旅
+                免费注册，开启智能求职之旅
               </p>
             </div>
-          </div>
+          </Link>
 
           {/* 注册卡片 - 玻璃拟态效果 */}
           <div className='bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-6'>
             <div className='text-center mb-6'>
               <h2 className='text-xl font-bold text-gray-900 font-inter'>
-                注册新账号
+                AI帮你自动投递简历
               </h2>
             </div>
 
@@ -436,7 +477,7 @@ const Register: React.FC = () => {
                     注册中...
                   </div>
                 ) : (
-                  '注册'
+                  '免费注册'
                 )}
               </button>
             </form>

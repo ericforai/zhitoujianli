@@ -1,154 +1,210 @@
 /**
- * API响应验证工具
- * 确保API响应的数据结构和类型安全
+ * API请求参数验证工具函数
+ *
+ * 提供常用的API请求参数验证方法，确保数据格式正确
  *
  * @author ZhiTouJianLi Team
- * @since 2025-10-11
+ * @since 2025-01-XX
  */
-
-import { ApiResponse } from '../types/api';
 
 /**
- * 验证API响应是否有效
+ * 验证邮箱格式
  */
-export function validateApiResponse<T>(
-  response: any,
-  expectedDataShape?: (data: any) => boolean
-): response is ApiResponse<T> {
-  // 基本结构检查
-  if (!response || typeof response !== 'object') {
-    console.warn('API响应不是对象:', response);
+export function validateEmail(email: string): boolean {
+  if (!email || typeof email !== 'string') {
     return false;
   }
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return emailRegex.test(email);
+}
 
-  // 检查必需字段
-  if (typeof response.code !== 'number') {
-    console.warn('API响应缺少code字段或类型错误:', response);
+/**
+ * 验证手机号格式（中国大陆）
+ */
+export function validatePhone(phone: string): boolean {
+  if (!phone || typeof phone !== 'string') {
     return false;
   }
+  const phoneRegex = /^1[3-9]\d{9}$/;
+  return phoneRegex.test(phone);
+}
 
-  if (typeof response.message !== 'string') {
-    console.warn('API响应缺少message字段或类型错误:', response);
+/**
+ * 验证密码强度
+ * @param password 密码
+ * @param minLength 最小长度，默认8
+ * @returns 验证结果和错误信息
+ */
+export function validatePassword(
+  password: string,
+  minLength: number = 8
+): { valid: boolean; message?: string } {
+  if (!password || typeof password !== 'string') {
+    return { valid: false, message: '密码不能为空' };
+  }
+
+  if (password.length < minLength) {
+    return { valid: false, message: `密码长度不能少于${minLength}位` };
+  }
+
+  // 检查是否包含字母和数字
+  const hasLetter = /[a-zA-Z]/.test(password);
+  const hasNumber = /\d/.test(password);
+
+  if (!hasLetter || !hasNumber) {
+    return { valid: false, message: '密码必须包含字母和数字' };
+  }
+
+  return { valid: true };
+}
+
+/**
+ * 验证文件类型
+ * @param file 文件对象
+ * @param allowedTypes 允许的文件类型数组
+ * @returns 验证结果和错误信息
+ */
+export function validateFileType(
+  file: File,
+  allowedTypes: string[]
+): { valid: boolean; message?: string } {
+  if (!file || !(file instanceof File)) {
+    return { valid: false, message: '文件对象无效' };
+  }
+
+  if (!allowedTypes.includes(file.type)) {
+    return {
+      valid: false,
+      message: `不支持的文件类型，允许的类型：${allowedTypes.join(', ')}`,
+    };
+  }
+
+  return { valid: true };
+}
+
+/**
+ * 验证文件大小
+ * @param file 文件对象
+ * @param maxSize 最大文件大小（字节）
+ * @returns 验证结果和错误信息
+ */
+export function validateFileSize(
+  file: File,
+  maxSize: number
+): { valid: boolean; message?: string } {
+  if (!file || !(file instanceof File)) {
+    return { valid: false, message: '文件对象无效' };
+  }
+
+  if (file.size > maxSize) {
+    const maxSizeMB = (maxSize / (1024 * 1024)).toFixed(2);
+    return { valid: false, message: `文件大小不能超过${maxSizeMB}MB` };
+  }
+
+  return { valid: true };
+}
+
+/**
+ * 验证必填字段
+ * @param data 数据对象
+ * @param requiredFields 必填字段数组
+ * @returns 验证结果和错误信息
+ */
+export function validateRequiredFields<T extends Record<string, unknown>>(
+  data: T,
+  requiredFields: (keyof T)[]
+): { valid: boolean; message?: string } {
+  for (const field of requiredFields) {
+    const value = data[field];
+    if (value === null || value === undefined || value === '') {
+      return { valid: false, message: `字段 ${String(field)} 为必填项` };
+    }
+  }
+  return { valid: true };
+}
+
+/**
+ * 验证字符串长度
+ * @param str 字符串
+ * @param minLength 最小长度
+ * @param maxLength 最大长度
+ * @returns 验证结果和错误信息
+ */
+export function validateStringLength(
+  str: string,
+  minLength?: number,
+  maxLength?: number
+): { valid: boolean; message?: string } {
+  if (typeof str !== 'string') {
+    return { valid: false, message: '必须是字符串类型' };
+  }
+
+  if (minLength !== undefined && str.length < minLength) {
+    return { valid: false, message: `长度不能少于${minLength}个字符` };
+  }
+
+  if (maxLength !== undefined && str.length > maxLength) {
+    return { valid: false, message: `长度不能超过${maxLength}个字符` };
+  }
+
+  return { valid: true };
+}
+
+/**
+ * 验证数字范围
+ * @param num 数字
+ * @param min 最小值
+ * @param max 最大值
+ * @returns 验证结果和错误信息
+ */
+export function validateNumberRange(
+  num: number,
+  min?: number,
+  max?: number
+): { valid: boolean; message?: string } {
+  if (typeof num !== 'number' || isNaN(num)) {
+    return { valid: false, message: '必须是有效数字' };
+  }
+
+  if (min !== undefined && num < min) {
+    return { valid: false, message: `值不能小于${min}` };
+  }
+
+  if (max !== undefined && num > max) {
+    return { valid: false, message: `值不能大于${max}` };
+  }
+
+  return { valid: true };
+}
+
+/**
+ * 验证URL格式
+ * @param url URL字符串
+ * @returns 验证结果
+ */
+export function validateUrl(url: string): boolean {
+  if (!url || typeof url !== 'string') {
     return false;
   }
-
-  if (typeof response.timestamp !== 'number') {
-    console.warn('API响应缺少timestamp字段或类型错误:', response);
+  try {
+    new URL(url);
+    return true;
+  } catch {
     return false;
   }
+}
 
-  // 检查data字段是否存在
-  if (!('data' in response)) {
-    console.warn('API响应缺少data字段:', response);
-    return false;
+/**
+ * 组合验证器
+ * 依次执行多个验证器，返回第一个失败的结果
+ */
+export function combineValidators(
+  ...validators: Array<{ valid: boolean; message?: string }>
+): { valid: boolean; message?: string } {
+  for (const validator of validators) {
+    if (!validator.valid) {
+      return validator;
+    }
   }
-
-  // 自定义数据形状验证
-  if (expectedDataShape && !expectedDataShape(response.data)) {
-    console.warn('API响应数据形状不符合预期:', response.data);
-    return false;
-  }
-
-  return true;
-}
-
-/**
- * 验证简历检查响应
- */
-export function validateResumeCheckResponse(
-  response: any
-): response is ApiResponse<{ hasResume: boolean }> {
-  return validateApiResponse(response, data => {
-    return data && typeof data.hasResume === 'boolean';
-  });
-}
-
-/**
- * 验证简历信息响应
- */
-export function validateResumeInfoResponse(
-  response: any
-): response is ApiResponse<any> {
-  return validateApiResponse(response, data => {
-    return data && typeof data === 'object';
-  });
-}
-
-/**
- * 安全获取API响应数据
- */
-export function safeGetApiData<T>(
-  response: any,
-  validator: (response: any) => response is ApiResponse<T>,
-  fallback: T
-): T {
-  if (validator(response)) {
-    return response.data;
-  }
-  return fallback;
-}
-
-/**
- * 创建安全的API调用包装器
- */
-export function createSafeApiCall<T>(
-  apiCall: () => Promise<any>,
-  validator: (response: any) => response is ApiResponse<T>,
-  fallback: T
-): Promise<T> {
-  return apiCall()
-    .then(response => {
-      if (validator(response)) {
-        return response.data;
-      }
-      console.warn('API响应验证失败，使用fallback值:', response);
-      return fallback;
-    })
-    .catch(error => {
-      console.error('API调用失败:', error);
-      return fallback;
-    });
-}
-
-/**
- * 检查对象属性是否存在且类型正确
- */
-export function hasValidProperty<T>(
-  obj: any,
-  property: string,
-  typeCheck: (value: any) => value is T
-): obj is { [K in typeof property]: T } {
-  return (
-    obj &&
-    Object.prototype.hasOwnProperty.call(obj, property) &&
-    typeCheck(obj[property])
-  );
-}
-
-/**
- * 类型守卫：检查是否为布尔值
- */
-export function isBoolean(value: any): value is boolean {
-  return typeof value === 'boolean';
-}
-
-/**
- * 类型守卫：检查是否为字符串
- */
-export function isString(value: any): value is string {
-  return typeof value === 'string';
-}
-
-/**
- * 类型守卫：检查是否为数字
- */
-export function isNumber(value: any): value is number {
-  return typeof value === 'number' && !isNaN(value);
-}
-
-/**
- * 类型守卫：检查是否为对象
- */
-export function isObject(value: any): value is object {
-  return value !== null && typeof value === 'object';
+  return { valid: true };
 }

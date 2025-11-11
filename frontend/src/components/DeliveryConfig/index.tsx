@@ -7,6 +7,13 @@
 
 import React, { useState } from 'react';
 import { useDeliveryConfig } from '../../hooks/useDelivery';
+import type {
+  BossConfig as BossConfigType,
+  DeliveryStrategy,
+  BlacklistConfig,
+} from '../../types/api';
+import type { BlacklistData } from '../../services/blacklistService';
+import type { ApiError } from '../../hooks/useErrorHandler';
 import BlacklistManager from './BlacklistManager';
 import BossConfig from './BossConfig';
 import DeliverySettings from './DeliverySettings';
@@ -22,7 +29,7 @@ const DeliveryConfig: React.FC = () => {
   /**
    * 处理Boss配置变化
    */
-  const handleBossConfigChange = async (bossConfig: any) => {
+  const handleBossConfigChange = async (bossConfig: BossConfigType) => {
     try {
       if (!config) return;
       const updatedConfig = {
@@ -33,15 +40,23 @@ const DeliveryConfig: React.FC = () => {
       await updateConfig(updatedConfig);
       setSuccessMessage('Boss直聘配置保存成功！');
       setTimeout(() => setSuccessMessage(null), 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      // ✅ 修复：使用unknown类型替代any
       console.error('保存Boss配置失败:', error);
+      const apiError = error as ApiError | Error;
+      console.error(
+        '错误详情:',
+        apiError instanceof Error
+          ? apiError.message
+          : apiError?.response?.data?.message
+      );
     }
   };
 
   /**
    * 处理投递策略变化
    */
-  const handleStrategyChange = async (strategy: any) => {
+  const handleStrategyChange = async (strategy: DeliveryStrategy) => {
     try {
       if (!config) return;
       const updatedConfig = {
@@ -52,27 +67,49 @@ const DeliveryConfig: React.FC = () => {
       await updateConfig(updatedConfig);
       setSuccessMessage('投递策略保存成功！');
       setTimeout(() => setSuccessMessage(null), 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      // ✅ 修复：使用unknown类型替代any
       console.error('保存投递策略失败:', error);
+      const apiError = error as ApiError | Error;
+      console.error(
+        '错误详情:',
+        apiError instanceof Error
+          ? apiError.message
+          : apiError?.response?.data?.message
+      );
     }
   };
 
   /**
    * 处理黑名单配置变化
+   * ✅ 修复：使用BlacklistData类型（与BlacklistManager一致）
    */
-  const handleBlacklistChange = async (blacklistConfig: any) => {
+  const handleBlacklistChange = async (blacklistConfig: BlacklistData) => {
     try {
       if (!config) return;
+      // ✅ 修复：转换BlacklistData为BlacklistConfig格式
+      const blacklistConfigForUpdate: BlacklistConfig = {
+        ...blacklistConfig,
+        keywordBlacklist: [], // BlacklistData没有keywordBlacklist，使用空数组
+      };
       const updatedConfig = {
         ...config,
-        blacklistConfig,
+        blacklistConfig: blacklistConfigForUpdate,
         updatedAt: Date.now(),
       };
       await updateConfig(updatedConfig);
       setSuccessMessage('黑名单配置保存成功！');
       setTimeout(() => setSuccessMessage(null), 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      // ✅ 修复：使用unknown类型替代any
       console.error('保存黑名单配置失败:', error);
+      const apiError = error as ApiError | Error;
+      console.error(
+        '错误详情:',
+        apiError instanceof Error
+          ? apiError.message
+          : apiError?.response?.data?.message
+      );
     }
   };
 
@@ -104,12 +141,18 @@ const DeliveryConfig: React.FC = () => {
       deliveryInterval: 300,
       matchThreshold: 0.7,
     },
-    blacklistConfig: config.blacklistConfig || {
-      companyBlacklist: [],
-      positionBlacklist: [],
-      keywordBlacklist: [],
-      enableBlacklistFilter: false,
-    },
+    blacklistConfig: (config.blacklistConfig
+      ? {
+          companyBlacklist: config.blacklistConfig.companyBlacklist || [],
+          positionBlacklist: config.blacklistConfig.positionBlacklist || [],
+          enableBlacklistFilter:
+            config.blacklistConfig.enableBlacklistFilter || false,
+        }
+      : {
+          companyBlacklist: [],
+          positionBlacklist: [],
+          enableBlacklistFilter: false,
+        }) as BlacklistData,
   };
 
   return (

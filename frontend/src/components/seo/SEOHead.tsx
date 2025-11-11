@@ -51,7 +51,8 @@ const SEOHead: React.FC<SEOHeadProps> = ({
     updateAllSEOTags(seoConfig);
 
     // 添加结构化数据
-    const structuredDataArray: any[] = [];
+    // ✅ 修复：使用Record类型替代any
+    const structuredDataArray: Record<string, unknown>[] = [];
 
     // 1. 网页基础结构化数据（所有页面）
     structuredDataArray.push(generateWebPageSchema(seoConfig));

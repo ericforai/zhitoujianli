@@ -1,4 +1,4 @@
-// import { Link } from 'react-router-dom'; // TODO: 将来用于博客导航
+// import { Link } from 'react-router-dom'; // 已移除，未使用
 
 const BlogSection = () => {
   return (
@@ -16,7 +16,7 @@ const BlogSection = () => {
         <div className='grid grid-cols-1 md:grid-cols-3 gap-10 mb-16'>
           {/* 博客预览卡片 - 求职指南 */}
           <a
-            href='https://blog.zhitoujianli.com/category/qiu2-zhi2-zhi3-nan2/'
+            href='/blog/category/job-guide/'
             className='bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden block'
           >
             <div className='h-48 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center cursor-pointer'>
@@ -52,7 +52,7 @@ const BlogSection = () => {
 
           {/* 博客预览卡片 - 职场建议 */}
           <a
-            href='https://blog.zhitoujianli.com/category/zhi2-chang3-jian4-yi4/'
+            href='/blog/category/career-advice/'
             className='bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden block'
           >
             <div className='h-48 bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center cursor-pointer'>
@@ -88,7 +88,7 @@ const BlogSection = () => {
 
           {/* 博客预览卡片 - 产品动态 */}
           <a
-            href='https://blog.zhitoujianli.com/category/chan3-pin3-dong4-tai4/'
+            href='/blog/category/product-updates/'
             className='bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden block'
           >
             <div className='h-48 bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center cursor-pointer'>
@@ -125,9 +125,7 @@ const BlogSection = () => {
 
         <div className='text-center'>
           <a
-            href='https://blog.zhitoujianli.com'
-            target='_blank'
-            rel='noopener noreferrer'
+            href='/blog/'
             className='bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg inline-flex items-center space-x-2'
           >
             <span>访问博客</span>

@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { aiResumeService, type ResumeParseResult } from '../services/aiService';
+import { useErrorHandler } from '../hooks/useErrorHandler';
 
 // 定义组件内部类型
 interface GreetingSettings {
@@ -17,6 +18,8 @@ const SmartGreeting = () => {
   const [generatedGreeting, setGeneratedGreeting] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // ✅ 修复：使用统一的错误处理Hook替代alert
+  const { error: errorState, handleError, clearError } = useErrorHandler();
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -29,15 +32,17 @@ const SmartGreeting = () => {
       const text = await file.text();
       const parsedData = await aiResumeService.parseResume(text);
       setResumeData(parsedData);
+      clearError(); // 清除之前的错误
     } catch (error) {
-      console.error('文件解析失败:', error);
-      alert('文件解析失败，请重试');
+      // ✅ 修复：使用统一的错误处理替代alert
+      handleError(error);
     }
   };
 
   const generateGreeting = async () => {
     if (!resumeData || !jdText.trim()) {
-      alert('请先上传简历并输入JD内容');
+      // ✅ 修复：使用统一的错误处理替代alert
+      handleError('请先上传简历并输入JD内容');
       return;
     }
 
@@ -47,21 +52,38 @@ const SmartGreeting = () => {
       // 模拟AI生成打招呼语
       await new Promise(resolve => setTimeout(resolve, 2000));
 
+      // ✅ 修复：添加空值检查和默认值，防止运行时错误
+      const jobKeyword = jdText.split(' ')[0] || '相关';
+      const yearsExperience = resumeData.years_experience || 0;
+      const currentTitle = resumeData.current_title || '相关';
+      const skills = (resumeData.skills || []).slice(0, 2);
+      const skillsText = skills.length > 0 ? skills.join('、') : '相关技能';
+
       // 生成示例打招呼语
-      const greeting = `您好！我看到贵公司正在招聘${jdText.split(' ')[0]}相关职位。基于我的${resumeData.years_experience}年${resumeData.current_title}经验，特别是在${resumeData.skills.slice(0, 2).join('、')}方面的专业能力，我相信能够为团队带来价值。希望能有机会进一步沟通，谢谢！`;
+      const greeting = `您好！我看到贵公司正在招聘${jobKeyword}相关职位。基于我的${yearsExperience}年${currentTitle}经验，特别是在${skillsText}方面的专业能力，我相信能够为团队带来价值。希望能有机会进一步沟通，谢谢！`;
 
       setGeneratedGreeting(greeting);
+      clearError(); // 清除之前的错误
     } catch (error) {
-      console.error('生成打招呼语失败:', error);
-      alert('生成失败，请重试');
+      // ✅ 修复：使用统一的错误处理替代alert
+      handleError(error);
     } finally {
       setIsAnalyzing(false);
     }
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(generatedGreeting);
-    alert('已复制到剪贴板');
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(generatedGreeting);
+      // ✅ 修复：使用统一的错误处理替代alert
+      handleError('已复制到剪贴板'); // 这里可以改为success消息，但useErrorHandler目前只支持error
+      // 临时方案：使用setTimeout清除错误消息，显示成功提示
+      setTimeout(() => {
+        clearError();
+      }, 2000);
+    } catch (error) {
+      handleError('复制失败，请手动复制');
+    }
   };
 
   return (
@@ -70,6 +92,47 @@ const SmartGreeting = () => {
       className='py-28 bg-gradient-to-br from-blue-50 to-white'
     >
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+        {/* ✅ 修复：添加错误提示UI */}
+        {errorState.hasError && errorState.error && (
+          <div className='mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between'>
+            <div className='flex items-center'>
+              <svg
+                className='w-5 h-5 text-red-600 mr-3'
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+                />
+              </svg>
+              <span className='text-red-800'>{errorState.error}</span>
+            </div>
+            <button
+              onClick={clearError}
+              className='text-red-600 hover:text-red-800'
+              aria-label='关闭错误提示'
+            >
+              <svg
+                className='w-5 h-5'
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M6 18L18 6M6 6l12 12'
+                />
+              </svg>
+            </button>
+          </div>
+        )}
+
         <div className='text-center mb-20'>
           <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4 font-chinese'>
             智能化打招呼语
@@ -470,10 +533,10 @@ const SmartGreeting = () => {
             )}
 
             {/* 使用提示 */}
-            <div className='bg-blue-50 p-7 rounded-lg border border-blue-100'>
-              <h3 className='text-lg font-semibold text-blue-900 mb-4 flex items-center'>
+            <div className='bg-blue-50 p-5 rounded-lg border border-blue-100'>
+              <h3 className='text-lg font-semibold text-blue-900 mb-3 flex items-center'>
                 <svg
-                  className='w-6 h-6 mr-2 text-blue-600'
+                  className='w-5 h-5 mr-2 text-blue-600'
                   fill='none'
                   stroke='currentColor'
                   viewBox='0 0 24 24'
@@ -487,31 +550,23 @@ const SmartGreeting = () => {
                 </svg>
                 使用建议
               </h3>
-              <ul className='text-sm text-blue-800 space-y-3'>
+              <ul className='text-sm text-blue-800 space-y-2'>
                 <li className='flex items-start'>
                   <span className='mr-2 text-blue-600 font-bold'>•</span>
-                  <span>确保简历信息完整准确，AI分析更精准</span>
+                  <span>简历信息越完整，AI分析越精准</span>
                 </li>
                 <li className='flex items-start'>
                   <span className='mr-2 text-blue-600 font-bold'>•</span>
-                  <span>JD内容越详细，生成的打招呼语越个性化</span>
-                </li>
-                <li className='flex items-start'>
-                  <span className='mr-2 text-blue-600 font-bold'>•</span>
-                  <span>可根据不同公司调整打招呼语风格</span>
-                </li>
-                <li className='flex items-start'>
-                  <span className='mr-2 text-blue-600 font-bold'>•</span>
-                  <span>建议结合具体岗位要求微调内容</span>
+                  <span>JD内容越详细，打招呼语越个性化</span>
                 </li>
               </ul>
             </div>
 
             {/* 成功案例 */}
-            <div className='bg-gradient-to-br from-green-50 to-emerald-50 p-7 rounded-lg border border-green-100'>
-              <h3 className='text-lg font-semibold text-gray-900 mb-5 flex items-center'>
+            <div className='bg-gradient-to-br from-green-50 to-emerald-50 p-5 rounded-lg border border-green-100'>
+              <h3 className='text-lg font-semibold text-gray-900 mb-3 flex items-center'>
                 <svg
-                  className='w-6 h-6 mr-2 text-green-600'
+                  className='w-5 h-5 mr-2 text-green-600'
                   fill='none'
                   stroke='currentColor'
                   viewBox='0 0 24 24'
@@ -525,9 +580,9 @@ const SmartGreeting = () => {
                 </svg>
                 成功案例
               </h3>
-              <div className='space-y-3'>
-                <div className='bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow'>
-                  <div className='flex items-center justify-between mb-2'>
+              <div className='space-y-2'>
+                <div className='bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow'>
+                  <div className='flex items-center justify-between mb-1'>
                     <span className='text-sm font-semibold text-gray-900'>
                       互联网大厂
                     </span>
@@ -535,15 +590,12 @@ const SmartGreeting = () => {
                       回复率 85%
                     </span>
                   </div>
-                  <p className='text-xs text-gray-600 mb-1'>
-                    使用专业型打招呼语
-                  </p>
-                  <p className='text-xs text-gray-500'>
-                    突出技术能力和项目经验
+                  <p className='text-xs text-gray-600'>
+                    专业型 · 突出技术能力和项目经验
                   </p>
                 </div>
-                <div className='bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow'>
-                  <div className='flex items-center justify-between mb-2'>
+                <div className='bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow'>
+                  <div className='flex items-center justify-between mb-1'>
                     <span className='text-sm font-semibold text-gray-900'>
                       创业公司
                     </span>
@@ -551,15 +603,12 @@ const SmartGreeting = () => {
                       回复率 78%
                     </span>
                   </div>
-                  <p className='text-xs text-gray-600 mb-1'>
-                    使用真诚型打招呼语
-                  </p>
-                  <p className='text-xs text-gray-500'>
-                    表达对公司价值观的认同
+                  <p className='text-xs text-gray-600'>
+                    真诚型 · 表达对公司价值观的认同
                   </p>
                 </div>
-                <div className='bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow'>
-                  <div className='flex items-center justify-between mb-2'>
+                <div className='bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow'>
+                  <div className='flex items-center justify-between mb-1'>
                     <span className='text-sm font-semibold text-gray-900'>
                       外企
                     </span>
@@ -567,17 +616,18 @@ const SmartGreeting = () => {
                       回复率 72%
                     </span>
                   </div>
-                  <p className='text-xs text-gray-600 mb-1'>使用简短有力型</p>
-                  <p className='text-xs text-gray-500'>一句话直击核心优势</p>
+                  <p className='text-xs text-gray-600'>
+                    简短有力型 · 一句话直击核心优势
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* AI优势说明 - 新增模块 */}
-            <div className='bg-gradient-to-br from-purple-50 to-indigo-50 p-7 rounded-lg border border-purple-100 flex-grow'>
-              <h3 className='text-lg font-semibold text-gray-900 mb-5 flex items-center'>
+            <div className='bg-gradient-to-br from-purple-50 to-indigo-50 p-5 rounded-lg border border-purple-100 flex-grow'>
+              <h3 className='text-lg font-semibold text-gray-900 mb-3 flex items-center'>
                 <svg
-                  className='w-6 h-6 mr-2 text-purple-600'
+                  className='w-5 h-5 mr-2 text-purple-600'
                   fill='none'
                   stroke='currentColor'
                   viewBox='0 0 24 24'
@@ -589,14 +639,14 @@ const SmartGreeting = () => {
                     d='M13 10V3L4 14h7v7l9-11h-7z'
                   />
                 </svg>
-                为什么选择AI打招呼语？
+                AI打招呼语优势
               </h3>
-              <div className='grid grid-cols-1 gap-4'>
-                <div className='bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all'>
+              <div className='grid grid-cols-1 gap-3'>
+                <div className='bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all'>
                   <div className='flex items-start'>
-                    <div className='w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0'>
+                    <div className='w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center mr-2 flex-shrink-0'>
                       <svg
-                        className='w-5 h-5 text-blue-600'
+                        className='w-4 h-4 text-blue-600'
                         fill='none'
                         stroke='currentColor'
                         viewBox='0 0 24 24'
@@ -610,20 +660,20 @@ const SmartGreeting = () => {
                       </svg>
                     </div>
                     <div>
-                      <h4 className='font-semibold text-gray-900 mb-1'>
+                      <h4 className='font-semibold text-gray-900 text-sm mb-0.5'>
                         高效便捷
                       </h4>
-                      <p className='text-sm text-gray-600'>
-                        告别手动编写，秒级生成专业打招呼语，节省90%时间
+                      <p className='text-xs text-gray-600'>
+                        秒级生成，节省90%时间
                       </p>
                     </div>
                   </div>
                 </div>
-                <div className='bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all'>
+                <div className='bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all'>
                   <div className='flex items-start'>
-                    <div className='w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0'>
+                    <div className='w-7 h-7 bg-purple-100 rounded-lg flex items-center justify-center mr-2 flex-shrink-0'>
                       <svg
-                        className='w-5 h-5 text-purple-600'
+                        className='w-4 h-4 text-purple-600'
                         fill='none'
                         stroke='currentColor'
                         viewBox='0 0 24 24'
@@ -637,20 +687,20 @@ const SmartGreeting = () => {
                       </svg>
                     </div>
                     <div>
-                      <h4 className='font-semibold text-gray-900 mb-1'>
+                      <h4 className='font-semibold text-gray-900 text-sm mb-0.5'>
                         个性定制
                       </h4>
-                      <p className='text-sm text-gray-600'>
-                        深度分析简历与JD，量身打造个性化打招呼语，避免模板化
+                      <p className='text-xs text-gray-600'>
+                        分析简历与JD，避免模板化
                       </p>
                     </div>
                   </div>
                 </div>
-                <div className='bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all'>
+                <div className='bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all'>
                   <div className='flex items-start'>
-                    <div className='w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0'>
+                    <div className='w-7 h-7 bg-green-100 rounded-lg flex items-center justify-center mr-2 flex-shrink-0'>
                       <svg
-                        className='w-5 h-5 text-green-600'
+                        className='w-4 h-4 text-green-600'
                         fill='none'
                         stroke='currentColor'
                         viewBox='0 0 24 24'
@@ -664,39 +714,10 @@ const SmartGreeting = () => {
                       </svg>
                     </div>
                     <div>
-                      <h4 className='font-semibold text-gray-900 mb-1'>
+                      <h4 className='font-semibold text-gray-900 text-sm mb-0.5'>
                         提升回复率
                       </h4>
-                      <p className='text-sm text-gray-600'>
-                        优化措辞和表达，显著提升HR好感度，回复率提升4.7倍
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className='bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all'>
-                  <div className='flex items-start'>
-                    <div className='w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0'>
-                      <svg
-                        className='w-5 h-5 text-orange-600'
-                        fill='none'
-                        stroke='currentColor'
-                        viewBox='0 0 24 24'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth={2}
-                          d='M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01'
-                        />
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 className='font-semibold text-gray-900 mb-1'>
-                        多风格选择
-                      </h4>
-                      <p className='text-sm text-gray-600'>
-                        提供专业型、真诚型、简短有力型三种风格，满足不同需求
-                      </p>
+                      <p className='text-xs text-gray-600'>回复率提升4.7倍</p>
                     </div>
                   </div>
                 </div>

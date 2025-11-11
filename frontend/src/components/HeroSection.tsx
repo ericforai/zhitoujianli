@@ -10,41 +10,20 @@ const HeroSection = () => {
             智投简历
           </h1>
           <p className='text-2xl md:text-3xl text-gray-600 mb-8'>
-            智能投递 · 精准匹配
+            AI帮你自动投递简历
           </p>
 
           <p className='text-xl text-gray-500 mb-12 max-w-2xl mx-auto'>
-            用AI帮你更快拿到心仪Offer
+            免费注册，开启智能求职之旅
           </p>
 
-          <div className='flex flex-col sm:flex-row gap-4 justify-center mb-20'>
+          <div className='flex flex-col sm:flex-row gap-4 justify-center'>
             <Button as='a' href='/login' variant='primary' size='lg'>
               立即体验
             </Button>
             <Button as='a' href='/register' variant='secondary' size='lg'>
               免费开始
             </Button>
-          </div>
-
-          {/* 统计数据 */}
-          <div className='border-t border-gray-200 pt-16'>
-            <p className='text-sm text-gray-500 mb-10'>
-              已有 10,000+ 用户选择智投简历
-            </p>
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-10 max-w-3xl mx-auto'>
-              <div className='text-center'>
-                <div className='text-4xl font-bold text-blue-600 mb-2'>95%</div>
-                <div className='text-sm text-gray-600'>投递成功率</div>
-              </div>
-              <div className='text-center'>
-                <div className='text-4xl font-bold text-blue-600 mb-2'>3倍</div>
-                <div className='text-sm text-gray-600'>效率提升</div>
-              </div>
-              <div className='text-center'>
-                <div className='text-4xl font-bold text-blue-600 mb-2'>24h</div>
-                <div className='text-sm text-gray-600'>快速响应</div>
-              </div>
-            </div>
           </div>
         </div>
       </Container>

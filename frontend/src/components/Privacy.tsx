@@ -19,8 +19,13 @@ const Privacy: React.FC = () => {
       <header className='bg-white shadow-sm'>
         <Container size='xl'>
           <div className='py-4 flex items-center justify-between'>
-            <Link to='/' className='text-2xl font-bold text-blue-600'>
-              智投简历
+            <Link to='/' className='flex items-center space-x-3'>
+              <img
+                src='/images/logo-plane.png'
+                alt='智投简历Logo'
+                className='h-8 w-auto'
+              />
+              <span className='text-2xl font-bold text-blue-600'>智投简历</span>
             </Link>
             <Link
               to='/'
@@ -380,7 +385,7 @@ const Privacy: React.FC = () => {
                   <p className='text-gray-700'>
                     <span className='font-semibold'>联系页面：</span>
                     <a
-                      href='https://blog.zhitoujianli.com/contact/'
+                      href='/blog/contact/'
                       target='_blank'
                       rel='noopener noreferrer'
                       className='text-blue-600 hover:text-blue-700 underline ml-2'

@@ -47,10 +47,23 @@ const Login: React.FC = () => {
 
       setSuccess('登录成功！正在跳转...');
       loginLogger.info('邮箱登录成功');
-    } catch (err: any) {
-      loginLogger.error('登录失败', err);
+    } catch (err: unknown) {
+      // ✅ 修复：定义错误类型，避免使用any
+      interface ApiError {
+        response?: {
+          data?: {
+            message?: string;
+          };
+        };
+        message?: string;
+      }
+
+      const error = err as ApiError;
+      loginLogger.error('登录失败', error);
       const errorMessage =
-        err.response?.data?.message || err.message || '登录失败，请稍后重试';
+        error.response?.data?.message ||
+        error.message ||
+        '登录失败，请稍后重试';
       setError(errorMessage);
     } finally {
       setLoading(false);

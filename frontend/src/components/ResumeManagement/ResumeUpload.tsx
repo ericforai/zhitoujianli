@@ -9,6 +9,8 @@ import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { resumeService } from '../../services/resumeService';
 import { ResumeInfo } from '../../types/api';
+import { useErrorHandler } from '../../hooks/useErrorHandler';
+import { validateFileType, validateFileSize } from '../../utils/apiValidator';
 
 interface ResumeUploadProps {
   onUploadSuccess: (resumeInfo: ResumeInfo) => void;
@@ -24,6 +26,8 @@ const ResumeUpload: React.FC<ResumeUploadProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [dragActive, setDragActive] = useState(false);
+  // ✅ 优化：使用统一的错误处理Hook
+  const { handleError } = useErrorHandler();
 
   /**
    * 处理文件上传
@@ -36,10 +40,23 @@ const ResumeUpload: React.FC<ResumeUploadProps> = ({
       setUploadProgress(0);
 
       try {
-        // 验证文件格式
-        const validation = resumeService.validateFileFormat(file);
-        if (!validation.valid) {
-          throw new Error(validation.message);
+        // ✅ 优化：使用apiValidator进行文件验证
+        const allowedTypes = [
+          'application/pdf',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'text/plain',
+        ];
+        const maxSize = 10 * 1024 * 1024; // 10MB
+
+        const typeValidation = validateFileType(file, allowedTypes);
+        if (!typeValidation.valid) {
+          throw new Error(typeValidation.message);
+        }
+
+        const sizeValidation = validateFileSize(file, maxSize);
+        if (!sizeValidation.valid) {
+          throw new Error(sizeValidation.message);
         }
 
         // 模拟上传进度
@@ -63,14 +80,18 @@ const ResumeUpload: React.FC<ResumeUploadProps> = ({
         } else {
           throw new Error(response.message);
         }
-      } catch (error: any) {
-        onUploadError(error.message || '上传失败');
+      } catch (error: unknown) {
+        // ✅ 优化：使用统一的错误处理
+        const errorMessage =
+          error instanceof Error ? error.message : '上传失败';
+        handleError(error);
+        onUploadError(errorMessage);
       } finally {
         setIsUploading(false);
         setTimeout(() => setUploadProgress(0), 1000);
       }
     },
-    [disabled, onUploadSuccess, onUploadError]
+    [disabled, onUploadSuccess, onUploadError, handleError]
   );
 
   /**

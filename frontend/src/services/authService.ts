@@ -190,6 +190,7 @@ export interface User {
   email?: string;
   phone?: string;
   username?: string;
+  name?: string; // ✅ 修复：添加name属性以支持Navigation组件
   avatar?: string;
 }
 

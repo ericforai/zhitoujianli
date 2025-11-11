@@ -203,12 +203,12 @@ const BlogCategoryPage: React.FC = () => {
             <p className='text-xl text-gray-600 mb-8'>
               抱歉，您访问的博客分类不存在
             </p>
-            <Link
-              to='/blog'
+            <a
+              href='/blog/'
               className='inline-block bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300'
             >
               返回博客首页
-            </Link>
+            </a>
           </div>
         </main>
         <Footer />
@@ -253,20 +253,47 @@ const BlogCategoryPage: React.FC = () => {
       {/* 文章列表 */}
       <section className='py-16 bg-gray-50'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          {/* 面包屑导航 */}
+          {/* 面包屑导航 - 分类快捷切换 */}
           <div className='mb-8'>
-            <nav className='flex items-center space-x-2 text-gray-600'>
-              <Link to='/' className='hover:text-indigo-600'>
+            <nav className='flex items-center flex-wrap gap-2'>
+              <a
+                href='/'
+                className='text-gray-600 hover:text-indigo-600 transition-colors duration-200'
+              >
                 首页
-              </Link>
-              <span>/</span>
-              <Link to='/blog' className='hover:text-indigo-600'>
-                博客
-              </Link>
-              <span>/</span>
-              <span className='text-gray-900 font-medium'>
-                {currentCategory.title}
-              </span>
+              </a>
+              <span className='text-gray-400'>/</span>
+              <span className='text-gray-500 text-sm'>分类:</span>
+              <a
+                href='/blog/category/product-updates/'
+                className={`px-3 py-1 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  category === 'product-updates'
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                产品动态
+              </a>
+              <a
+                href='/blog/category/job-guide/'
+                className={`px-3 py-1 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  category === 'job-guide'
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                求职指南
+              </a>
+              <a
+                href='/blog/category/career-advice/'
+                className={`px-3 py-1 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  category === 'career-advice'
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                职场建议
+              </a>
             </nav>
           </div>
 
@@ -310,8 +337,8 @@ const BlogCategoryPage: React.FC = () => {
 
           {/* 返回博客首页 */}
           <div className='mt-12 text-center'>
-            <Link
-              to='/blog'
+            <a
+              href='/blog/'
               className='inline-flex items-center space-x-2 text-indigo-600 hover:text-indigo-800 font-medium'
             >
               <svg
@@ -328,7 +355,7 @@ const BlogCategoryPage: React.FC = () => {
                 />
               </svg>
               <span>返回博客首页</span>
-            </Link>
+            </a>
           </div>
         </div>
       </section>

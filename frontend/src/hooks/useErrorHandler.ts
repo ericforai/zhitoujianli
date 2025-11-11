@@ -13,11 +13,25 @@ export interface ErrorState {
   timestamp: number | null;
 }
 
+/**
+ * API错误接口
+ */
+export interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+      error?: string;
+    };
+    statusText?: string;
+  };
+  message?: string;
+}
+
 export interface UseErrorHandlerReturn {
   error: ErrorState;
   setError: (error: string) => void;
   clearError: () => void;
-  handleError: (error: any) => void;
+  handleError: (error: unknown) => void;
 }
 
 /**
@@ -53,20 +67,30 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
     [clearError]
   );
 
+  /**
+   * 处理错误
+   * ✅ 修复：使用unknown类型替代any，提升类型安全
+   */
   const handleError = useCallback(
-    (err: any) => {
+    (err: unknown) => {
       let errorMessage = '发生未知错误';
 
       if (typeof err === 'string') {
         errorMessage = err;
-      } else if (err?.message) {
+      } else if (err instanceof Error) {
         errorMessage = err.message;
-      } else if (err?.response?.data?.message) {
-        errorMessage = err.response.data.message;
-      } else if (err?.response?.data?.error) {
-        errorMessage = err.response.data.error;
-      } else if (err?.response?.statusText) {
-        errorMessage = err.response.statusText;
+      } else {
+        // 处理API错误格式
+        const apiError = err as ApiError;
+        if (apiError?.response?.data?.message) {
+          errorMessage = apiError.response.data.message;
+        } else if (apiError?.response?.data?.error) {
+          errorMessage = apiError.response.data.error;
+        } else if (apiError?.response?.statusText) {
+          errorMessage = apiError.response.statusText;
+        } else if (apiError?.message) {
+          errorMessage = apiError.message;
+        }
       }
 
       setError(errorMessage);
