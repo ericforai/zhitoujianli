@@ -1,0 +1,1204 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>智投简历 - Logo预览（独立版）</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+          'Microsoft YaHei', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 40px 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 40px;
+        font-size: 2.5rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .preview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin-bottom: 40px;
+      }
+
+      .preview-card {
+        background: white;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease;
+      }
+
+      .preview-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .preview-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .logo-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+      }
+
+      .bg-white {
+        background: white;
+        border: 1px solid #e5e7eb;
+      }
+      .bg-light {
+        background: #f3f4f6;
+      }
+      .bg-blue {
+        background: #3b82f6;
+      }
+      .bg-dark {
+        background: #1f2937;
+      }
+      .bg-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .logo-svg {
+        display: block;
+      }
+
+      .size-xs {
+        width: 24px;
+        height: 24px;
+      }
+      .size-sm {
+        width: 32px;
+        height: 32px;
+      }
+      .size-md {
+        width: 48px;
+        height: 48px;
+      }
+      .size-lg {
+        width: 64px;
+        height: 64px;
+      }
+      .size-xl {
+        width: 96px;
+        height: 96px;
+      }
+      .size-2xl {
+        width: 128px;
+        height: 128px;
+      }
+
+      .size-label {
+        text-align: center;
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      /* 导航栏模拟 */
+      .nav-demo {
+        background: white;
+        padding: 16px 24px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .nav-logo {
+        width: 32px;
+        height: 32px;
+        transition: transform 0.2s;
+      }
+
+      .nav-demo:hover .nav-logo {
+        transform: scale(1.1);
+      }
+
+      .nav-text {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: #111827;
+      }
+
+      .info-section {
+        background: white;
+        border-radius: 16px;
+        padding: 30px;
+        margin-top: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .info-section h2 {
+        color: #333;
+        margin-bottom: 15px;
+      }
+
+      .info-section ul {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      .info-section li {
+        padding: 8px 0;
+        color: #666;
+      }
+
+      .info-section li::before {
+        content: '✓ ';
+        color: #10b981;
+        font-weight: bold;
+        margin-right: 8px;
+      }
+
+      .comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .comparison-item {
+        background: #f9fafb;
+        padding: 20px;
+        border-radius: 8px;
+      }
+
+      .comparison-item h3 {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        color: #1f2937;
+      }
+
+      .old-logo {
+        display: inline-flex;
+        height: 32px;
+        width: 32px;
+        background: #3b82f6;
+        border-radius: 8px;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+      }
+
+      .old-logo:hover {
+        background: #2563eb;
+      }
+
+      .old-logo span {
+        color: white;
+        font-weight: bold;
+        font-size: 14px;
+      }
+
+      @media (max-width: 768px) {
+        .comparison {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎨 智投简历 Logo 预览</h1>
+
+      <!-- 不同尺寸预览 -->
+      <div class="preview-grid">
+        <div class="preview-card">
+          <div class="preview-title">超小尺寸 (24x24)</div>
+          <div class="logo-container bg-light">
+            <svg
+              class="logo-svg size-xs"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 200 200"
+              fill="none"
+            >
+              <g id="trail" opacity="0.8">
+                <circle cx="45" cy="140" r="4" fill="#14B8A6" />
+                <circle cx="30" cy="155" r="3" fill="#14B8A6" />
+                <rect
+                  x="55"
+                  y="148"
+                  width="12"
+                  height="3"
+                  rx="1.5"
+                  fill="#14B8A6"
+                  transform="rotate(25 61 149.5)"
+                />
+                <circle cx="68" cy="125" r="3.5" fill="#3B82F6" />
+                <rect
+                  x="38"
+                  y="168"
+                  width="10"
+                  height="3"
+                  rx="1.5"
+                  fill="#3B82F6"
+                  transform="rotate(25 43 169.5)"
+                />
+                <circle cx="52" cy="175" r="2.5" fill="#3B82F6" />
+                <circle cx="72" cy="145" r="3" fill="#9CA3AF" />
+                <rect
+                  x="48"
+                  y="132"
+                  width="8"
+                  height="2.5"
+                  rx="1.25"
+                  fill="#9CA3AF"
+                  transform="rotate(25 52 133.25)"
+                />
+                <circle cx="62" cy="162" r="2" fill="#9CA3AF" />
+                <rect
+                  x="35"
+                  y="145"
+                  width="6"
+                  height="2"
+                  rx="1"
+                  fill="#9CA3AF"
+                  transform="rotate(25 38 146)"
+                />
+              </g>
+              <g id="paper-plane" transform="translate(100, 80) rotate(25)">
+                <path d="M 0 0 L 60 20 L 50 35 L 0 15 Z" fill="#3B82F6" />
+                <circle cx="35" cy="22" r="3" fill="white" opacity="0.9" />
+                <line
+                  x1="35"
+                  y1="22"
+                  x2="42"
+                  y2="24"
+                  stroke="white"
+                  stroke-width="1.5"
+                  opacity="0.9"
+                />
+                <path d="M 0 0 L 60 -15 L 50 0 L 0 5 Z" fill="#14B8A6" />
+                <circle cx="32" cy="-5" r="2.5" fill="#0D9488" opacity="0.7" />
+                <line
+                  x1="32"
+                  y1="-5"
+                  x2="38"
+                  y2="-3"
+                  stroke="#0D9488"
+                  stroke-width="1"
+                  opacity="0.7"
+                />
+                <path d="M 0 0 L 60 2 L 50 17.5 L 0 10 Z" fill="#1E3A8A" />
+                <circle cx="58" cy="2" r="3" fill="white" opacity="0.3" />
+              </g>
+            </svg>
+          </div>
+          <div class="size-label">移动端导航栏</div>
+        </div>
+
+        <div class="preview-card">
+          <div class="preview-title">小尺寸 (32x32) ⭐推荐</div>
+          <div class="logo-container bg-white">
+            <svg
+              class="logo-svg size-sm"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 200 200"
+              fill="none"
+            >
+              <g opacity="0.8">
+                <circle cx="45" cy="140" r="4" fill="#14B8A6" />
+                <circle cx="30" cy="155" r="3" fill="#14B8A6" />
+                <rect
+                  x="55"
+                  y="148"
+                  width="12"
+                  height="3"
+                  rx="1.5"
+                  fill="#14B8A6"
+                  transform="rotate(25 61 149.5)"
+                />
+                <circle cx="68" cy="125" r="3.5" fill="#3B82F6" />
+                <rect
+                  x="38"
+                  y="168"
+                  width="10"
+                  height="3"
+                  rx="1.5"
+                  fill="#3B82F6"
+                  transform="rotate(25 43 169.5)"
+                />
+                <circle cx="52" cy="175" r="2.5" fill="#3B82F6" />
+                <circle cx="72" cy="145" r="3" fill="#9CA3AF" />
+                <rect
+                  x="48"
+                  y="132"
+                  width="8"
+                  height="2.5"
+                  rx="1.25"
+                  fill="#9CA3AF"
+                  transform="rotate(25 52 133.25)"
+                />
+                <circle cx="62" cy="162" r="2" fill="#9CA3AF" />
+                <rect
+                  x="35"
+                  y="145"
+                  width="6"
+                  height="2"
+                  rx="1"
+                  fill="#9CA3AF"
+                  transform="rotate(25 38 146)"
+                />
+              </g>
+              <g transform="translate(100, 80) rotate(25)">
+                <path d="M 0 0 L 60 20 L 50 35 L 0 15 Z" fill="#3B82F6" />
+                <circle cx="35" cy="22" r="3" fill="white" opacity="0.9" />
+                <line
+                  x1="35"
+                  y1="22"
+                  x2="42"
+                  y2="24"
+                  stroke="white"
+                  stroke-width="1.5"
+                  opacity="0.9"
+                />
+                <path d="M 0 0 L 60 -15 L 50 0 L 0 5 Z" fill="#14B8A6" />
+                <circle cx="32" cy="-5" r="2.5" fill="#0D9488" opacity="0.7" />
+                <line
+                  x1="32"
+                  y1="-5"
+                  x2="38"
+                  y2="-3"
+                  stroke="#0D9488"
+                  stroke-width="1"
+                  opacity="0.7"
+                />
+                <path d="M 0 0 L 60 2 L 50 17.5 L 0 10 Z" fill="#1E3A8A" />
+                <circle cx="58" cy="2" r="3" fill="white" opacity="0.3" />
+              </g>
+            </svg>
+          </div>
+          <div class="size-label">桌面端导航栏（当前）</div>
+        </div>
+
+        <div class="preview-card">
+          <div class="preview-title">中等尺寸 (48x48)</div>
+          <div class="logo-container bg-light">
+            <svg
+              class="logo-svg size-md"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 200 200"
+              fill="none"
+            >
+              <g opacity="0.8">
+                <circle cx="45" cy="140" r="4" fill="#14B8A6" />
+                <circle cx="30" cy="155" r="3" fill="#14B8A6" />
+                <rect
+                  x="55"
+                  y="148"
+                  width="12"
+                  height="3"
+                  rx="1.5"
+                  fill="#14B8A6"
+                  transform="rotate(25 61 149.5)"
+                />
+                <circle cx="68" cy="125" r="3.5" fill="#3B82F6" />
+                <rect
+                  x="38"
+                  y="168"
+                  width="10"
+                  height="3"
+                  rx="1.5"
+                  fill="#3B82F6"
+                  transform="rotate(25 43 169.5)"
+                />
+                <circle cx="52" cy="175" r="2.5" fill="#3B82F6" />
+                <circle cx="72" cy="145" r="3" fill="#9CA3AF" />
+                <rect
+                  x="48"
+                  y="132"
+                  width="8"
+                  height="2.5"
+                  rx="1.25"
+                  fill="#9CA3AF"
+                  transform="rotate(25 52 133.25)"
+                />
+                <circle cx="62" cy="162" r="2" fill="#9CA3AF" />
+                <rect
+                  x="35"
+                  y="145"
+                  width="6"
+                  height="2"
+                  rx="1"
+                  fill="#9CA3AF"
+                  transform="rotate(25 38 146)"
+                />
+              </g>
+              <g transform="translate(100, 80) rotate(25)">
+                <path d="M 0 0 L 60 20 L 50 35 L 0 15 Z" fill="#3B82F6" />
+                <circle cx="35" cy="22" r="3" fill="white" opacity="0.9" />
+                <line
+                  x1="35"
+                  y1="22"
+                  x2="42"
+                  y2="24"
+                  stroke="white"
+                  stroke-width="1.5"
+                  opacity="0.9"
+                />
+                <path d="M 0 0 L 60 -15 L 50 0 L 0 5 Z" fill="#14B8A6" />
+                <circle cx="32" cy="-5" r="2.5" fill="#0D9488" opacity="0.7" />
+                <line
+                  x1="32"
+                  y1="-5"
+                  x2="38"
+                  y2="-3"
+                  stroke="#0D9488"
+                  stroke-width="1"
+                  opacity="0.7"
+                />
+                <path d="M 0 0 L 60 2 L 50 17.5 L 0 10 Z" fill="#1E3A8A" />
+                <circle cx="58" cy="2" r="3" fill="white" opacity="0.3" />
+              </g>
+            </svg>
+          </div>
+          <div class="size-label">页面标题、按钮</div>
+        </div>
+
+        <div class="preview-card">
+          <div class="preview-title">大尺寸 (64x64)</div>
+          <div class="logo-container bg-white">
+            <svg
+              class="logo-svg size-lg"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 200 200"
+              fill="none"
+            >
+              <g opacity="0.8">
+                <circle cx="45" cy="140" r="4" fill="#14B8A6" />
+                <circle cx="30" cy="155" r="3" fill="#14B8A6" />
+                <rect
+                  x="55"
+                  y="148"
+                  width="12"
+                  height="3"
+                  rx="1.5"
+                  fill="#14B8A6"
+                  transform="rotate(25 61 149.5)"
+                />
+                <circle cx="68" cy="125" r="3.5" fill="#3B82F6" />
+                <rect
+                  x="38"
+                  y="168"
+                  width="10"
+                  height="3"
+                  rx="1.5"
+                  fill="#3B82F6"
+                  transform="rotate(25 43 169.5)"
+                />
+                <circle cx="52" cy="175" r="2.5" fill="#3B82F6" />
+                <circle cx="72" cy="145" r="3" fill="#9CA3AF" />
+                <rect
+                  x="48"
+                  y="132"
+                  width="8"
+                  height="2.5"
+                  rx="1.25"
+                  fill="#9CA3AF"
+                  transform="rotate(25 52 133.25)"
+                />
+                <circle cx="62" cy="162" r="2" fill="#9CA3AF" />
+                <rect
+                  x="35"
+                  y="145"
+                  width="6"
+                  height="2"
+                  rx="1"
+                  fill="#9CA3AF"
+                  transform="rotate(25 38 146)"
+                />
+              </g>
+              <g transform="translate(100, 80) rotate(25)">
+                <path d="M 0 0 L 60 20 L 50 35 L 0 15 Z" fill="#3B82F6" />
+                <circle cx="35" cy="22" r="3" fill="white" opacity="0.9" />
+                <line
+                  x1="35"
+                  y1="22"
+                  x2="42"
+                  y2="24"
+                  stroke="white"
+                  stroke-width="1.5"
+                  opacity="0.9"
+                />
+                <path d="M 0 0 L 60 -15 L 50 0 L 0 5 Z" fill="#14B8A6" />
+                <circle cx="32" cy="-5" r="2.5" fill="#0D9488" opacity="0.7" />
+                <line
+                  x1="32"
+                  y1="-5"
+                  x2="38"
+                  y2="-3"
+                  stroke="#0D9488"
+                  stroke-width="1"
+                  opacity="0.7"
+                />
+                <path d="M 0 0 L 60 2 L 50 17.5 L 0 10 Z" fill="#1E3A8A" />
+                <circle cx="58" cy="2" r="3" fill="white" opacity="0.3" />
+              </g>
+            </svg>
+          </div>
+          <div class="size-label">卡片、功能区</div>
+        </div>
+
+        <div class="preview-card">
+          <div class="preview-title">超大尺寸 (96x96)</div>
+          <div class="logo-container bg-light">
+            <svg
+              class="logo-svg size-xl"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 200 200"
+              fill="none"
+            >
+              <g opacity="0.8">
+                <circle cx="45" cy="140" r="4" fill="#14B8A6" />
+                <circle cx="30" cy="155" r="3" fill="#14B8A6" />
+                <rect
+                  x="55"
+                  y="148"
+                  width="12"
+                  height="3"
+                  rx="1.5"
+                  fill="#14B8A6"
+                  transform="rotate(25 61 149.5)"
+                />
+                <circle cx="68" cy="125" r="3.5" fill="#3B82F6" />
+                <rect
+                  x="38"
+                  y="168"
+                  width="10"
+                  height="3"
+                  rx="1.5"
+                  fill="#3B82F6"
+                  transform="rotate(25 43 169.5)"
+                />
+                <circle cx="52" cy="175" r="2.5" fill="#3B82F6" />
+                <circle cx="72" cy="145" r="3" fill="#9CA3AF" />
+                <rect
+                  x="48"
+                  y="132"
+                  width="8"
+                  height="2.5"
+                  rx="1.25"
+                  fill="#9CA3AF"
+                  transform="rotate(25 52 133.25)"
+                />
+                <circle cx="62" cy="162" r="2" fill="#9CA3AF" />
+                <rect
+                  x="35"
+                  y="145"
+                  width="6"
+                  height="2"
+                  rx="1"
+                  fill="#9CA3AF"
+                  transform="rotate(25 38 146)"
+                />
+              </g>
+              <g transform="translate(100, 80) rotate(25)">
+                <path d="M 0 0 L 60 20 L 50 35 L 0 15 Z" fill="#3B82F6" />
+                <circle cx="35" cy="22" r="3" fill="white" opacity="0.9" />
+                <line
+                  x1="35"
+                  y1="22"
+                  x2="42"
+                  y2="24"
+                  stroke="white"
+                  stroke-width="1.5"
+                  opacity="0.9"
+                />
+                <path d="M 0 0 L 60 -15 L 50 0 L 0 5 Z" fill="#14B8A6" />
+                <circle cx="32" cy="-5" r="2.5" fill="#0D9488" opacity="0.7" />
+                <line
+                  x1="32"
+                  y1="-5"
+                  x2="38"
+                  y2="-3"
+                  stroke="#0D9488"
+                  stroke-width="1"
+                  opacity="0.7"
+                />
+                <path d="M 0 0 L 60 2 L 50 17.5 L 0 10 Z" fill="#1E3A8A" />
+                <circle cx="58" cy="2" r="3" fill="white" opacity="0.3" />
+              </g>
+            </svg>
+          </div>
+          <div class="size-label">首页 Hero 区</div>
+        </div>
+
+        <div class="preview-card">
+          <div class="preview-title">巨大尺寸 (128x128)</div>
+          <div class="logo-container bg-white">
+            <svg
+              class="logo-svg size-2xl"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 200 200"
+              fill="none"
+            >
+              <g opacity="0.8">
+                <circle cx="45" cy="140" r="4" fill="#14B8A6" />
+                <circle cx="30" cy="155" r="3" fill="#14B8A6" />
+                <rect
+                  x="55"
+                  y="148"
+                  width="12"
+                  height="3"
+                  rx="1.5"
+                  fill="#14B8A6"
+                  transform="rotate(25 61 149.5)"
+                />
+                <circle cx="68" cy="125" r="3.5" fill="#3B82F6" />
+                <rect
+                  x="38"
+                  y="168"
+                  width="10"
+                  height="3"
+                  rx="1.5"
+                  fill="#3B82F6"
+                  transform="rotate(25 43 169.5)"
+                />
+                <circle cx="52" cy="175" r="2.5" fill="#3B82F6" />
+                <circle cx="72" cy="145" r="3" fill="#9CA3AF" />
+                <rect
+                  x="48"
+                  y="132"
+                  width="8"
+                  height="2.5"
+                  rx="1.25"
+                  fill="#9CA3AF"
+                  transform="rotate(25 52 133.25)"
+                />
+                <circle cx="62" cy="162" r="2" fill="#9CA3AF" />
+                <rect
+                  x="35"
+                  y="145"
+                  width="6"
+                  height="2"
+                  rx="1"
+                  fill="#9CA3AF"
+                  transform="rotate(25 38 146)"
+                />
+              </g>
+              <g transform="translate(100, 80) rotate(25)">
+                <path d="M 0 0 L 60 20 L 50 35 L 0 15 Z" fill="#3B82F6" />
+                <circle cx="35" cy="22" r="3" fill="white" opacity="0.9" />
+                <line
+                  x1="35"
+                  y1="22"
+                  x2="42"
+                  y2="24"
+                  stroke="white"
+                  stroke-width="1.5"
+                  opacity="0.9"
+                />
+                <path d="M 0 0 L 60 -15 L 50 0 L 0 5 Z" fill="#14B8A6" />
+                <circle cx="32" cy="-5" r="2.5" fill="#0D9488" opacity="0.7" />
+                <line
+                  x1="32"
+                  y1="-5"
+                  x2="38"
+                  y2="-3"
+                  stroke="#0D9488"
+                  stroke-width="1"
+                  opacity="0.7"
+                />
+                <path d="M 0 0 L 60 2 L 50 17.5 L 0 10 Z" fill="#1E3A8A" />
+                <circle cx="58" cy="2" r="3" fill="white" opacity="0.3" />
+              </g>
+            </svg>
+          </div>
+          <div class="size-label">应用图标、启动页</div>
+        </div>
+      </div>
+
+      <!-- 不同背景色预览 -->
+      <div class="info-section">
+        <h2>🎨 不同背景色适配测试</h2>
+        <div class="preview-grid">
+          <div class="preview-card">
+            <div class="preview-title">白色背景</div>
+            <div class="logo-container bg-white">
+              <svg
+                class="logo-svg size-lg"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 200 200"
+                fill="none"
+              >
+                <g opacity="0.8">
+                  <circle cx="45" cy="140" r="4" fill="#14B8A6" />
+                  <circle cx="30" cy="155" r="3" fill="#14B8A6" />
+                  <rect
+                    x="55"
+                    y="148"
+                    width="12"
+                    height="3"
+                    rx="1.5"
+                    fill="#14B8A6"
+                    transform="rotate(25 61 149.5)"
+                  />
+                  <circle cx="68" cy="125" r="3.5" fill="#3B82F6" />
+                  <rect
+                    x="38"
+                    y="168"
+                    width="10"
+                    height="3"
+                    rx="1.5"
+                    fill="#3B82F6"
+                    transform="rotate(25 43 169.5)"
+                  />
+                  <circle cx="52" cy="175" r="2.5" fill="#3B82F6" />
+                  <circle cx="72" cy="145" r="3" fill="#9CA3AF" />
+                  <rect
+                    x="48"
+                    y="132"
+                    width="8"
+                    height="2.5"
+                    rx="1.25"
+                    fill="#9CA3AF"
+                    transform="rotate(25 52 133.25)"
+                  />
+                  <circle cx="62" cy="162" r="2" fill="#9CA3AF" />
+                  <rect
+                    x="35"
+                    y="145"
+                    width="6"
+                    height="2"
+                    rx="1"
+                    fill="#9CA3AF"
+                    transform="rotate(25 38 146)"
+                  />
+                </g>
+                <g transform="translate(100, 80) rotate(25)">
+                  <path d="M 0 0 L 60 20 L 50 35 L 0 15 Z" fill="#3B82F6" />
+                  <circle cx="35" cy="22" r="3" fill="white" opacity="0.9" />
+                  <line
+                    x1="35"
+                    y1="22"
+                    x2="42"
+                    y2="24"
+                    stroke="white"
+                    stroke-width="1.5"
+                    opacity="0.9"
+                  />
+                  <path d="M 0 0 L 60 -15 L 50 0 L 0 5 Z" fill="#14B8A6" />
+                  <circle cx="32" cy="-5" r="2.5" fill="#0D9488" opacity="0.7" />
+                  <line
+                    x1="32"
+                    y1="-5"
+                    x2="38"
+                    y2="-3"
+                    stroke="#0D9488"
+                    stroke-width="1"
+                    opacity="0.7"
+                  />
+                  <path d="M 0 0 L 60 2 L 50 17.5 L 0 10 Z" fill="#1E3A8A" />
+                  <circle cx="58" cy="2" r="3" fill="white" opacity="0.3" />
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <div class="preview-card">
+            <div class="preview-title">浅灰背景</div>
+            <div class="logo-container bg-light">
+              <svg
+                class="logo-svg size-lg"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 200 200"
+                fill="none"
+              >
+                <g opacity="0.8">
+                  <circle cx="45" cy="140" r="4" fill="#14B8A6" />
+                  <circle cx="30" cy="155" r="3" fill="#14B8A6" />
+                  <rect
+                    x="55"
+                    y="148"
+                    width="12"
+                    height="3"
+                    rx="1.5"
+                    fill="#14B8A6"
+                    transform="rotate(25 61 149.5)"
+                  />
+                  <circle cx="68" cy="125" r="3.5" fill="#3B82F6" />
+                  <rect
+                    x="38"
+                    y="168"
+                    width="10"
+                    height="3"
+                    rx="1.5"
+                    fill="#3B82F6"
+                    transform="rotate(25 43 169.5)"
+                  />
+                  <circle cx="52" cy="175" r="2.5" fill="#3B82F6" />
+                  <circle cx="72" cy="145" r="3" fill="#9CA3AF" />
+                  <rect
+                    x="48"
+                    y="132"
+                    width="8"
+                    height="2.5"
+                    rx="1.25"
+                    fill="#9CA3AF"
+                    transform="rotate(25 52 133.25)"
+                  />
+                  <circle cx="62" cy="162" r="2" fill="#9CA3AF" />
+                  <rect
+                    x="35"
+                    y="145"
+                    width="6"
+                    height="2"
+                    rx="1"
+                    fill="#9CA3AF"
+                    transform="rotate(25 38 146)"
+                  />
+                </g>
+                <g transform="translate(100, 80) rotate(25)">
+                  <path d="M 0 0 L 60 20 L 50 35 L 0 15 Z" fill="#3B82F6" />
+                  <circle cx="35" cy="22" r="3" fill="white" opacity="0.9" />
+                  <line
+                    x1="35"
+                    y1="22"
+                    x2="42"
+                    y2="24"
+                    stroke="white"
+                    stroke-width="1.5"
+                    opacity="0.9"
+                  />
+                  <path d="M 0 0 L 60 -15 L 50 0 L 0 5 Z" fill="#14B8A6" />
+                  <circle cx="32" cy="-5" r="2.5" fill="#0D9488" opacity="0.7" />
+                  <line
+                    x1="32"
+                    y1="-5"
+                    x2="38"
+                    y2="-3"
+                    stroke="#0D9488"
+                    stroke-width="1"
+                    opacity="0.7"
+                  />
+                  <path d="M 0 0 L 60 2 L 50 17.5 L 0 10 Z" fill="#1E3A8A" />
+                  <circle cx="58" cy="2" r="3" fill="white" opacity="0.3" />
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <div class="preview-card">
+            <div class="preview-title">蓝色背景</div>
+            <div class="logo-container bg-blue">
+              <svg
+                class="logo-svg size-lg"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 200 200"
+                fill="none"
+              >
+                <g opacity="0.8">
+                  <circle cx="45" cy="140" r="4" fill="#14B8A6" />
+                  <circle cx="30" cy="155" r="3" fill="#14B8A6" />
+                  <rect
+                    x="55"
+                    y="148"
+                    width="12"
+                    height="3"
+                    rx="1.5"
+                    fill="#14B8A6"
+                    transform="rotate(25 61 149.5)"
+                  />
+                  <circle cx="68" cy="125" r="3.5" fill="#60A5FA" />
+                  <rect
+                    x="38"
+                    y="168"
+                    width="10"
+                    height="3"
+                    rx="1.5"
+                    fill="#60A5FA"
+                    transform="rotate(25 43 169.5)"
+                  />
+                  <circle cx="52" cy="175" r="2.5" fill="#60A5FA" />
+                  <circle cx="72" cy="145" r="3" fill="#E5E7EB" />
+                  <rect
+                    x="48"
+                    y="132"
+                    width="8"
+                    height="2.5"
+                    rx="1.25"
+                    fill="#E5E7EB"
+                    transform="rotate(25 52 133.25)"
+                  />
+                  <circle cx="62" cy="162" r="2" fill="#E5E7EB" />
+                  <rect
+                    x="35"
+                    y="145"
+                    width="6"
+                    height="2"
+                    rx="1"
+                    fill="#E5E7EB"
+                    transform="rotate(25 38 146)"
+                  />
+                </g>
+                <g transform="translate(100, 80) rotate(25)">
+                  <path d="M 0 0 L 60 20 L 50 35 L 0 15 Z" fill="#60A5FA" />
+                  <circle cx="35" cy="22" r="3" fill="white" opacity="0.9" />
+                  <line
+                    x1="35"
+                    y1="22"
+                    x2="42"
+                    y2="24"
+                    stroke="white"
+                    stroke-width="1.5"
+                    opacity="0.9"
+                  />
+                  <path d="M 0 0 L 60 -15 L 50 0 L 0 5 Z" fill="#14B8A6" />
+                  <circle cx="32" cy="-5" r="2.5" fill="#0D9488" opacity="0.7" />
+                  <line
+                    x1="32"
+                    y1="-5"
+                    x2="38"
+                    y2="-3"
+                    stroke="#0D9488"
+                    stroke-width="1"
+                    opacity="0.7"
+                  />
+                  <path d="M 0 0 L 60 2 L 50 17.5 L 0 10 Z" fill="#1E3A8A" />
+                  <circle cx="58" cy="2" r="3" fill="white" opacity="0.3" />
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <div class="preview-card">
+            <div class="preview-title">深色背景</div>
+            <div class="logo-container bg-dark">
+              <svg
+                class="logo-svg size-lg"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 200 200"
+                fill="none"
+              >
+                <g opacity="0.8">
+                  <circle cx="45" cy="140" r="4" fill="#5EEAD4" />
+                  <circle cx="30" cy="155" r="3" fill="#5EEAD4" />
+                  <rect
+                    x="55"
+                    y="148"
+                    width="12"
+                    height="3"
+                    rx="1.5"
+                    fill="#5EEAD4"
+                    transform="rotate(25 61 149.5)"
+                  />
+                  <circle cx="68" cy="125" r="3.5" fill="#60A5FA" />
+                  <rect
+                    x="38"
+                    y="168"
+                    width="10"
+                    height="3"
+                    rx="1.5"
+                    fill="#60A5FA"
+                    transform="rotate(25 43 169.5)"
+                  />
+                  <circle cx="52" cy="175" r="2.5" fill="#60A5FA" />
+                  <circle cx="72" cy="145" r="3" fill="#D1D5DB" />
+                  <rect
+                    x="48"
+                    y="132"
+                    width="8"
+                    height="2.5"
+                    rx="1.25"
+                    fill="#D1D5DB"
+                    transform="rotate(25 52 133.25)"
+                  />
+                  <circle cx="62" cy="162" r="2" fill="#D1D5DB" />
+                  <rect
+                    x="35"
+                    y="145"
+                    width="6"
+                    height="2"
+                    rx="1"
+                    fill="#D1D5DB"
+                    transform="rotate(25 38 146)"
+                  />
+                </g>
+                <g transform="translate(100, 80) rotate(25)">
+                  <path d="M 0 0 L 60 20 L 50 35 L 0 15 Z" fill="#60A5FA" />
+                  <circle cx="35" cy="22" r="3" fill="white" opacity="0.9" />
+                  <line
+                    x1="35"
+                    y1="22"
+                    x2="42"
+                    y2="24"
+                    stroke="white"
+                    stroke-width="1.5"
+                    opacity="0.9"
+                  />
+                  <path d="M 0 0 L 60 -15 L 50 0 L 0 5 Z" fill="#5EEAD4" />
+                  <circle cx="32" cy="-5" r="2.5" fill="#2DD4BF" opacity="0.7" />
+                  <line
+                    x1="32"
+                    y1="-5"
+                    x2="38"
+                    y2="-3"
+                    stroke="#2DD4BF"
+                    stroke-width="1"
+                    opacity="0.7"
+                  />
+                  <path d="M 0 0 L 60 2 L 50 17.5 L 0 10 Z" fill="#1E40AF" />
+                  <circle cx="58" cy="2" r="3" fill="white" opacity="0.3" />
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 导航栏实际效果模拟 -->
+      <div class="info-section">
+        <h2>📱 导航栏实际效果对比</h2>
+        <div class="comparison">
+          <div class="comparison-item">
+            <h3>❌ 当前版本（文字Logo）</h3>
+            <div class="nav-demo">
+              <div class="old-logo">
+                <span>智</span>
+              </div>
+              <span class="nav-text">智投简历</span>
+            </div>
+            <ul style="margin-top: 15px; padding-left: 20px; color: #666">
+              <li>简单但缺乏视觉吸引力</li>
+              <li>品牌识别度较低</li>
+              <li>不够现代化</li>
+            </ul>
+          </div>
+
+          <div class="comparison-item">
+            <h3>✅ 新版本（纸飞机Logo）</h3>
+            <div class="nav-demo">
+              <svg
+                class="nav-logo"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 200 200"
+                fill="none"
+              >
+                <g opacity="0.8">
+                  <circle cx="45" cy="140" r="4" fill="#14B8A6" />
+                  <circle cx="30" cy="155" r="3" fill="#14B8A6" />
+                  <rect
+                    x="55"
+                    y="148"
+                    width="12"
+                    height="3"
+                    rx="1.5"
+                    fill="#14B8A6"
+                    transform="rotate(25 61 149.5)"
+                  />
+                  <circle cx="68" cy="125" r="3.5" fill="#3B82F6" />
+                  <rect
+                    x="38"
+                    y="168"
+                    width="10"
+                    height="3"
+                    rx="1.5"
+                    fill="#3B82F6"
+                    transform="rotate(25 43 169.5)"
+                  />
+                  <circle cx="52" cy="175" r="2.5" fill="#3B82F6" />
+                  <circle cx="72" cy="145" r="3" fill="#9CA3AF" />
+                  <rect
+                    x="48"
+                    y="132"
+                    width="8"
+                    height="2.5"
+                    rx="1.25"
+                    fill="#9CA3AF"
+                    transform="rotate(25 52 133.25)"
+                  />
+                  <circle cx="62" cy="162" r="2" fill="#9CA3AF" />
+                  <rect
+                    x="35"
+                    y="145"
+                    width="6"
+                    height="2"
+                    rx="1"
+                    fill="#9CA3AF"
+                    transform="rotate(25 38 146)"
+                  />
+                </g>
+                <g transform="translate(100, 80) rotate(25)">
+                  <path d="M 0 0 L 60 20 L 50 35 L 0 15 Z" fill="#3B82F6" />
+                  <circle cx="35" cy="22" r="3" fill="white" opacity="0.9" />
+                  <line
+                    x1="35"
+                    y1="22"
+                    x2="42"
+                    y2="24"
+                    stroke="white"
+                    stroke-width="1.5"
+                    opacity="0.9"
+                  />
+                  <path d="M 0 0 L 60 -15 L 50 0 L 0 5 Z" fill="#14B8A6" />
+                  <circle cx="32" cy="-5" r="2.5" fill="#0D9488" opacity="0.7" />
+                  <line
+                    x1="32"
+                    y1="-5"
+                    x2="38"
+                    y2="-3"
+                    stroke="#0D9488"
+                    stroke-width="1"
+                    opacity="0.7"
+                  />
+                  <path d="M 0 0 L 60 2 L 50 17.5 L 0 10 Z" fill="#1E3A8A" />
+                  <circle cx="58" cy="2" r="3" fill="white" opacity="0.3" />
+                </g>
+              </svg>
+              <span class="nav-text">智投简历</span>
+            </div>
+            <ul style="margin-top: 15px; padding-left: 20px; color: #666">
+              <li>现代、专业、有科技感</li>
+              <li>强化品牌记忆点</li>
+              <li>符合产品定位（求职上升）</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logo特点说明 -->
+      <div class="info-section">
+        <h2>✨ Logo 设计特点</h2>
+        <ul>
+          <li>现代几何风格，符合科技产品定位</li>
+          <li>纸飞机向上飞行，寓意求职成功、职业上升</li>
+          <li>SVG矢量格式，任意缩放不失真</li>
+          <li>三色渐变（青色、蓝色、深蓝），层次分明</li>
+          <li>尾迹效果增加动感与科技感</li>
+          <li>电路节点装饰，强调AI智能化</li>
+          <li>文件体积小（约2KB），加载速度快</li>
+          <li>适配深色/浅色背景</li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>
