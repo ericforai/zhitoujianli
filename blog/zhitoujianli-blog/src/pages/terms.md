@@ -94,7 +94,7 @@ _最后更新时间_: 2024年12月19日
 如果您对本服务条款有任何疑问，请通过以下方式联系我们：
 
 - 邮箱：contact@zhitoujianli.com
-- 官网：http://115.190.182.95
+- 官网：https://zhitoujianli.com
 - 微信：zhitoujianli
 
 ---

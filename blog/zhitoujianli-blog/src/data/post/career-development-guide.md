@@ -22,17 +22,17 @@ structuredData: |
       "name": "智投简历",
       "logo": {
         "@type": "ImageObject",
-        "url": "http://115.190.182.95/logo.png"
+        "url": "https://zhitoujianli.com/logo.png"
       }
     },
     "datePublished": "2025-10-03",
     "dateModified": "2025-10-03",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http://115.190.182.95/blog/career-development-guide/"
+      "@id": "https://zhitoujianli.com/blog/career-development-guide/"
     },
     "description": "全面的职场发展指南，帮助你制定职业规划，提升职业技能，实现从职场新手到行业专家的转变。",
-    "image": "http://115.190.182.95/blog/_astro/default.CZ816Hke_Z2gd2WR.jpg",
+    "image": "https://zhitoujianli.com/blog/_astro/default.CZ816Hke_Z2gd2WR.jpg",
     "keywords": "职场发展,职业规划,技能提升,成长路径,职场新手,行业专家,职业发展,职场建议,职业目标,职业规划策略"
   }
 ---

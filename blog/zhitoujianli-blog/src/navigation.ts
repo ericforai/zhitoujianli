@@ -4,35 +4,26 @@ export const headerData = {
   links: [
     {
       text: '首页',
-      href: import.meta.env.SITE_URL || 'http://115.190.182.95',
+      href: '/blog/',
     },
     {
-      text: '博客',
-      href: getBlogPermalink(),
+      text: '产品动态',
+      href: '/category/product-updates/',
     },
     {
-      text: '分类',
-      links: [
-        {
-          text: '产品动态',
-          href: '/category/chan3-pin3-dong4-tai4/',
-        },
-        {
-          text: '求职指南',
-          href: '/category/qiu2-zhi2-zhi3-nan2/',
-        },
-        {
-          text: '职场建议',
-          href: '/category/zhi2-chang3-jian4-yi4/',
-        },
-      ],
+      text: '求职指南',
+      href: '/category/job-guide/',
+    },
+    {
+      text: '职场建议',
+      href: '/category/career-advice/',
     },
     {
       text: '关于我们',
       href: 'https://zhitoujianli.com/#about',
     },
   ],
-  actions: [{ text: '立即体验', href: import.meta.env.SITE_URL || 'http://115.190.182.95/login', target: '_blank' }],
+  actions: [{ text: '立即体验', href: import.meta.env.SITE_URL || 'https://zhitoujianli.com/login', target: '_blank' }],
 };
 
 export const footerData = {
@@ -40,19 +31,19 @@ export const footerData = {
     {
       title: '产品功能',
       links: [
-        { text: 'AI智能匹配', href: import.meta.env.SITE_URL || 'http://115.190.182.95' },
-        { text: '简历优化', href: import.meta.env.SITE_URL || 'http://115.190.182.95' },
-        { text: '精准投递', href: import.meta.env.SITE_URL || 'http://115.190.182.95' },
-        { text: '数据分析', href: import.meta.env.SITE_URL || 'http://115.190.182.95' },
-        { text: '价格方案', href: import.meta.env.SITE_URL || 'http://115.190.182.95' },
+        { text: 'AI智能匹配', href: import.meta.env.SITE_URL || 'https://zhitoujianli.com' },
+        { text: '简历优化', href: import.meta.env.SITE_URL || 'https://zhitoujianli.com' },
+        { text: '精准投递', href: import.meta.env.SITE_URL || 'https://zhitoujianli.com' },
+        { text: '数据分析', href: import.meta.env.SITE_URL || 'https://zhitoujianli.com' },
+        { text: '价格方案', href: import.meta.env.SITE_URL || 'https://zhitoujianli.com' },
       ],
     },
     {
       title: '博客分类',
       links: [
-        { text: '产品动态', href: '/category/chan3-pin3-dong4-tai4/' },
-        { text: '求职指南', href: '/category/qiu2-zhi2-zhi3-nan2/' },
-        { text: '职场建议', href: '/category/zhi2-chang3-jian4-yi4/' },
+        { text: '产品动态', href: '/category/product-updates/' },
+        { text: '求职指南', href: '/category/job-guide/' },
+        { text: '职场建议', href: '/category/career-advice/' },
         { text: '最新文章', href: getBlogPermalink() },
       ],
     },
@@ -86,6 +77,6 @@ export const footerData = {
     { ariaLabel: 'GitHub', icon: 'tabler:brand-github', href: 'https://github.com/zhitoujianli' },
   ],
   footNote: `
-    智投简历 © 2024 · 让求职更智能 · <a class="text-blue-600 underline dark:text-muted" href="${import.meta.env.SITE_URL || 'http://115.190.182.95'}"> 返回首页</a>
+    智投简历 © 2024 · 让求职更智能 · <a class="text-blue-600 underline dark:text-muted" href="${import.meta.env.SITE_URL || 'https://zhitoujianli.com'}"> 返回首页</a>
   `,
 };

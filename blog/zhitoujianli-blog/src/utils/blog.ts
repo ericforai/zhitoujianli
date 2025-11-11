@@ -4,6 +4,7 @@ import { getCollection, render } from 'astro:content';
 import { APP_BLOG } from 'astrowind:config';
 import type { Post } from '~/types';
 import { BLOG_BASE, CATEGORY_BASE, cleanSlug, POST_PERMALINK_PATTERN, TAG_BASE, trimSlash } from './permalinks';
+import { getCategorySlug } from './categoryMapping';
 
 const generatePermalink = async ({
   id,
@@ -65,7 +66,7 @@ const getNormalizedPost = async (post: CollectionEntry<'post'>): Promise<Post> =
 
   const category = rawCategory
     ? {
-        slug: cleanSlug(rawCategory),
+        slug: cleanSlug(getCategorySlug(rawCategory)),
         title: rawCategory,
       }
     : undefined;

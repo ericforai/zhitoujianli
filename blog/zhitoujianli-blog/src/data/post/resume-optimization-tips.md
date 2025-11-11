@@ -22,17 +22,17 @@ structuredData: |
       "name": "智投简历",
       "logo": {
         "@type": "ImageObject",
-        "url": "http://115.190.182.95/logo.png"
+        "url": "https://zhitoujianli.com/logo.png"
       }
     },
     "datePublished": "2024-01-20",
     "dateModified": "2024-01-20",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http://115.190.182.95/blog/resume-optimization-tips/"
+      "@id": "https://zhitoujianli.com/blog/resume-optimization-tips/"
     },
     "description": "分享实用的简历优化技巧，帮助求职者提高简历通过率，获得更多面试机会。",
-    "image": "http://115.190.182.95/blog/_astro/default.CZ816Hke_Z2gd2WR.jpg",
+    "image": "https://zhitoujianli.com/blog/_astro/default.CZ816Hke_Z2gd2WR.jpg",
     "keywords": "简历优化,求职技巧,简历制作,求职指导,简历模板,简历格式,简历内容,简历关键词,简历排版,求职简历"
   }
 ---

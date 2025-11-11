@@ -22,17 +22,17 @@ structuredData: |
       "name": "智投简历",
       "logo": {
         "@type": "ImageObject",
-        "url": "http://115.190.182.95/logo.png"
+        "url": "https://zhitoujianli.com/logo.png"
       }
     },
     "datePublished": "2025-10-03",
     "dateModified": "2025-10-03",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http://115.190.182.95/blog/ai-job-matching-technology/"
+      "@id": "https://zhitoujianli.com/blog/ai-job-matching-technology/"
     },
     "description": "深入分析AI职位匹配技术的核心原理、算法模型和实际应用，揭秘智投简历如何通过AI技术提升求职匹配精准度。",
-    "image": "http://115.190.182.95/blog/_astro/default.CZ816Hke_Z2gd2WR.jpg",
+    "image": "https://zhitoujianli.com/blog/_astro/default.CZ816Hke_Z2gd2WR.jpg",
     "keywords": "AI职位匹配,求职算法,职位推荐,智能匹配,机器学习,自然语言处理,求职技术,匹配算法,AI求职,精准投递"
   }
 ---

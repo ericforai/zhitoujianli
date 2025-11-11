@@ -22,17 +22,17 @@ structuredData: |
       "name": "智投简历",
       "logo": {
         "@type": "ImageObject",
-        "url": "http://115.190.182.95/logo.png"
+        "url": "https://zhitoujianli.com/logo.png"
       }
     },
     "datePublished": "2025-10-03",
     "dateModified": "2025-10-03",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http://115.190.182.95/blog/industry-trends-analysis/"
+      "@id": "https://zhitoujianli.com/blog/industry-trends-analysis/"
     },
     "description": "深度分析2025年就业市场趋势，探讨AI技术发展对各行各业的影响，为求职者提供前瞻性的职业规划建议。",
-    "image": "http://115.190.182.95/blog/_astro/default.CZ816Hke_Z2gd2WR.jpg",
+    "image": "https://zhitoujianli.com/blog/_astro/default.CZ816Hke_Z2gd2WR.jpg",
     "keywords": "2025就业趋势,AI时代职业,就业市场分析,职业新机遇,AI影响,就业前景,职业规划,行业分析,求职趋势,职场变化"
   }
 ---

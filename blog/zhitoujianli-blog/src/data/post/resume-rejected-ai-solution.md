@@ -22,17 +22,17 @@ structuredData: |
       "name": "智投简历",
       "logo": {
         "@type": "ImageObject",
-        "url": "http://115.190.182.95/logo.png"
+        "url": "https://zhitoujianli.com/logo.png"
       }
     },
     "datePublished": "2025-10-23",
     "dateModified": "2025-10-23",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http://115.190.182.95/blog/resume-rejected-ai-solution/"
+      "@id": "https://zhitoujianli.com/blog/resume-rejected-ai-solution/"
     },
     "description": "你的简历，为什么总被刷掉？AI智能投递帮你逆转局面！痛点共鸣：6秒定生死的简历筛选",
-    "image": "http://115.190.182.95/blog/_astro/default.CZ816Hke_Z2gd2WR.jpg",
+    "image": "https://zhitoujianli.com/blog/_astro/default.CZ816Hke_Z2gd2WR.jpg",
     "keywords": "简历优化,AI智能投递,求职工具,简历模板,岗位匹配,智能求职,简历制作,求职技巧"
   }
 ---

@@ -3,6 +3,7 @@ import slugify from 'limax';
 import { SITE, APP_BLOG } from 'astrowind:config';
 
 import { trim } from '~/utils/utils';
+import { getCategorySlug } from '~/utils/categoryMapping';
 
 export const trimSlash = (s: string) => trim(trim(s, '/'));
 const createPath = (...params: string[]) => {
@@ -66,7 +67,9 @@ export const getPermalink = (slug = '', type = 'page'): string => {
       break;
 
     case 'category':
-      permalink = createPath(CATEGORY_BASE, trimSlash(slug));
+      // 尝试将中文category转换为英文slug
+      const categorySlug = getCategorySlug(slug) || slug;
+      permalink = createPath(CATEGORY_BASE, cleanSlug(categorySlug));
       break;
 
     case 'tag':

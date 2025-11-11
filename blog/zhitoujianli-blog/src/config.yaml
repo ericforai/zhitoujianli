@@ -1,12 +1,12 @@
 site:
   name: 智投简历博客
-  site: 'https://blog.zhitoujianli.com'
-  base: '/' # 根路径，匹配独立域名访问
+  site: 'https://zhitoujianli.com'
+  base: '/blog' # 生产环境使用/blog前缀
   trailingSlash: true
 
   googleSiteVerificationId: false
-  # 添加百度验证
-  baiduSiteVerificationId: 'codeva-xGT32pbUMi'
+  # 添加百度验证（blog子域名）
+  baiduSiteVerificationId: 'codeva-oGKt37ajUA'
 
 # Default SEO metadata
 metadata:

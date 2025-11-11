@@ -23,8 +23,8 @@ const whenExternalScripts = (items: (() => AstroIntegration) | (() => AstroInteg
 
 export default defineConfig({
   output: 'static',
-  site: process.env.NODE_ENV === 'production' ? 'https://blog.zhitoujianli.com' : 'http://localhost:4321',
-  base: '/', // 根路径，匹配独立域名访问
+  site: process.env.NODE_ENV === 'production' ? 'https://zhitoujianli.com/blog' : 'http://localhost:4321',
+  base: process.env.NODE_ENV === 'production' ? '/blog/' : '/', // 生产环境使用/blog/前缀（带尾部斜杠）
   compressHTML: true, // 启用HTML压缩
 
   integrations: [
@@ -98,7 +98,7 @@ export default defineConfig({
       host: '0.0.0.0', // 绑定到所有网络接口
       port: 4321,
       strictPort: false,
-      allowedHosts: ['blog.zhitoujianli.com', 'zhitoujianli.com', 'www.zhitoujianli.com', 'localhost', '127.0.0.1'], // 明确允许的主机
+      allowedHosts: true, // 禁用Host检查，允许所有主机
     },
     server: {
       host: true, // 开发模式也允许所有主机访问

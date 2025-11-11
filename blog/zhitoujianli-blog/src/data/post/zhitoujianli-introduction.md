@@ -22,17 +22,17 @@ structuredData: |
       "name": "智投简历",
       "logo": {
         "@type": "ImageObject",
-        "url": "http://115.190.182.95/logo.png"
+        "url": "https://zhitoujianli.com/logo.png"
       }
     },
     "datePublished": "2024-01-15",
     "dateModified": "2024-01-15",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http://115.190.182.95/blog/zhitoujianli-introduction/"
+      "@id": "https://zhitoujianli.com/blog/zhitoujianli-introduction/"
     },
     "description": "智投简历是一款基于AI技术的智能简历投递平台，帮助求职者更高效地找到心仪工作。",
-    "image": "http://115.190.182.95/blog/_astro/default.CZ816Hke_Z2gd2WR.jpg",
+    "image": "https://zhitoujianli.com/blog/_astro/default.CZ816Hke_Z2gd2WR.jpg",
     "keywords": "智投简历,AI求职平台,智能简历投递,求职工具,AI求职,智能匹配,简历优化,求职助手,职业发展,求职技巧"
   }
 ---

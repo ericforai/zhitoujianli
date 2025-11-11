@@ -14,6 +14,14 @@ if [ -f "dist/home/index.html" ]; then
   cp dist/home/index.html dist/index.html
   echo "✓ 已复制 dist/home/index.html 到 dist/index.html"
 
+  # 确保百度验证文件存在
+  if [ ! -f "dist/baidu_verify_codeva-oGKt37ajUA.html" ]; then
+    echo "baidu_verify_codeva-oGKt37ajUA" > dist/baidu_verify_codeva-oGKt37ajUA.html
+    echo "✓ 已创建百度验证文件"
+  else
+    echo "✓ 百度验证文件已存在"
+  fi
+
   echo "✓ 构建后处理完成"
 else
   echo "✗ 错误：找不到 dist/home/index.html"
