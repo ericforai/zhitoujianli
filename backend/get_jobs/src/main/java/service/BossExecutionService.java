@@ -194,6 +194,12 @@ public class BossExecutionService {
         pb.environment().put("PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD", "true");
         pb.environment().put("NODE_OPTIONS", "--max-old-space-size=512");
 
+        // ✅ 修复：防止Playwright临时目录package.json丢失导致崩溃
+        // 设置固定的工作目录，避免/tmp目录被清理
+        String playwrightWorkDir = "/opt/zhitoujianli/backend/.playwright-cache";
+        new File(playwrightWorkDir).mkdirs();
+        pb.environment().put("PLAYWRIGHT_NODEJS_PATH", playwrightWorkDir);
+
         // 【关键修复】设置虚拟显示，让浏览器在Xvfb上运行
         pb.environment().put("DISPLAY", ":99");
 
