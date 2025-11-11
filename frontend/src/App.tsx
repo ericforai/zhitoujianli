@@ -24,9 +24,9 @@ import Privacy from './components/Privacy';
 import SEOHead from './components/seo/SEOHead';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
+import UTMTracker from './components/UTMTracker';
 import { AuthProvider } from './contexts/AuthContext';
-import BlogPage from './pages/BlogPage';
-import BlogCategoryPage from './pages/BlogCategoryPage';
+// 博客已迁移到独立的Astro应用，通过 /blog 路径访问（Nginx代理）
 import ConfigPage from './pages/ConfigPage';
 import ContactPage from './pages/ContactPage';
 import Dashboard from './pages/Dashboard';
@@ -81,6 +81,7 @@ function App() {
     <ErrorBoundary>
       <Router>
         <ScrollToTop />
+        <UTMTracker />
         <AuthProvider>
           <Routes>
             {/* 公开路由 */}
@@ -91,8 +92,7 @@ function App() {
             {/* 页面路由 - 修复菜单点击问题 */}
             <Route path='/features' element={<FeaturesPage />} />
             <Route path='/pricing' element={<PricingPage />} />
-            <Route path='/blog' element={<BlogPage />} />
-            <Route path='/blog/:category' element={<BlogCategoryPage />} />
+            {/* 博客路由：博客是独立的Astro应用，通过 /blog 路径访问（Nginx代理到 /var/www/zhitoujianli/blog） */}
             <Route path='/contact' element={<ContactPage />} />
 
             {/* 法律文档页面 */}
