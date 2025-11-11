@@ -198,7 +198,9 @@ public class BossExecutionService {
         // 设置固定的工作目录，避免/tmp目录被清理
         String playwrightWorkDir = "/opt/zhitoujianli/backend/.playwright-cache";
         new File(playwrightWorkDir).mkdirs();
-        pb.environment().put("PLAYWRIGHT_NODEJS_PATH", playwrightWorkDir);
+        // ❌ 修复：PLAYWRIGHT_NODEJS_PATH 必须是 Node.js 可执行文件路径，不是目录
+        // 删除错误的配置，让 Playwright 使用系统默认的 Node.js
+        // pb.environment().put("PLAYWRIGHT_NODEJS_PATH", playwrightWorkDir); // 已删除错误配置
 
         // 【关键修复】设置虚拟显示，让浏览器在Xvfb上运行
         pb.environment().put("DISPLAY", ":99");

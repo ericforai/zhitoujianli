@@ -131,152 +131,11 @@ public class Lagou {
             log.debug("查找岗位列表元素时出现异常，已忽略: {}", ignore.getMessage());
         }
 
-        // 由于elements查找被注释，直接跳过处理逻辑
-        // TODO: 取消注释下面的代码以启用实际的元素处理
-        /*
-        if (elements != null && !elements.isEmpty()) {
-            log.info("找到 {} 个岗位元素，开始处理", elements.size());
-            for (int i = 0; i < elements.size() && currentKeyJobNum <= oneKeyMaxJob; i++) {
-                WebElement element = null;
-                try {
-                    element = elements.get(i);
-                } catch (Exception e) {
-                    log.error("获取岗位列表中某个岗位失败，岗位列表数量：{},获取第【{}】个元素失败", i + 1, elements.size());
-                }
-                try {
-                    ACTIONS.moveToElement(element).perform();
-                } catch (Exception e) {
-                    getWindow();
-                }
-                if (-1 == tryClick(element, i)) {
-                    continue;
-                }
-                TimeUnit.SECONDS.sleep(1);
-                getWindow();
-                String jobName = "测试岗位";
-                WebElement submit;
-                try {
-                    // 临时注释避免编译错误
-                    // jobName = CHROME_DRIVER.findElement(By.className("header__HY1Cm")).getText();
-                } catch (Exception e) {
-                    try {
-                        // 临时注释避免编译错误
-                        // jobName = CHROME_DRIVER.findElement(By.className("position-head-wrap-position-name")).getText();
-                    } catch (Exception ex) {
-                        SeleniumUtil.sleep(10);
-                        continue;
-                    }
-
-                }
-                if (!(jobName != null && !jobName.isEmpty() && !jobName.contains("销"))) {
-                    // 临时注释避免编译错误
-                    // CHROME_DRIVER.close();
-                    getWindow();
-                    continue;
-                }
-                // 临时注释避免编译错误
-                // submit = CHROME_DRIVER.findElement(By.className("resume-deliver"));
-                // 临时注释避免编译错误
-                // if ("投简历".equals(submit.getText())) {
-                    String jobTitle = null;
-                    String companyName = null;
-                    String jobInfo = null;
-                    String companyInfo = null;
-                    String salary = null;
-                    String weal = null;
-                    try {
-                        // 临时注释避免编译错误
-                        // jobTitle = CHROME_DRIVER.findElement(By.cssSelector("span.name__36WTQ")).getText();
-                        // companyName = CHROME_DRIVER.findElement(By.cssSelector("span.company")).getText();
-                        // jobInfo = CHROME_DRIVER.findElements(By.cssSelector("h3.position-tags span"))
-                        //         .stream()
-                        //         .map(WebElement::getText)
-                        //         .collect(Collectors.joining("/"));
-                        // 临时注释避免编译错误
-                        // companyInfo = CHROME_DRIVER.findElement(By.cssSelector("div.header__HY1Cm")).getText();
-                        // salary = CHROME_DRIVER.findElement(By.cssSelector("span.salary__22Kt_")).getText();
-                        // weal = CHROME_DRIVER.findElement(By.cssSelector("li.labels")).getText();
-                    } catch (Exception e) {
-                        log.error("获取职位信息失败", e);
-                        try {
-                            // 临时注释避免编译错误
-                            // jobTitle = CHROME_DRIVER.findElement(By.cssSelector("span.position-head-wrap-position-name")).getText();
-                            // companyName = CHROME_DRIVER.findElement(By.cssSelector("span.company")).getText();
-                            // 临时注释避免编译错误
-                            // List<WebElement> jobInfoElements = CHROME_DRIVER.findElements(By.cssSelector("h3.position-tags span:not(.tag-point)"));
-                            // jobInfo = jobInfoElements.stream()
-                            //         .map(WebElement::getText)
-                            //         .collect(Collectors.joining("/"));
-                            // companyInfo = CHROME_DRIVER.findElement(By.cssSelector("span.company")).getText();
-                            // 临时注释避免编译错误
-                            // salary = CHROME_DRIVER.findElement(By.cssSelector("span.salary")).getText();
-                            // weal = CHROME_DRIVER.findElement(By.cssSelector("dd.job-advantage p")).getText();
-                        } catch (Exception ex) {
-                            log.error("第二次获取职位信息失败，放弃了！", ex);
-                        }
-                    }
-                    log.info("投递: {},职位: {},公司: {},职位信息: {},公司信息: {},薪资: {},福利: {}", jobTitle, jobTitle, companyName, jobInfo, companyInfo, salary, weal);
-                    jobCount++;
-                    currentKeyJobNum++;
-                    TimeUnit.SECONDS.sleep(2);
-                    // 临时注释避免编译错误
-                    // submit.click();
-                    TimeUnit.SECONDS.sleep(2);
-                    // 临时注释避免编译错误
-                    // try {
-                    //     WebElement send = CHROME_DRIVER.findElement(By.cssSelector("body > div:nth-child(45) > div > div.lg-design-modal-wrap.position-modal > div > div.lg-design-modal-content > div.lg-design-modal-footer > button.lg-design-btn.lg-design-btn-default"));
-                    //     if ("确认投递".equals(send.getText())) {
-                    //         send.click();
-                    //     }
-                    // } catch (Exception e) {
-                    //     log.error("没有【确认投递】的弹窗，继续！");
-                    // }
-                    // try {
-                    //     WebElement confirm = CHROME_DRIVER.findElement(By.cssSelector("button.lg-design-btn.lg-design-btn-primary span"));
-                    //     String buttonText = confirm.getText();
-                    //     if ("我知道了".equals(buttonText)) {
-                    //         confirm.click();
-                    //     } else {
-                    //         TimeUnit.SECONDS.sleep(1);
-                    //     }
-                    // } catch (Exception e) {
-                    //     log.error("第一次点击【我知道了】按钮失败...重试xpath点击...");
-                    //     TimeUnit.SECONDS.sleep(1);
-                    //     try {
-                    //         CHROME_DRIVER.findElement(By.xpath("/html/body/div[7]/div/div[2]/div/div[2]/div[2]/button[2]")).click();
-                    //     } catch (Exception ex) {
-                    //         log.error("第二次点击【我知道了】按钮失败...放弃了！", ex);
-                    //         TimeUnit.SECONDS.sleep(10);
-                    //         CHROME_DRIVER.navigate().refresh();
-                    //     }
-                    // }
-                    // try {
-                    //     TimeUnit.SECONDS.sleep(2);
-                    //     CHROME_DRIVER.findElement(By.cssSelector("#__next > div:nth-child(3) > div > div > div.feedback_job__3EnWp > div.feedback_job_title__2y8Bj > div.feedback_job_deliver__3UIB5.feedback_job_active__3bbLa")).click();
-                    // } catch (Exception e) {
-                    //     log.error("这个岗位没有推荐职位...");
-                    //     TimeUnit.SECONDS.sleep(1);
-                    // }
-                // 临时注释避免编译错误
-                // } else if ("立即沟通".equals(submit.getText())) {
-                //     submit.click();
-                //     try {
-                //         WAIT.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id=\"modalConIm\"]"))).click();
-                //     } catch (Exception e) {
-                //         submit.click();
-                //         WAIT.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id=\"modalConIm\"]"))).click();
-                //     }
-                // 临时注释避免编译错误
-                // } else {
-                //     log.info("这个岗位没有投简历按钮...一秒后关闭标签页面！");
-                //     TimeUnit.SECONDS.sleep(1);
-                // }
-                // 临时注释避免编译错误
-                // CHROME_DRIVER.close();
-                getWindow();
-            }
-        }
-        */
+        // ✅ 修复：删除已废弃的旧Selenium实现代码（约200行）
+        // 说明：以下代码为旧的Selenium实现，已迁移到Playwright，不再使用
+        // 如需参考旧实现，请查看Git历史记录
+        // 当前Lagou功能已暂停，等待重新实现
+        log.info("Lagou岗位处理逻辑已暂停，等待重新实现");
     }
 
     private static void getWindow() {
@@ -309,43 +168,9 @@ public class Lagou {
                 log.info(ex.getMessage());
             }
         }
+        // ✅ 修复：删除已废弃的重试逻辑代码
+        // 说明：旧的重试逻辑已不再使用，当前方法仅返回0
         return 0;
-
-        /*
-         while (!isClicked && retryCount < maxRetryCount) {
-         try {
-         element.click();
-         isClicked = true;
-         } catch (Exception e) {
-         retryCount++;
-         log.error("element.click() 点击失败，正在尝试重新点击...(正在尝试：第 {} 次)", retryCount);
-         TimeUnit.SECONDS.sleep(5);
-
-         try {
-         CHROME_DRIVER.findElements(By.id("openWinPostion")).get(i).click();
-         isClicked = true;
-         } catch (Exception ex) {
-         log.error(" get(i).click() 重试失败，尝试使用Actions点击...(正在尝试：第 {} 次)", retryCount);
-         TimeUnit.SECONDS.sleep(5);
-         try {
-         ACTIONS.keyDown(Keys.CONTROL).click(element).keyUp(Keys.CONTROL).build().perform();
-         isClicked = true;
-         } catch (Exception exc) {
-         log.error("使用Actions点击也失败，等待10秒后再次尝试...(正在尝试：第 {} 次)", retryCount);
-         TimeUnit.SECONDS.sleep(10);
-         }
-         }
-         }
-         }
-         if (!isClicked) {
-         log.error("已尝试 {} 次，已达最大重试次数，少侠请重新来过！", maxRetryCount);
-         log.info("已投递 {} 次，正在退出...", jobCount);
-         CHROME_DRIVER.quit();
-         return -1;
-         } else {
-         return 0;
-         }
-         */
     }
 
     @SneakyThrows
