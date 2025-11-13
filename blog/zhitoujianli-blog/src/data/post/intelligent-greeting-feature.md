@@ -31,7 +31,6 @@ structuredData: |
       "@id": "https://zhitoujianli.com/blog/intelligent-greeting-feature/"
     },
     "description": "基于AI技术的简历投递优化功能，通过分析求职者简历和目标岗位描述，生成个性化、高匹配度的打招呼语，提升投递成功率。",
-    "image": "https://zhitoujianli.com/blog/_astro/hero-image.DwIC_L_T.png",
     "keywords": "AI求职,智能打招呼语,简历投递,个性化投递,Boss直聘,求职优化,AI招聘,智能简历,求职技巧,HR回复率"
   }
 ---

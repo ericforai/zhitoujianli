@@ -1,0 +1,370 @@
+---
+export interface Props {
+  title: string;
+  url: string;
+  description?: string;
+}
+
+const { title, url, description = '' } = Astro.props;
+---
+
+<div class="mx-auto px-6 sm:px-6 max-w-3xl mt-12 mb-8">
+  <!-- 分享按钮区域 -->
+  <div class="text-center border-t border-gray-200 pt-8">
+    <p class="text-gray-600 dark:text-gray-400 mb-4 text-lg font-medium">觉得有用？分享给朋友吧！</p>
+    <div class="share-buttons-container">
+      <button
+        type="button"
+        id="wechat-share-btn"
+        class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 cursor-pointer transition transform hover:scale-105 shadow-md"
+      >
+        <span class="flex items-center space-x-2">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.402c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-5.523 3.317-6.523 1.961-.623 3.976-.314 5.364.737.205-4.272-3.508-7.768-8.492-7.768zm-.357 4.363a.68.68 0 0 1 .679-.678.68.68 0 0 1 .679.678.68.68 0 0 1-.679.679.68.68 0 0 1-.679-.679zm-4.679 0a.68.68 0 0 1 .679-.678.68.68 0 0 1 .679.678.68.68 0 0 1-.679.679.68.68 0 0 1-.679-.679z"/>
+            <path d="M16.97 8.53c-3.47 0-6.28 2.38-6.28 5.32 0 2.93 2.81 5.31 6.28 5.31.74 0 1.45-.13 2.11-.35.21-.07.43-.02.6.05l1.43.84c.03.02.07.03.11.03.1 0 .18-.08.18-.18 0-.04-.01-.09-.03-.13l-.29-1.05c-.05-.16.01-.33.13-.42 1.37-1.01 2.25-2.5 2.25-4.1 0-2.94-2.81-5.32-6.29-5.32zm-3.67 3.96a.51.51 0 0 1 .51-.51.51.51 0 0 1 .51.51.51.51 0 0 1-.51.51.51.51 0 0 1-.51-.51zm4.69 0a.51.51 0 0 1 .51-.51.51.51 0 0 1 .51.51.51.51 0 0 1-.51.51.51.51 0 0 1-.51-.51z"/>
+          </svg>
+          <span>分享到微信</span>
+        </span>
+      </button>
+      <button
+        type="button"
+        id="weibo-share-btn"
+        class="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 cursor-pointer transition transform hover:scale-105 shadow-md"
+      >
+        <span class="flex items-center space-x-2">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M9.935 14.633c-1.073 1.51-3.43 2.08-5.246 1.267-1.816-.812-2.138-2.648-1.065-4.157 1.074-1.51 3.431-2.08 5.247-1.268 1.815.813 2.137 2.649 1.064 4.158zm10.827-4.657c-.345-.117-.582-.163-.402-.585.392-.919.432-1.711.006-2.277-.798-.974-2.977-.922-5.478.137 0 0-.785.346-.584-.283.384-1.25.325-2.295-.269-2.901-1.345-1.372-4.925.052-8.002 3.18C3.184 9.848 2 12.068 2 14.001c0 3.677 4.706 5.911 9.31 5.911 6.035 0 10.055-3.505 10.055-6.291 0-1.687-1.421-2.641-2.603-3.045zM9.669 18.517c-3.088.302-5.755-1.094-5.962-3.117-.206-2.024 2.145-3.89 5.233-4.193 3.088-.302 5.756 1.094 5.962 3.118.206 2.023-2.145 3.89-5.233 4.192zm12.237-8.424c-.732-2.286-2.724-3.661-4.828-3.366l-.014.003c-.242.053-.392.291-.334.533.058.242.296.392.538.338 1.718-.24 3.372.882 3.989 2.744.618 1.863-.14 3.875-1.782 4.872-.213.129-.281.407-.151.62.129.213.407.281.62.151 2.013-1.221 2.938-3.662 2.212-5.895zM19.52 7.256c-.384-.11-.791.112-.902.496-.11.384.112.791.496.902.879.252 1.472 1.013 1.402 1.804-.07.79-.743 1.385-1.65 1.437-.384.02-.682.343-.663.725.02.383.343.682.725.663 1.43-.081 2.573-1.054 2.682-2.287.108-1.233-.773-2.42-2.09-2.74z"/>
+          </svg>
+          <span>分享到微博</span>
+        </span>
+      </button>
+      <button
+        type="button"
+        id="copy-link-btn"
+        class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 cursor-pointer transition transform hover:scale-105 shadow-md"
+      >
+        <span class="flex items-center space-x-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+          </svg>
+          <span>复制链接</span>
+        </span>
+      </button>
+    </div>
+    <p id="share-message" class="mt-4 text-sm text-green-600 dark:text-green-400" style="display:none;"></p>
+  </div>
+</div>
+
+<!-- 微信分享弹窗 -->
+<div id="wechat-modal" class="wechat-modal">
+  <div class="wechat-modal-content">
+    <button type="button" class="wechat-modal-close" id="close-wechat-modal">×</button>
+    <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">微信扫码分享</h2>
+    <p class="text-gray-600 dark:text-gray-400 text-sm">使用微信扫描二维码即可分享</p>
+
+    <div class="wechat-qrcode">
+      <img id="wechat-qrcode-img" src="" alt="微信分享二维码" />
+    </div>
+
+    <div class="wechat-tips">
+      <p>📱 打开微信扫一扫</p>
+      <p>🔗 或复制链接在微信中打开</p>
+    </div>
+
+    <button type="button" class="wechat-copy-btn" id="copy-from-modal">
+      📋 复制链接
+    </button>
+  </div>
+</div>
+
+<style>
+  /* 分享按钮容器 */
+  .share-buttons-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  /* 微信分享弹窗样式 */
+  .wechat-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+  }
+  .wechat-modal.active {
+    display: flex;
+  }
+  .wechat-modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    animation: modalSlideIn 0.3s ease-out;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+  :global(.dark) .wechat-modal-content {
+    background: #1f2937;
+    color: white;
+  }
+  @keyframes modalSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .wechat-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    color: #666;
+    cursor: pointer;
+    background: none;
+    border: none;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+  }
+  .wechat-modal-close:hover {
+    background-color: #f0f0f0;
+    color: #333;
+  }
+  .wechat-qrcode {
+    margin: 1.5rem auto;
+    padding: 1rem;
+    background: white;
+    border: 2px solid #e5e5e5;
+    border-radius: 0.5rem;
+    display: inline-block;
+  }
+  .wechat-qrcode img {
+    display: block;
+    width: 220px;
+    height: 220px;
+  }
+  .wechat-tips {
+    color: #666;
+    font-size: 0.875rem;
+    margin-top: 1rem;
+    line-height: 1.8;
+  }
+  :global(.dark) .wechat-tips {
+    color: #d1d5db;
+  }
+  .wechat-tips p {
+    margin: 0.5rem 0;
+  }
+  .wechat-copy-btn {
+    margin-top: 1.5rem;
+    padding: 0.75rem 2rem;
+    background: linear-gradient(135deg, #07c160 0%, #09ad56 100%);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .wechat-copy-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(7, 193, 96, 0.4);
+  }
+</style>
+
+<script define:vars={{ title, url, description }}>
+  // 页面加载后初始化
+  document.addEventListener('DOMContentLoaded', function() {
+    const pageTitle = title;
+    const pageUrl = url;
+    const pageDesc = description;
+
+    // 显示消息提示
+    function showMessage(message, duration = 3000) {
+      const messageEl = document.getElementById('share-message');
+      if (messageEl) {
+        messageEl.textContent = message;
+        messageEl.style.display = 'block';
+        setTimeout(() => {
+          messageEl.style.display = 'none';
+        }, duration);
+      }
+    }
+
+    // 生成带logo的二维码
+    function generateQRCodeWithLogo(url) {
+      const qrcodeImg = document.getElementById('wechat-qrcode-img');
+      if (!qrcodeImg) return;
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = 220;
+      canvas.height = 220;
+
+      // 先加载二维码
+      const qrImg = new Image();
+      qrImg.crossOrigin = 'anonymous';
+      qrImg.onload = function() {
+        // 绘制二维码
+        ctx.drawImage(qrImg, 0, 0, 220, 220);
+
+        // 加载logo
+        const logoImg = new Image();
+        logoImg.crossOrigin = 'anonymous';
+        logoImg.onload = function() {
+          // 计算logo位置（中心）
+          const logoSize = 45;
+          const x = (220 - logoSize) / 2;
+          const y = (220 - logoSize) / 2;
+
+          // 绘制白色背景（让logo更清晰）
+          ctx.fillStyle = 'white';
+          ctx.fillRect(x - 3, y - 3, logoSize + 6, logoSize + 6);
+
+          // 绘制logo
+          ctx.drawImage(logoImg, x, y, logoSize, logoSize);
+
+          // 将canvas转为图片
+          qrcodeImg.src = canvas.toDataURL();
+        };
+        logoImg.onerror = function() {
+          // logo加载失败，只显示二维码
+          qrcodeImg.src = canvas.toDataURL();
+        };
+        logoImg.src = '/images/logo.png';
+      };
+      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(url)}`;
+    }
+
+    // 分享到微信
+    const wechatBtn = document.getElementById('wechat-share-btn');
+    if (wechatBtn) {
+      wechatBtn.addEventListener('click', function() {
+        // 如果是微信浏览器内，提示使用原生分享
+        if (navigator.userAgent.toLowerCase().indexOf('micromessenger') > -1) {
+          showMessage('请点击右上角"..."按钮分享给朋友');
+          return;
+        }
+
+        const modal = document.getElementById('wechat-modal');
+        if (modal) {
+          generateQRCodeWithLogo(pageUrl);
+          modal.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        }
+      });
+    }
+
+    // 关闭微信弹窗
+    function closeWechatModal() {
+      const modal = document.getElementById('wechat-modal');
+      if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      }
+    }
+
+    const closeBtn = document.getElementById('close-wechat-modal');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closeWechatModal);
+    }
+
+    // 点击弹窗外部关闭
+    const modal = document.getElementById('wechat-modal');
+    if (modal) {
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          closeWechatModal();
+        }
+      });
+    }
+
+    // 分享到微博
+    const weiboBtn = document.getElementById('weibo-share-btn');
+    if (weiboBtn) {
+      weiboBtn.addEventListener('click', function() {
+        const weiboUrl = `https://service.weibo.com/share/share.php?url=${encodeURIComponent(pageUrl)}&title=${encodeURIComponent(pageTitle + ' - ' + pageDesc)}`;
+        window.open(weiboUrl, '_blank', 'width=600,height=400');
+        showMessage('正在打开微博分享...');
+      });
+    }
+
+    // 复制链接
+    function copyLink() {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(pageUrl).then(() => {
+          showMessage('✓ 链接已复制到剪贴板！');
+        }).catch(() => {
+          fallbackCopyLink();
+        });
+      } else {
+        fallbackCopyLink();
+      }
+    }
+
+    function fallbackCopyLink() {
+      const input = document.createElement('input');
+      input.value = pageUrl;
+      input.style.position = 'fixed';
+      input.style.opacity = '0';
+      document.body.appendChild(input);
+      input.select();
+
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          showMessage('✓ 链接已复制到剪贴板！');
+        } else {
+          showMessage('复制失败，请手动复制');
+        }
+      } catch (err) {
+        showMessage('复制失败，请手动复制');
+      } finally {
+        document.body.removeChild(input);
+      }
+    }
+
+    const copyBtn = document.getElementById('copy-link-btn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', copyLink);
+    }
+
+    const copyFromModal = document.getElementById('copy-from-modal');
+    if (copyFromModal) {
+      copyFromModal.addEventListener('click', function() {
+        copyLink();
+        setTimeout(closeWechatModal, 1500);
+      });
+    }
+
+    // 键盘快捷键
+    document.addEventListener('keydown', function(e) {
+      // ESC键关闭弹窗
+      if (e.key === 'Escape') {
+        if (modal && modal.classList.contains('active')) {
+          closeWechatModal();
+        }
+      }
+    });
+  });
+</script>
+

@@ -30,7 +30,6 @@ import { AuthProvider } from './contexts/AuthContext';
 import ConfigPage from './pages/ConfigPage';
 import ContactPage from './pages/ContactPage';
 import Dashboard from './pages/Dashboard';
-import FeaturesPage from './pages/FeaturesPage';
 import PricingPage from './pages/PricingPage';
 import HelpPage from './pages/HelpPage';
 import GuidePage from './pages/GuidePage';
@@ -90,7 +89,6 @@ function App() {
             <Route path='/register' element={<Register />} />
 
             {/* 页面路由 - 修复菜单点击问题 */}
-            <Route path='/features' element={<FeaturesPage />} />
             <Route path='/pricing' element={<PricingPage />} />
             {/* 博客路由：博客是独立的Astro应用，通过 /blog 路径访问（Nginx代理到 /var/www/zhitoujianli/blog） */}
             <Route path='/contact' element={<ContactPage />} />

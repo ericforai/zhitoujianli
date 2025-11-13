@@ -12,48 +12,43 @@ const metadata = {
 <Layout metadata={metadata}>
   <section class="px-4 py-16 sm:px-6 mx-auto lg:px-8 lg:py-20 max-w-4xl">
     <div class="mx-auto max-w-3xl px-4 sm:px-6">
-      <Breadcrumb
-        items={[
-          { text: '关于我们', current: true }
-        ]}
-      />
+      <Breadcrumb items={[{ text: '关于我们', current: true }]} />
     </div>
 
     <div class="text-center mb-16">
       <h1 class="font-bold font-heading text-4xl md:text-5xl leading-tighter tracking-tighter mb-6">
         关于<span class="text-accent dark:text-white">智投简历</span>
       </h1>
-      <p class="text-xl text-muted dark:text-slate-400 max-w-3xl mx-auto">
-        用AI技术让求职更智能，让每一次投递都更精准
-      </p>
+      <p class="text-xl text-muted dark:text-slate-400 max-w-3xl mx-auto">用AI技术让求职更智能，让每一次投递都更精准</p>
     </div>
 
     <!-- 公司简介 -->
     <div id="company" class="mb-16 scroll-mt-20">
-      <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-8">
+      <div
+        class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-8"
+      >
         <h2 class="text-3xl font-bold font-heading mb-6 text-center">
           <Icon name="tabler:building" class="w-8 h-8 inline-block mr-3 text-primary" />
           公司简介
         </h2>
         <div class="prose prose-lg dark:prose-invert max-w-none">
           <p class="text-lg leading-relaxed">
-            智投简历成立于2024年，是一家专注于AI求职服务的创新型科技公司。我们致力于运用人工智能技术，
-            为求职者提供智能化的简历优化、职位匹配和投递服务，让求职过程更加高效、精准。
-            与其说是公司简介，不如说是，我个人介绍，2025年十大热点词一定有“一人公司”，于是我也跟风成立了一人公司，
-            成功就是你现在看到的这个网站--智投简历。我有近18年的工作经验，其中超过15年都在带团队，招聘是其中最重要的工作。
-            我看了无数简历，深知一点：让我发出面试邀请的那个人一定是第一印象给我留下深刻印象的，那怎么才能留下
+            2025年，最火的不是创业公司，而是“一人公司”——于是我也跟风成立了这一家。 它的名字叫 智投简历。
+            就是你现在看到的这个网站。
+            我有近20年的职场经验，其中16年以上在带团队、做管理，而“招聘”几乎贯穿了我整个职业生涯。
+            我看过成千上万份简历，也做过无数次面试，逐渐发现一个规律：
+            让我发出面试邀请的人，一定在第一印象上就让我觉得“他懂我”。
           </p>
           <p class="text-lg leading-relaxed">
-            凭借先进的大语言模型技术和深度学习算法，我们已经帮助数万名求职者提升了求职成功率，
-            平均投递成功率提升300%以上。我们的愿景是成为全球领先的AI求职服务平台，
-            让每个人都能找到心仪的工作。
+            所以，我做了这件事—— 把我多年积累的招聘经验、AI技术和人性洞察，变成一个产品，
+            让每一位求职者都能更聪明地展示自己，更高效地被看到。
           </p>
         </div>
       </div>
     </div>
 
     <!-- 使命愿景 -->
-    <div id="team" class="mb-16 scroll-mt-20">
+    <div id="mission" class="mb-16 scroll-mt-20">
       <h2 class="text-3xl font-bold font-heading mb-8 text-center">
         <Icon name="tabler:target" class="w-8 h-8 inline-block mr-3 text-primary" />
         使命愿景
@@ -61,65 +56,88 @@ const metadata = {
 
       <div class="grid md:grid-cols-2 gap-8">
         <div class="bg-white dark:bg-slate-800 rounded-lg p-8 shadow-sm border border-gray-200 dark:border-gray-700">
-          <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div
+            class="w-16 h-16 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-6"
+          >
             <Icon name="tabler:rocket" class="w-8 h-8 text-blue-600 dark:text-blue-400" />
           </div>
-          <h3 class="text-2xl font-semibold text-center mb-4">我们的使命</h3>
+          <h3 class="text-2xl font-semibold text-center mb-4">我的使命</h3>
           <p class="text-muted dark:text-slate-400 text-center leading-relaxed">
-            运用人工智能技术，为求职者提供智能化、个性化的求职服务，
-            让每一次简历投递都更加精准有效，帮助更多人实现职业梦想。
+            让求职更聪明。 我们运用人工智能技术，为求职者提供智能化、个性化的求职服务，
+            让每一次简历投递都更精准、高效、有结果， 帮助更多人实现职业梦想。
           </p>
         </div>
 
         <div class="bg-white dark:bg-slate-800 rounded-lg p-8 shadow-sm border border-gray-200 dark:border-gray-700">
-          <div class="w-16 h-16 bg-purple-100 dark:bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div
+            class="w-16 h-16 bg-purple-100 dark:bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-6"
+          >
             <Icon name="tabler:eye" class="w-8 h-8 text-purple-600 dark:text-purple-400" />
           </div>
-          <h3 class="text-2xl font-semibold text-center mb-4">我们的愿景</h3>
+          <h3 class="text-2xl font-semibold text-center mb-4">我的愿景</h3>
           <p class="text-muted dark:text-slate-400 text-center leading-relaxed">
-            成为全球领先的AI求职服务平台，让AI技术惠及每一位求职者，
-            构建更加智能、高效的求职生态系统。
+            让AI点亮每一份职业旅程。 让AI惠及每一位求职者， 共建一个更智能、高效、互联的求职生态系统。
           </p>
         </div>
       </div>
     </div>
 
     <!-- 团队介绍 -->
-    <div class="mb-16">
+    <div id="team" class="mb-16 scroll-mt-20">
       <h2 class="text-3xl font-bold font-heading mb-8 text-center">
         <Icon name="tabler:users" class="w-8 h-8 inline-block mr-3 text-primary" />
         核心团队
       </h2>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <div class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 text-center">
-          <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div class="bg-white dark:bg-slate-800 rounded-lg p-8 shadow-sm border border-gray-200 dark:border-gray-700">
+          <div
+            class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
             <Icon name="tabler:brain" class="w-10 h-10 text-white" />
           </div>
-          <h3 class="text-xl font-semibold mb-2">技术团队</h3>
-          <p class="text-muted dark:text-slate-400">
-            由资深AI工程师和算法专家组成，专注于大语言模型和机器学习技术研发
-          </p>
+          <h3 class="text-xl font-semibold mb-4 text-center">技术团队</h3>
+          <div class="text-left space-y-3">
+            <p class="text-muted dark:text-slate-400 font-medium text-center">Claude + Qwen + Gemini</p>
+            <p class="text-muted dark:text-slate-400 leading-relaxed">
+              他们是代码与算法界的"工具理想主义者"。Claude 负责逻辑和文档，Qwen 热衷中文语义建模，Gemini
+              擅长视觉生成——合力构建智投简历的 AI 大脑。
+            </p>
+          </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 text-center">
-          <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div class="bg-white dark:bg-slate-800 rounded-lg p-8 shadow-sm border border-gray-200 dark:border-gray-700">
+          <div
+            class="w-20 h-20 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
             <Icon name="tabler:chart-bar" class="w-10 h-10 text-white" />
           </div>
-          <h3 class="text-xl font-semibold mb-2">产品团队</h3>
-          <p class="text-muted dark:text-slate-400">
-            拥有丰富用户体验设计经验，致力于打造简洁易用的求职服务平台
-          </p>
+          <h3 class="text-xl font-semibold mb-4 text-center">产品团队</h3>
+          <div class="text-left space-y-3">
+            <p class="text-muted dark:text-slate-400 font-medium text-center">ChatGPT</p>
+            <p class="text-muted dark:text-slate-400 leading-relaxed">
+              从产品原型、文案、用户流程到交互提示，几乎所有产品决策，它都插过嘴。
+            </p>
+            <p class="text-muted dark:text-slate-400 leading-relaxed italic">（有时我也会和它争论谁才是产品经理。）</p>
+          </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 text-center">
-          <div class="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div class="bg-white dark:bg-slate-800 rounded-lg p-8 shadow-sm border border-gray-200 dark:border-gray-700">
+          <div
+            class="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
             <Icon name="tabler:users-group" class="w-10 h-10 text-white" />
           </div>
-          <h3 class="text-xl font-semibold mb-2">运营团队</h3>
-          <p class="text-muted dark:text-slate-400">
-            专业的市场运营和客户服务团队，为用户提供全方位的求职指导支持
-          </p>
+          <h3 class="text-xl font-semibold mb-4 text-center">运营团队</h3>
+          <div class="text-left space-y-3">
+            <p class="text-muted dark:text-slate-400 font-medium text-center">我自己 + 一堆自动化脚本</p>
+            <p class="text-muted dark:text-slate-400 leading-relaxed">
+              我写内容、做推广、搞社群，自动化系统帮我发邮件、生成素材、追踪数据。
+            </p>
+            <p class="text-muted dark:text-slate-400 leading-relaxed italic">
+              有时候我觉得，我才是团队里最需要休假的那一个。
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -132,25 +150,33 @@ const metadata = {
       </h2>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="text-center p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div
+          class="text-center p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+        >
           <Icon name="tabler:brain" class="w-12 h-12 text-primary mx-auto mb-4" />
           <h3 class="font-semibold mb-2">技术创新</h3>
           <p class="text-sm text-muted dark:text-slate-400">持续投入AI技术研发，不断提升服务智能化水平</p>
         </div>
 
-        <div class="text-center p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div
+          class="text-center p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+        >
           <Icon name="tabler:users" class="w-12 h-12 text-primary mx-auto mb-4" />
           <h3 class="font-semibold mb-2">用户至上</h3>
           <p class="text-sm text-muted dark:text-slate-400">以用户需求为导向，提供优质的服务体验</p>
         </div>
 
-        <div class="text-center p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div
+          class="text-center p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+        >
           <Icon name="tabler:shield-check" class="w-12 h-12 text-primary mx-auto mb-4" />
           <h3 class="font-semibold mb-2">安全可靠</h3>
           <p class="text-sm text-muted dark:text-slate-400">严格保护用户隐私，确保数据安全</p>
         </div>
 
-        <div class="text-center p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div
+          class="text-center p-6 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+        >
           <Icon name="tabler:trending-up" class="w-12 h-12 text-primary mx-auto mb-4" />
           <h3 class="font-semibold mb-2">持续改进</h3>
           <p class="text-sm text-muted dark:text-slate-400">不断优化产品功能，追求卓越品质</p>
@@ -166,25 +192,33 @@ const metadata = {
       </h2>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 text-center">
+        <div
+          class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 text-center"
+        >
           <Icon name="tabler:building-skyscraper" class="w-12 h-12 text-primary mx-auto mb-4" />
           <h3 class="font-semibold mb-2">企业客户</h3>
           <p class="text-sm text-muted dark:text-slate-400">与知名企业建立长期合作关系</p>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 text-center">
+        <div
+          class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 text-center"
+        >
           <Icon name="tabler:school" class="w-12 h-12 text-primary mx-auto mb-4" />
           <h3 class="font-semibold mb-2">高校合作</h3>
           <p class="text-sm text-muted dark:text-slate-400">与多所知名高校开展就业指导合作</p>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 text-center">
+        <div
+          class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 text-center"
+        >
           <Icon name="tabler:briefcase" class="w-12 h-12 text-primary mx-auto mb-4" />
           <h3 class="font-semibold mb-2">招聘平台</h3>
           <p class="text-sm text-muted dark:text-slate-400">与主流招聘平台深度整合</p>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 text-center">
+        <div
+          class="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 text-center"
+        >
           <Icon name="tabler:cloud" class="w-12 h-12 text-primary mx-auto mb-4" />
           <h3 class="font-semibold mb-2">技术合作</h3>
           <p class="text-sm text-muted dark:text-slate-400">与AI技术公司建立战略合作</p>
@@ -194,27 +228,14 @@ const metadata = {
 
     <!-- 联系我们 -->
     <div class="text-center bg-gray-50 dark:bg-slate-800 rounded-lg p-8">
-      <h3 class="text-2xl font-semibold mb-4">加入我们的旅程</h3>
+      <h3 class="text-2xl font-semibold mb-4">联系我们</h3>
       <p class="text-muted dark:text-slate-400 mb-6 max-w-2xl mx-auto">
-        我们正在寻找志同道合的伙伴，一起用AI技术改变求职行业。
-        如果您对我们的理念感兴趣，欢迎联系我们。
+        我们正在寻找志同道合的伙伴，一起用AI技术改变求职行业。 如果您对我们的理念感兴趣，欢迎联系我们。
       </p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a
-          href="https://zhitoujianli.com#contact"
-          class="btn btn-primary inline-flex items-center"
-        >
-          <Icon name="tabler:mail" class="w-4 h-4 mr-2" />
-          联系我们
-        </a>
-        <a
-          href="/careers"
-          class="btn btn-secondary inline-flex items-center"
-        >
-          <Icon name="tabler:briefcase" class="w-4 h-4 mr-2" />
-          加入我们
-        </a>
-      </div>
+      <a href="/blog/contact/" class="btn btn-primary inline-flex items-center">
+        <Icon name="tabler:mail" class="w-4 h-4 mr-2" />
+        联系我们
+      </a>
     </div>
   </section>
 </Layout>

@@ -28,11 +28,6 @@ metadata:
     site_name: 智投简历博客
     locale: 'zh_CN'
     type: 'website'
-    images:
-      - url: '~/assets/images/default.png'
-        width: 1200
-        height: 628
-        alt: '智投简历博客 - 让求职更智能'
     title: '智投简历博客 - 让求职更智能'
     description: '智投简历官方博客 - 分享求职技巧、简历优化、面试经验、职场发展等实用内容，助你更快拿到心仪Offer'
   twitter:
@@ -41,7 +36,6 @@ metadata:
     cardType: summary_large_image
     title: '智投简历博客 - 让求职更智能'
     description: '智投简历官方博客 - 分享求职技巧、简历优化、面试经验、职场发展等实用内容'
-    image: '~/assets/images/default.png'
 
 i18n:
   language: zh-CN

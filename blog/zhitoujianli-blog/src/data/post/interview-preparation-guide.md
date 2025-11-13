@@ -6,15 +6,12 @@ pubDate: 2024-01-25
 updatedDate: 2024-01-25
 author: 智投简历团队
 authorImage: '/images/blog/author-avatar.svg'
-image: ~/assets/images/interview-preparation-hero.png
-heroImage: '/_astro/interview-preparation-hero.png'
 tags: ['面试技巧', '求职指南', '职场发展', '面试准备', 'STAR方法', '面试问题', '面试成功', '求职面试', '面试攻略']
 category: '求职指南'
 keywords: '面试准备,面试技巧,求职指南,面试问题,面试成功,面试经验,面试流程,求职面试,面试攻略,职场面试,STAR方法,面试回答'
 featured: true
 readingTime: 12
 metaDescription: '完整面试准备指南：从面试前准备到面试后跟进，包含STAR方法、常见问题回答技巧、面试攻略等，助你面试成功。'
-ogImage: '/images/blog/interview-preparation-hero.png'
 structuredData: |
   {
     "@context": "https://schema.org",
@@ -30,7 +27,7 @@ structuredData: |
       "name": "智投简历",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://www.zhitoujianli.com/blog/_astro/hero-image.DwIC_L_T.png"
+        "url": "https://www.zhitoujianli.com/blog/logo.png"
       }
     },
     "datePublished": "2024-01-25T00:00:00+08:00",

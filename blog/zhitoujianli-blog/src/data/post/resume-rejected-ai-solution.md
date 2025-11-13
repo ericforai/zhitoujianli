@@ -4,7 +4,6 @@ description: '你的简历，为什么总被刷掉？AI智能投递帮你逆转�
 excerpt: '你投了50份简历，却只收到2个面试邀请？别急着怀疑自己的能力，问题可能出在简历上。HR每天要筛选200+份简历，平均每份简历只有6秒的生死时刻。在这6秒里，如果你的简历没有抓住HR的眼球，就会被无情地刷掉。'
 pubDate: 2025-10-23
 author: 智投简历团队
-image: ~/assets/images/ai-platform-hero.png
 tags: ['简历优化', 'AI智能投递', '求职工具', '简历模板', '岗位匹配', '智能求职', '简历制作', '求职技巧']
 category: '求职指南'
 keywords: '简历优化,AI智能投递,求职工具,简历模板,岗位匹配,智能求职,简历制作,求职技巧'
@@ -32,7 +31,6 @@ structuredData: |
       "@id": "https://zhitoujianli.com/blog/resume-rejected-ai-solution/"
     },
     "description": "你的简历，为什么总被刷掉？AI智能投递帮你逆转局面！痛点共鸣：6秒定生死的简历筛选",
-    "image": "https://zhitoujianli.com/blog/_astro/default.CZ816Hke_Z2gd2WR.jpg",
     "keywords": "简历优化,AI智能投递,求职工具,简历模板,岗位匹配,智能求职,简历制作,求职技巧"
   }
 ---

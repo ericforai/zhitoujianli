@@ -23,12 +23,22 @@ const whenExternalScripts = (items: (() => AstroIntegration) | (() => AstroInteg
 
 export default defineConfig({
   output: 'static',
+  site: 'https://zhitoujianli.com',
+  base: '/blog',
 
   integrations: [
     tailwind({
       applyBaseStyles: false,
     }),
-    sitemap(),
+    sitemap({
+      filter: (page) => !page.includes('/tag/'),
+      customPages: [
+        'https://zhitoujianli.com/blog/',
+        'https://zhitoujianli.com/blog/category/product-updates/',
+        'https://zhitoujianli.com/blog/category/job-guide/',
+        'https://zhitoujianli.com/blog/category/career-advice/',
+      ],
+    }),
     mdx(),
     icon({
       include: {

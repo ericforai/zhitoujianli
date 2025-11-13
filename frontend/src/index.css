@@ -4,6 +4,11 @@
 
 /* 全局样式优化 */
 @layer base {
+  /* 🎨 UX优化：添加平滑滚动（锚点跳转更流畅） */
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply text-gray-900 bg-white;
     font-family:
@@ -27,5 +32,412 @@
 
   p {
     @apply text-base leading-relaxed;
+  }
+}
+
+/* 🎨 UX优化：添加淡入动画（参考Apple.com） */
+@layer utilities {
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s ease-out forwards;
+  }
+
+  .animation-delay-100 {
+    animation-delay: 0.1s;
+    opacity: 0;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 0.2s;
+    opacity: 0;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 0.3s;
+    opacity: 0;
+  }
+
+  .animation-delay-400 {
+    animation-delay: 0.4s;
+    opacity: 0;
+  }
+
+  .animation-delay-600 {
+    animation-delay: 0.6s;
+    opacity: 0;
+  }
+
+  .animation-delay-800 {
+    animation-delay: 0.8s;
+    opacity: 0;
+  }
+
+  .animation-delay-1000 {
+    animation-delay: 1s;
+    opacity: 0;
+  }
+
+  .animation-delay-1200 {
+    animation-delay: 1.2s;
+    opacity: 0;
+  }
+
+  /* 🎨 浮动动画（插图） */
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* 🎨 呼吸动画（Badge） */
+  @keyframes pulse-subtle {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
+  }
+
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2s ease-in-out infinite;
+  }
+
+  /* 🎨 渐变文字 */
+  .text-gradient {
+    background: linear-gradient(135deg, #4873d1 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* 🎨 文字框发光动画 - 蓝色（AI分析）- 增强版 */
+  @keyframes glow-blue {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(72, 115, 209, 0);
+      border-color: rgba(72, 115, 209, 0.5);
+      transform: scale(1);
+    }
+    25% {
+      box-shadow: 0 0 20px 5px rgba(72, 115, 209, 0.3);
+      border-color: rgba(72, 115, 209, 0.8);
+      transform: scale(1.03);
+    }
+    50% {
+      box-shadow: 0 0 40px 12px rgba(72, 115, 209, 0.6);
+      border-color: rgba(72, 115, 209, 1);
+      transform: scale(1.05);
+    }
+    75% {
+      box-shadow: 0 0 20px 5px rgba(72, 115, 209, 0.3);
+      border-color: rgba(72, 115, 209, 0.8);
+      transform: scale(1.03);
+    }
+  }
+
+  .animate-glow-blue {
+    animation: glow-blue 8s ease-in-out infinite;
+    animation-delay: 0s;
+    transition: transform 0.3s ease;
+  }
+
+  /* 🎨 文字框发光动画 - 紫色（AI沟通）- 增强版 */
+  @keyframes glow-purple {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(139, 92, 246, 0);
+      border-color: rgba(139, 92, 246, 0.5);
+      transform: scale(1);
+    }
+    25% {
+      box-shadow: 0 0 20px 5px rgba(139, 92, 246, 0.3);
+      border-color: rgba(139, 92, 246, 0.8);
+      transform: scale(1.03);
+    }
+    50% {
+      box-shadow: 0 0 40px 12px rgba(139, 92, 246, 0.6);
+      border-color: rgba(139, 92, 246, 1);
+      transform: scale(1.05);
+    }
+    75% {
+      box-shadow: 0 0 20px 5px rgba(139, 92, 246, 0.3);
+      border-color: rgba(139, 92, 246, 0.8);
+      transform: scale(1.03);
+    }
+  }
+
+  .animate-glow-purple {
+    animation: glow-purple 8s ease-in-out infinite;
+    animation-delay: 2.6s;
+    transition: transform 0.3s ease;
+  }
+
+  /* 🎨 文字框发光动画 - 绿色（自动投递）- 增强版 */
+  @keyframes glow-green {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+      border-color: rgba(16, 185, 129, 0.5);
+      transform: scale(1);
+    }
+    25% {
+      box-shadow: 0 0 20px 5px rgba(16, 185, 129, 0.3);
+      border-color: rgba(16, 185, 129, 0.8);
+      transform: scale(1.03);
+    }
+    50% {
+      box-shadow: 0 0 40px 12px rgba(16, 185, 129, 0.6);
+      border-color: rgba(16, 185, 129, 1);
+      transform: scale(1.05);
+    }
+    75% {
+      box-shadow: 0 0 20px 5px rgba(16, 185, 129, 0.3);
+      border-color: rgba(16, 185, 129, 0.8);
+      transform: scale(1.03);
+    }
+  }
+
+  .animate-glow-green {
+    animation: glow-green 8s ease-in-out infinite;
+    animation-delay: 5.2s;
+    transition: transform 0.3s ease;
+  }
+
+  /* ✨ Phase 2: 微动画效果 */
+
+  /* 🎨 对话气泡漂浮动画 */
+  @keyframes bubble-float {
+    0%,
+    100% {
+      transform: translateY(0) translateX(0);
+    }
+    25% {
+      transform: translateY(-8px) translateX(2px);
+    }
+    50% {
+      transform: translateY(-4px) translateX(-2px);
+    }
+    75% {
+      transform: translateY(-6px) translateX(1px);
+    }
+  }
+
+  .animate-bubble-float {
+    animation: bubble-float 4s ease-in-out infinite;
+  }
+
+  /* 🎨 文字框出场动画 - 从右侧滑入 */
+  @keyframes slide-in-right {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slide-in-right {
+    animation: slide-in-right 0.8s ease-out forwards;
+  }
+
+  /* 🎨 文字框出场动画 - 从左侧滑入 */
+  @keyframes slide-in-left {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slide-in-left {
+    animation: slide-in-left 0.8s ease-out forwards;
+  }
+
+  /* 🎨 文字框出场动画 - 从上方滑入 */
+  @keyframes slide-in-top {
+    from {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-in-top {
+    animation: slide-in-top 0.8s ease-out forwards;
+  }
+
+  /* 🎨 文字框出场动画 - 从下方滑入 */
+  @keyframes slide-in-bottom {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-in-bottom {
+    animation: slide-in-bottom 0.8s ease-out forwards;
+  }
+
+  /* 🎨 虚线流动动画（装饰性连接线）*/
+  @keyframes dash-flow {
+    0% {
+      stroke-dashoffset: 20;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .animate-dash-flow {
+    animation: dash-flow 2s linear infinite;
+  }
+
+  /* ✨ Hero优化：视觉连结动画 */
+
+  /* 🎨 从按钮到插图的光线流动 */
+  @keyframes beam-flow {
+    0% {
+      opacity: 0;
+      transform: translateX(-100%) scaleX(0.5);
+    }
+    50% {
+      opacity: 0.6;
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(0) scaleX(1);
+    }
+  }
+
+  .animate-beam-flow {
+    animation: beam-flow 3s ease-out infinite;
+  }
+
+  /* 🎨 纸飞机飞行动画 - 半圆弧线从左飞到右侧机器人 */
+  @keyframes paper-plane-fly {
+    0% {
+      transform: translate(0, 0) rotate(0deg);
+      opacity: 0;
+    }
+    10% {
+      transform: translate(50px, -30px) rotate(10deg);
+      opacity: 1;
+    }
+    30% {
+      transform: translate(200px, -120px) rotate(15deg);
+      opacity: 1;
+    }
+    50% {
+      transform: translate(350px, -180px) rotate(20deg);
+      opacity: 1;
+    }
+    70% {
+      transform: translate(500px, -160px) rotate(25deg);
+      opacity: 1;
+    }
+    85% {
+      transform: translate(580px, -120px) rotate(30deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(620px, -80px) rotate(35deg);
+      opacity: 0;
+    }
+  }
+
+  .animate-paper-plane {
+    animation: paper-plane-fly 8s ease-in-out infinite;
+  }
+
+  /* 🎨 数据点流动动画 - 从左流到右侧机器人 */
+  @keyframes data-flow {
+    0% {
+      transform: translateY(0) translateX(0);
+      opacity: 0;
+    }
+    15% {
+      opacity: 0.8;
+    }
+    85% {
+      opacity: 0.8;
+    }
+    100% {
+      transform: translateY(-80px) translateX(500px);
+      opacity: 0;
+    }
+  }
+
+  .animate-data-flow {
+    animation: data-flow 5s ease-in-out infinite;
+  }
+
+  /* 🎨 背景光斑脉冲 */
+  @keyframes glow-pulse {
+    0%,
+    100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scale(1.1);
+    }
+  }
+
+  .animate-glow-pulse {
+    animation: glow-pulse 4s ease-in-out infinite;
+  }
+
+  /* 🎨 渐变光线 */
+  @keyframes gradient-beam {
+    0% {
+      opacity: 0;
+      background-position: 0% 50%;
+    }
+    50% {
+      opacity: 0.4;
+    }
+    100% {
+      opacity: 0;
+      background-position: 100% 50%;
+    }
+  }
+
+  .animate-gradient-beam {
+    animation: gradient-beam 4s ease-in-out infinite;
   }
 }

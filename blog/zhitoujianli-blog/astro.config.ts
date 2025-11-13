@@ -23,19 +23,29 @@ const whenExternalScripts = (items: (() => AstroIntegration) | (() => AstroInteg
 
 export default defineConfig({
   output: 'static',
-  site: process.env.NODE_ENV === 'production' ? 'https://zhitoujianli.com/blog' : 'http://localhost:4321',
-  base: process.env.NODE_ENV === 'production' ? '/blog/' : '/', // 生产环境使用/blog/前缀（带尾部斜杠）
+  site: 'https://zhitoujianli.com',
+  base: '/blog',
   compressHTML: true, // 启用HTML压缩
+  trailingSlash: 'ignore',
 
   integrations: [
     tailwind({
       applyBaseStyles: false,
     }),
     sitemap({
-      filter: (page) => !page.includes('admin') && !page.includes('cms'),
+      filter: (page) =>
+        !page.includes('/tag/'),  // 简化：只过滤标签页
       changefreq: 'weekly',
       priority: 0.7,
       lastmod: new Date(),
+      customPages: [
+        'https://zhitoujianli.com/blog/',
+        'https://zhitoujianli.com/blog/category/product-updates/',
+        'https://zhitoujianli.com/blog/category/job-guide/',
+        'https://zhitoujianli.com/blog/category/career-advice/',
+        'https://zhitoujianli.com/blog/category/tech-depth/',
+        'https://zhitoujianli.com/blog/category/industry-analysis/',
+      ],
     }),
     mdx(),
     icon({

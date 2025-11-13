@@ -1,6 +1,5 @@
 ---
 import { Icon } from 'astro-icon/components';
-import { getPermalink } from '~/utils/permalinks';
 import Button from '~/components/ui/Button.astro';
 
 export interface Props {
@@ -10,7 +9,16 @@ export interface Props {
   nextText?: string;
 }
 
-const { prevUrl, nextUrl, prevText = 'Newer posts', nextText = 'Older posts' } = Astro.props;
+const { prevUrl, nextUrl, prevText = '较新的文章', nextText = '较旧的文章' } = Astro.props;
+
+/**
+ * 🔧 修复：不使用getPermalink处理分页URL
+ *
+ * Astro的paginate函数生成的URL已经包含了base路径（/blog），
+ * 如果再次调用getPermalink会导致路径重复（/blog/blog/...）
+ *
+ * 解决方案：直接使用Astro提供的prevUrl和nextUrl
+ */
 ---
 
 {
@@ -20,13 +28,13 @@ const { prevUrl, nextUrl, prevText = 'Newer posts', nextText = 'Older posts' } =
         <Button
           variant="tertiary"
           class={`md:px-3 px-3 mr-2 ${!prevUrl ? 'invisible' : ''}`}
-          href={getPermalink(prevUrl)}
+          href={prevUrl}
         >
           <Icon name="tabler:chevron-left" class="w-6 h-6" />
           <p class="ml-2">{prevText}</p>
         </Button>
 
-        <Button variant="tertiary" class={`md:px-3 px-3 ${!nextUrl ? 'invisible' : ''}`} href={getPermalink(nextUrl)}>
+        <Button variant="tertiary" class={`md:px-3 px-3 ${!nextUrl ? 'invisible' : ''}`} href={nextUrl}>
           <span class="mr-2">{nextText}</span>
           <Icon name="tabler:chevron-right" class="w-6 h-6" />
         </Button>

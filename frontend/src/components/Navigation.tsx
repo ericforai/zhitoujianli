@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { authService, type User } from '../services/authService';
 import Button from './common/Button';
 
@@ -10,6 +10,7 @@ const Navigation = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     // 检查登录状态
@@ -38,6 +39,43 @@ const Navigation = () => {
       }
     };
   }, [closeTimeout]);
+
+  // 🎨 UX优化：滚动时添加背景模糊效果（参考Apple.com）
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // 🎨 UX优化：移动端菜单打开时禁止body滚动（防止背景滚动）
+  useEffect(() => {
+    if (isMenuOpen) {
+      // 保存当前滚动位置
+      const scrollY = window.scrollY;
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+    } else {
+      // 恢复滚动位置
+      const scrollY = document.body.style.top;
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY) * -1);
+      }
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+    };
+  }, [isMenuOpen]);
 
   /**
    * 🔒 安全修复：退出登录后立即跳转，防止停留在受保护页面
@@ -71,12 +109,26 @@ const Navigation = () => {
   };
 
   return (
-    <nav className='bg-white border-b border-gray-200 fixed w-full z-50 top-0 shadow-sm'>
+    <nav
+      className={`
+        fixed w-full z-50 top-0
+        transition-all duration-300 ease-in-out
+        ${
+          scrolled
+            ? 'bg-white/80 backdrop-blur-xl shadow-md border-b border-gray-200/50'
+            : 'bg-white border-b border-gray-200 shadow-sm'
+        }
+      `}
+    >
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='flex justify-between h-16'>
           {/* Logo - 简约风格 */}
           <div className='flex items-center'>
-            <a href='/' className='flex items-center space-x-3 group'>
+            <a
+              href='/'
+              className='flex items-center space-x-3 group transition-opacity duration-200 hover:opacity-70'
+              aria-label='智投简历 - 返回首页'
+            >
               <img
                 src='/images/logo-plane.png'
                 alt='智投简历Logo'
@@ -99,16 +151,6 @@ const Navigation = () => {
               首页
             </a>
             <a
-              href='/features'
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                isActive('/features')
-                  ? 'text-blue-600 bg-blue-50'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-            >
-              功能
-            </a>
-            <a
               href='/pricing'
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
                 isActive('/pricing')
@@ -119,7 +161,7 @@ const Navigation = () => {
               定价
             </a>
 
-            {/* 分类下拉菜单 - 优化交互体验 */}
+            {/* 分类下拉菜单 - 优化交互体验：点击跳转博客首页，悬停显示分类 */}
             <div
               className='relative'
               onMouseEnter={() => {
@@ -138,14 +180,15 @@ const Navigation = () => {
                 setCloseTimeout(timeout);
               }}
             >
-              <button
+              <a
+                href='/blog/'
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-1 ${
                   location.pathname.startsWith('/blog/')
                     ? 'text-blue-600 bg-blue-50'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
-                <span>分类</span>
+                <span>博客</span>
                 <svg
                   className={`w-4 h-4 transition-transform duration-200 ${isCategoryOpen ? 'rotate-180' : ''}`}
                   fill='none'
@@ -159,32 +202,47 @@ const Navigation = () => {
                     d='M19 9l-7 7-7-7'
                   />
                 </svg>
-              </button>
+              </a>
 
               {/* 下拉菜单 - 移除间隙，使用padding代替margin */}
               {isCategoryOpen && (
                 <div className='absolute left-0 top-full pt-1'>
                   <div className='w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2'>
+                    {/* 全部博客 - 主要入口 */}
+                    <a
+                      href='/blog/'
+                      className='block px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100'
+                      onClick={() => setIsCategoryOpen(false)}
+                    >
+                      📚 全部博客
+                    </a>
+
+                    {/* 分类小标题 */}
+                    <div className='px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider'>
+                      分类浏览
+                    </div>
+
+                    {/* 分类列表 */}
                     <a
                       href='/blog/category/job-guide/'
                       className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200'
                       onClick={() => setIsCategoryOpen(false)}
                     >
-                      求职指南
+                      💼 求职指南
                     </a>
                     <a
                       href='/blog/category/career-advice/'
                       className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200'
                       onClick={() => setIsCategoryOpen(false)}
                     >
-                      职场建议
+                      🚀 职场建议
                     </a>
                     <a
                       href='/blog/category/product-updates/'
                       className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200'
                       onClick={() => setIsCategoryOpen(false)}
                     >
-                      产品动态
+                      📢 产品动态
                     </a>
                   </div>
                 </div>
@@ -193,8 +251,6 @@ const Navigation = () => {
 
             <a
               href='/blog/about/#company'
-              target='_blank'
-              rel='noopener noreferrer'
               className='px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors duration-200'
             >
               关于我们
@@ -250,7 +306,37 @@ const Navigation = () => {
           </div>
 
           {/* Mobile menu button - 简约风格 */}
-          <div className='md:hidden flex items-center'>
+          <div className='md:hidden flex items-center space-x-2'>
+            {/* 未登录时显示登录/注册按钮 */}
+            {!isLoggedIn && (
+              <>
+                <Button as='a' href='/login' variant='ghost' size='sm'>
+                  登录
+                </Button>
+                <Button as='a' href='/register' variant='primary' size='sm'>
+                  注册
+                </Button>
+              </>
+            )}
+
+            {/* 已登录时显示用户头像快捷入口 */}
+            {isLoggedIn && (
+              <a
+                href={
+                  localStorage.getItem('userType') === 'admin'
+                    ? '/admin/dashboard'
+                    : '/dashboard'
+                }
+                className='flex items-center justify-center h-8 w-8 bg-blue-600 rounded-full hover:bg-blue-700 transition-colors duration-200'
+                aria-label='进入工作台'
+              >
+                <span className='text-white text-xs font-medium'>
+                  {user?.name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+                </span>
+              </a>
+            )}
+
+            {/* 汉堡菜单按钮 */}
             <button
               onClick={toggleMenu}
               className='p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors duration-200'
@@ -298,17 +384,6 @@ const Navigation = () => {
               首页
             </a>
             <a
-              href='/features'
-              className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 ${
-                isActive('/features')
-                  ? 'text-blue-600 bg-blue-50'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              功能
-            </a>
-            <a
               href='/pricing'
               className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 ${
                 isActive('/pricing')
@@ -320,38 +395,50 @@ const Navigation = () => {
               定价
             </a>
 
-            {/* 移动端分类链接 */}
+            {/* 移动端博客链接 - 添加博客首页入口 */}
             <div className='space-y-1'>
-              <div className='px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider'>
-                博客分类
+              <a
+                href='/blog/'
+                className={`block px-4 py-3 rounded-lg text-base font-semibold transition-colors duration-200 ${
+                  location.pathname === '/blog/'
+                    ? 'text-blue-600 bg-blue-50'
+                    : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                📚 全部博客
+              </a>
+
+              {/* 分类小标题 - 加强视觉层次 */}
+              <div className='px-4 py-2 mt-2 text-xs font-bold text-gray-600 uppercase tracking-wider border-t border-gray-200 pt-3'>
+                分类浏览
               </div>
+
               <a
                 href='/blog/category/job-guide/'
                 className='block px-4 py-3 rounded-lg text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors duration-200'
                 onClick={() => setIsMenuOpen(false)}
               >
-                求职指南
+                💼 求职指南
               </a>
               <a
                 href='/blog/category/career-advice/'
                 className='block px-4 py-3 rounded-lg text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors duration-200'
                 onClick={() => setIsMenuOpen(false)}
               >
-                职场建议
+                🚀 职场建议
               </a>
               <a
                 href='/blog/category/product-updates/'
                 className='block px-4 py-3 rounded-lg text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors duration-200'
                 onClick={() => setIsMenuOpen(false)}
               >
-                产品动态
+                📢 产品动态
               </a>
             </div>
 
             <a
               href='/blog/about/#company'
-              target='_blank'
-              rel='noopener noreferrer'
               className='block px-4 py-3 rounded-lg text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors duration-200'
               onClick={() => setIsMenuOpen(false)}
             >

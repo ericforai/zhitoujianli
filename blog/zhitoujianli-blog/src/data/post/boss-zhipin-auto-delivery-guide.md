@@ -4,7 +4,6 @@ description: 详细教程：如何使用AI工具实现Boss直聘自动投递简�
 excerpt: 还在手动投递Boss直聘简历？AI自动投递工具让你7天投递200份，效率提升10倍。本文提供完整教程，手把手教你实现自动化投递。
 pubDate: 2025-01-18
 author: 智投简历团队
-image: ~/assets/images/default.png
 tags: ["Boss直聘", "自动投递", "AI工具", "简历投递", "求职效率", "自动化", "智能投递", "Boss直聘教程"]
 category: "求职指南"
 keywords: "Boss直聘自动投递,Boss直聘AI投递,自动投递简历,Boss直聘工具,简历自动投递,智能投递系统,Boss直聘效率提升,自动投递教程"
@@ -22,17 +21,16 @@ structuredData: |
       "name": "智投简历",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://blog.zhitoujianli.com/logo.png"
+        "url": "https://zhitoujianli.com/blog/logo.png"
       }
     },
     "datePublished": "2025-01-18",
     "dateModified": "2025-01-18",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "https://blog.zhitoujianli.com/boss-zhipin-auto-delivery-guide/"
+      "@id": "https://zhitoujianli.com/blog/boss-zhipin-auto-delivery-guide/"
     },
     "description": "详细教程：如何使用AI工具实现Boss直聘自动投递简历，告别重复劳动",
-    "image": "https://blog.zhitoujianli.com/images/default.png",
     "keywords": "Boss直聘自动投递,Boss直聘AI投递,自动投递简历,Boss直聘工具"
   }
 ---

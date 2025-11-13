@@ -4,7 +4,6 @@ description: 探索AI技术在求职领域的应用，了解智能简历投递�
 excerpt: 2025年，AI正在彻底改变求职方式。从智能简历投递到AI职位匹配，这些创新工具让求职效率提升10倍。本文将深入分析AI求职趋势，并分享实用技巧。
 pubDate: 2025-01-15
 author: 智投简历团队
-image: ~/assets/images/default.png
 tags: ["求职指南", "AI技术", "求职趋势", "智能求职", "2025求职", "AI求职工具", "求职效率", "简历投递"]
 category: "求职指南"
 keywords: "2025求职指南,AI求职,智能简历投递,AI职位匹配,求职效率,智能求职工具,AI改变求职,求职趋势分析"
@@ -22,17 +21,16 @@ structuredData: |
       "name": "智投简历",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://blog.zhitoujianli.com/logo.png"
+        "url": "https://zhitoujianli.com/blog/logo.png"
       }
     },
     "datePublished": "2025-01-15",
     "dateModified": "2025-01-15",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "https://blog.zhitoujianli.com/2025-job-hunting-guide-ai-revolution/"
+      "@id": "https://zhitoujianli.com/blog/2025-job-hunting-guide-ai-revolution/"
     },
     "description": "探索AI技术在求职领域的应用，了解智能简历投递、AI职位匹配等创新工具如何帮助求职者提升效率",
-    "image": "https://blog.zhitoujianli.com/images/default.png",
     "keywords": "2025求职指南,AI求职,智能简历投递,AI职位匹配,求职效率"
   }
 ---

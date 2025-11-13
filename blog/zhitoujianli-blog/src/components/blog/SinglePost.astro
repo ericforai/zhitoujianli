@@ -4,6 +4,7 @@ import { Icon } from 'astro-icon/components';
 import Image from '~/components/common/Image.astro';
 import PostTags from '~/components/blog/Tags.astro';
 import Breadcrumb from '~/components/common/Breadcrumb.astro';
+import ShareButtons from '~/components/blog/ShareButtons.astro';
 
 import { getPermalink } from '~/utils/permalinks';
 import { getFormattedDate } from '~/utils/utils';
@@ -16,6 +17,7 @@ export interface Props {
 }
 
 const { post, url } = Astro.props;
+const fullUrl = typeof url === 'string' ? url : url.toString();
 ---
 
 <section class="py-8 sm:py-16 lg:py-20 mx-auto">
@@ -56,5 +58,9 @@ const { post, url } = Astro.props;
     <div class="mx-auto px-6 sm:px-6 max-w-3xl mt-8">
       <PostTags tags={post.tags} />
     </div>
+
+    <!-- 分享按钮组件 -->
+    <ShareButtons title={post.title} url={fullUrl} description={post.excerpt} />
+
   </article>
 </section>

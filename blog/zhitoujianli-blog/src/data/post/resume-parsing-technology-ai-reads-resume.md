@@ -4,7 +4,6 @@ description: 深入解析AI简历解析技术原理，了解AI如何自动提取
 excerpt: AI如何读懂你的简历？本文深入解析简历解析技术原理，包括PDF解析、信息提取、结构化处理等核心技术，助你了解AI求职工具的工作原理。
 pubDate: 2025-01-20
 author: 智投简历团队
-image: ~/assets/images/default.png
 tags: ["简历解析", "AI技术", "技术深度", "PDF解析", "信息提取", "NLP", "OCR", "智能解析"]
 category: "技术深度"
 keywords: "简历解析技术,AI简历解析,PDF解析,简历信息提取,OCR技术,NLP处理,智能解析系统,简历结构化"
@@ -22,17 +21,16 @@ structuredData: |
       "name": "智投简历",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://blog.zhitoujianli.com/logo.png"
+        "url": "https://zhitoujianli.com/blog/logo.png"
       }
     },
     "datePublished": "2025-01-20",
     "dateModified": "2025-01-20",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "https://blog.zhitoujianli.com/resume-parsing-technology-ai-reads-resume/"
+      "@id": "https://zhitoujianli.com/blog/resume-parsing-technology-ai-reads-resume/"
     },
     "description": "深入解析AI简历解析技术原理，了解AI如何自动提取简历信息",
-    "image": "https://blog.zhitoujianli.com/images/default.png",
     "keywords": "简历解析技术,AI简历解析,PDF解析,简历信息提取"
   }
 ---

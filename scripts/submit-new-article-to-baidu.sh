@@ -6,12 +6,12 @@
 set -e
 
 # 配置信息
-SITE="blog.zhitoujianli.com"
+SITE="zhitoujianli.com"
 TOKEN="YOUR_BAIDU_TOKEN"  # 需要从百度站长平台获取
 BAIDU_API="http://data.zz.baidu.com/urls?site=${SITE}&token=${TOKEN}"
 
 # 新文章URL
-NEW_ARTICLE_URL="https://blog.zhitoujianli.com/college-graduate-job-hunting-2025/"
+NEW_ARTICLE_URL="https://zhitoujianli.com/blog/college-graduate-job-hunting-2025/"
 
 # 颜色输出
 RED='\033[0;31m'
@@ -38,7 +38,7 @@ if [ "$TOKEN" == "YOUR_BAIDU_TOKEN" ]; then
     echo "5. 编辑此脚本，将 YOUR_BAIDU_TOKEN 替换为实际Token"
     echo ""
     echo -e "${BLUE}接口地址示例：${NC}"
-    echo "http://data.zz.baidu.com/urls?site=blog.zhitoujianli.com&token=YOUR_ACTUAL_TOKEN"
+    echo "http://data.zz.baidu.com/urls?site=zhitoujianli.com&token=YOUR_ACTUAL_TOKEN"
     echo ""
     exit 1
 fi
@@ -77,7 +77,7 @@ if echo "$RESPONSE" | grep -q "success"; then
     # 提供后续建议
     echo -e "${YELLOW}📝 后续操作建议：${NC}"
     echo "1. 【3天后检查】访问百度站长平台查看收录状态"
-    echo "2. 【1周后验证】搜索: site:blog.zhitoujianli.com 大学生求职"
+    echo "2. 【1周后验证】搜索: site:zhitoujianli.com 大学生求职"
     echo "3. 【监控索引】定期查看「数据监控」→「索引量」"
     echo ""
 

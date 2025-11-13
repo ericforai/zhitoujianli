@@ -26,14 +26,6 @@ const Footer = () => {
             <ul className='space-y-3'>
               <li>
                 <a
-                  href='/features'
-                  className='text-gray-400 hover:text-white transition-colors duration-200'
-                >
-                  功能
-                </a>
-              </li>
-              <li>
-                <a
                   href='/pricing'
                   className='text-gray-400 hover:text-white transition-colors duration-200'
                 >
@@ -43,8 +35,6 @@ const Footer = () => {
               <li>
                 <a
                   href='/blog/'
-                  target='_blank'
-                  rel='noopener noreferrer'
                   className='text-gray-400 hover:text-white transition-colors duration-200'
                 >
                   博客

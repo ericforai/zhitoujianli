@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- 博客首页 -->
+  <url>
+    <loc>https://zhitoujianli.com/blog-index.html</loc>
+    <lastmod>2025-11-13T00:00:00+00:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 博客文章1: 2025年求职市场真相 -->
+  <url>
+    <loc>https://zhitoujianli.com/2025-job-market-truth.html</loc>
+    <lastmod>2025-11-13T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- 博客文章2: 简历优化指南 -->
+  <url>
+    <loc>https://zhitoujianli.com/resume-optimization-guide.html</loc>
+    <lastmod>2025-11-13T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- 博客文章3: 2025年招聘市场趋势报告 -->
+  <url>
+    <loc>https://zhitoujianli.com/2025-recruitment-market-report.html</loc>
+    <lastmod>2025-11-14T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- 博客文章4: 10个用户的求职成功故事 -->
+  <url>
+    <loc>https://zhitoujianli.com/user-success-stories.html</loc>
+    <lastmod>2025-11-15T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+</urlset>
+

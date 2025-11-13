@@ -4,7 +4,6 @@ description: 深入解析AI智能职位匹配技术，了解如何利用AI算法
 excerpt: AI智能职位匹配技术如何帮你找到最适合的工作？本文深入解析匹配算法原理，分享实用技巧，助你提高求职成功率。
 pubDate: 2025-01-19
 author: 智投简历团队
-image: ~/assets/images/default.png
 tags: ["智能匹配", "职位匹配", "AI技术", "求职技巧", "精准匹配", "求职效率", "AI算法", "职位推荐"]
 category: "技术深度"
 keywords: "智能职位匹配,AI职位匹配,职位匹配算法,精准匹配,求职匹配,AI匹配技术,职位推荐系统,智能求职"
@@ -22,17 +21,16 @@ structuredData: |
       "name": "智投简历",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://blog.zhitoujianli.com/logo.png"
+        "url": "https://zhitoujianli.com/blog/logo.png"
       }
     },
     "datePublished": "2025-01-19",
     "dateModified": "2025-01-19",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "https://blog.zhitoujianli.com/smart-job-matching-how-to-find-perfect-job/"
+      "@id": "https://zhitoujianli.com/blog/smart-job-matching-how-to-find-perfect-job/"
     },
     "description": "深入解析AI智能职位匹配技术，了解如何利用AI算法找到最适合的工作",
-    "image": "https://blog.zhitoujianli.com/images/default.png",
     "keywords": "智能职位匹配,AI职位匹配,职位匹配算法,精准匹配"
   }
 ---

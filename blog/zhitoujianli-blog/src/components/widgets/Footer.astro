@@ -28,52 +28,32 @@ const { socialLinks = [], secondaryLinks = [], links = [], footNote = '', theme 
 
 <footer class:list={[{ dark: theme === 'dark' }, 'relative border-t border-subtle not-prose bg-light']}>
   <div class="relative max-w-7xl mx-auto px-4 sm:px-6 text-default">
-    <div class="py-12">
-      <!-- 主要内容区域 -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
-        <!-- 品牌区域 -->
-        <div class="lg:col-span-1">
-          <div class="mb-4">
-            <a
-              class="inline-block font-bold text-xl text-primary hover:text-accent transition-colors duration-200"
-              href={getHomePermalink()}
-            >
-              {SITE?.name}
-            </a>
-          </div>
-          <p class="text-muted text-sm leading-relaxed mb-4">
-            基于AI技术的智能求职平台，为求职者提供全方位的职业发展支持。
-          </p>
-          <!-- 社交媒体链接 -->
-          {
-            socialLinks?.length ? (
-              <div class="flex space-x-4">
-                {socialLinks.map(({ text, href, icon }) => (
-                  <a
-                    class="text-muted hover:text-primary transition-colors duration-200 p-2 rounded-lg hover:bg-page"
-                    href={href}
-                    aria-label={text}
-                  >
-                    <Icon name={icon} class="w-5 h-5" />
-                  </a>
-                ))}
-              </div>
-            ) : (
-              ''
-            )
-          }
-        </div>
+    <div class="py-10">
+      <!-- 品牌区域 - Apple风格简洁设计 -->
+      <div class="mb-8 pb-6 border-b border-subtle">
+        <a
+          class="inline-block font-bold text-xl text-primary hover:text-accent transition-colors duration-200"
+          href={getHomePermalink()}
+        >
+          {SITE?.name}
+        </a>
+        <p class="text-muted text-xs mt-2 max-w-md">
+          用AI让求职更智能
+        </p>
+      </div>
 
+      <!-- 主要内容区域 - 4列紧凑布局 -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-8 mb-8">
         <!-- 链接区域 -->
         {
           links.map(({ title, links }) => (
             <div>
-              <h3 class="font-semibold text-default mb-4">{title}</h3>
-              <ul class="space-y-3">
+              <h3 class="font-semibold text-default text-sm mb-3">{title}</h3>
+              <ul class="space-y-2">
                 {links.map(({ text, href }) => (
                   <li>
                     <a
-                      class="text-muted hover:text-primary transition-colors duration-200 text-sm"
+                      class="text-muted hover:text-primary transition-colors duration-200 text-xs block"
                       href={href}
                       set:html={text}
                     />

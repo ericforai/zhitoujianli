@@ -13,8 +13,8 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # 配置
-BLOG_URL="https://blog.zhitoujianli.com"
-SITEMAP_URL="${BLOG_URL}/sitemap-index.xml"
+SITE_URL="https://zhitoujianli.com"
+SITEMAP_URL="${SITE_URL}/sitemap.xml"  # 统一的sitemap入口
 BAIDU_TOKEN=""  # 需要从百度站长平台获取
 GOOGLE_ACCESS_TOKEN=""  # 需要从Google Search Console获取（可选）
 
@@ -38,7 +38,7 @@ if [ -n "$BAIDU_TOKEN" ]; then
     echo ""
     echo -e "${BLUE}📤 正在提交到百度站长平台...${NC}"
 
-    BAIDU_API_URL="http://data.zz.baidu.com/urls?site=blog.zhitoujianli.com&token=${BAIDU_TOKEN}"
+    BAIDU_API_URL="http://data.zz.baidu.com/urls?site=zhitoujianli.com&token=${BAIDU_TOKEN}"
 
     # 提交sitemap
     RESPONSE=$(curl -s -X POST "${BAIDU_API_URL}" \
@@ -76,28 +76,26 @@ echo -e "${BLUE}📤 正在提交到Google Search Console...${NC}"
 echo -e "${YELLOW}⚠️  Google Search Console需要手动提交${NC}"
 echo -e "${BLUE}💡 手动提交步骤：${NC}"
 echo "   1. 访问 https://search.google.com/search-console"
-echo "   2. 选择网站：blog.zhitoujianli.com"
+echo "   2. 选择网站：zhitoujianli.com"
 echo "   3. 进入「Sitemaps」"
 echo "   4. 输入sitemap地址：${SITEMAP_URL}"
 echo "   5. 点击「提交」"
 
 # 生成提交URL列表
 echo ""
-echo -e "${BLUE}📋 新文章URL列表：${NC}"
-echo -e "${GREEN}${BLOG_URL}/2025-job-hunting-guide-ai-revolution/${NC}"
-echo -e "${GREEN}${BLOG_URL}/resume-delivery-efficiency-10x-improvement/${NC}"
-echo -e "${GREEN}${BLOG_URL}/fresh-graduate-job-hunting-mistakes/${NC}"
-echo -e "${GREEN}${BLOG_URL}/boss-zhipin-auto-delivery-guide/${NC}"
-echo -e "${GREEN}${BLOG_URL}/smart-job-matching-how-to-find-perfect-job/${NC}"
-echo -e "${GREEN}${BLOG_URL}/resume-parsing-technology-ai-reads-resume/${NC}"
-echo -e "${GREEN}${BLOG_URL}/job-hunting-efficiency-tools-comparison/${NC}"
+echo -e "${BLUE}📋 博客文章URL示例：${NC}"
+echo -e "${GREEN}${SITE_URL}/blog/2025-job-hunting-guide-ai-revolution/${NC}"
+echo -e "${GREEN}${SITE_URL}/blog/resume-delivery-efficiency-10x-improvement/${NC}"
+echo -e "${GREEN}${SITE_URL}/blog/fresh-graduate-job-hunting-mistakes/${NC}"
+echo -e "${GREEN}${SITE_URL}/blog/boss-zhipin-auto-delivery-guide/${NC}"
 
 echo ""
 echo -e "${GREEN}🎉 提交完成！${NC}"
 echo ""
 echo -e "${BLUE}📝 后续操作建议：${NC}"
 echo "   1. 【3天后检查】访问百度站长平台查看收录状态"
-echo "   2. 【1周后验证】搜索: site:blog.zhitoujianli.com"
+echo "   2. 【1周后验证】搜索: site:zhitoujianli.com 求职指南"
 echo "   3. 【监控索引】定期查看「数据监控」→「索引量」"
 echo "   4. 【Google验证】在Google Search Console提交sitemap"
+echo "   5. 【域名迁移】使用百度站长平台的「网站改版」工具通知百度"
 

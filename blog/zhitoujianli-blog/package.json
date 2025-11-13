@@ -21,10 +21,7 @@
     "fix": "npm run fix:eslint && npm run fix:prettier",
     "fix:eslint": "eslint --fix .",
     "fix:prettier": "prettier -w .",
-    "blog": "node manage-blog.js",
-    "blog:list": "ls -la src/data/post/",
-    "analytics:setup": "node setup-analytics.js",
-    "analytics:check": "node setup-analytics.js"
+    "blog:list": "ls -la src/data/post/"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.12",

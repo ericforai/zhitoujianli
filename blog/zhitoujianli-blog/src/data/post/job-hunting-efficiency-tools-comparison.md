@@ -4,7 +4,6 @@ description: 全面对比主流求职效率工具，包括智投简历、其他A
 excerpt: 市面上有哪些求职效率工具？哪个更适合你？本文全面对比主流工具的功能、价格、优缺点，助你做出最佳选择。
 pubDate: 2025-01-21
 author: 智投简历团队
-image: ~/assets/images/default.png
 tags: ["工具对比", "求职工具", "效率工具", "AI工具", "产品对比", "求职助手", "工具评测", "选择指南"]
 category: "求职指南"
 keywords: "求职效率工具,AI求职工具对比,简历投递工具,智能求职工具,求职助手对比,求职工具评测,求职工具选择,效率工具推荐"
@@ -22,17 +21,16 @@ structuredData: |
       "name": "智投简历",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://blog.zhitoujianli.com/logo.png"
+        "url": "https://zhitoujianli.com/blog/logo.png"
       }
     },
     "datePublished": "2025-01-21",
     "dateModified": "2025-01-21",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "https://blog.zhitoujianli.com/job-hunting-efficiency-tools-comparison/"
+      "@id": "https://zhitoujianli.com/blog/job-hunting-efficiency-tools-comparison/"
     },
     "description": "全面对比主流求职效率工具，包括智投简历、其他AI求职工具等",
-    "image": "https://blog.zhitoujianli.com/images/default.png",
     "keywords": "求职效率工具,AI求职工具对比,简历投递工具,智能求职工具"
   }
 ---

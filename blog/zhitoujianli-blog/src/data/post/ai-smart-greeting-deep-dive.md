@@ -33,7 +33,6 @@ structuredData: |
       "@id": "https://zhitoujianli.com/blog/ai-smart-greeting-deep-dive/"
     },
     "description": "深度解析AI智能打招呼语系统的技术实现，包括两阶段AI处理架构、隐私保护机制、PDF简历解析、性能优化等核心技术，以及真实A/B测试数据对比。",
-    "image": "https://zhitoujianli.com/blog/_astro/hero-image.DwIC_L_T.png",
     "keywords": "AI技术方案,DeepSeek API,PDF简历解析,HR回复率提升,求职技术,AI算法,简历解析技术,求职自动化,技术架构,隐私保护"
   }
 authorImage: "/images/blog/author-avatar.svg"

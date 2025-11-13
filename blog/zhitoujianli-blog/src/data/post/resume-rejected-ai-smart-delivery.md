@@ -3,7 +3,6 @@ title: "你的简历，为什么总被刷掉？AI智能投递帮你逆转局面�
 excerpt: "85%的简历在6秒内被HR刷掉！智投简历AI工具帮你智能优化简历、精准匹配岗位、自动化投递，让求职成功率提升300%。立即体验AI智能求职解决方案。"
 category: "求职指南"
 tags: ["AI智能投递", "简历优化", "求职工具", "简历模板", "岗位匹配", "智能求职", "简历制作", "求职技巧"]
-image: "~/assets/images/blog/resume-optimization-hero.jpg"
 publishDate: 2024-01-15T10:00:00.000Z
 author: "智投简历团队"
 featured: true
