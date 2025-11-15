@@ -76,6 +76,9 @@ public class AuthController {
     @Autowired
     private UserDataMigrationService migrationService;
 
+    @Autowired
+    private service.LoginLogService loginLogService;
+
     /**
      * 健康检查接口
      */
@@ -401,12 +404,16 @@ public class AuthController {
             // 验证密码
             if (!userService.verifyPassword(user, password)) {
                 auditService.logLoginFailure(email, "密码错误", clientIp, userAgent);
+                // 🆕 记录失败登录日志
+                loginLogService.recordFailedLogin(email, httpRequest, "密码错误");
                 throw new IllegalArgumentException("用户不存在或密码错误");
             }
 
             // 检查用户是否被删除
             if (user.isDeleted()) {
                 auditService.logLoginFailure(email, "账号已被删除", clientIp, userAgent);
+                // 🆕 记录失败登录日志
+                loginLogService.recordFailedLogin(email, httpRequest, "账号已被删除");
                 return ResponseEntity.badRequest()
                         .body(Map.of("success", false, "message", "账号已被删除"));
             }
@@ -414,6 +421,8 @@ public class AuthController {
             // 检查用户是否激活
             if (!user.getActive()) {
                 auditService.logLoginFailure(email, "账号已被禁用", clientIp, userAgent);
+                // 🆕 记录失败登录日志
+                loginLogService.recordFailedLogin(email, httpRequest, "账号已被禁用");
                 return ResponseEntity.badRequest()
                         .body(Map.of("success", false, "message", "账号已被禁用"));
             }
@@ -426,6 +435,9 @@ public class AuthController {
 
             // 记录审计日志
             auditService.logLogin(user, clientIp, userAgent);
+
+            // 🆕 记录登录日志到login_logs表（管理后台可见）
+            loginLogService.recordSuccessLogin(user, httpRequest);
 
             log.info("✅ 用户登录成功: {}, IP: {}", email, clientIp);
 
@@ -445,6 +457,10 @@ public class AuthController {
             log.warn("❌ 登录失败: {}, IP: {}", e.getMessage(), clientIp);
             if (email != null && !e.getMessage().contains("暂时锁定")) {
                 auditService.logLoginFailure(email, e.getMessage(), clientIp, userAgent);
+                // 🆕 记录失败登录日志（用户不存在等异常）
+                if (!e.getMessage().equals("密码错误")) { // 密码错误已在上面记录过
+                    loginLogService.recordFailedLogin(email, httpRequest, e.getMessage());
+                }
             }
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", e.getMessage()));

@@ -19,14 +19,14 @@ import static utils.JobUtils.formatDuration;
 
 /**
  * @author loks666
- * 项目链接: <a href="https://github.com/loks666/get_jobs">https://github.com/loks666/get_jobs</a>
+ * 项目链接: <a href="https://github.com/ericforai/zhitoujianli">https://github.com/ericforai/zhitoujianli</a>
  */
 public class ZhiLian {
     static {
         // 在类加载时就设置日志文件名，确保Logger初始化时能获取到正确的属性
         System.setProperty("log.name", "zhilian");
     }
-    
+
     private static final Logger log = LoggerFactory.getLogger(ZhiLian.class);
     static String loginUrl = "https://passport.zhaopin.com/login";
     static String homeUrl = "https://sou.zhaopin.com/?";
@@ -61,7 +61,7 @@ public class ZhiLian {
         // 临时注释避免编译错误
         // CHROME_DRIVER.close();
         // CHROME_DRIVER.quit();
-        
+
         // 确保所有日志都被刷新到文件
         try {
             Thread.sleep(1000); // 等待1秒确保日志写入完成

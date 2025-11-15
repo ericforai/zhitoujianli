@@ -17,7 +17,7 @@
 
 ### 步骤1：检查GitHub Actions状态
 
-**访问：** `https://github.com/YOUR_USERNAME/zhitoujianli/actions`
+**访问：** `https://github.com/ericforai/zhitoujianli/actions`
 
 **检查内容：**
 
@@ -72,7 +72,7 @@ sudo tail -f /var/log/nginx/zhitoujianli_error.log
 ### 方案1：手动触发重新部署
 
 1. **进入GitHub Actions**
-   - 访问：`https://github.com/YOUR_USERNAME/zhitoujianli/actions`
+   - 访问：`https://github.com/ericforai/zhitoujianli/actions`
    - 选择 `Deploy to Production` 工作流
    - 点击 `Run workflow` → `Run workflow`
 

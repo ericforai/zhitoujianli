@@ -80,17 +80,23 @@ public class SmartGreetingService {
             return greeting;
 
         } catch (TimeoutException e) {
-            log.error("【智能打招呼】AI响应超时（超过{}秒），使用默认招呼语", AI_TIMEOUT_SECONDS);
+            log.error("【智能打招呼】❌ AI响应超时（超过{}秒），使用默认招呼语", AI_TIMEOUT_SECONDS);
+            log.error("【智能打招呼】超时原因: AI服务响应时间过长，可能原因: 1) 网络延迟 2) AI服务负载高 3) Prompt过长");
             future.cancel(true);
             return null;
 
         } catch (Exception e) {
-            log.error("【智能打招呼】生成失败: {}", e.getMessage(), e);
+            log.error("【智能打招呼】❌ 生成失败: {}", e.getMessage(), e);
+            log.error("【智能打招呼】异常类型: {}", e.getClass().getSimpleName());
             // 检查是否是API服务问题
             if (e.getMessage() != null && e.getMessage().contains("Connection refused")) {
-                log.error("【智能打招呼】AI API服务连接失败，请检查网络连接和API配置");
+                log.error("【智能打招呼】❌ AI API服务连接失败，请检查: 1) 网络连接 2) API服务地址配置 3) 防火墙设置");
             } else if (e.getMessage() != null && e.getMessage().contains("401")) {
-                log.error("【智能打招呼】API密钥无效，请检查.env文件中的API_KEY配置");
+                log.error("【智能打招呼】❌ API密钥无效，请检查.env文件中的API_KEY配置");
+            } else if (e.getMessage() != null && e.getMessage().contains("timeout")) {
+                log.error("【智能打招呼】❌ 网络超时，请检查网络连接稳定性");
+            } else if (e.getCause() != null) {
+                log.error("【智能打招呼】根本原因: {}", e.getCause().getMessage());
             }
             return null;
 
@@ -114,18 +120,28 @@ public class SmartGreetingService {
             String aiResponse = AiService.sendRequest(fullPrompt);
 
             if (aiResponse == null || aiResponse.trim().isEmpty()) {
+                log.error("【智能打招呼】❌ AI服务返回空响应");
                 throw new RuntimeException("AI服务返回空响应");
             }
+
+            log.debug("【智能打招呼】AI原始响应长度: {}字", aiResponse.length());
 
             // 清理响应（移除可能的JSON格式、代码块等）
             String greeting = cleanGreetingResponse(aiResponse);
 
+            if (greeting == null || greeting.trim().isEmpty()) {
+                log.error("【智能打招呼】❌ 清理后的打招呼语为空，原始响应: {}",
+                    aiResponse.length() > 100 ? aiResponse.substring(0, 100) + "..." : aiResponse);
+                throw new RuntimeException("清理后的打招呼语为空");
+            }
+
             // 验证长度
             if (greeting.length() > 300) {
-                log.warn("【智能打招呼】生成的打招呼语过长（{}字），截取前200字", greeting.length());
+                log.warn("【智能打招呼】⚠️ 生成的打招呼语过长（{}字），截取前200字", greeting.length());
                 greeting = greeting.substring(0, 200) + "...";
             }
 
+            log.info("【智能打招呼】✅ 清理完成，最终长度: {}字", greeting.length());
             return greeting;
 
         } catch (Exception e) {

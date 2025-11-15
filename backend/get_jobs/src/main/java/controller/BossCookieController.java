@@ -559,8 +559,10 @@ public class BossCookieController {
 
             LocalDate today = LocalDate.now();
 
-            // ✅ 使用正则表达式严格解析日志格式，避免误统计
-            Pattern deliveryPattern = Pattern.compile("(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}).*投递完成");
+            // ✅ 使用正则表达式严格解析日志格式，确保与parseTodayDeliveries()统计逻辑一致
+            // 投递完成日志格式：2025-11-05 11:56:53.254 [main] INFO boss.Boss - 投递完成 | 岗位：XXX | 招呼语：...
+            // ✅ 修复：要求必须包含"岗位："，与详情列表的统计逻辑保持一致
+            Pattern deliveryPattern = Pattern.compile("(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}).*投递完成.*岗位：");
             Pattern blacklistPattern = Pattern.compile("(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}).*在黑名单中，跳过");
             Pattern errorPattern = Pattern.compile("(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}).*岗位处理异常");
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { authService, type User } from '../services/authService';
 import Button from './common/Button';
 
@@ -25,14 +25,31 @@ const Navigation = () => {
 
     checkAuthStatus();
 
-    // 监听存储变化
-    const handleStorageChange = () => {
+    // 监听存储变化（包括同源页面的变化）
+    const handleStorageChange = (e: StorageEvent) => {
+      // 如果userType或authToken发生变化，重新检查状态
+      if (e.key === 'userType' || e.key === 'authToken' || e.key === 'token') {
+        checkAuthStatus();
+      }
+    };
+
+    // 监听自定义事件（用于同页面内的变化）
+    const handleCustomStorageChange = () => {
       checkAuthStatus();
     };
 
     window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('userTypeChanged', handleCustomStorageChange);
+
+    // 🔧 修复：定期检查userType变化（用于检测登录后的状态更新）
+    const intervalId = setInterval(() => {
+      checkAuthStatus();
+    }, 1000); // 每秒检查一次
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('userTypeChanged', handleCustomStorageChange);
+      clearInterval(intervalId);
       // 清理定时器，防止内存泄漏
       if (closeTimeout) {
         clearTimeout(closeTimeout);
@@ -123,16 +140,17 @@ const Navigation = () => {
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='flex justify-between h-16'>
           {/* Logo - 简约风格 */}
-          <div className='flex items-center'>
+          <div className='flex items-center md:flex-none'>
             <a
               href='/'
-              className='flex items-center space-x-3 group transition-opacity duration-200 hover:opacity-70'
+              className='flex items-center space-x-3 group transition-opacity duration-200 hover:opacity-70 md:justify-start justify-center w-full md:w-auto'
               aria-label='智投简历 - 返回首页'
             >
               <img
                 src='/images/logo-plane.png'
                 alt='智投简历Logo'
                 className='h-8 w-auto transition-transform duration-200 group-hover:scale-110'
+                loading='eager'
               />
               <span className='text-xl font-bold text-gray-900'>智投简历</span>
             </a>
@@ -159,6 +177,16 @@ const Navigation = () => {
               }`}
             >
               定价
+            </a>
+            <a
+              href='/scenes'
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                isActive('/scenes')
+                  ? 'text-blue-600 bg-blue-50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              场景
             </a>
 
             {/* 分类下拉菜单 - 优化交互体验：点击跳转博客首页，悬停显示分类 */}
@@ -263,18 +291,19 @@ const Navigation = () => {
               <div className='flex items-center space-x-3'>
                 {/* 根据用户类型显示不同的按钮 */}
                 {localStorage.getItem('userType') === 'admin' ? (
-                  <Button
-                    as='a'
-                    href='/admin/dashboard'
-                    variant='primary'
-                    size='sm'
+                  <Link
+                    to='/admin/dashboard'
+                    className='inline-flex items-center justify-center font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 bg-blue-600 text-white hover:bg-blue-700 px-3 py-1.5 text-sm'
                   >
                     管理后台
-                  </Button>
+                  </Link>
                 ) : (
-                  <Button as='a' href='/dashboard' variant='primary' size='sm'>
+                  <Link
+                    to='/dashboard'
+                    className='inline-flex items-center justify-center font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 bg-blue-600 text-white hover:bg-blue-700 px-3 py-1.5 text-sm'
+                  >
                     工作台
-                  </Button>
+                  </Link>
                 )}
 
                 {/* 用户信息 - 简约设计 */}
@@ -370,7 +399,7 @@ const Navigation = () => {
 
       {/* Mobile Navigation - 简约风格 */}
       {isMenuOpen && (
-        <div className='md:hidden bg-white border-t border-gray-200'>
+        <div className='md:hidden fixed top-16 left-0 right-0 bg-white border-t border-gray-200 shadow-lg max-h-[calc(100vh-4rem)] overflow-y-auto z-50'>
           <div className='px-4 pt-2 pb-3 space-y-1'>
             <a
               href='/'
@@ -393,6 +422,17 @@ const Navigation = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               定价
+            </a>
+            <a
+              href='/scenes'
+              className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 ${
+                isActive('/scenes')
+                  ? 'text-blue-600 bg-blue-50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              场景
             </a>
 
             {/* 移动端博客链接 - 添加博客首页入口 */}
@@ -451,21 +491,21 @@ const Navigation = () => {
                 <>
                   {/* 根据用户类型显示不同的按钮 */}
                   {localStorage.getItem('userType') === 'admin' ? (
-                    <a
-                      href='/admin/dashboard'
+                    <Link
+                      to='/admin/dashboard'
                       className='block px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white text-center rounded-lg font-medium transition-colors duration-200'
                       onClick={() => setIsMenuOpen(false)}
                     >
                       管理后台
-                    </a>
+                    </Link>
                   ) : (
-                    <a
-                      href='/dashboard'
+                    <Link
+                      to='/dashboard'
                       className='block px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white text-center rounded-lg font-medium transition-colors duration-200'
                       onClick={() => setIsMenuOpen(false)}
                     >
                       工作台
-                    </a>
+                    </Link>
                   )}
                   <div className='flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg'>
                     <div className='flex items-center space-x-3'>

@@ -1,11 +1,11 @@
 <h1 align="center">🍀 Get Jobs【工作无忧】</h1>
 <div align="center">
 
-[![Stars](https://img.shields.io/github/stars/loks666/get_jobs?style=flat&label=%F0%9F%8C%9Fstars&labelColor=ff4f4f&color=ff8383)](https://github.com/loks666/get_jobs)
+[![Stars](https://img.shields.io/github/stars/ericforai/zhitoujianli?style=flat&label=%F0%9F%8C%9Fstars&labelColor=ff4f4f&color=ff8383)](https://github.com/ericforai/zhitoujianli)
 [![QQ交流群](https://img.shields.io/badge/🐧QQ交流群-get_jobs-0FB5EB?labelColor=235389&logoColor=white&style=flat)][qq-link]
-[![License](https://img.shields.io/badge/📑licenses-MIT-34D058?labelColor=22863A&style=flat)](https://github.com/loks666/get_jobs/blob/master/LICENSE)
-![Issues closed](https://img.shields.io/github/issues-search?query=repo%3Aloks666/get_jobs+is%3Aclosed&label=%F0%9F%A4%8F%F0%9F%8F%BBFissues%20closed&labelColor=008B8B&color=00CCCC)
-[![Forks](https://img.shields.io/github/forks/loks666/get_jobs?style=flat&label=%F0%9F%8F%85Forks&labelColor=800080&color=912CEE)](https://github.com/loks666/get_jobs/forks)
+[![License](https://img.shields.io/badge/📑licenses-MIT-34D058?labelColor=22863A&style=flat)](https://github.com/ericforai/zhitoujianli/blob/master/LICENSE)
+![Issues closed](https://img.shields.io/github/issues-search?query=repo%3Aericforai/zhitoujianli+is%3Aclosed&label=%F0%9F%A4%8F%F0%9F%8F%BBFissues%20closed&labelColor=008B8B&color=00CCCC)
+[![Forks](https://img.shields.io/github/forks/ericforai/zhitoujianli?style=flat&label=%F0%9F%8F%85Forks&labelColor=800080&color=912CEE)](https://github.com/ericforai/zhitoujianli/forks)
 
 </div>
 <h2 align="center">黑暗无论多么长，光明迟早总是会来的</h2>
@@ -18,10 +18,10 @@
 
 ### 写在前面
 
-**我知道你心中有煎熬，有焦虑，像一柄长剑悬在头顶，随时可能落下。  
-若黑夜终将黑暗，那你即是黎明。  
-黎明前的黑暗，最冷、最险、最难熬。  
-但断剑重铸之日，便是英雄归来之时。  
+**我知道你心中有煎熬，有焦虑，像一柄长剑悬在头顶，随时可能落下。
+若黑夜终将黑暗，那你即是黎明。
+黎明前的黑暗，最冷、最险、最难熬。
+但断剑重铸之日，便是英雄归来之时。
 挺过这一刻，纵使刀山火海，又有何惧？**
 
 - [如何使用本程序寻找程序兼职岗位?](doc/part_job.md)
@@ -42,7 +42,7 @@
     - 当前招聘市场，有效的软件仅有 Boss 和 猎聘(有少部分岗位)。
     - 如果 Boss 出现掉线等问题，请注意两点：
         1. 当天停止投递，第二天接着投，否则可能会封号。
-    - **最重要的事情：不要依赖程序投递 Boss！！！**   
+    - **最重要的事情：不要依赖程序投递 Boss！！！**
       手机上的 Boss，比本程序网页端靠谱得多。当你手机投的很累，又没有投够 100 个，请再使用本程序的 Boss 投递！
     - 本项目为 GitHub 热门开源项目，目前已申请 Intelli 的开源支持计划。加入开发组意味着你可以获得 Intelli 编辑器官方的*
       *免费全家桶永久使用权**，欢迎联系我！
@@ -62,7 +62,7 @@
 
 ### 🌴源码地址
 
-- Github(国外访问)：https://github.com/loks666/get_jobs
+- Github(国外访问)：https://github.com/ericforai/zhitoujianli
 - Gitee·码云(中国大陆)：https://gitee.com/lok666/get_jobs
 - GitCode(中国大陆)：https://gitcode.com/super_journey/get_jobs
 
@@ -86,7 +86,7 @@
 - ❌必须要关闭墙外代理，由于主要针对的国内平台，墙外代理会导致页面加载缓慢
 - 💪🏻如你有“折腾精神”希望自己配置，QQ群内提供免费答疑，如你不想麻烦，可进入群聊查看群公告
 - 📰由于不同系统的页面不一样，导致可能不兼容，文末会给出文档，尽可能让大家能自定义修改
-- 🚩如您不方便访问github，可使用码云镜像(中国大陆)版本：[gitee/getjobs](https://gitee.com/loks666/get_jobs)
+- 🚩如您不方便访问github，可使用码云镜像(中国大陆)版本：[gitee/getjobs](https://gitee.com/ericforai/zhitoujianli)
 
 > 已经有人在交流群里 **发广告** 等与本项目无关的信息
 > 如果带着不同目的或者没想清楚就进群的
@@ -98,7 +98,7 @@
 ### 1️⃣ 使用git拉取代码
 
 ```
-git clone https://github.com/loks666/get_jobs.git
+git clone https://github.com/ericforai/zhitoujianli.git
 cd get_jobs
 ```
 
@@ -109,7 +109,7 @@ cd get_jobs
   默认最新)，才可使用
 - 非windows的操作系统，请自行下载对应的驱动到src/main/resources路径下解压使用
 
-更多环境配置详情请点击：📚 [环境配置](https://github.com/loks666/get_jobs/wiki/环境配置)
+更多环境配置详情请点击：📚 [环境配置](https://github.com/ericforai/zhitoujianli/wiki/环境配置)
 
 ### 3️⃣ 修改配置文件(一般默认即可,需要修改自己的地区和岗位)
 
@@ -132,7 +132,7 @@ cd get_jobs
 - 🤖 AI配置
 
     - `.env`配制如下（支持多种AI服务）：
-      
+
       **选项1: Ollama本地API (推荐，完全免费)**
       ```
       HOOK_URL=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=your_key_here
@@ -140,7 +140,7 @@ cd get_jobs
       API_KEY=ollama
       MODEL=qwen2.5:7b
       ```
-      
+
       **选项2: DeepSeek API (性价比高)**
       ```
       HOOK_URL=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=your_key_here
@@ -148,7 +148,7 @@ cd get_jobs
       API_KEY=sk-xxx
       MODEL=deepseek-chat
       ```
-      
+
       **选项3: OpenAI官方API**
       ```
       HOOK_URL=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=your_key_here
@@ -156,7 +156,7 @@ cd get_jobs
       API_KEY=sk-xxx
       MODEL=gpt-4o-mini
       ```
-      
+
       **选项4: 云API代理 (支持多种模型)**
       ```
       HOOK_URL=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=your_key_here
@@ -164,15 +164,15 @@ cd get_jobs
       API_KEY=sk-xxx
       MODEL=gpt-4o-mini
       ```
-      
+
     - `HOOK_URL`：企业微信机器人推送的链接
     - `BASE_URL`：AI API服务地址
     - `API_KEY`：调用的API KEY
     - `MODEL`：需要使用的模型名称
 
-  > **Ollama本地API优势**：完全免费，数据隐私安全，支持离线使用  
-  > **DeepSeek API优势**：性价比极高，1元=140万tokens，比OpenAI便宜10倍以上  
-  > **成本对比**：boss直聘每日投递消耗约0.06美元(gpt-4o-mini) vs 0.006美元(deepseek-chat) vs 0美元(ollama)  
+  > **Ollama本地API优势**：完全免费，数据隐私安全，支持离线使用
+  > **DeepSeek API优势**：性价比极高，1元=140万tokens，比OpenAI便宜10倍以上
+  > **成本对比**：boss直聘每日投递消耗约0.06美元(gpt-4o-mini) vs 0.006美元(deepseek-chat) vs 0美元(ollama)
   > **云API代理**：https://api.ruyun.fun/ 支持市面上全部大模型，2人民币=1美元，1刀起充
 
     - **Ollama安装与使用**：
@@ -180,8 +180,8 @@ cd get_jobs
       2. 下载模型：`ollama pull qwen2.5:7b` (推荐，中文效果好)
       3. 启动服务：`ollama serve` (默认端口11434)
       4. 测试连接：`curl http://localhost:11434/api/tags`
-      
-    - AI生成的打招呼语示例  
+
+    - AI生成的打招呼语示例
       <img src="src/main/resources/images/AiSayHi.png" alt="AI生成的打招呼语示例">
 
 - ⚙️ **最重要的配置文件**（[💥config.yaml💥](src/main/resources/config.yaml))
@@ -334,16 +334,16 @@ cd get_jobs
 
 ## 🤝 参与贡献
 
-我们欢迎一切形式的贡献，你可以先查看我们的 [Issues](https://github.com/loks666/get_jobs/issues)
-和 [Discussions](https://github.com/loks666/get_jobs/discussions)，那里藏着无数等待你大展身手的机会！
+我们欢迎一切形式的贡献，你可以先查看我们的 [Issues](https://github.com/ericforai/zhitoujianli/issues)
+和 [Discussions](https://github.com/ericforai/zhitoujianli/discussions)，那里藏着无数等待你大展身手的机会！
 
 我们对代码质量有很高的要求，但不要担心 —— 你完全可以使用 GPT 等工具进行风格打磨，只要最终输出优雅且可靠的成果！
 
-如果你希望进入开发组，却一时不知道从哪里开始？  
+如果你希望进入开发组，却一时不知道从哪里开始？
 没关系，**观察，思考，提出你的见解，与大家讨论，去发现真正有价值的功能！**
 
-不要怕失败，不要畏惧修改。  
-**每一次讨论，每一次提交，每一次调整，都是在为你的成长积蓄力量！**  
+不要怕失败，不要畏惧修改。
+**每一次讨论，每一次提交，每一次调整，都是在为你的成长积蓄力量！**
 当你的 PR 被成功合并的那一刻，你会明白 —— 所有努力，所有坚持，他们都值得！
 
 ---
@@ -352,7 +352,7 @@ cd get_jobs
 
 1. Fork 本项目
 2. 从 `main` 分支新建你的个人开发分支
-3. 开发完成后，提交 Pull Request 到 **loks666/get_jobs 的 `dev` 分支**  
+3. 开发完成后，提交 Pull Request 到 **ericforai/zhitoujianli 的 `dev` 分支**
    （❗ **注意：不是 main，是 dev！**）
 4. 提交 Commit 时，请在信息前加上一个符合提交内容的 **Emoji 表情
    **（[emoji网站](https://www.emojiall.com/zh-hans/all-emojis)）自由发挥！
@@ -382,7 +382,7 @@ cd get_jobs
 
 - 近日已经有人反馈，有人拿着本项目免费开源的代码，在闲鱼等小红书各处售卖
 - 本项目代码完全开源免费，请勿上当受骗，请大家擦亮眼睛
-- 这是一个将本项目免费源码的网站  
+- 这是一个将本项目免费源码的网站
   <img src="src/main/resources/images/骗子网站.png" alt="骗子网站">
   <img src="src/main/resources/images/pian1.png" alt="骗子1">
   <img src="src/main/resources/images/pian2.png" alt="骗子2">
@@ -393,7 +393,7 @@ cd get_jobs
 
 ### ☕️ Github Star历史
 
-[![Stargazers over time](https://starchart.cc/loks666/get_jobs.svg?background=%23ffffff&axis=%23101010&line=%23e86161)](https://starchart.cc/loks666/get_jobs)
+[![Stargazers over time](https://starchart.cc/ericforai/zhitoujianli.svg?background=%23ffffff&axis=%23101010&line=%23e86161)](https://starchart.cc/ericforai/zhitoujianli)
 
 <!-- LINK GROUP -->
 
@@ -403,7 +403,7 @@ cd get_jobs
 
 [qq-shield-badge]: https://img.shields.io/badge/QQ交流群-get_jobs-0FB5EB?labelColor=235389&logo=tencent-qq&logoColor=white&style=flat
 
-[pr-welcome-link]: https://github.com/loks666/get_jobs/pulls
+[pr-welcome-link]: https://github.com/ericforai/zhitoujianli/pulls
 
 [pr-welcome-shield]: https://img.shields.io/badge/🤯_pr_welcome-%E2%86%92-ffcb47?labelColor=black&style=for-the-badge
 

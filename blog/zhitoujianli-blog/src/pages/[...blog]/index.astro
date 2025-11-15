@@ -26,6 +26,36 @@ const { post } = Astro.props as Props;
 const url = getCanonical(getPermalink(post.permalink, 'post'));
 const image = (await findImage(post.image)) as ImageMetadata | string | undefined;
 
+// 确保有默认分享图片（微信要求）
+const siteUrl = String(Astro.site).replace(/\/$/, ''); // 移除末尾斜杠
+const defaultShareImage = `${siteUrl}/blog/images/og-share-logo.jpg`;
+const shareImage = image || defaultShareImage;
+
+// 处理图片URL，确保是绝对路径
+let shareImageUrl: string;
+let shareImageWidth: number | undefined;
+let shareImageHeight: number | undefined;
+
+if (typeof shareImage === 'string') {
+  // 如果是字符串，检查是否是绝对URL
+  if (shareImage.startsWith('http://') || shareImage.startsWith('https://')) {
+    shareImageUrl = shareImage;
+  } else if (shareImage.startsWith('/')) {
+    // 相对路径，转换为绝对URL
+    shareImageUrl = `${Astro.site}${shareImage}`;
+  } else {
+    // 其他情况，使用默认图片
+    shareImageUrl = defaultShareImage;
+  }
+} else if (shareImage && typeof shareImage === 'object' && 'src' in shareImage) {
+  // ImageMetadata对象
+  shareImageUrl = String(new URL(shareImage.src, Astro.site));
+  shareImageWidth = shareImage.width;
+  shareImageHeight = shareImage.height;
+} else {
+  shareImageUrl = defaultShareImage;
+}
+
 const metadata = merge(
   {
     title: post.title,
@@ -37,9 +67,14 @@ const metadata = merge(
     },
     openGraph: {
       type: 'article',
-      ...(image
-        ? { images: [{ url: image, width: (image as ImageMetadata)?.width, height: (image as ImageMetadata)?.height }] }
-        : {}),
+      title: post.title, // 微信分享需要明确的标题
+      description: post.excerpt || '', // 微信分享需要明确的描述
+      url: url, // 确保URL是绝对路径
+      images: [{
+        url: shareImageUrl,
+        ...(shareImageWidth && { width: shareImageWidth }),
+        ...(shareImageHeight && { height: shareImageHeight }),
+      }],
     },
   },
   { ...(post?.metadata ? { ...post.metadata, canonical: post.metadata?.canonical || url } : {}) }

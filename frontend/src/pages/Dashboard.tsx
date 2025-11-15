@@ -6,6 +6,10 @@ import Container from '../components/common/Container';
 import Navigation from '../components/Navigation';
 import SEOHead from '../components/seo/SEOHead';
 import WorkflowTimeline, { WorkflowStep } from '../components/WorkflowTimeline';
+import QuotaDisplay from '../components/plan/QuotaDisplay';
+import QuickActionPanel from '../components/dashboard/QuickActionPanel';
+import CollapsibleStats from '../components/dashboard/CollapsibleStats';
+import CollapsibleQuota from '../components/dashboard/CollapsibleQuota';
 import { useAuth } from '../contexts/AuthContext';
 import { useBossDelivery } from '../hooks/useBossDelivery';
 import { useBossLoginStatus } from '../hooks/useBossLoginStatus';
@@ -36,6 +40,7 @@ const Dashboard: React.FC = () => {
 
   const {
     status: bossStatus,
+    loading: bossLoading,
     message: bossMessage,
     logs,
     fetchLogs,
@@ -215,29 +220,9 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* 统计卡片 */}
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8'>
-            <StatCard
-              title='今日投递'
-              value={bossStatus.deliveryCount || 0}
-              icon='📊'
-              color='blue'
-              onClick={handleShowDeliveryDetails}
-              clickable
-            />
-            <StatCard
-              title='运行状态'
-              value={bossStatus.isRunning ? '运行中' : '已停止'}
-              icon='✅'
-              color='green'
-            />
-            <StatCard title='智能匹配' value='AI' icon='🤖' color='blue' />
-            <StatCard title='持续运行' value='24/7' icon='⏰' color='blue' />
-          </div>
-
-          {/* 工作流程时间线 */}
-          <div className='mb-8'>
-            <div className='mb-6'>
+          {/* 智能投递流程 - 核心焦点区域 */}
+          <div className='mb-6'>
+            <div className='mb-4'>
               <h2 className='text-2xl font-bold text-gray-900 mb-2'>
                 智能投递流程
               </h2>
@@ -257,6 +242,56 @@ const Dashboard: React.FC = () => {
               />
             </Card>
           </div>
+
+          {/* 快捷状态栏 - 精简显示 */}
+          <QuickActionPanel
+            isRunning={bossStatus.isRunning}
+            isBossLoggedIn={isBossLoggedIn || loginStatus === 'success'}
+            todayDeliveryCount={bossStatus.deliveryCount || 0}
+            onStart={handleStart}
+            onStop={handleStop}
+            onBossLogin={handleQRCodeLogin}
+            loading={bossLoading}
+          />
+
+          {/* 可折叠统计卡片 */}
+          <CollapsibleStats
+            stats={[
+              {
+                title: '今日投递',
+                value: bossStatus.deliveryCount || 0,
+                icon: '📊',
+                color: 'blue',
+                onClick: handleShowDeliveryDetails,
+                clickable: true,
+              },
+              {
+                title: '运行状态',
+                value: bossStatus.isRunning ? '运行中' : '已停止',
+                icon: '✅',
+                color: 'green',
+              },
+              {
+                title: '智能匹配',
+                value: 'AI',
+                icon: '🤖',
+                color: 'blue',
+              },
+              {
+                title: '持续运行',
+                value: '24/7',
+                icon: '⏰',
+                color: 'blue',
+              },
+            ]}
+            className='mb-8'
+          />
+
+          {/* 可折叠配额显示 */}
+          <CollapsibleQuota
+            className='mb-8'
+            todayDeliveryCount={bossStatus.deliveryCount || 0}
+          />
 
           {/* Boss登录状态显示 */}
           {!isBossStatusLoading && (

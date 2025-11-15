@@ -41,7 +41,7 @@ const AdminLoginLogs: React.FC = () => {
   useEffect(() => {
     fetchLogs();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, filterDate]);
 
   const fetchLogs = async () => {
     try {
@@ -65,18 +65,11 @@ const AdminLoginLogs: React.FC = () => {
       const result = await response.json();
 
       if (result.success && result.data) {
-        let logsList = result.data.logs || [];
-
-        // 前端额外过滤：如果有日期参数，只显示该日期的数据
-        if (filterDate) {
-          logsList = logsList.filter((log: LoginLog) => {
-            const logDate = new Date(log.createdAt).toISOString().split('T')[0];
-            return logDate === filterDate;
-          });
-        }
-
+        // 后端已经处理了日期过滤，直接使用返回的数据
+        const logsList = result.data.logs || [];
         setLogs(logsList);
-        setTotal(filterDate ? logsList.length : result.data.total || 0);
+        // 使用后端返回的总数，确保分页正确
+        setTotal(result.data.total || 0);
       } else {
         setError(result.message || '获取登录日志失败');
       }

@@ -36,6 +36,7 @@ public class UserPlan {
     /**
      * 套餐类型
      */
+    @Enumerated(EnumType.ORDINAL)
     private PlanType planType;
 
     /**
@@ -51,6 +52,7 @@ public class UserPlan {
     /**
      * 套餐状态
      */
+    @Enumerated(EnumType.ORDINAL)
     private PlanStatus status;
 
     /**

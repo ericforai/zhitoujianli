@@ -103,7 +103,7 @@ const HeroSection = () => {
 
             {/* 主标题行 - 标题+竖向功能标签 */}
             <div className='mb-6 animate-fade-in-up animation-delay-100'>
-              <div className='flex items-center gap-6'>
+              <div className='flex items-center justify-center lg:justify-start gap-6'>
                 <h1 className='text-6xl md:text-7xl lg:text-7xl font-bold leading-tight'>
                   <span className='text-gradient'>智投简历</span>
                 </h1>
@@ -193,6 +193,7 @@ const HeroSection = () => {
                 src='/images/chat-bot.svg'
                 alt='AI智能求职助手'
                 className='w-full h-auto drop-shadow-2xl animate-float'
+                loading='lazy'
               />
 
               {/* 功能标注1 - 右上（AI分析简历）+ 装饰性虚线 + 滑入动画 */}

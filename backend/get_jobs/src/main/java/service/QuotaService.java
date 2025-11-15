@@ -2,6 +2,7 @@ package service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -169,14 +170,64 @@ public class QuotaService {
                 userPlan = createDefaultFreePlan(userId);
             }
 
-            // FIXME: 实现具体的配额详情查询逻辑
-            // 这里需要根据实际的数据访问层实现
+            List<QuotaUsageDetail> details = new ArrayList<>();
 
-            return List.of(); // 临时返回空列表
+            // 主要配额：简历基础优化、简历高级优化、每日投递次数
+            String[] mainQuotaKeys = {"resume_basic_optimize", "resume_advanced_optimize", "daily_job_application"};
+
+            for (String quotaKey : mainQuotaKeys) {
+                QuotaDefinition quotaDefinition = getQuotaDefinition(quotaKey);
+                if (quotaDefinition != null && quotaDefinition.getId() != null) {
+                    PlanQuotaConfig planConfig = getPlanQuotaConfig(userPlan.getPlanType(), quotaDefinition.getId());
+                    if (planConfig != null) {
+                        UserQuotaUsage usage = getCurrentUsage(userId, quotaDefinition.getId());
+                        long usedAmount = usage != null ? usage.getUsedAmount() : 0L;
+
+                        QuotaUsageDetail detail = new QuotaUsageDetail();
+                        detail.setQuotaKey(quotaKey);
+                        detail.setQuotaName(quotaDefinition.getQuotaName());
+                        detail.setCategory(quotaDefinition.getQuotaCategory() != null ?
+                                          quotaDefinition.getQuotaCategory().name() : "UNKNOWN");
+                        detail.setUsed(usedAmount);
+                        detail.setLimit(planConfig.getEffectiveLimit());
+                        detail.setUnlimited(planConfig.isUnlimited());
+                        detail.setResetPeriod(quotaDefinition.getResetPeriod() != null ?
+                                             quotaDefinition.getResetPeriod().name() : "NEVER");
+                        detail.setNextResetDate(calculateNextResetDate(quotaDefinition.getResetPeriod()));
+
+                        details.add(detail);
+                    }
+                }
+            }
+
+            return details;
 
         } catch (Exception e) {
             log.error("❌ 获取用户配额详情异常: userId={}", userId, e);
-            return List.of();
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * 计算下次重置日期
+     */
+    private LocalDate calculateNextResetDate(enums.ResetPeriod resetPeriod) {
+        if (resetPeriod == null || resetPeriod == enums.ResetPeriod.NEVER) {
+            return null;
+        }
+
+        LocalDate now = LocalDate.now();
+        switch (resetPeriod) {
+            case DAILY:
+                return now.plusDays(1);
+            case WEEKLY:
+                return now.plusWeeks(1);
+            case MONTHLY:
+                return now.plusMonths(1);
+            case YEARLY:
+                return now.plusYears(1);
+            default:
+                return null;
         }
     }
 
@@ -372,7 +423,29 @@ public class QuotaService {
         private String resetPeriod;
         private LocalDate nextResetDate;
 
-        // getters and setters...
+        public String getQuotaKey() { return quotaKey; }
+        public void setQuotaKey(String quotaKey) { this.quotaKey = quotaKey; }
+
+        public String getQuotaName() { return quotaName; }
+        public void setQuotaName(String quotaName) { this.quotaName = quotaName; }
+
+        public String getCategory() { return category; }
+        public void setCategory(String category) { this.category = category; }
+
+        public long getUsed() { return used; }
+        public void setUsed(long used) { this.used = used; }
+
+        public long getLimit() { return limit; }
+        public void setLimit(long limit) { this.limit = limit; }
+
+        public boolean isUnlimited() { return unlimited; }
+        public void setUnlimited(boolean unlimited) { this.unlimited = unlimited; }
+
+        public String getResetPeriod() { return resetPeriod; }
+        public void setResetPeriod(String resetPeriod) { this.resetPeriod = resetPeriod; }
+
+        public LocalDate getNextResetDate() { return nextResetDate; }
+        public void setNextResetDate(LocalDate nextResetDate) { this.nextResetDate = nextResetDate; }
     }
 
     /**

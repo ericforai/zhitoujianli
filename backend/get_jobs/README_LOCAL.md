@@ -14,7 +14,7 @@
 ### 系统要求
 - **操作系统**: macOS/Linux/Windows
 - **Java版本**: JDK 21 或更高版本
-- **Maven版本**: 3.6+ 
+- **Maven版本**: 3.6+
 - **内存**: 建议4GB以上
 - **网络**: 需要稳定的网络连接
 
@@ -146,7 +146,7 @@ mvn clean compile
 ```
 
 ### Q2: Playwright浏览器下载失败
-**解决方案**: 
+**解决方案**:
 1. 检查网络连接
 2. 手动安装：`npx playwright install chromium`
 3. 或使用代理下载
@@ -182,7 +182,7 @@ mvn clean compile
 
 ## 联系信息
 
-- **项目地址**: https://github.com/loks666/get_jobs
+- **项目地址**: https://github.com/ericforai/zhitoujianli
 - **QQ群**: 扫码添加，加群答案为项目仓库名【get_jobs】
 
 ## 免责声明

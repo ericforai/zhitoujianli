@@ -98,7 +98,7 @@ export const updateAllSEOTags = (config: SEOConfig): void => {
   }
 
   // 更新百度相关Meta标签
-  updateMetaTag('baidu-site-verification', 'codeva-xGT32pbUMi');
+  updateMetaTag('baidu-site-verification', 'codeva-9GxRj5etUH');
   updateMetaTag('applicable-device', 'pc,mobile'); // 百度移动适配
   updateMetaTag('MobileOptimized', 'width'); // 百度移动优化
   updateMetaTag('HandheldFriendly', 'true'); // 移动友好

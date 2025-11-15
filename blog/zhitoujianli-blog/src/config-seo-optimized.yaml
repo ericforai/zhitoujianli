@@ -56,7 +56,7 @@ metadata:
 
   # ✅ SEO优化：联系信息
   contact:
-    email: 'contact@zhitoujianli.com'
+    email: 'zhitoujianli@qq.com'
     wechat: 'zhitoujianli'
 
 # ========================================
@@ -239,7 +239,7 @@ seo:
   defaultAuthor:
     name: '智投简历团队'
     url: 'https://zhitoujianli.com/about'
-    email: 'contact@zhitoujianli.com'
+    email: 'zhitoujianli@qq.com'
 
   # ✅ 社交媒体账号
   socialProfiles:

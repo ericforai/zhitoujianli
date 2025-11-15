@@ -540,7 +540,7 @@ http://localhost:8080
 ### 联系我们
 
 - 🌐 **官网**：https://zhitoujianli.com
-- 📧 **邮箱**：support@zhitoujianli.com
+- 📧 **邮箱**：zhitoujianli@qq.com
 - 💬 **微信社群**：扫描二维码加入
 
 ---

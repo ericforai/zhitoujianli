@@ -53,19 +53,33 @@ const AdminDashboard: React.FC = () => {
       }, {} as any),
     });
 
-    if (!token || userType !== 'admin') {
-      console.error('❌ AdminDashboard: 管理员认证失败，重定向到登录页');
-      console.error('详细信息:', {
-        token: !!token,
-        authToken: !!localStorage.getItem('authToken'),
-        token2: !!localStorage.getItem('token'),
-        userType,
-      });
+    // 🔧 修复：移除重复的权限检查，因为AdminRoute已经处理了
+    // 如果到达这里，说明AdminRoute已经验证通过
+    // 只需要确保有token即可，userType的检查由AdminRoute负责
 
-      // 延迟一下再重定向，让日志能够输出
-      setTimeout(() => {
-        window.location.replace('/login');
-      }, 1000);
+    if (!token) {
+      console.error('❌ AdminDashboard: 没有token，等待AdminRoute处理');
+      // 不在这里重定向，让AdminRoute处理
+      return;
+    }
+
+    // 🔧 修复：如果userType不是admin，尝试恢复
+    if (userType !== 'admin') {
+      console.warn('⚠️ AdminDashboard: userType不是admin，尝试恢复...');
+      // 尝试从Token中解析
+      try {
+        const tokenParts = token.split('.');
+        if (tokenParts.length === 3) {
+          const payload = JSON.parse(atob(tokenParts[1]));
+          if (payload.isAdmin === true || payload.adminType) {
+            localStorage.setItem('userType', 'admin');
+            console.log('✅ 已从Token恢复userType=admin');
+          }
+        }
+      } catch (e) {
+        console.warn('⚠️ 无法从Token恢复，等待AdminRoute处理');
+      }
+      // 不在这里重定向，让AdminRoute处理
       return;
     }
 

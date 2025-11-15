@@ -93,7 +93,7 @@
 ### 📞 支持
 - GitHub Issues: [项目Issues](https://github.com/ericforai/zhitoujianli/issues)
 - 文档: [项目Wiki](https://github.com/ericforai/zhitoujianli/wiki)
-- 邮箱: support@zhitoujianli.com
+- 邮箱: zhitoujianli@qq.com
 
 ---
 

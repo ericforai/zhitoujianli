@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/loks666/get_jobs.git"
+    "url": "git+https://github.com/ericforai/zhitoujianli.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/loks666/get_jobs/issues"
+    "url": "https://github.com/ericforai/zhitoujianli/issues"
   },
-  "homepage": "https://github.com/loks666/get_jobs#readme",
+  "homepage": "https://github.com/ericforai/zhitoujianli#readme",
   "dependencies": {
     "playwright": "^1.55.1"
   }

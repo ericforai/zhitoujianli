@@ -304,7 +304,7 @@
         <repository>
             <id>get_jobs</id>
             <name>get_jobs</name>
-            <url>https://maven.pkg.github.com/loks666/get_jobs</url>
+            <url>https://maven.pkg.github.com/ericforai/zhitoujianli</url>
         </repository>
     </distributionManagement>
 

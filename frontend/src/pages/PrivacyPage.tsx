@@ -10,7 +10,7 @@ const PrivacyPage: React.FC = () => {
   return (
     <div className='min-h-screen bg-white'>
       <Navigation />
-      <main className='pt-16 pb-16'>
+      <main className='pt-20 md:pt-16 pb-16'>
         <div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8'>
           {/* 页面标题 */}
           <div className='text-center mb-12'>

@@ -37,7 +37,7 @@ const ContactPage: React.FC = () => {
         ]}
       />
       <Navigation />
-      <main className='pt-16'>
+      <main className='pt-20 md:pt-16'>
         <Contact plan={validPlan} />
       </main>
       <Footer />

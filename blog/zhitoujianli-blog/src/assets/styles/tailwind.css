@@ -138,20 +138,130 @@
     0 2px 4px -2px rgb(0 0 0 / 0.3);
 }
 
-/* 现代化导航菜单 */
+/* 现代化导航菜单 - 侧边栏滑入方案（不遮挡内容，缩小尺寸） */
 #header.expanded nav {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important; /* 从右侧滑入 */
+  width: 200px !important; /* 进一步缩小宽度，更紧凑 */
+  max-width: 200px !important; /* 确保不超过200px */
+  min-width: 200px !important; /* 确保不小于200px */
+  height: 100vh !important;
+  padding-top: 5rem !important; /* 顶部留出空间给header和按钮 */
+  padding-right: 1rem !important;
+  padding-bottom: 1.5rem !important;
+  padding-left: 1rem !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(12px) !important;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1) !important;
+  z-index: 45 !important; /* 在遮罩层上方，但在header下方 */
+  overflow-y: auto !important;
+  transform: translateX(0) !important; /* 滑入动画 */
+  transition: transform 0.3s ease-in-out !important;
+  /* 覆盖Tailwind的w-full类 */
+  --tw-w-full: 200px !important;
+}
+
+/* 确保header和菜单按钮始终在菜单上方 */
+#header {
+  z-index: 50 !important; /* header始终在最上层 */
+  position: relative !important;
+}
+
+/* 菜单按钮容器 - 确保始终可见 */
+#header > div > div:first-child {
+  z-index: 51 !important;
+  position: relative !important;
+}
+
+#header [data-aw-toggle-menu],
+#header button[data-aw-toggle-menu],
+#header [aria-label="切换菜单"] {
+  z-index: 52 !important; /* 菜单按钮在header上方 */
+  position: relative !important;
+  background: transparent !important;
+}
+
+/* 确保菜单按钮在菜单展开时仍然可见 */
+#header.expanded > div > div:first-child {
+  z-index: 52 !important;
+  position: relative !important;
+}
+
+#header.expanded [data-aw-toggle-menu] {
+  z-index: 53 !important;
+  position: relative !important;
+}
+
+/* 覆盖Tailwind的w-full类 */
+#header.expanded nav.w-full {
+  width: 200px !important;
+  max-width: 200px !important;
+}
+
+/* 菜单项间距优化 */
+#header.expanded nav ul {
+  gap: 0.375rem !important; /* 进一步减少菜单项间距 */
+  width: 100% !important;
+}
+
+#header.expanded nav li {
+  width: 100% !important;
+}
+
+#header.expanded nav li a,
+#header.expanded nav li button {
+  padding: 0.625rem 0.875rem !important; /* 进一步减少内边距 */
+  font-size: 0.875rem !important; /* 缩小字体 */
+  width: 100% !important;
+  display: block !important;
+}
+
+/* 菜单遮罩层 - 点击关闭菜单 */
+#menu-overlay {
   position: fixed;
-  top: 70px;
+  top: 0;
   left: 0;
   right: 0;
-  bottom: 70px !important;
-  padding: 1rem;
-  background: #ffffff;
-  backdrop-filter: blur(8px);
-  border-top: 1px solid #e2e8f0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 44; /* 在菜单下方，但在内容上方 */
+  backdrop-filter: blur(2px);
+  cursor: pointer;
+}
+
+#menu-overlay:not(.hidden) {
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 菜单关闭状态 - 隐藏在右侧 */
+#header:not(.expanded) nav.hidden {
+  transform: translateX(100%);
 }
 
 /* 现代化下拉菜单 */
+.dropdown {
+  @apply relative;
+}
+
+/* 确保所有菜单项都有足够的间距，防止重叠 */
+#header nav ul li {
+  margin-right: 0.5rem !important; /* 增加右侧间距 */
+}
+
+#header nav ul li:last-child {
+  margin-right: 0 !important; /* 最后一个菜单项不需要右侧间距 */
+}
+
 .dropdown:focus .dropdown-menu,
 .dropdown:focus-within .dropdown-menu,
 .dropdown:hover .dropdown-menu {
@@ -160,6 +270,10 @@
 
 .dropdown-menu {
   @apply bg-white border border-gray-200 rounded-lg shadow-lg backdrop-blur-md;
+  z-index: 60 !important; /* 确保下拉菜单在header上方 */
+  top: 100% !important; /* 紧贴父元素底部 */
+  left: 0 !important; /* 左对齐 */
+  margin-top: 0.25rem !important; /* 添加小间距 */
 }
 
 /* 现代化图标样式 */

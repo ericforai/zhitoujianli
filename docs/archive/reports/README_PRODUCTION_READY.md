@@ -42,7 +42,7 @@
 - 识别83个问题
 - 生成26KB详细报告
 
-### 2. 关键修复 ✅  
+### 2. 关键修复 ✅
 - 修复3个致命安全漏洞
 - 恢复核心功能100%可用
 - 统一前端认证管理
@@ -97,7 +97,7 @@ sudo certbot certonly --standalone -d zhitoujianli.com
 
 ```bash
 # 克隆代码
-git clone https://github.com/your-org/zhitoujianli.git
+git clone https://github.com/ericforai/zhitoujianli.git
 cd zhitoujianli
 
 # 配置环境变量
@@ -133,7 +133,7 @@ curl https://zhitoujianli.com/api/auth/health
 
 1. **Authing真实配置**
    - UserPoolID
-   - AppID  
+   - AppID
    - AppSecret
    - AppHost
 
@@ -248,8 +248,8 @@ curl http://localhost:8080/api/auth/health
 
 ---
 
-**更新时间**: 2025-10-10  
-**项目状态**: 🟢 生产就绪（85%）  
+**更新时间**: 2025-10-10
+**项目状态**: 🟢 生产就绪（85%）
 **团队**: ZhiTouJianLi Team
 
 需要帮助随时联系！🚀

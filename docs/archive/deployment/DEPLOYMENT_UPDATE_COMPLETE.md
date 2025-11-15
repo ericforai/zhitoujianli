@@ -29,7 +29,7 @@
 
 ### 方法1：GitHub Actions 页面
 
-1. 访问：`https://github.com/YOUR_USERNAME/zhitoujianli/actions`
+1. 访问：`https://github.com/ericforai/zhitoujianli/actions`
 2. 查看 `Deploy to Production` 工作流
 3. 确认所有步骤都是绿色 ✅
 

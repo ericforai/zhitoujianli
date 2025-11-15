@@ -278,12 +278,14 @@ public class AdminUserController {
                 ));
             }
 
-            // TODO: 临时禁用 - 需要实现UserService.updateUserStatus方法
-            // userService.updateUserStatus(userId, request.getActive());
+            // 更新用户状态
+            userService.updateUserStatus(userId, request.getActive());
+
+            log.info("✅ 用户状态更新成功: userId={}, active={}", userId, request.getActive());
 
             return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "用户状态更新功能暂时禁用"
+                "message", "用户状态更新成功"
             ));
 
         } catch (IllegalArgumentException e) {
@@ -393,16 +395,19 @@ public class AdminUserController {
     private Map<String, Object> convertUserToResponse(User user) {
         Map<String, Object> response = new HashMap<>();
 
-        // 前端兼容字段映射
-        response.put("id", user.getUserId());  // 前端期望的 id 字段，使用 userId
-        response.put("userId", user.getUserId());
+        // 统一使用 userId 字段（转为String，便于前端使用）
+        response.put("userId", user.getUserId().toString());
+        // 保留 id 字段以兼容旧代码，但建议前端统一使用 userId
+        response.put("id", user.getUserId().toString());
+
         response.put("email", user.getEmail());
         response.put("nickname", user.getUsername());  // 前端期望的 nickname 字段
         response.put("username", user.getUsername());
         response.put("emailVerified", user.getEmailVerified());
 
-        // 状态字段：前端期望 "enabled"/"disabled" 字符串
+        // 统一状态字段：只返回 active (boolean)，前端统一使用 user.active
         response.put("active", user.getActive());
+        // 保留 status 字段以兼容旧代码，但建议前端统一使用 active
         response.put("status", user.getActive() ? "enabled" : "disabled");
 
         // 套餐信息：从用户关联的套餐获取，默认 FREE

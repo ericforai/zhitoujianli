@@ -44,25 +44,60 @@ import { UI } from 'astrowind:config';
     let lastKnownScrollPosition = window.scrollY;
     let ticking = true;
 
-    attachEvent('#header nav', 'click', function () {
+    attachEvent('#header nav', 'click', function (e) {
+      // 🎨 新方案：点击菜单链接时关闭菜单（但不阻止链接跳转）
+      const link = e.target.closest('a');
+      if (link) {
+        // 延迟关闭，让链接先跳转
+        setTimeout(() => {
+          document.querySelector('[data-aw-toggle-menu]')?.classList.remove('expanded');
+          document.getElementById('header')?.classList.remove('expanded');
+          document.getElementById('header')?.classList.remove('bg-page');
+          document.querySelector('#header nav')?.classList.add('hidden');
+          document.querySelector('#header > div > div:last-child')?.classList.add('hidden');
+          document.getElementById('menu-overlay')?.classList.add('hidden');
+        }, 100);
+      }
+    });
+
+    attachEvent('[data-aw-toggle-menu]', 'click', function (_, elem) {
+      // 🎨 新方案：不阻止body滚动，使用侧边栏+遮罩层
+      // document.body.classList.toggle('overflow-hidden'); // 移除，让页面可以滚动
+      const header = document.getElementById('header');
+      const overlay = document.getElementById('menu-overlay');
+      const nav = document.querySelector('#header nav');
+      const actions = document.querySelector('#header > div > div:last-child');
+
+      // 检查当前状态
+      const isExpanded = elem.classList.contains('expanded');
+
+      if (isExpanded) {
+        // 当前是展开状态，点击后关闭
+        elem.classList.remove('expanded');
+        header?.classList.remove('expanded');
+        header?.classList.remove('bg-page');
+        nav?.classList.add('hidden');
+        actions?.classList.add('hidden');
+        overlay?.classList.add('hidden');
+      } else {
+        // 当前是关闭状态，点击后打开
+        elem.classList.add('expanded');
+        header?.classList.add('expanded');
+        header?.classList.add('bg-page');
+        nav?.classList.remove('hidden');
+        actions?.classList.remove('hidden');
+        overlay?.classList.remove('hidden');
+      }
+    });
+
+    // 🎨 新方案：点击遮罩层关闭菜单
+    attachEvent('[data-menu-overlay]', 'click', function () {
       document.querySelector('[data-aw-toggle-menu]')?.classList.remove('expanded');
-      document.body.classList.remove('overflow-hidden');
-      // document.getElementById('header')?.classList.remove('h-screen');
       document.getElementById('header')?.classList.remove('expanded');
       document.getElementById('header')?.classList.remove('bg-page');
       document.querySelector('#header nav')?.classList.add('hidden');
       document.querySelector('#header > div > div:last-child')?.classList.add('hidden');
-    });
-
-    attachEvent('[data-aw-toggle-menu]', 'click', function (_, elem) {
-      elem.classList.toggle('expanded');
-      document.body.classList.toggle('overflow-hidden');
-      // 🎨 UX修复：移除h-screen，使用max-h-screen代替，防止菜单遮挡内容
-      // document.getElementById('header')?.classList.toggle('h-screen');
-      document.getElementById('header')?.classList.toggle('expanded');
-      document.getElementById('header')?.classList.toggle('bg-page');
-      document.querySelector('#header nav')?.classList.toggle('hidden');
-      document.querySelector('#header > div > div:last-child')?.classList.toggle('hidden');
+      document.getElementById('menu-overlay')?.classList.add('hidden');
     });
 
     attachEvent('[data-aw-toggle-color-scheme]', 'click', function () {
@@ -112,12 +147,12 @@ import { UI } from 'astrowind:config';
     const screenSize = window.matchMedia('(max-width: 767px)');
     screenSize.addEventListener('change', function () {
       document.querySelector('[data-aw-toggle-menu]')?.classList.remove('expanded');
-      document.body.classList.remove('overflow-hidden');
-      // document.getElementById('header')?.classList.remove('h-screen');
+      // document.body.classList.remove('overflow-hidden'); // 移除，不再阻止滚动
       document.getElementById('header')?.classList.remove('expanded');
       document.getElementById('header')?.classList.remove('bg-page');
       document.querySelector('#header nav')?.classList.add('hidden');
       document.querySelector('#header > div > div:last-child')?.classList.add('hidden');
+      document.getElementById('menu-overlay')?.classList.add('hidden');
     });
 
     function applyHeaderStylesOnScroll() {
@@ -149,10 +184,10 @@ import { UI } from 'astrowind:config';
     if (elem) {
       elem.classList.remove('expanded');
     }
-    document.body.classList.remove('overflow-hidden');
-    // document.getElementById('header')?.classList.remove('h-screen');
+    // document.body.classList.remove('overflow-hidden'); // 移除，不再阻止滚动
     document.getElementById('header')?.classList.remove('expanded');
     document.querySelector('#header nav')?.classList.add('hidden');
+    document.getElementById('menu-overlay')?.classList.add('hidden');
   };
 
   window.onload = onLoad;

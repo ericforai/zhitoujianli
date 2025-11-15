@@ -1,0 +1,33 @@
+{
+  "sections": [
+    {
+      "name": "结构",
+      "items": [
+        { "issue": "缺少明确的概要部分", "fix": "新增概要，提炼3-4句核心优势" }
+      ]
+    },
+    {
+      "name": "关键词",
+      "items": [
+        { "issue": "与JD关键词匹配度低", "fix": "补充AIGC、SEO、渠道增长等关键词" }
+      ]
+    },
+    {
+      "name": "量化",
+      "items": [
+        { "issue": "要点缺少量化指标", "fix": "补充转化率、UV、GMV等数据" }
+      ]
+    },
+    { "name": "措辞", "items": [] },
+    { "name": "风险", "items": [] }
+  ],
+  "rewritten": {
+    "summary": "增长负责人，擅长AIGC与SEO，推动多渠道转化增长。",
+    "skills": ["AIGC", "SEO", "渠道增长"],
+    "experiences": [{ "role": "市场总监", "company": "某科技", "bullets": ["负责增长策略，CVR+38%", "搭建内容矩阵，UV+130%"] }]
+  },
+  "score": 78,
+  "keywords": ["AIGC", "SEO", "增长", "转化率"],
+  "html": "<div><h3>修订版概要</h3><p>增长负责人，擅长AIGC与SEO。</p><h3>经历</h3><ul><li>CVR+38%</li></ul></div>"
+}
+

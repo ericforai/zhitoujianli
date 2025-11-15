@@ -3,25 +3,21 @@
 # 合并主站和博客的sitemap为一个统一文件
 # 执行时机：博客构建后
 
-set -e
+set -euo pipefail
 
-MAIN_SITEMAP="/root/zhitoujianli/frontend/public/sitemap-main.xml"
-BLOG_SITEMAP="/root/zhitoujianli/blog/zhitoujianli-blog/dist/sitemap-0.xml"
-OUTPUT_SITEMAP="/root/zhitoujianli/frontend/public/sitemap.xml"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+MAIN_SITEMAP="$ROOT/frontend/public/sitemap.xml"
+BLOG_SITEMAP="$ROOT/frontend/public/blog-sitemap.xml"
+OUTPUT_SITEMAP="$ROOT/frontend/public/sitemap.xml"
 
 echo "========================================"
 echo "  合并Sitemap - 创建统一sitemap.xml"
 echo "========================================"
 echo ""
 
-# 检查源文件是否存在
+# 检查主站文件是否存在
 if [ ! -f "$MAIN_SITEMAP" ]; then
     echo "错误：找不到主站sitemap: $MAIN_SITEMAP"
-    exit 1
-fi
-
-if [ ! -f "$BLOG_SITEMAP" ]; then
-    echo "错误：找不到博客sitemap: $BLOG_SITEMAP"
     exit 1
 fi
 
@@ -54,8 +50,12 @@ cat >> "$TEMP_FILE" << 'EOF'
 
 EOF
 
-# 提取博客sitemap中的URL（跳过XML头部和尾部）
-sed -n '/<url>/,/<\/url>/p' "$BLOG_SITEMAP" >> "$TEMP_FILE"
+# 提取博客sitemap中的URL（如果存在）
+if [ -f "$BLOG_SITEMAP" ]; then
+    sed -n '/<url>/,/<\/url>/p' "$BLOG_SITEMAP" >> "$TEMP_FILE"
+else
+    echo "⚠ 未找到博客sitemap: $BLOG_SITEMAP，本次仅合并主站。"
+fi
 
 # 写入XML尾部
 echo "" >> "$TEMP_FILE"

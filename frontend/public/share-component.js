@@ -42,19 +42,41 @@ function shareToWechat() {
 }
 
 // 生成带logo的二维码
+// 简单的二维码缓存，避免重复请求第三方服务
+const __qrCodeCache = new Map(); // url -> dataURL
+
 function generateQRCodeWithLogo(url) {
     const qrcodeImg = document.getElementById('wechat-qrcode-img');
     if (!qrcodeImg) return;
 
+    // 命中缓存直接使用
+    const cached = __qrCodeCache.get(url);
+    if (cached) {
+        qrcodeImg.src = cached;
+        return;
+    }
+
     const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
     canvas.width = 220;
     canvas.height = 220;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        // Canvas 不可用时降级到本地回退图
+        showMessage('当前环境不支持二维码预览，已使用回退图片');
+        qrcodeImg.src = '/images/qr-fallback.png';
+        return;
+    }
 
     // 先加载二维码
     const qrImg = new Image();
     qrImg.crossOrigin = 'anonymous';
+    // 超时保护，避免网络卡住
+    let timeoutId = setTimeout(() => {
+        qrImg.onerror && qrImg.onerror(new Error('二维码生成超时'));
+    }, 6000);
+
     qrImg.onload = function() {
+        clearTimeout(timeoutId);
         // 绘制二维码
         ctx.drawImage(qrImg, 0, 0, 220, 220);
 
@@ -76,18 +98,24 @@ function generateQRCodeWithLogo(url) {
             ctx.drawImage(logoImg, x, y, logoSize, logoSize);
 
             // 将canvas转为图片
-            qrcodeImg.src = canvas.toDataURL();
+            const dataUrl = canvas.toDataURL();
+            __qrCodeCache.set(url, dataUrl);
+            qrcodeImg.src = dataUrl;
         };
         logoImg.onerror = function() {
             // logo加载失败，只显示二维码
             console.warn('Logo加载失败，显示纯二维码');
-            qrcodeImg.src = canvas.toDataURL();
+            const dataUrl = canvas.toDataURL();
+            __qrCodeCache.set(url, dataUrl);
+            qrcodeImg.src = dataUrl;
         };
         logoImg.src = '/images/logo.png';
     };
     qrImg.onerror = function() {
-        console.error('二维码生成失败');
-        showMessage('二维码生成失败，请稍后重试');
+        clearTimeout(timeoutId);
+        console.error('二维码生成失败，使用回退图片');
+        showMessage('二维码生成失败，已使用回退图片');
+        qrcodeImg.src = '/images/qr-fallback.png';
     };
     qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(url)}`;
 }
@@ -175,10 +203,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Ctrl+C / Cmd+C 复制链接（未选中文本时）
-        if ((e.ctrlKey || e.metaKey) && e.key === 'c' && window.getSelection().toString() === '') {
-            e.preventDefault();
-            copyLink();
+        // Ctrl+C / Cmd+C 复制链接（仅当焦点不在可编辑元素，且无文本选中时）
+        if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+            const target = e.target;
+            const isEditable =
+                (target instanceof HTMLInputElement) ||
+                (target instanceof HTMLTextAreaElement) ||
+                (target && target.isContentEditable === true);
+            const hasSelection = window.getSelection && window.getSelection().toString() !== '';
+            if (!isEditable && !hasSelection) {
+                e.preventDefault();
+                copyLink();
+            }
         }
     });
 });

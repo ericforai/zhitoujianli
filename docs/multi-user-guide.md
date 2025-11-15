@@ -245,7 +245,7 @@ systemctl restart get_jobs
 ## 技术支持
 
 遇到问题请联系：
-- 邮箱：support@zhitoujianli.com
+- 邮箱：zhitoujianli@qq.com
 - 文档：https://docs.zhitoujianli.com
-- GitHub：https://github.com/your-org/zhitoujianli
+- GitHub：https://github.com/ericforai/zhitoujianli
 

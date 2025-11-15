@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
 import Container from '../components/common/Container';
@@ -14,6 +14,9 @@ import SEOHead from '../components/seo/SEOHead';
  * - 联系支持方式
  */
 const HelpPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const category = searchParams.get('category');
+
   const faqs = [
     {
       category: '账号相关',
@@ -102,6 +105,24 @@ const HelpPage: React.FC = () => {
     },
   ];
 
+  // 根据分类过滤FAQ
+  const getFilteredFaqs = () => {
+    if (!category) return faqs;
+
+    const categoryMap: Record<string, string> = {
+      account: '账号相关',
+      resume: '简历相关',
+      ai: 'AI功能相关',
+    };
+
+    const targetCategory = categoryMap[category];
+    if (!targetCategory) return faqs;
+
+    return faqs.filter(faq => faq.category === targetCategory);
+  };
+
+  const filteredFaqs = getFilteredFaqs();
+
   return (
     <div className='min-h-screen bg-gray-50'>
       <SEOHead
@@ -127,11 +148,54 @@ const HelpPage: React.FC = () => {
         </Container>
       </section>
 
+      {/* Help Categories Section */}
+      <section className='py-16 bg-white'>
+        <Container size='xl'>
+          <div className='max-w-6xl mx-auto'>
+            <div className='grid gap-6 md:grid-cols-3 mb-16'>
+              <a
+                href='/help?category=account'
+                className='bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-blue-500 hover:shadow-lg transition-all duration-300 block'
+              >
+                <h3 className='text-xl font-bold text-gray-900 mb-3'>
+                  账户问题
+                </h3>
+                <p className='text-gray-600 text-sm'>
+                  注册、登录、密码重置等
+                </p>
+              </a>
+              <a
+                href='/help?category=resume'
+                className='bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-blue-500 hover:shadow-lg transition-all duration-300 block'
+              >
+                <h3 className='text-xl font-bold text-gray-900 mb-3'>
+                  简历功能
+                </h3>
+                <p className='text-gray-600 text-sm'>
+                  上传、解析、优化等
+                </p>
+              </a>
+              <a
+                href='/help?category=ai'
+                className='bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-blue-500 hover:shadow-lg transition-all duration-300 block'
+              >
+                <h3 className='text-xl font-bold text-gray-900 mb-3'>
+                  AI匹配
+                </h3>
+                <p className='text-gray-600 text-sm'>
+                  智能匹配、评分等
+                </p>
+              </a>
+            </div>
+          </div>
+        </Container>
+      </section>
+
       {/* FAQs Section */}
       <section className='py-16'>
         <Container size='xl'>
           <div className='max-w-4xl mx-auto'>
-            {faqs.map((category, categoryIndex) => (
+            {filteredFaqs.map((category, categoryIndex) => (
               <div key={categoryIndex} className='mb-12'>
                 <h2 className='text-2xl font-bold text-gray-900 mb-6 flex items-center'>
                   <span className='w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center mr-3 text-sm'>

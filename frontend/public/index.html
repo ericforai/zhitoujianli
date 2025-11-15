@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <!-- Google Analytics -->
     <script
@@ -55,7 +55,7 @@
     <meta name="theme-color" content="#2563eb" />
 
     <!-- 百度优化 -->
-    <meta name="baidu-site-verification" content="codeva-xGT32pbUMi" />
+    <meta name="baidu-site-verification" content="codeva-9GxRj5etUH" />
     <meta name="applicable-device" content="pc,mobile" />
     <meta name="MobileOptimized" content="width" />
     <meta name="HandheldFriendly" content="true" />
@@ -102,9 +102,73 @@
 
     <!-- 生产环境配置 -->
     <script src="%PUBLIC_URL%/production-config.js"></script>
+
+    <!-- Schema.org 结构化数据 -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://zhitoujianli.com/#organization",
+          "name": "智投简历",
+          "url": "https://zhitoujianli.com",
+          "logo": "https://zhitoujianli.com/logo192.png",
+          "description": "专业的AI智能求职平台，提供自动简历投递、智能职位匹配、个性化打招呼语生成服务",
+          "sameAs": [
+            "https://www.zhitoujianli.com"
+          ],
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "客户服务",
+            "availableLanguage": "中文"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://zhitoujianli.com/#website",
+          "url": "https://zhitoujianli.com",
+          "name": "智投简历",
+          "description": "AI智能求职助手 - 自动投递简历，精准匹配岗位",
+          "publisher": {
+            "@id": "https://zhitoujianli.com/#organization"
+          },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://zhitoujianli.com/search?q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "SoftwareApplication",
+          "@id": "https://zhitoujianli.com/#software",
+          "name": "智投简历",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "CNY"
+          },
+          "description": "AI智能求职平台，提供自动简历投递、智能职位匹配、个性化打招呼语生成服务",
+          "featureList": [
+            "AI简历解析",
+            "智能职位匹配",
+            "自动投递简历",
+            "个性化打招呼语生成",
+            "Boss直聘自动投递"
+          ],
+          "screenshot": "https://zhitoujianli.com/og-image.jpg"
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>您需要启用JavaScript才能运行此应用。</noscript>
     <div id="root"></div>
     <!--
       This HTML file is a template.

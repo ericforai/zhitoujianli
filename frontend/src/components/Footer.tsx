@@ -4,14 +4,15 @@ const Footer = () => {
   return (
     <footer className='bg-gray-900 text-white py-20'>
       <Container size='xl'>
-        <div className='grid grid-cols-1 md:grid-cols-4 gap-12'>
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12'>
           {/* Logo and Description */}
-          <div className='col-span-1 md:col-span-2'>
+          <div className='col-span-1'>
             <div className='flex items-center space-x-3 mb-6'>
               <img
                 src='/images/logo-plane.png'
                 alt='智投简历Logo'
                 className='h-8 w-auto'
+                loading='lazy'
               />
               <h3 className='text-2xl font-bold'>智投简历</h3>
             </div>
@@ -88,6 +89,26 @@ const Footer = () => {
                 </a>
               </li>
             </ul>
+          </div>
+
+          {/* Follow Us - 关注我们 */}
+          <div>
+            <h4 className='text-lg font-semibold mb-6'>关注我们</h4>
+            <div className='flex flex-col items-start space-y-4'>
+              <div className='bg-white p-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200'>
+                <img
+                  src='/images/wechat-qrcode.jpg'
+                  alt='智投简历公众号二维码'
+                  className='w-32 h-32 object-contain'
+                  loading='lazy'
+                />
+              </div>
+              <p className='text-gray-400 text-sm leading-relaxed'>
+                扫码关注公众号
+                <br />
+                获取最新求职技巧和产品动态
+              </p>
+            </div>
           </div>
         </div>
 

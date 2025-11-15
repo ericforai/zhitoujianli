@@ -18,7 +18,7 @@ const About = () => {
           <div className='bg-gradient-to-r from-blue-50 to-indigo-50 p-8 rounded-xl mb-8'>
             <h3 className='text-2xl font-bold text-gray-900 mb-4'>公司简介</h3>
             <p className='text-gray-700 leading-relaxed mb-4'>
-              智投简历成立于2024年，是一家专注于AI求职服务的创新型科技公司。我们致力于运用人工智能技术，
+              智投简历成立于2025年，是一家专注于AI求职服务的创新型科技公司。我们致力于运用人工智能技术，
               为求职者提供智能化的简历优化、职位匹配和投递服务，让求职过程更加高效、精准。
             </p>
             <p className='text-gray-700 leading-relaxed'>

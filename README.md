@@ -1,5 +1,29 @@
 # 智投简历 - AI智能求职助手
 
+## 简历模块（前端）使用说明
+
+- 开发目录：`frontend/src/pages/Resume`, `frontend/src/components/resume`, `frontend/src/services`
+- 路由：
+  - `/resume`（公开展示页）
+  - `/resume/templates`（登录后使用）
+  - `/resume/templates/preview`（登录后使用）
+  - `/resume/optimize`（登录后使用）
+  - `/resume/history`（登录后使用）
+- 认证保护：复用现有 `PrivateRoute`（基于 `AuthContext`），未登录将跳转至 `/login?next=<当前路径>`
+- 本地 Mock：
+  - 在 `frontend/.env.development` 设置 `REACT_APP_RESUME_DEV_MOCK=true` 可启用前端内置示例返回（读取 `src/assets/resume/demo-*.json`）
+  - 置为 `false` 时前端将请求后端接口：
+    - `POST /api/ai/generate`
+    - `POST /api/ai/diagnose`
+    - `POST /api/pdf/export`
+    - `POST /api/upload`
+- 构建与部署：
+  - 构建：`cd frontend && npm run build`
+  - 部署（项目根目录执行）：`./deploy-frontend.sh`
+- 测试：
+  - 单元测试：`cd frontend && npm run test`
+  - e2e：`cd frontend && npx playwright test`
+
 [![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/ericforai/zhitoujianli)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-18.x-brightgreen.svg)](https://nodejs.org/)
@@ -774,8 +798,8 @@ open target/site/jacoco/index.html  # macOS
 ## 联系我们
 
 - 项目主页: https://zhitoujianli.com
-- 问题反馈: https://github.com/your-username/zhitoujianli/issues
-- 邮箱: support@zhitoujianli.com
+- 问题反馈: https://github.com/ericforai/zhitoujianli/issues
+- 邮箱: zhitoujianli@qq.com
 
 ## 📝 更新日志
 
@@ -831,6 +855,7 @@ open target/site/jacoco/index.html  # macOS
 **升级说明**：
 
 升级到v2.2.4后，需要添加环境变量：
+
 ```bash
 echo "USER_DATA_DIR=/opt/zhitoujianli/backend/user_data" >> /etc/zhitoujianli/backend.env
 echo "BOSS_WORK_DIR=/opt/zhitoujianli/backend" >> /etc/zhitoujianli/backend.env
@@ -915,7 +940,7 @@ systemctl restart zhitoujianli-backend.service
 ### 如何贡献
 
 1. **Fork 项目** - 点击右上角 Fork 按钮
-2. **克隆到本地** - `git clone https://github.com/your-username/zhitoujianli.git`
+2. **克隆到本地** - `git clone https://github.com/ericforai/zhitoujianli.git`
 3. **创建功能分支** - `git checkout -b feat/amazing-feature`
 4. **提交更改** - `git commit -m 'feat: 添加某个很棒的功能'`
 5. **推送到分支** - `git push origin feat/amazing-feature`
@@ -950,7 +975,7 @@ systemctl restart zhitoujianli-backend.service
 - **项目主页**: https://zhitoujianli.com
 - **GitHub**: https://github.com/ericforai/zhitoujianli
 - **问题反馈**: https://github.com/ericforai/zhitoujianli/issues
-- **邮箱**: support@zhitoujianli.com
+- **邮箱**: zhitoujianli@qq.com
 
 ## 🙏 致谢
 

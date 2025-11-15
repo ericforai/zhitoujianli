@@ -54,18 +54,18 @@ const AdminFeatures: React.FC = () => {
     }
   };
 
-  const toggleFeature = async (featureId: number, enabled: boolean) => {
+  const toggleFeature = async (featureKey: string, enabled: boolean) => {
     try {
       const token = localStorage.getItem('authToken');
       const response = await fetch(
-        `${config.apiBaseUrl}/admin/features/${featureId}`,
+        `${config.apiBaseUrl}/admin/features/${featureKey}`,
         {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ isEnabled: enabled }),
+          body: JSON.stringify({ enabled: enabled }),
         }
       );
 
@@ -74,7 +74,7 @@ const AdminFeatures: React.FC = () => {
       if (result.success) {
         // 更新本地状态
         setFeatures(prev =>
-          prev.map(f => (f.id === featureId ? { ...f, isEnabled: enabled } : f))
+          prev.map(f => (f.featureKey === featureKey ? { ...f, isEnabled: enabled } : f))
         );
       } else {
         setError(result.message || '更新功能状态失败');
@@ -157,7 +157,7 @@ const AdminFeatures: React.FC = () => {
                   <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
                     <button
                       onClick={() =>
-                        toggleFeature(feature.id, !feature.isEnabled)
+                        toggleFeature(feature.featureKey, !feature.isEnabled)
                       }
                       className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                         feature.isEnabled

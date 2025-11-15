@@ -193,9 +193,9 @@ systemctl restart get_jobs
 
 ### 联系方式
 
-- 技术支持：support@zhitoujianli.com
-- 开发团队：dev@zhitoujianli.com
-- 紧急问题：emergency@zhitoujianli.com
+- 技术支持：zhitoujianli@qq.com
+- 开发团队：zhitoujianli@qq.com
+- 紧急问题：zhitoujianli@qq.com
 
 ## 版本历史
 

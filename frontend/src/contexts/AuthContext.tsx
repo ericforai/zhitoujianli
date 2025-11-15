@@ -67,6 +67,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         authLogger.debug('初始化认证状态...');
 
+        // 🔧 修复：刷新时自动恢复管理员状态
+        // 如果正在访问/admin/*路径且有token，自动设置userType='admin'
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+        const currentPath = window.location.pathname;
+        if (token && currentPath.startsWith('/admin')) {
+          const userType = localStorage.getItem('userType');
+          if (userType !== 'admin') {
+            authLogger.debug('🔄 刷新检测：在admin路径且有token，自动恢复管理员状态');
+            localStorage.setItem('userType', 'admin');
+          }
+        }
+
         // 🔧 修复：管理员跳过初始化检查，避免调用普通用户API导致循环
         const userType = localStorage.getItem('userType');
         if (userType === 'admin') {

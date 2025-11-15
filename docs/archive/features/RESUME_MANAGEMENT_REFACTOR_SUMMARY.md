@@ -266,7 +266,7 @@ cd /root/zhitoujianli
 ## 📞 技术支持
 
 如有问题或建议，请联系开发团队：
-- 📧 邮箱: support@zhitoujianli.com
+- 📧 邮箱: zhitoujianli@qq.com
 - 📱 电话: 400-123-4567
 - 💬 微信: zhitoujianli_support
 

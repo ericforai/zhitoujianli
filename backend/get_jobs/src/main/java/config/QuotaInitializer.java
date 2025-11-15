@@ -74,9 +74,120 @@ public class QuotaInitializer implements CommandLineRunner {
     private void initializePlanQuotaConfigs() {
         log.info("正在初始化套餐配额配置...");
 
-        // FIXME: 根据配额定义创建各套餐的配额限制
+        List<PlanQuotaConfig> configs = new ArrayList<>();
 
-        log.info("套餐配额配置初始化完成");
+        // 入门版（FREE）配置
+        configs.addAll(createFreePlanConfigs());
+
+        // 高效版（BASIC）配置
+        configs.addAll(createBasicPlanConfigs());
+
+        // 极速版（PROFESSIONAL）配置
+        configs.addAll(createProfessionalPlanConfigs());
+
+        // FIXME: 保存到数据库
+        // planQuotaConfigRepository.saveAll(configs);
+
+        log.info("套餐配额配置初始化完成，共 {} 个配置", configs.size());
+    }
+
+    /**
+     * 创建入门版配额配置
+     */
+    private List<PlanQuotaConfig> createFreePlanConfigs() {
+        List<PlanQuotaConfig> configs = new ArrayList<>();
+
+        // 简历基础优化：1次
+        configs.add(PlanQuotaConfig.builder()
+            .quotaKey("resume_basic_optimize")
+            .limit(1L)
+            .isUnlimited(false)
+            .isEnabled(true)
+            .build());
+
+        // 简历高级优化：0次（不支持）
+        configs.add(PlanQuotaConfig.builder()
+            .quotaKey("resume_advanced_optimize")
+            .limit(0L)
+            .isUnlimited(false)
+            .isEnabled(false)
+            .build());
+
+        // 每日投递次数：5次
+        configs.add(PlanQuotaConfig.builder()
+            .quotaKey("daily_job_application")
+            .limit(5L)
+            .isUnlimited(false)
+            .isEnabled(true)
+            .build());
+
+        return configs;
+    }
+
+    /**
+     * 创建高效版配额配置
+     */
+    private List<PlanQuotaConfig> createBasicPlanConfigs() {
+        List<PlanQuotaConfig> configs = new ArrayList<>();
+
+        // 简历基础优化：无限次
+        configs.add(PlanQuotaConfig.builder()
+            .quotaKey("resume_basic_optimize")
+            .limit(-1L)
+            .isUnlimited(true)
+            .isEnabled(true)
+            .build());
+
+        // 简历高级优化：1次
+        configs.add(PlanQuotaConfig.builder()
+            .quotaKey("resume_advanced_optimize")
+            .limit(1L)
+            .isUnlimited(false)
+            .isEnabled(true)
+            .build());
+
+        // 每日投递次数：30次
+        configs.add(PlanQuotaConfig.builder()
+            .quotaKey("daily_job_application")
+            .limit(30L)
+            .isUnlimited(false)
+            .isEnabled(true)
+            .build());
+
+        return configs;
+    }
+
+    /**
+     * 创建极速版配额配置
+     */
+    private List<PlanQuotaConfig> createProfessionalPlanConfigs() {
+        List<PlanQuotaConfig> configs = new ArrayList<>();
+
+        // 简历基础优化：无限次
+        configs.add(PlanQuotaConfig.builder()
+            .quotaKey("resume_basic_optimize")
+            .limit(-1L)
+            .isUnlimited(true)
+            .isEnabled(true)
+            .build());
+
+        // 简历高级优化：3次
+        configs.add(PlanQuotaConfig.builder()
+            .quotaKey("resume_advanced_optimize")
+            .limit(3L)
+            .isUnlimited(false)
+            .isEnabled(true)
+            .build());
+
+        // 每日投递次数：100次
+        configs.add(PlanQuotaConfig.builder()
+            .quotaKey("daily_job_application")
+            .limit(100L)
+            .isUnlimited(false)
+            .isEnabled(true)
+            .build());
+
+        return configs;
     }
 
     // ==================== 配额定义创建方法 ====================
@@ -88,6 +199,28 @@ public class QuotaInitializer implements CommandLineRunner {
         List<QuotaDefinition> quotas = new ArrayList<>();
 
         quotas.add(QuotaDefinition.builder()
+            .quotaKey("resume_basic_optimize")
+            .quotaName("简历基础优化")
+            .quotaDescription("简历基础优化总次数")
+            .quotaCategory(QuotaCategory.RESUME)
+            .unitType(UnitType.COUNT)
+            .resetPeriod(ResetPeriod.NEVER)
+            .isActive(true)
+            .sortOrder(1)
+            .build());
+
+        quotas.add(QuotaDefinition.builder()
+            .quotaKey("resume_advanced_optimize")
+            .quotaName("简历高级优化")
+            .quotaDescription("简历高级优化总次数")
+            .quotaCategory(QuotaCategory.RESUME)
+            .unitType(UnitType.COUNT)
+            .resetPeriod(ResetPeriod.NEVER)
+            .isActive(true)
+            .sortOrder(2)
+            .build());
+
+        quotas.add(QuotaDefinition.builder()
             .quotaKey("resume_templates")
             .quotaName("简历模板数量")
             .quotaDescription("可使用的简历模板总数")
@@ -95,7 +228,7 @@ public class QuotaInitializer implements CommandLineRunner {
             .unitType(UnitType.COUNT)
             .resetPeriod(ResetPeriod.NEVER)
             .isActive(true)
-            .sortOrder(1)
+            .sortOrder(3)
             .build());
 
         quotas.add(QuotaDefinition.builder()
@@ -106,7 +239,7 @@ public class QuotaInitializer implements CommandLineRunner {
             .unitType(UnitType.COUNT)
             .resetPeriod(ResetPeriod.NEVER)
             .isActive(true)
-            .sortOrder(2)
+            .sortOrder(4)
             .build());
 
         quotas.add(QuotaDefinition.builder()
@@ -117,7 +250,7 @@ public class QuotaInitializer implements CommandLineRunner {
             .unitType(UnitType.COUNT)
             .resetPeriod(ResetPeriod.MONTHLY)
             .isActive(true)
-            .sortOrder(3)
+            .sortOrder(5)
             .build());
 
         return quotas;
@@ -183,9 +316,9 @@ public class QuotaInitializer implements CommandLineRunner {
         List<QuotaDefinition> quotas = new ArrayList<>();
 
         quotas.add(QuotaDefinition.builder()
-            .quotaKey("auto_delivery_daily")
-            .quotaName("自动投递")
-            .quotaDescription("每日自动投递次数")
+            .quotaKey("daily_job_application")
+            .quotaName("每日投递次数")
+            .quotaDescription("每日可投递的职位数量")
             .quotaCategory(QuotaCategory.DELIVERY)
             .unitType(UnitType.COUNT)
             .resetPeriod(ResetPeriod.DAILY)
@@ -341,6 +474,54 @@ public class QuotaInitializer implements CommandLineRunner {
 
             public QuotaDefinition build() {
                 return definition;
+            }
+        }
+    }
+
+    /**
+     * 套餐配额配置数据类（临时用于初始化）
+     */
+    private static class PlanQuotaConfig {
+        private String quotaKey;
+        private Long limit;
+        private Boolean isUnlimited;
+        private Boolean isEnabled;
+
+        // Getter方法以避免SpotBugs未读字段警告
+        public String getQuotaKey() { return quotaKey; }
+        public Long getLimit() { return limit; }
+        public Boolean getIsUnlimited() { return isUnlimited; }
+        public Boolean getIsEnabled() { return isEnabled; }
+
+        public static PlanQuotaConfigBuilder builder() {
+            return new PlanQuotaConfigBuilder();
+        }
+
+        public static class PlanQuotaConfigBuilder {
+            private PlanQuotaConfig config = new PlanQuotaConfig();
+
+            public PlanQuotaConfigBuilder quotaKey(String quotaKey) {
+                config.quotaKey = quotaKey;
+                return this;
+            }
+
+            public PlanQuotaConfigBuilder limit(Long limit) {
+                config.limit = limit;
+                return this;
+            }
+
+            public PlanQuotaConfigBuilder isUnlimited(Boolean isUnlimited) {
+                config.isUnlimited = isUnlimited;
+                return this;
+            }
+
+            public PlanQuotaConfigBuilder isEnabled(Boolean isEnabled) {
+                config.isEnabled = isEnabled;
+                return this;
+            }
+
+            public PlanQuotaConfig build() {
+                return config;
             }
         }
     }

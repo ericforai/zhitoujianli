@@ -21,7 +21,7 @@ export const headerData = {
       href: 'https://zhitoujianli.com/blog/about/#company',
     },
   ],
-  actions: [{ text: '立即体验', href: import.meta.env.SITE_URL || 'https://zhitoujianli.com/login', target: '_blank' }],
+  actions: [], // 移除"立即体验"按钮，避免菜单重叠
 };
 
 export const footerData = {
@@ -65,6 +65,6 @@ export const footerData = {
   ],
   socialLinks: [],
   footNote: `
-    智投简历 © 2024 · 让求职更智能 · <a class="text-blue-600 underline dark:text-muted" href="${import.meta.env.SITE_URL || 'https://zhitoujianli.com'}"> 返回首页</a>
+    智投简历 © 2025 · 让求职更智能 · <a class="text-blue-600 underline dark:text-muted" href="${import.meta.env.SITE_URL || 'https://zhitoujianli.com'}"> 返回首页</a>
   `,
 };

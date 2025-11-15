@@ -145,6 +145,7 @@ const RobotWorkflow = () => {
               src='/images/chat-bot.svg'
               alt='机器人'
               className='w-12 h-12'
+              loading='lazy'
             />
             <span className='text-lg font-semibold text-gray-900'>
               您的专属投递助手已就位

@@ -1,7 +1,7 @@
 # 🚀 生产环境部署检查清单
 
-**部署日期**: _____年_____月_____日  
-**部署人员**: __________________  
+**部署日期**: _____年_____月_____日
+**部署人员**: __________________
 **版本号**: v________________
 
 ---
@@ -155,7 +155,7 @@ echo -n "您的JWT_SECRET" | wc -c
 
 ```bash
 # 方式1: Git拉取
-git clone https://github.com/your-username/zhitoujianli.git
+git clone https://github.com/ericforai/zhitoujianli.git
 cd zhitoujianli
 git checkout main
 
@@ -392,6 +392,6 @@ curl http://localhost:8080/api/auth/health
 
 ---
 
-**检查清单版本**: v1.0  
-**最后更新**: 2025-10-10  
+**检查清单版本**: v1.0
+**最后更新**: 2025-10-10
 **维护团队**: ZhiTouJianLi Team

@@ -40,6 +40,12 @@ featured: true
 readingTime: 15
 metaDescription: "详解AI智能打招呼语系统：两阶段AI处理架构+隐私保护+PDF解析，HR回复率提升342%。DeepSeek API 5秒生成，成本￥0.002/次。完整技术方案、真实数据、开源代码。"
 ogImage: "/images/blog/og-ai-greeting.svg"
+metadata:
+  openGraph:
+    images:
+      - url: 'https://zhitoujianli.com/blog/images/og-share-logo.jpg'
+        width: 1200
+        height: 630
 ---
 
 ## 一、求职痛点：为什么你的简历总是石沉大海？

@@ -19,7 +19,7 @@ const BlogPage: React.FC = () => {
         ]}
       />
       <Navigation />
-      <main className='pt-16'>
+      <main className='pt-20 md:pt-16'>
         <BlogSection />
       </main>
       <Footer />

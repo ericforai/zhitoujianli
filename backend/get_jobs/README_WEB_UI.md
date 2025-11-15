@@ -108,7 +108,7 @@ get_jobs/
 ## 📞 技术支持
 
 如有问题，请查看：
-- 项目GitHub页面: https://github.com/loks666/get_jobs
+- 项目GitHub页面: https://github.com/ericforai/zhitoujianli
 - 运行日志中的错误信息
 - 系统控制台输出
 

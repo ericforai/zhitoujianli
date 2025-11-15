@@ -124,11 +124,13 @@ const Contact: React.FC<ContactProps> = ({ plan }) => {
                     src='/images/wechat-qrcode.png'
                     alt='微信二维码'
                     className='w-full h-full object-contain rounded-lg'
+                    loading='lazy'
                   />
                 </div>
-                <p className='text-gray-600 mt-4 text-sm'>
+                <p className='text-gray-600 mt-4 text-sm mb-3'>
                   添加客服微信，获取专属服务
                 </p>
+                <p className='text-gray-500 text-sm mb-3'>1小时内回复</p>
               </div>
             </div>
           </div>

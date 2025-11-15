@@ -101,6 +101,7 @@ public class SimpleSecurityConfig {
                 .requestMatchers(
                     "/api/delivery/**",                     // 投递配置接口（多租户核心）
                     "/api/candidate-resume/**",             // 简历管理接口（多租户核心）
+                    "/api/user/plan/**",                    // 用户套餐和配额接口
                     "/api/config",                          // 用户配置
                     "/api/ai-config",                       // AI配置
                     "/api/resume",                          // 简历

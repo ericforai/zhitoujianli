@@ -23,8 +23,9 @@
 
     <title>真实案例：10个用户的求职成功故事 | 智投简历博客</title>
 
-    <!-- Tailwind CSS CDN for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 本地样式，移除CDN依赖 -->
+    <link rel="stylesheet" href="/css/blog.css">
+    <link rel="stylesheet" href="/share-component.css">
 
     <style>
         body {
@@ -846,173 +847,8 @@ Offer：3（成功率6%）
         })();
     </script>
 
-    <!-- 分享功能 JavaScript -->
-    <script>
-        // 获取当前页面信息
-        const pageTitle = document.title;
-        const pageUrl = window.location.href;
-        const pageDescription = document.querySelector('meta[name="description"]').content;
-
-        // 显示消息提示
-        function showMessage(message, duration = 3000) {
-            const messageEl = document.getElementById('share-message');
-            messageEl.textContent = message;
-            messageEl.style.display = 'block';
-            setTimeout(() => {
-                messageEl.style.display = 'none';
-            }, duration);
-        }
-
-        // 分享到微信（显示二维码弹窗）
-        function shareToWechat() {
-            // 如果是微信浏览器内，提示使用原生分享
-            if (navigator.userAgent.toLowerCase().indexOf('micromessenger') > -1) {
-                showMessage('请点击右上角"..."按钮分享给朋友');
-                return;
-            }
-
-            // 显示弹窗
-            const modal = document.getElementById('wechat-modal');
-            const qrcodeImg = document.getElementById('wechat-qrcode-img');
-
-            // 使用带logo的二维码API
-            // 方案：使用qrcode-monkey API（支持logo）
-            const logoUrl = encodeURIComponent('https://www.zhitoujianli.com/images/logo.png');
-            const qrcodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(pageUrl)}&format=svg`;
-
-            // 使用canvas绘制带logo的二维码
-            generateQRCodeWithLogo(pageUrl);
-
-            // 显示弹窗
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden'; // 禁止页面滚动
-        }
-
-        // 生成带logo的二维码
-        function generateQRCodeWithLogo(url) {
-            const qrcodeImg = document.getElementById('wechat-qrcode-img');
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = 220;
-            canvas.height = 220;
-
-            // 先加载二维码
-            const qrImg = new Image();
-            qrImg.crossOrigin = 'anonymous';
-            qrImg.onload = function() {
-                // 绘制二维码
-                ctx.drawImage(qrImg, 0, 0, 220, 220);
-
-                // 加载logo
-                const logoImg = new Image();
-                logoImg.crossOrigin = 'anonymous';
-                logoImg.onload = function() {
-                    // 计算logo位置（中心）
-                    const logoSize = 45;
-                    const x = (220 - logoSize) / 2;
-                    const y = (220 - logoSize) / 2;
-
-                    // 绘制白色背景（让logo更清晰）
-                    ctx.fillStyle = 'white';
-                    ctx.fillRect(x - 3, y - 3, logoSize + 6, logoSize + 6);
-
-                    // 绘制logo
-                    ctx.drawImage(logoImg, x, y, logoSize, logoSize);
-
-                    // 将canvas转为图片
-                    qrcodeImg.src = canvas.toDataURL();
-                };
-                logoImg.onerror = function() {
-                    // logo加载失败，只显示二维码
-                    qrcodeImg.src = canvas.toDataURL();
-                };
-                logoImg.src = '/images/logo.png';
-            };
-            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(url)}`;
-        }
-
-        // 关闭微信分享弹窗
-        function closeWechatModal() {
-            const modal = document.getElementById('wechat-modal');
-            modal.classList.remove('active');
-            document.body.style.overflow = 'auto'; // 恢复页面滚动
-        }
-
-        // 从弹窗复制链接
-        function copyLinkFromModal() {
-            copyLink();
-            // 复制成功后关闭弹窗
-            setTimeout(() => {
-                closeWechatModal();
-            }, 1500);
-        }
-
-        // 点击弹窗外部关闭
-        document.addEventListener('click', function(e) {
-            const modal = document.getElementById('wechat-modal');
-            if (e.target === modal) {
-                closeWechatModal();
-            }
-        });
-
-        // 分享到微博
-        function shareToWeibo() {
-            const weiboUrl = `https://service.weibo.com/share/share.php?url=${encodeURIComponent(pageUrl)}&title=${encodeURIComponent(pageTitle + ' - ' + pageDescription)}&pic=&appkey=`;
-            window.open(weiboUrl, '_blank', 'width=600,height=400');
-            showMessage('正在打开微博分享...');
-        }
-
-        // 复制链接
-        function copyLink() {
-            // 创建临时input元素
-            const input = document.createElement('input');
-            input.value = pageUrl;
-            document.body.appendChild(input);
-            input.select();
-
-            try {
-                // 执行复制
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    showMessage('✓ 链接已复制到剪贴板！');
-                } else {
-                    // 备用方案：使用现代API
-                    if (navigator.clipboard) {
-                        navigator.clipboard.writeText(pageUrl).then(() => {
-                            showMessage('✓ 链接已复制到剪贴板！');
-                        }).catch(() => {
-                            showMessage('复制失败，请手动复制：' + pageUrl);
-                        });
-                    } else {
-                        showMessage('复制失败，请手动复制：' + pageUrl);
-                    }
-                }
-            } catch (err) {
-                // 如果浏览器不支持
-                showMessage('复制失败，请手动复制：' + pageUrl);
-            } finally {
-                document.body.removeChild(input);
-            }
-        }
-
-        // 监听键盘快捷键
-        document.addEventListener('keydown', function(e) {
-            // ESC键关闭弹窗
-            if (e.key === 'Escape') {
-                const modal = document.getElementById('wechat-modal');
-                if (modal.classList.contains('active')) {
-                    closeWechatModal();
-                }
-            }
-
-            // Ctrl+C / Cmd+C 复制链接
-            if ((e.ctrlKey || e.metaKey) && e.key === 'c' && window.getSelection().toString() === '') {
-                // 如果没有选中任何文本，且按下Ctrl+C，则复制链接
-                e.preventDefault();
-                copyLink();
-            }
-        });
-    </script>
+    <!-- 分享组件：统一外部脚本 -->
+    <script src="/share-component.js"></script>
 
 </body>
 </html>

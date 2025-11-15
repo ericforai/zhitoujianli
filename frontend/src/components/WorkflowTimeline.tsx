@@ -90,10 +90,20 @@ const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({ steps }) => {
           <React.Fragment key={step.id}>
             {/* 步骤卡片 */}
             <div
-              className={`w-64 ${getStepClasses(step)}`}
+              className={`w-64 relative ${getStepClasses(step)}`}
               onClick={() => handleStepClick(step)}
               title={step.disabled ? '此步骤暂时不可用' : step.description}
             >
+              {/* 视觉焦点引导：为"启动投递"步骤添加动画提示点 */}
+              {step.id === 'start' && step.status === 'active' && (
+                <div className='absolute -top-2 -right-2'>
+                  <span className='flex h-4 w-4'>
+                    <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75'></span>
+                    <span className='relative inline-flex rounded-full h-4 w-4 bg-blue-500'></span>
+                  </span>
+                </div>
+              )}
+
               {/* 步骤图标 */}
               <div className={getStepIconClasses(step)}>
                 {step.status === 'completed' ? '✓' : step.icon}
@@ -148,10 +158,20 @@ const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({ steps }) => {
           <React.Fragment key={step.id}>
             {/* 步骤卡片 */}
             <div
-              className={`w-full ${getStepClasses(step)}`}
+              className={`w-full relative ${getStepClasses(step)}`}
               onClick={() => handleStepClick(step)}
               title={step.disabled ? '此步骤暂时不可用' : step.description}
             >
+              {/* 视觉焦点引导：为"启动投递"步骤添加动画提示点 */}
+              {step.id === 'start' && step.status === 'active' && (
+                <div className='absolute -top-2 -right-2'>
+                  <span className='flex h-4 w-4'>
+                    <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75'></span>
+                    <span className='relative inline-flex rounded-full h-4 w-4 bg-blue-500'></span>
+                  </span>
+                </div>
+              )}
+
               <div className='flex items-center space-x-4'>
                 {/* 步骤图标 */}
                 <div className={getStepIconClasses(step)}>

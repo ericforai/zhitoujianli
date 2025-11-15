@@ -1,0 +1,14 @@
+{
+  "summary": "资深增长负责人，擅长AIGC营销与渠道增长，过往主导项目营收增长。",
+  "skills": [
+    { "name": "AIGC", "level": "advanced" },
+    { "name": "SEO", "level": "advanced" },
+    { "name": "增长分析", "level": "advanced" }
+  ],
+  "experiences": [{ "bullets": ["负责品牌增长策略，实现转化率+38%", "搭建多渠道内容矩阵，UV增长2.3倍"] }],
+  "projects": [{ "bullets": ["主导智能投递系统上线，用户留存+21%"] }],
+  "atsKeywords": ["AIGC", "SEO", "转化率", "增长", "渠道"],
+  "html": "<div><h2>姓名 - 目标职位</h2><h3>概要</h3><p>资深增长负责人，擅长AIGC营销与渠道增长。</p><h3>技能</h3><ul><li>AIGC（高级）</li><li>SEO（高级）</li></ul><h3>经历</h3><ul><li>负责增长策略，实现转化率+38%</li></ul></div>",
+  "score": 82
+}
+

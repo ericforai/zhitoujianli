@@ -154,6 +154,12 @@ public class WebController {
      * ⚠️ 重要：必须使用ProcessManagerService管理进程，防止多进程运行
      * DO NOT MODIFY: 进程管理逻辑，必须通过ProcessManagerService确保单用户单进程
      */
+    @annotation.CheckPlanPermission(
+        quotaKey = "daily_job_application",
+        amount = 1,
+        checkBefore = true,
+        message = "每日投递次数已用完，请明天再试或升级套餐"
+    )
     @PostMapping("/start-boss-task")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> startBossTask() {

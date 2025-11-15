@@ -14,13 +14,16 @@ const {
 } = Astro.props;
 ---
 
-<section class="bg-light border border-subtle not-prose">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 text-center">
-    <div class="flex items-center justify-center space-x-3 text-default">
-      <Icon name={icon} class="w-5 h-5 text-primary flex-shrink-0" />
-      <div class="text-base font-medium">
-        <span class="font-semibold text-primary" set:html={title} />
-        <span class="text-muted ml-2" set:html={description} />
+<section class="not-prose relative">
+  <!-- 🎨 与主网站一致的半透明背景 -->
+  <div class="bg-white/60 backdrop-blur-sm border-b border-gray-200/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 text-center">
+      <div class="flex items-center justify-center space-x-3 text-default">
+        <Icon name={icon} class="w-5 h-5 text-primary flex-shrink-0" />
+        <div class="text-base font-medium">
+          <span class="font-semibold text-primary" set:html={title} />
+          <span class="text-muted ml-2" set:html={description} />
+        </div>
       </div>
     </div>
   </div>

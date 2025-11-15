@@ -602,9 +602,9 @@ curl http://localhost:8080/actuator/metrics/hikaricp.connections.active
 ## 技术支持
 
 如有问题，请联系：
-- 📧 Email: support@zhitoujianli.com
-- 📚 文档: https://github.com/zhitoujianli/docs
-- 🐛 Bug报告: https://github.com/zhitoujianli/issues
+- 📧 Email: zhitoujianli@qq.com
+- 📚 文档: https://github.com/ericforai/zhitoujianli
+- 🐛 Bug报告: https://github.com/ericforai/zhitoujianli/issues
 
 ---
 

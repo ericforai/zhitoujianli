@@ -33,6 +33,12 @@ structuredData: |
     "description": "深入解析AI简历解析技术原理，了解AI如何自动提取简历信息",
     "keywords": "简历解析技术,AI简历解析,PDF解析,简历信息提取"
   }
+metadata:
+  openGraph:
+    images:
+      - url: 'https://zhitoujianli.com/blog/images/og-share-logo.jpg'
+        width: 1200
+        height: 630
 ---
 
 # 简历解析技术：AI如何读懂你的简历

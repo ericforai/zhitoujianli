@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BossStatus, bossService } from '../services/bossService';
+import { usePlan } from '../contexts/PlanContext';
 
 /**
  * Boss投递控制Hook
@@ -10,6 +11,7 @@ import { BossStatus, bossService } from '../services/bossService';
  */
 
 export const useBossDelivery = () => {
+  const { hasPermission, refreshQuota } = usePlan();
   const [status, setStatus] = useState<BossStatus>({ isRunning: false });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -48,6 +50,13 @@ export const useBossDelivery = () => {
 
   // 启动投递任务
   const handleStart = async () => {
+    // 检查配额
+    const canSubmit = hasPermission('daily_job_application', 1);
+    if (!canSubmit) {
+      setMessage('⚠️ 今日投递次数已用完，请明天再试或升级套餐');
+      return;
+    }
+
     setLoading(true);
     setMessage('');
 
@@ -64,6 +73,8 @@ export const useBossDelivery = () => {
       const result = await response.json();
       if (result.success) {
         setMessage('Boss投递任务启动成功！开始自动投递简历...');
+        // 刷新配额显示
+        await refreshQuota();
         // 立即刷新状态
         setTimeout(() => {
           fetchStatus();
@@ -72,7 +83,14 @@ export const useBossDelivery = () => {
         setMessage(`启动失败: ${result.message}`);
       }
     } catch (error: any) {
-      setMessage(`启动失败: ${error.message}`);
+      const errorMessage = error.message || '未知错误';
+
+      // 检查是否是配额不足错误
+      if (errorMessage.includes('配额') || errorMessage.includes('次数')) {
+        setMessage(`⚠️ ${errorMessage}，请升级套餐或明天再试`);
+      } else {
+        setMessage(`启动失败: ${errorMessage}`);
+      }
     } finally {
       setLoading(false);
     }

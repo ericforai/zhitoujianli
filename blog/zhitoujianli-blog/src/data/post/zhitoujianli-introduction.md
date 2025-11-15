@@ -100,7 +100,7 @@ structuredData: |
 
 如果您有任何问题或建议，欢迎通过以下方式联系我们：
 
-- 邮箱：contact@zhitoujianli.com
+- 邮箱：zhitoujianli@qq.com
 - 微信：zhitoujianli
 - 官网：https://zhitoujianli.com
 

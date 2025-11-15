@@ -320,7 +320,7 @@ cat ~/.ssh/zhitoujianli_deploy | xclip -selection clipboard
 
 ### 4.1 进入 GitHub 仓库设置
 
-1. 打开浏览器，访问：`https://github.com/YOUR_USERNAME/zhitoujianli`
+1. 打开浏览器，访问：`https://github.com/ericforai/zhitoujianli`
 2. 点击 `Settings` 标签
 3. 左侧菜单选择 `Secrets and variables` → `Actions`
 4. 点击 `New repository secret` 按钮
@@ -723,7 +723,7 @@ curl -H "Origin: https://www.zhitoujianli.com" -I https://zhitoujianli.com/api/
 
 4. **联系支持**
    - GitHub Issues: 项目 Issues 页面
-   - 邮件: support@zhitoujianli.com
+   - 邮件: zhitoujianli@qq.com
 
 ---
 

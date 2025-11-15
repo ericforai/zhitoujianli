@@ -693,7 +693,7 @@ sudo tar -czf /backup/www-$(date +%Y%m%d).tar.gz /var/www/zhitoujianli/
 
 - **GitHub Issues**: [项目 Issues 页面]
 - **文档**: [项目文档]
-- **邮件**: support@zhitoujianli.com
+- **邮件**: zhitoujianli@qq.com
 
 ---
 

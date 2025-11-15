@@ -7,10 +7,13 @@
 import xml.etree.ElementTree as ET
 from datetime import datetime
 
-# 文件路径
-MAIN_SITEMAP = "/root/zhitoujianli/frontend/public/sitemap-main.xml"
-BLOG_SITEMAP = "/root/zhitoujianli/blog/zhitoujianli-blog/dist/sitemap-0.xml"
-OUTPUT_SITEMAP = "/root/zhitoujianli/frontend/public/sitemap.xml"
+# 文件路径（使用仓库根相对路径，提升可移植性）
+from pathlib import Path
+ROOT_DIR = Path(__file__).resolve().parents[1]
+# 默认主站/博客 sitemap 路径（若不存在博客文件则仅合并主站）
+MAIN_SITEMAP = str((ROOT_DIR / "frontend/public/sitemap.xml").resolve())
+BLOG_SITEMAP = str((ROOT_DIR / "frontend/public/blog-sitemap.xml").resolve())
+OUTPUT_SITEMAP = str((ROOT_DIR / "frontend/public/sitemap.xml").resolve())
 
 # XML命名空间
 NS = {'sitemap': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
@@ -61,26 +64,27 @@ except Exception as e:
     print(f"✗ 读取主站sitemap失败: {e}")
     exit(1)
 
-# 3. 添加博客URL
+# 3. 添加博客URL（可选存在）
 print("正在合并博客sitemap...")
+blog_urls = []
 try:
-    blog_tree = ET.parse(BLOG_SITEMAP)
-    blog_root = blog_tree.getroot()
-
-    # 处理不同命名空间
-    blog_urls = blog_root.findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}url')
-
-    # 添加注释
-    comment_blog = ET.Comment(' 博客页面 ')
-    urlset.append(comment_blog)
-
-    for url in blog_urls:
-        urlset.append(url)
-
-    print(f"✓ 添加了 {len(blog_urls)} 个博客URL")
+    blog_path = Path(BLOG_SITEMAP)
+    if blog_path.exists():
+        blog_tree = ET.parse(BLOG_SITEMAP)
+        blog_root = blog_tree.getroot()
+        # 处理不同命名空间
+        blog_urls = blog_root.findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}url')
+        # 添加注释
+        comment_blog = ET.Comment(' 博客页面 ')
+        urlset.append(comment_blog)
+        for url in blog_urls:
+            urlset.append(url)
+        print(f"✓ 添加了 {len(blog_urls)} 个博客URL")
+    else:
+        print(f"⚠ 未找到博客sitemap: {BLOG_SITEMAP}，本次仅合并主站。")
 except Exception as e:
     print(f"✗ 读取博客sitemap失败: {e}")
-    exit(1)
+    # 不强退，保留主站URL
 
 # 4. 美化XML格式
 indent_xml(urlset)

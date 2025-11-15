@@ -369,11 +369,11 @@ docker-compose -f volcano-deployment.yml restart nginx
 
 - 查看项目文档：`docs/` 目录
 - 提交Issue：https://github.com/ericforai/zhitoujianli/issues
-- 联系技术支持：support@zhitoujianli.com
+- 联系技术支持：zhitoujianli@qq.com
 
 ---
 
-**文档版本**: v1.0  
-**创建时间**: 2025-01-27  
+**文档版本**: v1.0
+**创建时间**: 2025-01-27
 **维护团队**: ZhiTouJianLi Development Team
 

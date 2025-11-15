@@ -43,6 +43,70 @@ cp -r build /usr/share/nginx/html/
 6. 重启服务：`systemctl restart zhitoujianli-backend.service`
 7. 验证：`systemctl status zhitoujianli-backend.service`
 
+### 博客部署规则（最高优先级 - 2025-11-14新增）
+
+**❌ 绝对禁止的操作：**
+```bash
+# ❌ 禁止！不要使用frontend/public/blog/中的任何文件
+cp /root/zhitoujianli/frontend/public/blog/* /var/www/zhitoujianli/blog/
+
+# ❌ 禁止！不要手动复制静态HTML文件
+cp /root/zhitoujianli/frontend/public/blog/index.html /var/www/zhitoujianli/blog/
+
+# ❌ 禁止！不要使用错误的源目录
+cp -r frontend/public/blog/* /var/www/zhitoujianli/blog/
+```
+
+**✅ 必须使用自动化脚本：**
+```bash
+# ✅ 唯一正确的博客部署方式（在项目根目录）
+./scripts/deploy-blog.sh
+
+# 或者完整路径
+/root/zhitoujianli/scripts/deploy-blog.sh
+```
+
+**博客部署流程检查清单：**
+1. 修改博客代码（在 `blog/zhitoujianli-blog/src/` 目录）
+2. 执行 `./scripts/deploy-blog.sh`（自动构建+部署）
+3. 脚本会自动：
+   - 检查构建输出是否存在
+   - 如果不存在，自动构建Astro博客
+   - 备份现有部署
+   - 从正确的源目录部署：`blog/zhitoujianli-blog/dist/`
+   - 验证部署文件大小（确保是Astro构建的56KB文件，不是9.7KB的静态HTML）
+   - 设置正确的文件权限
+4. 等待脚本完成
+5. 验证部署成功（访问 https://zhitoujianli.com/blog/）
+
+**重要路径（必须记住）：**
+```yaml
+博客源代码: /root/zhitoujianli/blog/zhitoujianli-blog/src/
+博客构建输出: /root/zhitoujianli/blog/zhitoujianli-blog/dist/  # ← 唯一正确的部署源
+博客部署路径: /var/www/zhitoujianli/blog/  # ← Nginx配置的路径
+博客部署脚本: /root/zhitoujianli/scripts/deploy-blog.sh  # ← 唯一正确的部署方式
+
+# ❌ 错误的路径（永远不要使用）：
+错误静态HTML: /root/zhitoujianli/frontend/public/blog/  # ← 已删除，不要使用
+```
+
+**博客部署验证标准：**
+- ✅ 部署后的 `index.html` 文件大小应该 ≥ 50KB（Astro构建的完整应用）
+- ❌ 如果文件大小 < 20KB，说明部署了错误的静态HTML文件
+- ✅ 部署脚本会自动验证文件大小并警告
+
+**历史教训（2025-11-14修复）：**
+1. **错误原因**：之前错误地将 `frontend/public/blog/index.html`（9.7KB静态HTML）部署到了生产环境
+2. **正确文件**：应该使用 `blog/zhitoujianli-blog/dist/index.html`（56KB Astro应用）
+3. **解决方案**：
+   - 已删除错误的静态HTML文件
+   - 创建了自动化部署脚本 `deploy-blog.sh`
+   - 脚本自动验证部署文件大小，确保正确
+4. **防护措施**：
+   - 永远不要使用 `frontend/public/blog/` 中的文件
+   - 永远使用 `./scripts/deploy-blog.sh` 部署博客
+   - 部署脚本会自动验证，确保是Astro构建的文件
+
 ### 重要路径（必须记住）
 
 ```yaml
@@ -52,6 +116,12 @@ cp -r build /usr/share/nginx/html/
 后端JAR路径: /opt/zhitoujianli/backend/
 环境变量文件: /etc/zhitoujianli/backend.env
 部署脚本: /opt/zhitoujianli/scripts/
+
+# 博客部署路径（2025-11-14新增）
+博客源代码: /root/zhitoujianli/blog/zhitoujianli-blog/src/
+博客构建输出: /root/zhitoujianli/blog/zhitoujianli-blog/dist/  # ← 唯一正确的部署源
+博客部署路径: /var/www/zhitoujianli/blog/  # ← Nginx配置的路径
+博客部署脚本: /root/zhitoujianli/scripts/deploy-blog.sh  # ← 唯一正确的部署方式
 ```
 
 ## 🔧 开发规则
@@ -79,6 +149,16 @@ mvn clean package -DskipTests
 # TODO: 创建后端部署脚本
 ```
 
+**博客修改：**
+```bash
+# 1. 修改博客代码（在 blog/zhitoujianli-blog/src/ 目录）
+# 2. 部署（使用自动化脚本，会自动构建）
+cd /root/zhitoujianli
+./scripts/deploy-blog.sh
+
+# 3. 验证部署成功（访问 https://zhitoujianli.com/blog/）
+```
+
 ## 🚫 绝对禁止的操作
 
 1. **❌ 禁止手动复制文件到 /usr/share/nginx/html/**
@@ -86,6 +166,8 @@ mvn clean package -DskipTests
 3. **❌ 禁止使用 default_user 进行任何操作**
 4. **❌ 禁止跳过 systemctl daemon-reload**
 5. **❌ 禁止在未验证的情况下重启生产服务**
+6. **❌ 禁止使用 frontend/public/blog/ 中的文件部署博客**
+7. **❌ 禁止手动复制博客文件，必须使用 ./scripts/deploy-blog.sh**
 
 ## ✅ 必须执行的检查
 
@@ -126,6 +208,19 @@ mvn clean package -DskipTests
 2. 查看日志 `journalctl -u zhitoujianli-backend.service -n 50`
 3. 检查端口占用 `lsof -i:8080`
 4. 验证环境变量文件存在
+
+**当用户说"部署博客"时，我必须：**
+1. 执行 `./scripts/deploy-blog.sh`
+2. **不是**手动复制文件
+3. **不是**使用 `frontend/public/blog/` 中的文件
+4. **不是**询问用户路径
+5. 自动化脚本会处理一切（构建、验证、部署）
+
+**当用户报告"博客页面显示错误"时，我必须：**
+1. 首先检查部署的文件大小：`ls -lh /var/www/zhitoujianli/blog/index.html`
+2. 如果文件 < 20KB，说明部署了错误的静态HTML，需要重新部署
+3. 验证部署源是否正确：`ls -lh /root/zhitoujianli/blog/zhitoujianli-blog/dist/index.html`
+4. 使用 `./scripts/deploy-blog.sh` 重新部署
 
 ## 📚 参考文档
 

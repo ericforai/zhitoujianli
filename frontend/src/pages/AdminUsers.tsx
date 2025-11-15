@@ -20,6 +20,8 @@ interface User {
   planType?: string;
 }
 
+type PlanType = 'FREE' | 'BASIC' | 'PROFESSIONAL';
+
 const AdminUsers: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,6 +89,82 @@ const AdminUsers: React.FC = () => {
     }
   };
 
+  // 升级用户套餐
+  const handleUpgradePlan = async (user: User) => {
+    const userId = user.userId || user.id;
+    const currentPlan = user.planType || 'FREE';
+
+    // 选择目标套餐
+    const planOptions = ['FREE', 'BASIC', 'PROFESSIONAL'];
+    const planNames = {
+      FREE: '求职入门版（免费）',
+      BASIC: '高效求职版（¥49/月）',
+      PROFESSIONAL: '极速上岸版（¥99/月）',
+    };
+
+    let optionsText = '请选择目标套餐：\n\n';
+    planOptions.forEach((plan, index) => {
+      const current = plan === currentPlan ? ' ← 当前套餐' : '';
+      optionsText += `${index + 1}. ${planNames[plan as PlanType]}${current}\n`;
+    });
+    optionsText += '\n请输入数字（1-3）：';
+
+    const choice = prompt(optionsText);
+    if (!choice) return;
+
+    const choiceNum = parseInt(choice);
+    if (choiceNum < 1 || choiceNum > 3) {
+      alert('无效的选择');
+      return;
+    }
+
+    const targetPlan = planOptions[choiceNum - 1];
+
+    if (targetPlan === currentPlan) {
+      alert('用户已经是该套餐');
+      return;
+    }
+
+    if (!confirm(`确定要将用户 ${user.email} 的套餐从 ${planNames[currentPlan as PlanType]} 改为 ${planNames[targetPlan as PlanType]} 吗？`)) {
+      return;
+    }
+
+    try {
+      setUpdatingUserId(String(userId));
+      const token = localStorage.getItem('authToken');
+
+      const response = await fetch(
+        `${config.apiBaseUrl}/admin/users/${userId}/plan`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            planType: targetPlan,
+            // endDate 设置为 null 表示永不过期
+            endDate: null,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert(`套餐升级成功！\n用户：${user.email}\n新套餐：${planNames[targetPlan as PlanType]}`);
+        await fetchUsers(); // 重新加载用户列表
+      } else {
+        alert('升级失败: ' + result.message);
+      }
+    } catch (err: any) {
+      console.error('升级用户套餐失败:', err);
+      alert('操作失败: ' + err.message);
+    } finally {
+      setUpdatingUserId(null);
+    }
+  };
+
   // 删除用户
   const handleDeleteUser = async (user: User) => {
     const userId = user.userId || user.id;
@@ -101,7 +179,13 @@ const AdminUsers: React.FC = () => {
       setUpdatingUserId(String(userId));
       const token = localStorage.getItem('authToken');
 
-      console.log('🗑️ 删除用户:', { userId, email: user.email, reason });
+      console.log('🗑️ 删除用户:', {
+        userId,
+        email: user.email,
+        reason,
+        apiUrl: `${config.apiBaseUrl}/admin/users/${userId}`,
+        hasToken: !!token,
+      });
 
       const response = await fetch(
         `${config.apiBaseUrl}/admin/users/${userId}`,
@@ -117,6 +201,16 @@ const AdminUsers: React.FC = () => {
         }
       );
 
+      console.log('📡 删除响应状态:', response.status, response.statusText);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ 删除请求失败:', errorText);
+        alert(`删除失败 (HTTP ${response.status}): ${errorText}`);
+        setUpdatingUserId(null);
+        return;
+      }
+
       const result = await response.json();
       console.log('✅ 删除响应:', result);
 
@@ -124,11 +218,11 @@ const AdminUsers: React.FC = () => {
         alert('用户已删除');
         await fetchUsers(); // 重新加载用户列表
       } else {
-        alert('删除失败: ' + result.message);
+        alert('删除失败: ' + (result.message || '未知错误'));
       }
     } catch (err: any) {
-      console.error('删除用户失败:', err);
-      alert('删除失败: ' + err.message);
+      console.error('❌ 删除用户异常:', err);
+      alert('删除失败: ' + (err.message || '网络错误'));
     } finally {
       setUpdatingUserId(null);
     }
@@ -250,6 +344,16 @@ const AdminUsers: React.FC = () => {
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
                     <div className='flex items-center gap-2'>
+                      <button
+                        onClick={() => handleUpgradePlan(user)}
+                        disabled={
+                          updatingUserId === String(user.userId || user.id)
+                        }
+                        className='px-3 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-md text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                        title='升级/更改用户套餐'
+                      >
+                        升级套餐
+                      </button>
                       <button
                         onClick={() =>
                           handleToggleUserStatus(

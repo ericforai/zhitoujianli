@@ -750,7 +750,7 @@ curl -s http://localhost:8080/api/auth/health
 ## 联系方式
 
 技术支持：
-- 运维团队邮箱：ops@zhitoujianli.com
+- 运维团队邮箱：zhitoujianli@qq.com
 - 紧急联系电话：138-xxxx-xxxx
 - 技术文档：https://docs.zhitoujianli.com/ops
 

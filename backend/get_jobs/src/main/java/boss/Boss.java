@@ -58,7 +58,7 @@ import utils.PlaywrightUtil;
 /**
  * @author loks666
  * 项目链接: <a href=
- * "https://github.com/loks666/get_jobs">https://github.com/loks666/get_jobs</a>
+ * "https://github.com/ericforai/zhitoujianli">https://github.com/ericforai/zhitoujianli</a>
  * Boss直聘自动投递
  */
 public class Boss {
@@ -334,6 +334,22 @@ public class Boss {
                         log.warn("【{}】第{}个岗位：无法获取岗位名称，跳过", keyword, i + 1);
                         continue;
                     }
+
+                    // 🔧 【优先级1】二次关键词匹配检查：确保岗位名称包含用户设置的关键词之一
+                    // 注意：必须在黑名单检查之前，否则"销售总监"会被黑名单直接过滤掉
+                    boolean keywordMatched = false;
+                    for (String userKeyword : this.config.getKeywords()) {
+                        if (jobName.contains(userKeyword)) {
+                            keywordMatched = true;
+                            break;
+                        }
+                    }
+                    if (!keywordMatched) {
+                        log.info("【{}】第{}个岗位：{}不包含任何用户设置的关键词，跳过（Boss搜索匹配不准确）", keyword, i + 1, jobName);
+                        continue;
+                    }
+
+                    // 🔧 【优先级2】黑名单检查
                     if (blackJobs.stream().anyMatch(jobName::contains)) {
                         log.info("【{}】第{}个岗位：{}在黑名单中，跳过", keyword, i + 1, jobName);
                         continue;
@@ -1534,17 +1550,24 @@ public class Boss {
         String defaultGreeting = this.config.getDefaultGreeting();
         String sayHi = (defaultGreeting != null ? defaultGreeting : "").replaceAll("[\\r\\n]", "");
 
+        log.info("【打招呼语】开始生成打招呼语，岗位: {}", job.getJobName());
+
         // 检查是否启用智能打招呼
         if (config.getEnableSmartGreeting() == null || !config.getEnableSmartGreeting()) {
-            log.info("【打招呼语】智能打招呼未启用，使用默认招呼语");
+            log.info("【打招呼语】智能打招呼未启用（enableSmartGreeting={}），使用默认招呼语",
+                config.getEnableSmartGreeting());
             return sayHi;
         }
+
+        log.info("【打招呼语】✅ 智能打招呼已启用，开始生成个性化打招呼语");
 
         // 支持多种用户ID格式和文件名（candidate_resume.json优先）
         // 获取用户ID（优先级：系统属性 > 环境变量）
         String userId = System.getProperty("boss.user.id");
+        String userIdSource = "系统属性(boss.user.id)";
         if (userId == null || userId.isEmpty()) {
             userId = System.getenv("BOSS_USER_ID");
+            userIdSource = "环境变量(BOSS_USER_ID)";
         }
         if (userId == null || userId.isEmpty()) {
             // ❌ 不再使用default_user fallback（多租户隔离要求）
@@ -1552,6 +1575,7 @@ public class Boss {
             log.warn("【打招呼语】降级使用默认招呼语");
             return sayHi; // 直接返回默认打招呼语，不尝试读取简历
         }
+        log.info("【打招呼语】✅ 获取到用户ID: {} (来源: {})", userId, userIdSource);
 
         // 修复用户ID转换逻辑：luwenrong123_sina_com -> luwenrong123@sina.com
         // 策略：将最后一个_com替换为.com，将倒数第二个_替换为@
@@ -1592,9 +1616,10 @@ public class Boss {
 
         File resumeFile = null;
         String resumePath = null;
+        log.info("【打招呼语】开始查找简历文件，用户ID: {}, 邮箱格式: {}", userId, emailUserId);
         for (String path : possiblePaths) {
             File file = new File(path);
-            log.debug("【打招呼语】尝试路径: {} (绝对路径: {}, 存在: {})",
+            log.info("【打招呼语】尝试路径: {} (绝对路径: {}, 存在: {})",
                 path, file.getAbsolutePath(), file.exists());
             if (file.exists()) {
                 resumeFile = file;
@@ -1633,7 +1658,18 @@ public class Boss {
                 candidate.get("core_strengths") != null ? ((List<?>)candidate.get("core_strengths")).size() : 0
             );
 
+            // 检查完整JD是否为空
+            if (fullJobDescription == null || fullJobDescription.trim().isEmpty()) {
+                log.warn("【智能打招呼】⚠️ 完整JD为空，无法生成个性化打招呼语，使用默认招呼语");
+                log.warn("【智能打招呼】JD长度: {}, 岗位: {}",
+                    fullJobDescription != null ? fullJobDescription.length() : 0, job.getJobName());
+                return sayHi;
+            }
+            log.info("【智能打招呼】完整JD已获取，长度: {}字", fullJobDescription.length());
+
             // 使用完整JD生成智能打招呼语
+            log.info("【智能打招呼】开始调用AI生成，岗位: {}, JD长度: {}字",
+                job.getJobName(), fullJobDescription.length());
             String smartGreeting = SmartGreetingService.generateSmartGreeting(
                 candidate,
                 job.getJobName(),
@@ -1641,15 +1677,23 @@ public class Boss {
             );
 
             if (smartGreeting != null && !smartGreeting.trim().isEmpty()) {
-                log.info("【智能打招呼】成功生成，长度: {}字", smartGreeting.length());
+                log.info("【智能打招呼】✅ 成功生成，长度: {}字，内容预览: {}",
+                    smartGreeting.length(),
+                    smartGreeting.length() > 50 ? smartGreeting.substring(0, 50) + "..." : smartGreeting);
                 return smartGreeting;
             } else {
-                log.warn("【智能打招呼】生成失败或超时，使用默认招呼语");
+                log.warn("【智能打招呼】❌ 生成失败或超时（返回null或空字符串），使用默认招呼语");
+                log.warn("【智能打招呼】可能原因: 1) AI服务超时 2) AI服务返回空响应 3) 网络连接问题");
                 return sayHi;
             }
 
         } catch (Exception e) {
-            log.error("【智能打招呼】异常，使用默认招呼语: {}", e.getMessage(), e);
+            log.error("【智能打招呼】❌ 生成过程发生异常，使用默认招呼语", e);
+            log.error("【智能打招呼】异常类型: {}, 异常消息: {}",
+                e.getClass().getSimpleName(), e.getMessage());
+            if (e.getCause() != null) {
+                log.error("【智能打招呼】根本原因: {}", e.getCause().getMessage());
+            }
             return sayHi;
         }
     }
@@ -1662,8 +1706,13 @@ public class Boss {
         try {
             StringBuilder fullJD = new StringBuilder();
 
-            // 等待岗位详情区域加载
-            detailPage.waitForSelector("div.job-detail-section", new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(5000));
+            // 等待岗位详情区域加载 - 增加超时时间到15秒，提高成功率
+            try {
+                detailPage.waitForSelector("div.job-detail-section", new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(15000));
+            } catch (Exception e) {
+                log.warn("【完整JD】等待job-detail-section超时，尝试继续抓取: {}", e.getMessage());
+                // 即使超时也继续尝试抓取，可能页面结构不同
+            }
 
             // 抓取所有岗位详情文本块
             Locator jobDetailSections = detailPage.locator("div.job-sec-text");
@@ -1682,23 +1731,34 @@ public class Boss {
             if (fullJD.length() == 0) {
                 log.warn("【完整JD】未找到job-sec-text，尝试备用选择器");
 
-                // 备用选择器1: 职位描述区域
-                Locator jobDescArea = detailPage.locator("div.job-detail-content");
-                if (jobDescArea.count() > 0) {
-                    String desc = jobDescArea.first().textContent();
-                    if (desc != null && !desc.trim().isEmpty()) {
-                        fullJD.append(desc.trim());
-                    }
-                }
+                // 备用选择器列表（按优先级排序）
+                String[] fallbackSelectors = {
+                    "div.job-detail-content",      // 备用选择器1: 职位描述区域
+                    "div.job-detail-section",      // 备用选择器2: 整个详情区域
+                    ".job-sec",                    // 备用选择器3: 简化选择器
+                    "[class*='job-detail']",       // 备用选择器4: 包含job-detail的class
+                    "[class*='job-sec']"           // 备用选择器5: 包含job-sec的class
+                };
 
-                // 备用选择器2: 整个详情区域
-                if (fullJD.length() == 0) {
-                    Locator wholeDetailArea = detailPage.locator("div.job-detail-section");
-                    if (wholeDetailArea.count() > 0) {
-                        String allText = wholeDetailArea.first().textContent();
-                        if (allText != null && !allText.trim().isEmpty()) {
-                            fullJD.append(allText.trim());
+                for (String selector : fallbackSelectors) {
+                    try {
+                        Locator locator = detailPage.locator(selector);
+                        int count = locator.count();
+                        if (count > 0) {
+                            log.info("【完整JD】备用选择器找到内容: {} ({}个元素)", selector, count);
+                            for (int i = 0; i < count; i++) {
+                                String text = locator.nth(i).textContent();
+                                if (text != null && !text.trim().isEmpty()) {
+                                    fullJD.append(text.trim()).append("%n%n");
+                                }
+                            }
+                            if (fullJD.length() > 0) {
+                                log.info("【完整JD】✅ 使用备用选择器 {} 成功抓取", selector);
+                                break;
+                            }
                         }
+                    } catch (Exception e) {
+                        log.debug("【完整JD】备用选择器 {} 失败: {}", selector, e.getMessage());
                     }
                 }
             }
@@ -1706,15 +1766,21 @@ public class Boss {
             String result = fullJD.toString().trim();
 
             if (result.isEmpty()) {
-                log.warn("【完整JD】未能抓取到任何岗位描述内容");
+                log.warn("【完整JD】⚠️ 未能抓取到任何岗位描述内容");
+                log.warn("【完整JD】已尝试的选择器: div.job-sec-text, div.job-detail-content, div.job-detail-section");
+                log.warn("【完整JD】这可能导致智能打招呼语无法生成，将使用默认打招呼语");
                 return "";
             }
 
-            log.info("【完整JD】抓取成功，总长度: {}字", result.length());
+            log.info("【完整JD】✅ 抓取成功，总长度: {}字", result.length());
+            if (result.length() < 50) {
+                log.warn("【完整JD】⚠️ JD内容较短（{}字），可能不完整", result.length());
+            }
             return result;
 
         } catch (Exception e) {
-            log.error("【完整JD】抓取失败: {}", e.getMessage());
+            log.error("【完整JD】❌ 抓取失败: {}", e.getMessage(), e);
+            log.error("【完整JD】异常类型: {}, 这可能导致智能打招呼语无法生成", e.getClass().getSimpleName());
             return "";
         }
     }
@@ -2395,6 +2461,10 @@ public class Boss {
             long startTime = System.currentTimeMillis();
             final long TIMEOUT = 15 * 60 * 1000; // 从10分钟改为15分钟
 
+            // ✅ 修复：跟踪Cookie数量变化（用于检测手机端扫码后的进度）
+            // 使用外部变量记录上次的Cookie数量，避免每次循环重新初始化
+            final int[] previousCookieCountRef = new int[]{0}; // 初始值为0，第一次检测时会被更新
+
             while (!login) {
                 // 判断是否超时
                 long elapsed = System.currentTimeMillis() - startTime;
@@ -2422,7 +2492,25 @@ public class Boss {
                     // 每10次循环输出一次详细信息（避免日志过多）
                     long elapsedSeconds = (System.currentTimeMillis() - startTime) / 1000;
                     if (elapsedSeconds % 10 == 0) {
-                        log.info("🔍 登录检测 - URL: {}, Cookie数量: {}, 已等待: {}秒", currentUrl, cookies.size(), elapsedSeconds);
+                        // ✅ 改进：跟踪Cookie数量变化（用于检测手机端扫码后的进度）
+                        int currentCookieCount = cookies.size();
+                        boolean cookieCountIncreased = false;
+                        String cookieChangeHint = "";
+
+                        // 检测Cookie数量变化（手机端扫码后Cookie数量可能会增加）
+                        if (previousCookieCountRef[0] > 0 && currentCookieCount > previousCookieCountRef[0]) {
+                            cookieCountIncreased = true;
+                            cookieChangeHint = String.format("（⚠️ Cookie数量从%d个增加到%d个，可能正在登录中...）",
+                                previousCookieCountRef[0], currentCookieCount);
+                        }
+
+                        log.info("🔍 登录检测 - URL: {}, Cookie数量: {}, 已等待: {}秒{}",
+                            currentUrl, currentCookieCount, elapsedSeconds, cookieChangeHint);
+
+                        // 更新Cookie数量记录（只在第一次或数量变化时更新）
+                        if (previousCookieCountRef[0] == 0 || currentCookieCount != previousCookieCountRef[0]) {
+                            previousCookieCountRef[0] = currentCookieCount;
+                        }
 
                         // 输出所有Cookie名称（诊断模式）
                         if (elapsedSeconds % 30 == 0) {
@@ -2438,6 +2526,11 @@ public class Boss {
                             log.info("   ✅ 发现关键Cookie: wt2={}, geek_zp_token={}", hasWt2, hasGeekToken);
                         } else {
                             log.warn("   ❌ 未发现登录Cookie (wt2/geek_zp_token)");
+                            // ✅ 新增：手机端扫码提示
+                            if (elapsedSeconds >= 30 && elapsedSeconds % 60 == 0) {
+                                log.info("   💡 提示：如果您已在手机上扫码并确认登录，请稍等片刻，系统正在检测Cookie...");
+                                log.info("   💡 如果长时间未响应，系统会在60秒后自动刷新页面以同步Cookie");
+                            }
                         }
                     }
 
@@ -2487,11 +2580,89 @@ public class Boss {
                             log.info("   🍪 Cookie详情 - wt2: ✓, geek_zp_token: {}, _uab_collina: {}, 总数: {}",
                                 hasGeekToken ? "✓" : "✗", hasUabCollina ? "✓" : "✗", cookies.size());
                         } else {
-                            // ✅ 新增：如果Cookie数量一直是9个，尝试刷新页面（Boss可能需要刷新才能设置Cookie）
-                            if (elapsedSeconds > 0 && elapsedSeconds % 30 == 0 && cookies.size() <= 10) {
-                                log.warn("⚠️ Cookie数量未增加（{}个），尝试刷新页面触发Cookie设置...", cookies.size());
-                                page.reload();
-                                PlaywrightUtil.sleep(2);
+                            // ✅ 修复：改进刷新策略 - 手机端扫码后，Cookie同步可能需要更长时间
+                            // 1. 等待至少60秒后才考虑刷新（给手机端用户更多时间确认）
+                            // 2. 每隔60秒刷新一次（不要频繁刷新）
+                            // 3. 刷新后等待更长时间（5秒）让页面完全加载
+                            // 4. 刷新后重新截图二维码（如果还在登录页）
+                            if (elapsedSeconds >= 60 && elapsedSeconds % 60 == 0 && cookies.size() <= 10) {
+                                log.warn("⚠️ Cookie数量未增加（{}个），已等待{}秒，尝试刷新页面触发Cookie设置（手机端扫码后可能需要刷新才能同步Cookie）...",
+                                    cookies.size(), elapsedSeconds);
+
+                                try {
+                                    // 刷新前保存当前URL
+                                    String urlBeforeRefresh = page.url();
+
+                                    // 执行刷新
+                                    page.reload();
+                                    log.info("🔄 页面已刷新，等待页面加载...");
+
+                                    // 等待页面完全加载（手机端扫码后可能需要更长时间）
+                                    PlaywrightUtil.sleep(5);
+
+                                    // 刷新后检查是否还在登录页
+                                    String urlAfterRefresh = page.url();
+                                    boolean stillOnLoginPage = urlAfterRefresh.contains("/web/user/?ka=header-login");
+
+                                    if (stillOnLoginPage) {
+                                        log.info("⚠️ 刷新后仍在登录页，重新截图二维码...");
+
+                                        // 重新截图二维码（用户可能需要在手机上重新扫码或确认）
+                                        try {
+                                            String userId = System.getenv("BOSS_USER_ID");
+                                            String safeUserId = userId != null ? userId.replaceAll("[^a-zA-Z0-9_-]", "_") : "default";
+                                            String qrcodePath = System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode_" + safeUserId + ".png";
+
+                                            // 等待二维码重新加载
+                                            PlaywrightUtil.sleep(2);
+
+                                            // 尝试重新截图二维码
+                                            String[] qrcodeSelectors = {
+                                                ".login-qrcode",
+                                                "canvas",
+                                                ".qrcode-img",
+                                                "#qrcode"
+                                            };
+
+                                            boolean qrScreenshotSuccess = false;
+                                            for (String selector : qrcodeSelectors) {
+                                                try {
+                                                    Locator qrElement = page.locator(selector);
+                                                    if (qrElement.count() > 0 && qrElement.first().isVisible()) {
+                                                        qrElement.first().screenshot(new Locator.ScreenshotOptions().setPath(Paths.get(qrcodePath)));
+                                                        log.info("✅ 已重新截图二维码: {}", qrcodePath);
+                                                        qrScreenshotSuccess = true;
+                                                        break;
+                                                    }
+                                                } catch (Exception e) {
+                                                    // 继续尝试下一个选择器
+                                                }
+                                            }
+
+                                            if (!qrScreenshotSuccess) {
+                                                // 如果找不到二维码元素，截取整个页面中心区域
+                                                // ✅ 修复：setClip直接接受4个参数，不需要创建Clip对象
+                                                page.screenshot(new Page.ScreenshotOptions()
+                                                    .setPath(Paths.get(qrcodePath))
+                                                    .setClip(576, 324, 768, 432));
+                                                log.info("✅ 已重新截图二维码（整页裁剪）: {}", qrcodePath);
+                                            }
+
+                                            // 更新状态为waiting（可能需要重新扫码）
+                                            String statusFile = System.getProperty("java.io.tmpdir") + File.separator + "boss_login_status_" + safeUserId + ".txt";
+                                            Files.write(Paths.get(statusFile), "waiting".getBytes(StandardCharsets.UTF_8));
+
+                                        } catch (Exception e) {
+                                            log.warn("重新截图二维码失败: {}", e.getMessage());
+                                        }
+                                    } else {
+                                        log.info("✅ 刷新后URL已变化: {} -> {}，可能已登录成功，继续检测Cookie...",
+                                            urlBeforeRefresh, urlAfterRefresh);
+                                    }
+                                } catch (Exception e) {
+                                    log.error("刷新页面时出错: {}", e.getMessage());
+                                    // 不要因为刷新失败而中断检测流程
+                                }
                             }
                         }
                     }

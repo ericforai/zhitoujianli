@@ -91,20 +91,31 @@ public class AdminLoginLogController {
                 }
             }
 
-            // 根据筛选条件查询
+            // 🔧 修复：根据筛选条件查询，确保管理员可以查看所有用户的登录日志
+            // 优先级：userId > email > loginStatus > 时间范围 > 默认（最近30天）
+            // 注意：管理员查看登录日志时，应该看到所有用户的日志，而不是只看到自己的
             if (userId != null) {
+                // 如果指定了userId，只查询该用户的日志
                 logsPage = loginLogService.getUserLoginLogs(userId, pageable);
+                log.info("📋 按用户ID查询登录日志: userId={}", userId);
             } else if (email != null) {
+                // 如果指定了email，只查询该邮箱的日志
                 logsPage = loginLogService.getLoginLogsByEmail(email, pageable);
+                log.info("📋 按邮箱查询登录日志: email={}", email);
             } else if (loginStatus != null) {
+                // 如果指定了loginStatus，查询所有该状态的日志（所有用户）
                 logsPage = loginLogService.getLoginLogsByStatus(loginStatus, pageable);
+                log.info("📋 按登录状态查询登录日志: status={}", loginStatus);
             } else if (startTime != null && endTime != null) {
+                // 🔧 修复：如果指定了时间范围，查询该时间范围内所有用户的日志（不按用户过滤）
                 logsPage = loginLogService.getLoginLogsByTimeRange(startTime, endTime, pageable);
+                log.info("📋 按时间范围查询登录日志: {} 到 {} (所有用户)", startTime, endTime);
             } else {
-                // 默认查询最近30天的日志
+                // 默认查询最近30天的所有用户日志（不按用户过滤）
                 LocalDateTime defaultStartTime = LocalDateTime.now().minusDays(30);
                 LocalDateTime defaultEndTime = LocalDateTime.now();
                 logsPage = loginLogService.getLoginLogsByTimeRange(defaultStartTime, defaultEndTime, pageable);
+                log.info("📋 默认查询最近30天的登录日志 (所有用户): {} 到 {}", defaultStartTime, defaultEndTime);
             }
 
             Map<String, Object> result = new HashMap<>();

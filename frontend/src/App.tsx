@@ -7,6 +7,12 @@ import BossDelivery from './components/BossDelivery';
 import Contact from './components/Contact';
 import Demo from './components/Demo';
 import DirectResumeEntry from './components/DirectResumeEntry';
+// 新增：简历模块页面
+import ResumeLanding from './pages/Resume/ResumeLanding';
+import TemplatesPage from './pages/Resume/Templates/TemplatesPage';
+import TemplatesPreview from './pages/Resume/Templates/TemplatesPreview';
+import OptimizePage from './pages/Resume/Optimize/OptimizePage';
+import HistoryPage from './pages/Resume/History/HistoryPage';
 import Features from './components/Features';
 import Footer from './components/Footer';
 import HeroSection from './components/HeroSection';
@@ -26,11 +32,13 @@ import ErrorBoundary from './components/common/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
 import UTMTracker from './components/UTMTracker';
 import { AuthProvider } from './contexts/AuthContext';
+import { PlanProvider } from './contexts/PlanContext';
 // 博客已迁移到独立的Astro应用，通过 /blog 路径访问（Nginx代理）
 import ConfigPage from './pages/ConfigPage';
 import ContactPage from './pages/ContactPage';
 import Dashboard from './pages/Dashboard';
 import PricingPage from './pages/PricingPage';
+import ScenesPage from './pages/ScenesPage';
 import HelpPage from './pages/HelpPage';
 import GuidePage from './pages/GuidePage';
 
@@ -51,15 +59,19 @@ const HomePage: React.FC = () => {
         includeOrganizationSchema={true}
         includeSoftwareSchema={true}
       />
-      <Navigation />
-      <HeroSection />
-      <Features />
-      <Demo />
-      <AutoDelivery />
-      <JDMatching />
-      <SmartGreeting />
-      <BlogSection />
-      <Contact />
+      <header>
+        <Navigation />
+      </header>
+      <main>
+        <HeroSection />
+        <Features />
+        <Demo />
+        <AutoDelivery />
+        <JDMatching />
+        <SmartGreeting />
+        <BlogSection />
+        <Contact />
+      </main>
       <Footer />
     </div>
   );
@@ -82,6 +94,7 @@ function App() {
         <ScrollToTop />
         <UTMTracker />
         <AuthProvider>
+          <PlanProvider>
           <Routes>
             {/* 公开路由 */}
             <Route path='/' element={<HomePage />} />
@@ -90,6 +103,7 @@ function App() {
 
             {/* 页面路由 - 修复菜单点击问题 */}
             <Route path='/pricing' element={<PricingPage />} />
+            <Route path='/scenes' element={<ScenesPage />} />
             {/* 博客路由：博客是独立的Astro应用，通过 /blog 路径访问（Nginx代理到 /var/www/zhitoujianli/blog） */}
             <Route path='/contact' element={<ContactPage />} />
 
@@ -118,7 +132,40 @@ function App() {
                 </PrivateRoute>
               }
             />
-            <Route path='/resume' element={<DirectResumeEntry />} />
+            {/* 简历模块：/resume 公开，其余受保护 */}
+            <Route path='/resume' element={<ResumeLanding />} />
+            <Route
+              path='/resume/templates'
+              element={
+                <PrivateRoute>
+                  <TemplatesPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path='/resume/templates/preview'
+              element={
+                <PrivateRoute>
+                  <TemplatesPreview />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path='/resume/optimize'
+              element={
+                <PrivateRoute>
+                  <OptimizePage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path='/resume/history'
+              element={
+                <PrivateRoute>
+                  <HistoryPage />
+                </PrivateRoute>
+              }
+            />
             <Route
               path='/dashboard'
               element={
@@ -183,6 +230,7 @@ function App() {
             <Route path='/standalone-test' element={<StandaloneApiTest />} />
             <Route path='/test-login' element={<TestLogin />} />
           </Routes>
+          </PlanProvider>
         </AuthProvider>
       </Router>
     </ErrorBoundary>

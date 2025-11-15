@@ -218,6 +218,16 @@ const handleLoginResponse = (response: LoginResponse): LoginResponse => {
     if (response.user) {
       UserManager.saveUser(response.user);
     }
+
+    // 🔧 修复：检查响应中是否包含管理员信息，自动设置userType
+    // 如果响应中包含adminType或isAdmin字段，说明是管理员登录
+    const userData = response.user as any;
+    if (userData?.adminType || userData?.isAdmin || (response as any).adminType) {
+      localStorage.setItem('userType', 'admin');
+      console.log('✅ 检测到管理员登录，已设置userType=admin');
+      // 触发自定义事件，通知Navigation组件更新
+      window.dispatchEvent(new Event('userTypeChanged'));
+    }
   }
 
   return response;
@@ -254,7 +264,15 @@ export const authService = {
       password,
     });
 
-    return handleLoginResponse(response.data);
+    const result = handleLoginResponse(response.data);
+
+    // 🔧 修复：如果使用管理员登录API，确保设置userType
+    if (isAdmin && result.success) {
+      localStorage.setItem('userType', 'admin');
+      console.log('✅ 管理员登录成功，已确认设置userType=admin');
+    }
+
+    return result;
   },
 
   /**
