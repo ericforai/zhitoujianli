@@ -9,6 +9,7 @@ import logger from '../utils/logger';
 import Navigation from './Navigation';
 import WorkflowTimeline, { WorkflowStep } from './WorkflowTimeline';
 import BossCookieUpload from './BossCookieUpload';
+import CollapsibleQuota from './dashboard/CollapsibleQuota';
 
 /**
  * Boss直聘投递组件 - 本地登录版本
@@ -274,6 +275,12 @@ const BossDelivery: React.FC = () => {
             )}
           </div>
         )}
+
+        {/* 套餐和配额显示 */}
+        <CollapsibleQuota
+          className='mb-8'
+          todayDeliveryCount={bossStatus.deliveryCount || 0}
+        />
 
         {/* 工作流程时间线 */}
         <div className='bg-white rounded-lg shadow-sm p-6 mb-8'>
