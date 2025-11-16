@@ -11,7 +11,7 @@ keywords: 'AI匹配技术,智能岗位匹配,简历解析原理,NLP求职,算法
 metadata:
   openGraph:
     images:
-      - url: 'https://zhitoujianli.com/blog/images/og-share-logo.jpg'
+      - url: '/blog/images/og-share-logo.jpg'
         width: 1200
         height: 630
 structuredData: |

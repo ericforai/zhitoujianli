@@ -12,6 +12,21 @@ echo ""
 echo "📦 源代码目录: /root/zhitoujianli/frontend"
 echo "✨ 功能: 完整应用（登录/注册 + Dashboard + Boss投递 + 配置管理）"
 echo ""
+echo "🔎 进行部署前一致性检查..."
+
+# 防御性检查：禁止存在会导致混乱的旧目录或误用目录
+if [ -d "/root/zhitoujianli/frontend/build_backup" ] || [ -d "/root/zhitoujianli/frontend/backup" ] || [ -d "/root/zhitoujianli/PRODUCTION_FRONTEND" ] || [ -d "/root/zhitoujianli/website" ]; then
+    echo "🚫 检测到以下可能导致版本回退/模板混乱的目录："
+    [ -d "/root/zhitoujianli/frontend/build_backup" ] && echo " - /root/zhitoujianli/frontend/build_backup"
+    [ -d "/root/zhitoujianli/frontend/backup" ] && echo " - /root/zhitoujianli/frontend/backup"
+    [ -d "/root/zhitoujianli/PRODUCTION_FRONTEND" ] && echo " - /root/zhitoujianli/PRODUCTION_FRONTEND"
+    [ -d "/root/zhitoujianli/website" ] && echo " - /root/zhitoujianli/website"
+    echo ""
+    echo "❗ 请按计划进行清理/封存后再部署。为避免错误部署，本次部署已被阻止。"
+    echo "👉 参考 /frontend.plan.md 的 Step 1 和 Step 2。"
+    exit 1
+fi
+
 echo "是否继续部署？(输入YES继续，其他键取消)"
 read -r CONFIRM
 

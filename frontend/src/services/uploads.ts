@@ -52,7 +52,15 @@ export async function parse(file: File): Promise<ParseResult> {
   form.append('file', file);
   try {
     // 后端实际可用端点：/api/resume/upload
-    const res = await fetch('/api/resume/upload', { method: 'POST', body: form, credentials: 'include' });
+    const res = await fetch('/api/resume/upload', {
+      method: 'POST',
+      body: form,
+      credentials: 'include',
+      headers: {
+        Accept: 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    });
     if (!res.ok) {
       // 兜底：后端异常时，对文本类型在前端直接读取，避免流程卡死
       if (isTextByMime || isTextByExt) {

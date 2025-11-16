@@ -194,3 +194,4 @@ chmod +x /root/diagnostic.sh
 
 
 
+

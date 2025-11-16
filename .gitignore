@@ -1,3 +1,14 @@
+PRODUCTION_FRONTEND/
+frontend/build_backup/
+frontend/backup/
+frontend/public/_legacy/
+build/
+dist/
+node_modules/
+*.log
+*.tmp
+*.cache
+coverage/
 # Node modules
 node_modules/
 npm-debug.log*

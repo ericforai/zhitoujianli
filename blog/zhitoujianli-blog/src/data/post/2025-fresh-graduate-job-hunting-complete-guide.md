@@ -11,7 +11,7 @@ keywords: '应届生求职,应届生简历怎么写,校招攻略,0经验求职,�
 metadata:
   openGraph:
     images:
-      - url: 'https://zhitoujianli.com/blog/images/og-share-logo.jpg'
+      - url: '/blog/images/og-share-logo.jpg'
         width: 1200
         height: 630
 structuredData: |

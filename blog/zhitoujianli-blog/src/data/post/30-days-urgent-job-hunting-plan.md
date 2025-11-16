@@ -11,7 +11,7 @@ keywords: '失业求职,30天找工作,被裁后求职,快速找工作,批量投
 metadata:
   openGraph:
     images:
-      - url: 'https://zhitoujianli.com/blog/images/og-share-logo.jpg'
+      - url: '/blog/images/og-share-logo.jpg'
         width: 1200
         height: 630
 structuredData: |

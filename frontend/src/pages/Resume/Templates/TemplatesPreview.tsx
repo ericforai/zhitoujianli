@@ -56,7 +56,7 @@ const TemplatesPreview: React.FC = () => {
       <header>
         <Navigation />
       </header>
-      <main className='flex-1 max-w-7xl mx-auto px-4 py-8 space-y-6'>
+      <main className='flex-1 max-w-7xl mx-auto px-4 py-8 pt-16 space-y-6'>
         <div className='flex items-center justify-between'>
           <div className='text-xl font-semibold'>AI 生成预览</div>
           <div className='flex items-center gap-3'>

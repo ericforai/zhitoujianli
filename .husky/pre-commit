@@ -1,3 +1,25 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🔎 运行预提交检查（类型检查、Lint、格式校验、合并冲突标记检测、遗留目录检测）..."
+
+# 合并冲突标记检测
+if git diff --cached | grep -E '^(<<<<<<<|=======|>>>>>>>)( .*)?$' > /dev/null; then
+  echo "❌ 检测到合并冲突标记，请先解决冲突后再提交。"
+  exit 1
+fi
+
+# 遗留目录检测（阻止提交）
+bash ./scripts/check-legacy-sources.sh || exit 1
+
+# 前端代码质量检查
+cd frontend || exit 1
+npm run type-check || exit 1
+npm run lint:check || exit 1
+npm run format:check || exit 1
+
+echo "✅ 预提交检查通过"
+
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 

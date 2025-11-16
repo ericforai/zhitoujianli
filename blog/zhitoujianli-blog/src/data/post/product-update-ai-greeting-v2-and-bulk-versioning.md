@@ -11,7 +11,7 @@ keywords: 'AI打招呼语,批量简历版本管理,智投简历新功能,产品�
 metadata:
   openGraph:
     images:
-      - url: 'https://zhitoujianli.com/blog/images/og-share-logo.jpg'
+      - url: '/blog/images/og-share-logo.jpg'
         width: 1200
         height: 630
 structuredData: |
@@ -61,9 +61,9 @@ structuredData: |
 - 在职跳槽：使用隐私设置与非工作时间投递，降低风险
 
 ## 常见问题
-- Q：打招呼语会不会过长？  
+- Q：打招呼语会不会过长？
   A：默认控制在200字以内，可在设置中调整。
-- Q：不同版本如何做AB测试？  
+- Q：不同版本如何做AB测试？
   A：建议同时保留2-3个版本并记录反馈，按7天周期复盘。
 
 ## 相关内容与入口

@@ -1,5 +1,0 @@
-import { c as createSvgComponent } from './Layout_ClwenmRe.mjs';
-
-const aiGreetingHero = createSvgComponent({"meta":{"src":"/_astro/ai-greeting-hero.BF7mmskR.svg","width":1200,"height":628,"format":"svg"},"attributes":{"width":"1200","height":"628","viewBox":"0 0 1200 628","fill":"none"},"children":"\n  <rect width=\"1200\" height=\"628\" fill=\"#1E40AF\" />\n  <rect x=\"0\" y=\"0\" width=\"1200\" height=\"628\" fill=\"url(#gradient)\" />\n  <defs>\n    <linearGradient id=\"gradient\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#1E40AF;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#3B82F6;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <text x=\"600\" y=\"300\" text-anchor=\"middle\" fill=\"white\" font-family=\"Arial, sans-serif\" font-size=\"48\" font-weight=\"bold\">AI智能打招呼语</text>\n  <text x=\"600\" y=\"360\" text-anchor=\"middle\" fill=\"white\" font-family=\"Arial, sans-serif\" font-size=\"24\">让求职投递HR回复率提升342%</text>\n"});
-
-export { aiGreetingHero as default };

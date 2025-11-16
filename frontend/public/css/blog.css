@@ -117,15 +117,29 @@ a:hover { text-decoration: none; }
 .transition, .transition-shadow { transition: all .2s ease; }
 
 /* 颜色补充（用于标签/按钮等） */
+.text-blue-100 { color: #dbeafe; }
 .text-blue-800 { color: #1e40af; }
 .text-purple-800 { color: #5b21b6; }
 .text-green-800 { color: #065f46; }
 .text-yellow-800 { color: #92400e; }
 .text-pink-800 { color: #9d174d; }
+.text-red-800 { color: #991b1b; }
+.text-teal-800 { color: #115e59; }
 .bg-blue-100 { background: #dbeafe; }
 .bg-purple-100 { background: #ede9fe; }
 .bg-green-100 { background: #d1fae5; }
 .bg-yellow-100 { background: #fef3c7; }
 .bg-pink-100 { background: #fce7f3; }
+.bg-red-100 { background: #fee2e2; }
+.bg-teal-100 { background: #ccfbf1; }
+
+/* 响应式文本（常用断点） */
+@media (min-width: 768px) {
+  .md\:text-5xl { font-size: 3rem; line-height: 1; }
+  .md\:text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+}
+@media (min-width: 1024px) {
+  .lg\:text-6xl { font-size: 3.75rem; line-height: 1; }
+}
 
 

@@ -27,20 +27,20 @@ const PreviewPane: React.FC<Props> = ({ loading, score, keywords = [], pagesEsti
         <ScoreBadge score={score} />
         {pagesEstimate ? <span className='text-sm text-gray-600'>预计页数：{pagesEstimate}</span> : null}
       </div>
-      <div>
-        <div className='text-sm text-gray-600 mb-2'>JD 关键词覆盖</div>
-        <div className='flex flex-wrap gap-2'>
-          {keywords.length === 0 ? (
-            <span className='text-gray-400 text-sm'>暂无</span>
-          ) : (
-            keywords.map(k => (
+      {keywords.length > 0 ? (
+        <div>
+          <div className='text-sm text-gray-600 mb-2'>关键词建议</div>
+          <div className='flex flex-wrap gap-2'>
+            {keywords.map(k => (
               <span key={k} className='px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs'>
                 {k}
               </span>
-            ))
-          )}
+            ))}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className='text-sm text-gray-400'>关键词建议：填写后生成</div>
+      )}
     </div>
   );
 };

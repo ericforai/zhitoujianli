@@ -147,7 +147,7 @@ const Navigation = () => {
               aria-label='智投简历 - 返回首页'
             >
               <img
-                src='/images/logo-plane.png'
+              src='/images/logo-plane.png'
                 alt='智投简历Logo'
                 className='h-8 w-auto transition-transform duration-200 group-hover:scale-110'
                 loading='eager'

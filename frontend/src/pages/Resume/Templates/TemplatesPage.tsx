@@ -1,16 +1,17 @@
 import React, { useMemo, useState } from 'react';
-import Navigation from '../../../components/Navigation';
+import { useNavigate } from 'react-router-dom';
 import Footer from '../../../components/Footer';
-import PersonaCards from '../../../components/resume/PersonaCards';
+import Navigation from '../../../components/Navigation';
 import DynamicForm from '../../../components/resume/DynamicForm';
+import PersonaCards from '../../../components/resume/PersonaCards';
 import PreviewPane from '../../../components/resume/PreviewPane';
 import { setFormData, setPersona } from '../../../store/resumeSlice';
 import type { ResumeInput } from '../../../types/resume';
-import { useNavigate } from 'react-router-dom';
 import { atsScore } from '../../../utils/ats';
 
 const TemplatesPage: React.FC = () => {
-  const [persona, updatePersona] = useState<ResumeInput['persona']>('experienced');
+  const [persona, updatePersona] =
+    useState<ResumeInput['persona']>('experienced');
   const [jdKeywords, setJdKeywords] = useState<string[]>([]);
   const navigate = useNavigate();
 
@@ -27,7 +28,9 @@ const TemplatesPage: React.FC = () => {
   };
 
   const estScore = useMemo(() => {
-    return atsScore(jdKeywords, '', ([] as string[]), ([] as string[]));
+    // 未填写任何信息时不显示预估分，避免误导
+    if (!jdKeywords || jdKeywords.length === 0) return undefined;
+    return atsScore(jdKeywords, '', [] as string[], [] as string[]);
   }, [jdKeywords]);
 
   return (
@@ -35,7 +38,7 @@ const TemplatesPage: React.FC = () => {
       <header>
         <Navigation />
       </header>
-      <main className='flex-1 max-w-7xl mx-auto px-4 py-8'>
+      <main className='flex-1 max-w-7xl mx-auto px-4 py-8 pt-20'>
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
           <div className='lg:col-span-2 space-y-6'>
             <div className='space-y-4'>
@@ -48,7 +51,12 @@ const TemplatesPage: React.FC = () => {
             </div>
           </div>
           <div className='lg:col-span-1'>
-            <PreviewPane loading={false} score={estScore} keywords={jdKeywords} pagesEstimate={1} />
+            <PreviewPane
+              loading={false}
+              score={estScore}
+              keywords={jdKeywords}
+              pagesEstimate={1}
+            />
           </div>
         </div>
       </main>
@@ -58,5 +66,3 @@ const TemplatesPage: React.FC = () => {
 };
 
 export default TemplatesPage;
-
-

@@ -99,29 +99,19 @@ const Login: React.FC = () => {
           </div>
 
           {/* Logo和标题 - 水平排列 */}
-          <a href='/' className='flex items-center gap-3 mb-6 animate-fade-in'>
-            {/* Logo图标 */}
-            <div className='flex-shrink-0 inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg'>
-              <svg
-                className='w-6 h-6 text-white'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
-                />
-              </svg>
-            </div>
+          <a href='/' className='flex items-center gap-2 mb-6 animate-fade-in'>
+            {/* Logo图片（与品牌统一） */}
+            <img
+              src='/images/logo-plane.png'
+              alt='智投简历Logo'
+              className='flex-shrink-0 align-middle w-10 h-10 rounded-xl shadow-lg object-contain'
+            />
             {/* 文字内容 */}
-            <div className='flex flex-col'>
-              <h1 className='text-3xl font-bold text-gray-900 mb-1 font-inter'>
+            <div className='flex flex-col justify-center min-h-[40px] leading-none'>
+              <h1 className='text-2xl md:text-3xl font-bold text-gray-900 font-inter leading-none'>
                 智投简历
               </h1>
-              <p className='text-gray-600 text-base font-medium'>
+              <p className='text-gray-600 text-sm md:text-base font-medium leading-none'>
                 智能化求职投递平台
               </p>
             </div>

@@ -11,7 +11,7 @@ keywords: '智投简历用户案例,求职成功案例,简历投递成功,AI求�
 metadata:
   openGraph:
     images:
-      - url: 'https://zhitoujianli.com/blog/images/og-share-logo.jpg'
+      - url: '/blog/images/og-share-logo.jpg'
         width: 1200
         height: 630
 structuredData: |

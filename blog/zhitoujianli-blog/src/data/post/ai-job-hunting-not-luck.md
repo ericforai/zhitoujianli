@@ -11,7 +11,7 @@ keywords: 'AI求职,智能简历投递,求职效率,智投简历,自动投递,�
 metadata:
   openGraph:
     images:
-      - url: 'https://zhitoujianli.com/blog/images/og-share-logo.jpg'
+      - url: '/blog/images/og-share-logo.jpg'
         width: 1200
         height: 630
 structuredData: |

@@ -11,7 +11,7 @@ keywords: '在职跳槽,跳槽涨薪,简历优化,如何跳槽,薪资谈判,职�
 metadata:
   openGraph:
     images:
-      - url: 'https://zhitoujianli.com/blog/images/og-share-logo.jpg'
+      - url: '/blog/images/og-share-logo.jpg'
         width: 1200
         height: 630
 structuredData: |

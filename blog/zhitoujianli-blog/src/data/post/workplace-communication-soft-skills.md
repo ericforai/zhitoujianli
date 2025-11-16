@@ -11,7 +11,7 @@ keywords: '职场沟通,软技能提升,会议沟通,邮件写作,跨部门协�
 metadata:
   openGraph:
     images:
-      - url: 'https://zhitoujianli.com/blog/images/og-share-logo.jpg'
+      - url: '/blog/images/og-share-logo.jpg'
         width: 1200
         height: 630
 structuredData: |

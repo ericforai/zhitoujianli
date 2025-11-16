@@ -11,7 +11,7 @@ keywords: '工作效率,时间管理,工作方法,生产力提升,任务优先�
 metadata:
   openGraph:
     images:
-      - url: 'https://zhitoujianli.com/blog/images/og-share-logo.jpg'
+      - url: '/blog/images/og-share-logo.jpg'
         width: 1200
         height: 630
 structuredData: |

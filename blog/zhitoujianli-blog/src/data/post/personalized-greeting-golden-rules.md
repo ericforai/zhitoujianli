@@ -11,7 +11,7 @@ keywords: '打招呼语怎么写,HR回复率,求职沟通技巧,个性化打招�
 metadata:
   openGraph:
     images:
-      - url: 'https://zhitoujianli.com/blog/images/og-share-logo.jpg'
+      - url: '/blog/images/og-share-logo.jpg'
         width: 1200
         height: 630
 structuredData: |

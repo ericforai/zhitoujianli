@@ -11,7 +11,7 @@ keywords: '职业规划,5年职业规划,职业发展路径,职场成长,职业�
 metadata:
   openGraph:
     images:
-      - url: 'https://zhitoujianli.com/blog/images/og-share-logo.jpg'
+      - url: '/blog/images/og-share-logo.jpg'
         width: 1200
         height: 630
 structuredData: |

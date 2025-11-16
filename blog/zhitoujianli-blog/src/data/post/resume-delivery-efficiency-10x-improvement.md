@@ -11,7 +11,7 @@ keywords: '智投简历教程,如何使用智投简历,简历投递工具,提高
 metadata:
   openGraph:
     images:
-      - url: 'https://zhitoujianli.com/blog/images/og-share-logo.jpg'
+      - url: '/blog/images/og-share-logo.jpg'
         width: 1200
         height: 630
 structuredData: |

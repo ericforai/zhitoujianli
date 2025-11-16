@@ -2,20 +2,26 @@ import React, { useEffect, useState } from 'react';
 import Navigation from '../../../components/Navigation';
 import Footer from '../../../components/Footer';
 import { list, type HistoryItem } from '../../../services/resumes';
+import { useNavigate } from 'react-router-dom';
 
 const HistoryPage: React.FC = () => {
   const [items, setItems] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  async function loadList() {
+    setLoading(true);
+    try {
+      const data = await list();
+      setItems(data);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     (async () => {
-      setLoading(true);
-      try {
-        const data = await list();
-        setItems(data);
-      } finally {
-        setLoading(false);
-      }
+      await loadList();
     })();
   }, []);
 
@@ -25,7 +31,16 @@ const HistoryPage: React.FC = () => {
         <Navigation />
       </header>
       <main className='flex-1 max-w-7xl mx-auto px-4 py-8'>
-        <div className='text-xl font-semibold mb-4'>历史记录</div>
+        <div className='flex items-center justify-between mb-4'>
+          <div className='text-xl font-semibold'>历史记录</div>
+          <button
+            type='button'
+            className='px-3 py-2 rounded-lg text-sm bg-gray-100 hover:bg-gray-200'
+            onClick={loadList}
+          >
+            刷新
+          </button>
+        </div>
         <div className='border rounded-2xl overflow-hidden shadow'>
           <table className='w-full text-left'>
             <thead className='bg-gray-50'>
@@ -52,7 +67,17 @@ const HistoryPage: React.FC = () => {
                 </tr>
               ) : (
                 items.map(it => (
-                  <tr key={it.id} className='border-t'>
+                  <tr
+                    key={it.id}
+                    className='border-t hover:bg-gray-50 cursor-pointer'
+                    onClick={() => {
+                      if (it.type === '优化') {
+                        navigate(`/resume/optimize?hid=${encodeURIComponent(it.id)}`);
+                      } else {
+                        navigate(`/resume/templates`); // 模板类可扩展重放
+                      }
+                    }}
+                  >
                     <td className='px-4 py-3 text-sm text-gray-700'>{new Date(it.createdAt).toLocaleString()}</td>
                     <td className='px-4 py-3 text-sm'>{it.type}</td>
                     <td className='px-4 py-3 text-sm'>{it.score ?? '-'}</td>

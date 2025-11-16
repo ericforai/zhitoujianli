@@ -11,7 +11,7 @@ keywords: '2025求职市场,行业趋势分析,就业市场分析,热门岗位,�
 metadata:
   openGraph:
     images:
-      - url: 'https://zhitoujianli.com/blog/images/og-share-logo.jpg'
+      - url: '/blog/images/og-share-logo.jpg'
         width: 1200
         height: 630
 structuredData: |

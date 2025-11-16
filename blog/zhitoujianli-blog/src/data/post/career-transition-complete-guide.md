@@ -11,7 +11,7 @@ keywords: '职场转型,行业转型,传统行业转型,AI转型,互联网转型
 metadata:
   openGraph:
     images:
-      - url: 'https://zhitoujianli.com/blog/images/og-share-logo.jpg'
+      - url: '/blog/images/og-share-logo.jpg'
         width: 1200
         height: 630
 structuredData: |

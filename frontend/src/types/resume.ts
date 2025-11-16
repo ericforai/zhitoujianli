@@ -67,6 +67,10 @@ export interface DiagnoseResponse {
     name: '结构' | '关键词' | '量化' | '措辞' | '风险';
     items: Array<{ issue: string; fix: string }>;
   }>;
+  /** 诊断服务耗时（毫秒） */
+  tookMs?: number;
+  /** 后端生成的请求ID，用于问题排查与关联日志 */
+  requestId?: string;
   rewritten: {
     summary?: string;
     experiences?: Array<{ role: string; company?: string; bullets: string[] }>;

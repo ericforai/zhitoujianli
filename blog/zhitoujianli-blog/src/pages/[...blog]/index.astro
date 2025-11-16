@@ -47,6 +47,11 @@ if (typeof shareImage === 'string') {
     // 其他情况，使用默认图片
     shareImageUrl = defaultShareImage;
   }
+  // 若使用默认分享图或站内分享图，使用固定尺寸以避免构建期远程尺寸推断
+  if (shareImageUrl.endsWith('/blog/images/og-share-logo.jpg')) {
+    shareImageWidth = 1200;
+    shareImageHeight = 630;
+  }
 } else if (shareImage && typeof shareImage === 'object' && 'src' in shareImage) {
   // ImageMetadata对象
   shareImageUrl = String(new URL(shareImage.src, Astro.site));

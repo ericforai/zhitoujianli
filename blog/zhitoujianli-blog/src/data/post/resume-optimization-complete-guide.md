@@ -11,7 +11,7 @@ keywords: "简历优化,简历通过率,ATS系统,关键词布局,STAR法则,简
 metadata:
   openGraph:
     images:
-      - url: 'https://zhitoujianli.com/blog/images/og-share-logo.jpg'
+      - url: '/blog/images/og-share-logo.jpg'
         width: 1200
         height: 630
 structuredData: |

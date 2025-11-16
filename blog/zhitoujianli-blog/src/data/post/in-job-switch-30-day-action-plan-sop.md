@@ -11,7 +11,7 @@ keywords: '在职跳槽SOP,30天跳槽计划,谈薪话术,面试准备,保密求
 metadata:
   openGraph:
     images:
-      - url: 'https://zhitoujianli.com/blog/images/og-share-logo.jpg'
+      - url: '/blog/images/og-share-logo.jpg'
         width: 1200
         height: 630
 structuredData: |

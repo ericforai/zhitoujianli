@@ -106,53 +106,24 @@ export const adaptOpenGraphImages = async (
     return openGraph;
   }
 
-  const images = openGraph.images;
   const defaultWidth = 1200;
-  const defaultHeight = 626;
+  const defaultHeight = 630;
+  const site = astroSite ?? new URL('');
 
-  const adaptedImages = await Promise.all(
-    images.map(async (image) => {
-      if (image?.url) {
-        const resolvedImage = (await findImage(image.url)) as ImageMetadata | string | undefined;
-        if (!resolvedImage) {
-          return {
-            url: '',
-          };
-        }
-
-        let _image: OptimizedImage | undefined;
-
-        if (
-          typeof resolvedImage === 'string' &&
-          (resolvedImage.startsWith('http://') || resolvedImage.startsWith('https://')) &&
-          isUnpicCompatible(resolvedImage)
-        ) {
-          _image = (await unpicOptimizer(resolvedImage, [defaultWidth], defaultWidth, defaultHeight, 'jpg'))[0];
-        } else if (resolvedImage) {
-          const dimensions =
-            typeof resolvedImage !== 'string' && resolvedImage?.width <= defaultWidth
-              ? [resolvedImage?.width, resolvedImage?.height]
-              : [defaultWidth, defaultHeight];
-          _image = (await astroAssetsOptimizer(resolvedImage, [dimensions[0]], dimensions[0], dimensions[1], 'jpg'))[0];
-        }
-
-        if (typeof _image === 'object') {
-          return {
-            url: 'src' in _image && typeof _image.src === 'string' ? String(new URL(_image.src, astroSite)) : '',
-            width: 'width' in _image && typeof _image.width === 'number' ? _image.width : undefined,
-            height: 'height' in _image && typeof _image.height === 'number' ? _image.height : undefined,
-          };
-        }
-        return {
-          url: '',
-        };
-      }
-
+  const adaptedImages = openGraph.images
+    .filter((img) => Boolean(img?.url))
+    .map((img) => {
+      const rawUrl = String(img?.url || '');
+      const absoluteUrl =
+        rawUrl.startsWith('http://') || rawUrl.startsWith('https://')
+          ? rawUrl
+          : String(new URL(rawUrl.replace(/^\//, ''), site)); // 统一转为绝对URL
       return {
-        url: '',
+        url: absoluteUrl,
+        width: Number(img?.width) || defaultWidth,
+        height: Number(img?.height) || defaultHeight,
       };
-    })
-  );
+    });
 
-  return { ...openGraph, ...(adaptedImages ? { images: adaptedImages } : {}) };
+  return { ...openGraph, images: adaptedImages };
 };

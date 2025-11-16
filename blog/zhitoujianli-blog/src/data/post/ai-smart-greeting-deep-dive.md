@@ -43,7 +43,7 @@ ogImage: "/images/blog/og-ai-greeting.svg"
 metadata:
   openGraph:
     images:
-      - url: 'https://zhitoujianli.com/blog/images/og-share-logo.jpg'
+      - url: '/blog/images/og-share-logo.jpg'
         width: 1200
         height: 630
 ---

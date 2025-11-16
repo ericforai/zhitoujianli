@@ -2,7 +2,7 @@ import Container from './common/Container';
 
 const Footer = () => {
   return (
-    <footer className='bg-gray-900 text-white py-20'>
+    <footer className='bg-gray-100 text-gray-800 py-20'>
       <Container size='xl'>
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12'>
           {/* Logo and Description */}
@@ -16,7 +16,7 @@ const Footer = () => {
               />
               <h3 className='text-2xl font-bold'>智投简历</h3>
             </div>
-            <p className='text-gray-400 text-base max-w-md'>
+            <p className='text-gray-600 text-base max-w-md'>
               用AI，让求职更高效
             </p>
           </div>
@@ -28,7 +28,7 @@ const Footer = () => {
               <li>
                 <a
                   href='/pricing'
-                  className='text-gray-400 hover:text-white transition-colors duration-200'
+                  className='text-gray-600 hover:text-gray-900 transition-colors duration-200'
                 >
                   定价
                 </a>
@@ -36,7 +36,7 @@ const Footer = () => {
               <li>
                 <a
                   href='/blog/'
-                  className='text-gray-400 hover:text-white transition-colors duration-200'
+                  className='text-gray-600 hover:text-gray-900 transition-colors duration-200'
                 >
                   博客
                 </a>
@@ -44,7 +44,7 @@ const Footer = () => {
               <li>
                 <a
                   href='/contact'
-                  className='text-gray-400 hover:text-white transition-colors duration-200'
+                  className='text-gray-600 hover:text-gray-900 transition-colors duration-200'
                 >
                   联系我们
                 </a>
@@ -59,7 +59,7 @@ const Footer = () => {
               <li>
                 <a
                   href='/help'
-                  className='text-gray-400 hover:text-white transition-colors duration-200'
+                  className='text-gray-600 hover:text-gray-900 transition-colors duration-200'
                 >
                   帮助中心
                 </a>
@@ -67,7 +67,7 @@ const Footer = () => {
               <li>
                 <a
                   href='/guide'
-                  className='text-gray-400 hover:text-white transition-colors duration-200'
+                  className='text-gray-600 hover:text-gray-900 transition-colors duration-200'
                 >
                   用户指南
                 </a>
@@ -75,7 +75,7 @@ const Footer = () => {
               <li>
                 <a
                   href='/terms'
-                  className='text-gray-400 hover:text-white transition-colors duration-200'
+                  className='text-gray-600 hover:text-gray-900 transition-colors duration-200'
                 >
                   用户协议
                 </a>
@@ -83,7 +83,7 @@ const Footer = () => {
               <li>
                 <a
                   href='/privacy'
-                  className='text-gray-400 hover:text-white transition-colors duration-200'
+                  className='text-gray-600 hover:text-gray-900 transition-colors duration-200'
                 >
                   隐私政策
                 </a>
@@ -103,7 +103,7 @@ const Footer = () => {
                   loading='lazy'
                 />
               </div>
-              <p className='text-gray-400 text-sm leading-relaxed'>
+              <p className='text-gray-600 text-sm leading-relaxed'>
                 扫码关注公众号
                 <br />
                 获取最新求职技巧和产品动态
@@ -112,8 +112,8 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className='border-t border-gray-800 mt-12 pt-8 text-center'>
-          <p className='text-gray-400 text-sm'>
+        <div className='border-t border-gray-200 mt-12 pt-8 text-center'>
+          <p className='text-gray-600 text-sm'>
             © 2025 智投简历 沪ICP备2025125372号
           </p>
         </div>
