@@ -10,8 +10,8 @@ from datetime import datetime
 # 文件路径（使用仓库根相对路径，提升可移植性）
 from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parents[1]
-# 默认主站/博客 sitemap 路径（若不存在博客文件则仅合并主站）
-MAIN_SITEMAP = str((ROOT_DIR / "frontend/public/sitemap.xml").resolve())
+# 使用“主站-only”源文件，避免将已合成的sitemap再次作为输入导致重复
+MAIN_SITEMAP = str((ROOT_DIR / "frontend/public/sitemap-main.xml").resolve())
 BLOG_SITEMAP = str((ROOT_DIR / "frontend/public/blog-sitemap.xml").resolve())
 OUTPUT_SITEMAP = str((ROOT_DIR / "frontend/public/sitemap.xml").resolve())
 

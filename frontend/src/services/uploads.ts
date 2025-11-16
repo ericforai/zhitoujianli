@@ -24,6 +24,10 @@ export async function parse(file: File): Promise<ParseResult> {
   const valid = validateFile(file);
   if (!valid.ok) throw new Error(valid.reason || '文件无效');
 
+  const nameLower = (file.name || '').toLowerCase();
+  const isTextByExt = ['.txt', '.md', '.markdown', '.json'].some(ext => nameLower.endsWith(ext));
+  const isTextByMime = TEXT_MIME.includes(file.type);
+
   // 本地纯文本解析（仅 devMock）
   if (DEV_MOCK) {
     if (TEXT_MIME.includes(file.type)) {
@@ -37,25 +41,36 @@ export async function parse(file: File): Promise<ParseResult> {
     };
   }
 
+  // 生产环境优化：对文本类型（按MIME或扩展名识别）直接前端读取，避免依赖后端
+  if (isTextByMime || isTextByExt) {
+    const text = await file.text();
+    return { text, meta: { name: file.name, size: file.size, type: file.type || 'text/unknown', fallback: 'client-text' } };
+  }
+
   // 真实后端
   const form = new FormData();
   form.append('file', file);
   try {
-    const res = await fetch('/api/upload', { method: 'POST', body: form, credentials: 'include' });
+    // 后端实际可用端点：/api/resume/upload
+    const res = await fetch('/api/resume/upload', { method: 'POST', body: form, credentials: 'include' });
     if (!res.ok) {
       // 兜底：后端异常时，对文本类型在前端直接读取，避免流程卡死
-      if (TEXT_MIME.includes(file.type)) {
+      if (isTextByMime || isTextByExt) {
         const text = await file.text();
-        return { text, meta: { name: file.name, size: file.size, type: file.type, fallback: 'client' } };
+        return { text, meta: { name: file.name, size: file.size, type: file.type || 'text/unknown', fallback: 'client' } };
       }
       throw new Error(`Upload failed: ${res.status}`);
     }
-    return (await res.json()) as ParseResult;
+    // 后端返回 ApiResponse 格式，data 为解析出的 candidateInfo
+    const apiJson = await res.json();
+    const data = apiJson?.data || apiJson?.result || apiJson;
+    const textFromCandidate = JSON.stringify(data);
+    return { text: textFromCandidate, meta: { name: file.name, size: file.size, type: file.type || 'application/octet-stream', backend: true } };
   } catch (err) {
     // 网络错误或其它异常，也尝试文本兜底
-    if (TEXT_MIME.includes(file.type)) {
+    if (isTextByMime || isTextByExt) {
       const text = await file.text();
-      return { text, meta: { name: file.name, size: file.size, type: file.type, fallback: 'client-error' } };
+      return { text, meta: { name: file.name, size: file.size, type: file.type || 'text/unknown', fallback: 'client-error' } };
     }
     throw err;
   }
