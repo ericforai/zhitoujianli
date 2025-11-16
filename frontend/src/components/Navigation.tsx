@@ -188,6 +188,16 @@ const Navigation = () => {
             >
               场景
             </a>
+            <a
+              href='/resume'
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                location.pathname.startsWith('/resume')
+                  ? 'text-blue-600 bg-blue-50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              简历
+            </a>
 
             {/* 分类下拉菜单 - 优化交互体验：点击跳转博客首页，悬停显示分类 */}
             <div
@@ -433,6 +443,17 @@ const Navigation = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               场景
+            </a>
+            <a
+              href='/resume'
+              className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 ${
+                location.pathname.startsWith('/resume')
+                  ? 'text-blue-600 bg-blue-50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              简历
             </a>
 
             {/* 移动端博客链接 - 添加博客首页入口 */}

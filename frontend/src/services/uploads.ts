@@ -40,9 +40,25 @@ export async function parse(file: File): Promise<ParseResult> {
   // 真实后端
   const form = new FormData();
   form.append('file', file);
-  const res = await fetch('/api/upload', { method: 'POST', body: form, credentials: 'include' });
-  if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
-  return (await res.json()) as ParseResult;
+  try {
+    const res = await fetch('/api/upload', { method: 'POST', body: form, credentials: 'include' });
+    if (!res.ok) {
+      // 兜底：后端异常时，对文本类型在前端直接读取，避免流程卡死
+      if (TEXT_MIME.includes(file.type)) {
+        const text = await file.text();
+        return { text, meta: { name: file.name, size: file.size, type: file.type, fallback: 'client' } };
+      }
+      throw new Error(`Upload failed: ${res.status}`);
+    }
+    return (await res.json()) as ParseResult;
+  } catch (err) {
+    // 网络错误或其它异常，也尝试文本兜底
+    if (TEXT_MIME.includes(file.type)) {
+      const text = await file.text();
+      return { text, meta: { name: file.name, size: file.size, type: file.type, fallback: 'client-error' } };
+    }
+    throw err;
+  }
 }
 
 

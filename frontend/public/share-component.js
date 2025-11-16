@@ -43,6 +43,7 @@ function shareToWechat() {
 
 // 生成带logo的二维码
 // 简单的二维码缓存，避免重复请求第三方服务
+const FALLBACK_QR = '/images/wechat-qrcode.jpg';
 const __qrCodeCache = new Map(); // url -> dataURL
 
 function generateQRCodeWithLogo(url) {
@@ -62,8 +63,8 @@ function generateQRCodeWithLogo(url) {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
         // Canvas 不可用时降级到本地回退图
-        showMessage('当前环境不支持二维码预览，已使用回退图片');
-        qrcodeImg.src = '/images/qr-fallback.png';
+        showMessage('当前环境不支持二维码，已显示回退图片');
+        qrcodeImg.src = FALLBACK_QR;
         return;
     }
 
@@ -114,8 +115,8 @@ function generateQRCodeWithLogo(url) {
     qrImg.onerror = function() {
         clearTimeout(timeoutId);
         console.error('二维码生成失败，使用回退图片');
-        showMessage('二维码生成失败，已使用回退图片');
-        qrcodeImg.src = '/images/qr-fallback.png';
+        showMessage('二维码生成失败，已显示回退图片');
+        qrcodeImg.src = FALLBACK_QR;
     };
     qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(url)}`;
 }

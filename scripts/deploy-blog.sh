@@ -3,7 +3,7 @@
 # 博客部署脚本 - 确保从正确的源目录部署Astro博客
 # 使用方法: ./scripts/deploy-blog.sh
 
-set -e
+set -euo pipefail
 
 # 颜色定义
 RED='\033[0;31m'
@@ -12,10 +12,15 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# 路径配置
-BLOG_SOURCE="/root/zhitoujianli/blog/zhitoujianli-blog/dist"
-BLOG_DEST="/var/www/zhitoujianli/blog"
-PROJECT_ROOT="/root/zhitoujianli"
+# 目录配置（可通过环境变量覆盖）
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="${PROJECT_ROOT:-"$(cd "$SCRIPT_DIR/.." && pwd)"}"
+BLOG_SOURCE_DEFAULT="$PROJECT_ROOT/blog/zhitoujianli-blog/dist"
+BLOG_DEST_DEFAULT="/var/www/zhitoujianli/blog"
+BLOG_SOURCE="${BLOG_SOURCE:-$BLOG_SOURCE_DEFAULT}"
+BLOG_DEST="${BLOG_DEST:-$BLOG_DEST_DEFAULT}"
+# sudo 可选（CI环境可禁用）
+SUDO_CMD="${SUDO_CMD:-sudo}"
 
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}  智投简历 - 博客部署脚本${NC}"
@@ -68,7 +73,7 @@ echo -e "${BLUE}[2/4] 备份现有部署...${NC}"
 if [ -d "$BLOG_DEST" ] && [ "$(ls -A $BLOG_DEST)" ]; then
     BACKUP_DIR="${BLOG_DEST}.backup.$(date +%Y%m%d_%H%M%S)"
     echo -e "${BLUE}创建备份: $BACKUP_DIR${NC}"
-    sudo cp -r "$BLOG_DEST" "$BACKUP_DIR"
+    ${SUDO_CMD} cp -r "$BLOG_DEST" "$BACKUP_DIR"
     echo -e "${GREEN}✓ 备份完成${NC}"
 else
     echo -e "${YELLOW}⚠️  部署目录为空，跳过备份${NC}"
@@ -77,9 +82,9 @@ echo ""
 
 # 3. 部署博客文件
 echo -e "${BLUE}[3/4] 部署博客文件...${NC}"
-sudo mkdir -p "$BLOG_DEST"
-sudo rm -rf "$BLOG_DEST"/*
-sudo cp -r "$BLOG_SOURCE"/* "$BLOG_DEST"/
+${SUDO_CMD} mkdir -p "$BLOG_DEST"
+${SUDO_CMD} rm -rf "$BLOG_DEST"/*
+${SUDO_CMD} cp -r "$BLOG_SOURCE"/* "$BLOG_DEST"/
 
 # 验证部署
 if [ ! -f "$BLOG_DEST/index.html" ]; then
@@ -93,8 +98,8 @@ echo ""
 
 # 4. 设置权限
 echo -e "${BLUE}[4/4] 设置文件权限...${NC}"
-sudo chown -R www-data:www-data "$BLOG_DEST"
-sudo chmod -R 755 "$BLOG_DEST"
+${SUDO_CMD} chown -R www-data:www-data "$BLOG_DEST"
+${SUDO_CMD} chmod -R 755 "$BLOG_DEST"
 echo -e "${GREEN}✓ 权限设置完成${NC}"
 echo ""
 
