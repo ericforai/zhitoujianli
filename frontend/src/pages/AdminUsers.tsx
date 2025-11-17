@@ -64,6 +64,8 @@ const AdminUsers: React.FC = () => {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
@@ -139,6 +141,8 @@ const AdminUsers: React.FC = () => {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
@@ -193,6 +197,8 @@ const AdminUsers: React.FC = () => {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
@@ -238,6 +244,8 @@ const AdminUsers: React.FC = () => {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
             Authorization: `Bearer ${token}`,
           },
         }

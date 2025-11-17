@@ -40,6 +40,8 @@ const AdminSystem: React.FC = () => {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
           Authorization: `Bearer ${token}`,
         },
       });
@@ -78,6 +80,8 @@ const AdminSystem: React.FC = () => {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({

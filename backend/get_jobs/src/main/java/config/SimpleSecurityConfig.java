@@ -105,6 +105,7 @@ public class SimpleSecurityConfig {
                     "/api/config",                          // 用户配置
                     "/api/ai-config",                       // AI配置
                     "/api/resume",                          // 简历
+                    "/api/admin/**",                        // 🔧 管理后台API（需要认证，排除/auth/**）
                     "/save-config",
                     "/start-program",
                     "/stop-program",
@@ -120,10 +121,14 @@ public class SimpleSecurityConfig {
                 .authenticationEntryPoint((request, response, authException) -> {
                     String requestedWith = request.getHeader("X-Requested-With");
                     String acceptHeader = request.getHeader("Accept");
+                    String requestPath = request.getRequestURI();
 
-                    if ("XMLHttpRequest".equals(requestedWith) ||
+                    // 🔧 修复：API请求（/api/**）统一返回401 JSON，不重定向
+                    // 这样可以避免302重定向导致的CORS错误
+                    if (requestPath.startsWith("/api/") ||
+                        "XMLHttpRequest".equals(requestedWith) ||
                         (acceptHeader != null && acceptHeader.contains("application/json"))) {
-                        // AJAX请求返回JSON
+                        // API请求或AJAX请求返回JSON
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                         response.setContentType("application/json;charset=UTF-8");
                         response.getWriter().write(
