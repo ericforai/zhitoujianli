@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
 import Container from '../components/common/Container';
@@ -8,13 +8,13 @@ import SEOHead from '../components/seo/SEOHead';
 import WorkflowTimeline, { WorkflowStep } from '../components/WorkflowTimeline';
 import QuotaDisplay from '../components/plan/QuotaDisplay';
 import QuickActionPanel from '../components/dashboard/QuickActionPanel';
-import CollapsibleStats from '../components/dashboard/CollapsibleStats';
 import CollapsibleQuota from '../components/dashboard/CollapsibleQuota';
 import { useAuth } from '../contexts/AuthContext';
 import { useBossDelivery } from '../hooks/useBossDelivery';
 import { useBossLoginStatus } from '../hooks/useBossLoginStatus';
 import { useQRCodeLogin } from '../hooks/useQRCodeLogin';
 import { bossService, DeliveryDetail } from '../services/bossService';
+import { list as listHistory, type HistoryItem } from '../services/resumes';
 import logger from '../utils/logger';
 
 /**
@@ -64,8 +64,28 @@ const Dashboard: React.FC = () => {
   const [deliveryDetails, setDeliveryDetails] = useState<DeliveryDetail[]>([]);
   const [loadingDetails, setLoadingDetails] = useState(false);
 
+  // 历史记录状态
+  const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+
   // 认证状态检查和日志记录
   authLogger.debug('Dashboard组件开始渲染', { isLoading, isAuthenticated });
+
+  // 加载历史记录
+  useEffect(() => {
+    (async () => {
+      setHistoryLoading(true);
+      try {
+        const data = await listHistory();
+        setHistoryItems(data);
+      } catch (error) {
+        console.error('加载历史记录失败:', error);
+        setHistoryItems([]);
+      } finally {
+        setHistoryLoading(false);
+      }
+    })();
+  }, []);
 
   // 🔒 安全修复：监听认证状态变化，如果未认证立即跳转
   useEffect(() => {
@@ -223,9 +243,28 @@ const Dashboard: React.FC = () => {
           {/* 智能投递流程 - 核心焦点区域 */}
           <div className='mb-6'>
             <div className='mb-4'>
-              <h2 className='text-2xl font-bold text-gray-900 mb-2'>
-                智能投递流程
-              </h2>
+              <div className='flex items-center gap-3 mb-2 flex-wrap'>
+                <h2 className='text-2xl font-bold text-gray-900'>
+                  智能投递流程
+                </h2>
+                {/* 运行状态 - 紧凑内联显示，直观的badge样式 */}
+                <div
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors ${
+                    bossStatus.isRunning
+                      ? 'bg-green-50 text-green-700 border border-green-300'
+                      : 'bg-gray-50 text-gray-600 border border-gray-300'
+                  }`}
+                >
+                  <div
+                    className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                      bossStatus.isRunning
+                        ? 'bg-green-500 animate-pulse'
+                        : 'bg-gray-400'
+                    }`}
+                  />
+                  <span>{bossStatus.isRunning ? '运行中' : '已停止'}</span>
+                </div>
+              </div>
               <p className='text-gray-600'>按照以下步骤完成简历投递设置</p>
             </div>
 
@@ -252,40 +291,100 @@ const Dashboard: React.FC = () => {
             onStop={handleStop}
             onBossLogin={handleQRCodeLogin}
             loading={bossLoading}
+            message={bossMessage}
+            onRefreshBossStatus={refreshBossStatus}
+            bossStatusError={bossStatusError}
+            isBossStatusLoading={isBossStatusLoading}
+            onShowDeliveryDetails={handleShowDeliveryDetails}
           />
 
-          {/* 可折叠统计卡片 */}
-          <CollapsibleStats
-            stats={[
-              {
-                title: '今日投递',
-                value: bossStatus.deliveryCount || 0,
-                icon: '📊',
-                color: 'blue',
-                onClick: handleShowDeliveryDetails,
-                clickable: true,
-              },
-              {
-                title: '运行状态',
-                value: bossStatus.isRunning ? '运行中' : '已停止',
-                icon: '✅',
-                color: 'green',
-              },
-              {
-                title: '智能匹配',
-                value: 'AI',
-                icon: '🤖',
-                color: 'blue',
-              },
-              {
-                title: '持续运行',
-                value: '24/7',
-                icon: '⏰',
-                color: 'blue',
-              },
-            ]}
-            className='mb-8'
-          />
+
+          {/* 历史记录卡片 - 直接展示历史记录 */}
+          <Card className='mb-8'>
+            <div className='flex items-center justify-between mb-4'>
+              <div className='flex items-center gap-3'>
+                <div className='w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center'>
+                  <svg className='w-6 h-6 text-blue-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className='text-lg font-semibold text-gray-900'>简历历史记录</h3>
+                  <p className='text-sm text-gray-600'>查看和管理您的简历优化历史</p>
+                </div>
+              </div>
+              <button
+                type='button'
+                className='px-3 py-2 rounded-lg text-sm bg-gray-100 hover:bg-gray-200 text-gray-700'
+                onClick={async () => {
+                  // 刷新历史记录
+                  const { list } = await import('../services/resumes');
+                  const data = await list();
+                  setHistoryItems(data);
+                }}
+              >
+                刷新
+              </button>
+            </div>
+            <div className='border rounded-lg overflow-hidden'>
+              <table className='w-full text-left'>
+                <thead className='bg-gray-50'>
+                  <tr>
+                    <th className='px-4 py-3 text-sm font-medium text-gray-700'>时间</th>
+                    <th className='px-4 py-3 text-sm font-medium text-gray-700'>类型</th>
+                    <th className='px-4 py-3 text-sm font-medium text-gray-700'>分数</th>
+                    <th className='px-4 py-3 text-sm font-medium text-gray-700'>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {historyLoading ? (
+                    <tr>
+                      <td className='px-4 py-3 text-sm text-gray-500' colSpan={4}>
+                        加载中...
+                      </td>
+                    </tr>
+                  ) : historyItems.length === 0 ? (
+                    <tr>
+                      <td className='px-4 py-3 text-sm text-gray-500' colSpan={4}>
+                        暂无记录
+                      </td>
+                    </tr>
+                  ) : (
+                    historyItems.map(it => (
+                      <tr
+                        key={it.id}
+                        className='border-t hover:bg-gray-50 cursor-pointer'
+                        onClick={() => {
+                          if (it.type === '优化') {
+                            navigate(`/resume/optimize?hid=${encodeURIComponent(it.id)}`);
+                          }
+                        }}
+                      >
+                        <td className='px-4 py-3 text-sm text-gray-700'>
+                          {new Date(it.createdAt).toLocaleString()}
+                        </td>
+                        <td className='px-4 py-3 text-sm'>{it.type}</td>
+                        <td className='px-4 py-3 text-sm'>{it.score ?? '-'}</td>
+                        <td className='px-4 py-3 text-sm'>
+                          {it.type === '优化' && (
+                            <button
+                              className='text-blue-600 hover:text-blue-700'
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/resume/optimize?hid=${encodeURIComponent(it.id)}`);
+                              }}
+                            >
+                              查看
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </Card>
 
           {/* 可折叠配额显示 */}
           <CollapsibleQuota
@@ -293,48 +392,7 @@ const Dashboard: React.FC = () => {
             todayDeliveryCount={bossStatus.deliveryCount || 0}
           />
 
-          {/* Boss登录状态显示 */}
-          {!isBossStatusLoading && (
-            <Card
-              className={`mb-6 ${
-                isBossLoggedIn
-                  ? 'bg-green-50 border-green-200'
-                  : 'bg-yellow-50 border-yellow-200'
-              }`}
-            >
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center'>
-                  <span className='text-lg mr-2'>
-                    {isBossLoggedIn ? '✅' : '⚠️'}
-                  </span>
-                  <p className='text-sm font-medium text-gray-900'>
-                    {isBossLoggedIn ? 'Boss账号已登录' : '需要扫码登录Boss'}
-                  </p>
-                </div>
-                <Button onClick={refreshBossStatus} variant='ghost' size='sm'>
-                  刷新状态
-                </Button>
-              </div>
-              {bossStatusError && (
-                <p className='text-xs mt-2 text-red-600'>
-                  检查状态失败: {bossStatusError}
-                </p>
-              )}
-            </Card>
-          )}
 
-          {/* 消息提示 */}
-          {bossMessage && (
-            <Card
-              className={`mb-6 ${
-                bossMessage.includes('成功')
-                  ? 'bg-green-50 border-green-200'
-                  : 'bg-red-50 border-red-200'
-              }`}
-            >
-              <p className='text-sm text-gray-900'>{bossMessage}</p>
-            </Card>
-          )}
         </div>
       </Container>
 

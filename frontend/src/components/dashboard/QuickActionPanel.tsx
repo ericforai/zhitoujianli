@@ -19,6 +19,16 @@ interface QuickActionPanelProps {
   onBossLogin: () => void;
   /** 加载状态 */
   loading?: boolean;
+  /** 状态消息 */
+  message?: string;
+  /** 刷新Boss状态回调 */
+  onRefreshBossStatus?: () => void;
+  /** Boss状态错误信息 */
+  bossStatusError?: string | null;
+  /** Boss状态加载中 */
+  isBossStatusLoading?: boolean;
+  /** 显示投递详情回调 */
+  onShowDeliveryDetails?: () => void;
 }
 
 /**
@@ -34,8 +44,13 @@ export const QuickActionPanel: React.FC<QuickActionPanelProps> = ({
   onStop,
   onBossLogin,
   loading = false,
+  message,
+  onRefreshBossStatus,
+  bossStatusError,
+  isBossStatusLoading = false,
+  onShowDeliveryDetails,
 }) => {
-  const { userPlan, getQuotaInfo, getRemainingQuota } = usePlanPermission();
+  const { userPlan, getQuotaInfo } = usePlanPermission();
 
   // 获取每日投递配额信息
   const dailyQuota = getQuotaInfo('daily_job_application');
@@ -95,31 +110,73 @@ export const QuickActionPanel: React.FC<QuickActionPanelProps> = ({
                 )}
               </button>
             )}
+
+            {/* 状态消息 - 显示在按钮下方，形成完整的投递状态组件 */}
+            {message && (
+              <div
+                className={`mt-3 p-3 rounded-lg border ${
+                  message.includes('成功')
+                    ? 'bg-green-50 border-green-200 text-green-800'
+                    : message.includes('失败') || message.includes('错误')
+                      ? 'bg-red-50 border-red-200 text-red-800'
+                      : 'bg-blue-50 border-blue-200 text-blue-800'
+                }`}
+              >
+                <p className='text-sm font-medium'>{message}</p>
+              </div>
+            )}
           </div>
 
           {/* 关键指标区域 - 横向排列 */}
           <div className='lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4'>
-          {/* Boss登录状态 */}
-          <div className='bg-white rounded-lg p-4 border border-gray-200'>
+          {/* Boss登录状态 - 增强版，整合刷新功能和详细状态 */}
+          <div
+            className={`rounded-lg p-4 border ${
+              isBossLoggedIn
+                ? 'bg-green-50 border-green-200'
+                : 'bg-yellow-50 border-yellow-200'
+            }`}
+          >
             <div className='flex items-center justify-between mb-2'>
-              <span className='text-sm font-medium text-gray-600'>Boss状态</span>
-              {isBossLoggedIn ? (
-                <span className='px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full'>
-                  ✓ 已登录
+              <div className='flex items-center gap-2'>
+                <span className='text-lg'>
+                  {isBossLoggedIn ? '✅' : '⚠️'}
                 </span>
-              ) : (
-                <span className='px-3 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full'>
-                  未登录
+                <span className='text-sm font-medium text-gray-900'>
+                  {isBossLoggedIn ? 'Boss账号已登录' : '需要扫码登录Boss'}
                 </span>
+              </div>
+              {onRefreshBossStatus && (
+                <button
+                  onClick={onRefreshBossStatus}
+                  disabled={isBossStatusLoading}
+                  className='text-xs px-2 py-1 rounded-full bg-white hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 text-gray-700'
+                  title='刷新Boss登录状态'
+                >
+                  {isBossStatusLoading ? '刷新中...' : '🔄 刷新'}
+                </button>
               )}
             </div>
             {!isBossLoggedIn && (
-              <p className='text-xs text-gray-500'>点击上方按钮扫码登录</p>
+              <p className='text-xs text-gray-600 mt-1'>点击上方按钮扫码登录</p>
+            )}
+            {bossStatusError && (
+              <p className='text-xs mt-2 text-red-600'>
+                检查状态失败: {bossStatusError}
+              </p>
             )}
           </div>
 
-          {/* 今日投递 */}
-          <div className='bg-white rounded-lg p-4 border border-gray-200'>
+          {/* 今日投递 - 可点击查看详情 */}
+          <div
+            onClick={onShowDeliveryDetails}
+            className={`bg-white rounded-lg p-4 border border-gray-200 ${
+              onShowDeliveryDetails
+                ? 'cursor-pointer hover:shadow-md transition-shadow'
+                : ''
+            }`}
+            title={onShowDeliveryDetails ? '点击查看今日投递详情' : undefined}
+          >
             <div className='flex items-center justify-between mb-2'>
               <span className='text-sm font-medium text-gray-600'>今日投递</span>
               <span className='text-2xl font-bold text-blue-600'>{quotaUsed}</span>
@@ -129,6 +186,9 @@ export const QuickActionPanel: React.FC<QuickActionPanelProps> = ({
                 <path d='M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z' />
               </svg>
               <span>已投递职位数量</span>
+              {onShowDeliveryDetails && (
+                <span className='ml-2 text-blue-600'>📊</span>
+              )}
             </div>
           </div>
 
