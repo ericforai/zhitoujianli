@@ -193,8 +193,23 @@ const { title, url, description = '' } = Astro.props;
 
 <script is:inline define:vars={{ title, url, description }}>
   (function() {
+    // 存储事件处理器引用，以便后续移除
+    let eventHandlers = {
+      wechatClick: null,
+      closeClick: null,
+      modalClick: null,
+      weiboClick: null,
+      copyClick: null,
+      copyFromModalClick: null,
+      keydown: null
+    };
+
     // 确保DOM已加载
     function initShareButtons() {
+      // 先清理旧的事件监听器（如果存在）
+      cleanupEventListeners();
+
+      // 获取最新的页面信息（优先使用传入的props，否则从DOM获取）
       const pageTitle = title || document.title;
       const pageUrl = url || window.location.href;
       const pageDesc = description || '';
@@ -272,7 +287,7 @@ const { title, url, description = '' } = Astro.props;
       // 分享到微信
       const wechatBtn = document.getElementById('wechat-share-btn');
       if (wechatBtn) {
-        wechatBtn.addEventListener('click', function(e) {
+        eventHandlers.wechatClick = function(e) {
           e.preventDefault();
           e.stopPropagation();
           // 如果是微信浏览器内，提示使用原生分享
@@ -287,34 +302,38 @@ const { title, url, description = '' } = Astro.props;
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
           }
-        });
+        };
+        wechatBtn.addEventListener('click', eventHandlers.wechatClick);
       }
 
       const closeBtn = document.getElementById('close-wechat-modal');
       if (closeBtn) {
-        closeBtn.addEventListener('click', closeWechatModal);
+        eventHandlers.closeClick = closeWechatModal;
+        closeBtn.addEventListener('click', eventHandlers.closeClick);
       }
 
       // 点击弹窗外部关闭
       const modal = document.getElementById('wechat-modal');
       if (modal) {
-        modal.addEventListener('click', function(e) {
+        eventHandlers.modalClick = function(e) {
           if (e.target === modal) {
             closeWechatModal();
           }
-        });
+        };
+        modal.addEventListener('click', eventHandlers.modalClick);
       }
 
       // 分享到微博
       const weiboBtn = document.getElementById('weibo-share-btn');
       if (weiboBtn) {
-        weiboBtn.addEventListener('click', function(e) {
+        eventHandlers.weiboClick = function(e) {
           e.preventDefault();
           e.stopPropagation();
           const weiboUrl = `https://service.weibo.com/share/share.php?url=${encodeURIComponent(pageUrl)}&title=${encodeURIComponent(pageTitle + (pageDesc ? ' - ' + pageDesc : ''))}`;
           window.open(weiboUrl, '_blank', 'width=600,height=400');
           showMessage('正在打开微博分享...');
-        });
+        };
+        weiboBtn.addEventListener('click', eventHandlers.weiboClick);
       }
 
       // 复制链接
@@ -356,41 +375,99 @@ const { title, url, description = '' } = Astro.props;
 
       const copyBtn = document.getElementById('copy-link-btn');
       if (copyBtn) {
-        copyBtn.addEventListener('click', function(e) {
+        eventHandlers.copyClick = function(e) {
           e.preventDefault();
           e.stopPropagation();
           copyLink();
-        });
+        };
+        copyBtn.addEventListener('click', eventHandlers.copyClick);
       }
 
       const copyFromModal = document.getElementById('copy-from-modal');
       if (copyFromModal) {
-        copyFromModal.addEventListener('click', function(e) {
+        eventHandlers.copyFromModalClick = function(e) {
           e.preventDefault();
           e.stopPropagation();
           copyLink();
           setTimeout(closeWechatModal, 1500);
-        });
+        };
+        copyFromModal.addEventListener('click', eventHandlers.copyFromModalClick);
       }
 
       // 键盘快捷键
-      document.addEventListener('keydown', function(e) {
+      eventHandlers.keydown = function(e) {
         // ESC键关闭弹窗
         if (e.key === 'Escape') {
+          const modal = document.getElementById('wechat-modal');
           if (modal && modal.classList.contains('active')) {
             closeWechatModal();
           }
         }
-      });
+      };
+      document.addEventListener('keydown', eventHandlers.keydown);
     }
 
-    // 如果DOM已加载，立即执行；否则等待DOMContentLoaded
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initShareButtons);
-    } else {
-      // DOM已加载，立即执行
-      initShareButtons();
+    // 清理事件监听器
+    function cleanupEventListeners() {
+      const wechatBtn = document.getElementById('wechat-share-btn');
+      const closeBtn = document.getElementById('close-wechat-modal');
+      const modal = document.getElementById('wechat-modal');
+      const weiboBtn = document.getElementById('weibo-share-btn');
+      const copyBtn = document.getElementById('copy-link-btn');
+      const copyFromModal = document.getElementById('copy-from-modal');
+
+      if (wechatBtn && eventHandlers.wechatClick) {
+        wechatBtn.removeEventListener('click', eventHandlers.wechatClick);
+      }
+      if (closeBtn && eventHandlers.closeClick) {
+        closeBtn.removeEventListener('click', eventHandlers.closeClick);
+      }
+      if (modal && eventHandlers.modalClick) {
+        modal.removeEventListener('click', eventHandlers.modalClick);
+      }
+      if (weiboBtn && eventHandlers.weiboClick) {
+        weiboBtn.removeEventListener('click', eventHandlers.weiboClick);
+      }
+      if (copyBtn && eventHandlers.copyClick) {
+        copyBtn.removeEventListener('click', eventHandlers.copyClick);
+      }
+      if (copyFromModal && eventHandlers.copyFromModalClick) {
+        copyFromModal.removeEventListener('click', eventHandlers.copyFromModalClick);
+      }
+      if (eventHandlers.keydown) {
+        document.removeEventListener('keydown', eventHandlers.keydown);
+      }
+
+      // ✅ 修复：直接重置事件处理器对象的属性，而不是重新赋值整个对象
+      // 这样可以确保外部闭包中的eventHandlers对象被正确更新
+      eventHandlers.wechatClick = null;
+      eventHandlers.closeClick = null;
+      eventHandlers.modalClick = null;
+      eventHandlers.weiboClick = null;
+      eventHandlers.copyClick = null;
+      eventHandlers.copyFromModalClick = null;
+      eventHandlers.keydown = null;
     }
+
+    // 初始化函数
+    function setupShareButtons() {
+      // 如果DOM已加载，立即执行；否则等待DOMContentLoaded
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initShareButtons);
+      } else {
+        // DOM已加载，立即执行
+        initShareButtons();
+      }
+    }
+
+    // 初始设置
+    setupShareButtons();
+
+    // 监听 Astro View Transitions 的页面切换事件
+    document.addEventListener('astro:after-swap', () => {
+      // 页面切换后重新初始化分享按钮
+      initShareButtons();
+    });
   })();
 </script>
 
