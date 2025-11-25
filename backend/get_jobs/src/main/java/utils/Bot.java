@@ -31,39 +31,75 @@ public class Bot {
 
     static {
         // 加载环境变量
+        // ✅ 修复：在隔离JVM进程中，使用相对路径或忽略缺失的.env文件
         Dotenv dotenv = Dotenv
                 .configure()
-                .directory("/src/main/resources")
+                .directory("./")
+                .ignoreIfMissing()
                 .load();
         HOOK_URL = dotenv.get("HOOK_URL");
         BARK_URL = dotenv.get("BARK_URL");
 
         // 使用 Jackson 加载 config.yaml 配置
+        // ✅ 修复：在隔离JVM进程中，使用相对路径或从classpath加载
         try {
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-            HashMap<String, Object> config = mapper.readValue(new File("/src/main/resources/config.yaml"), new TypeReference<HashMap<String, Object>>() {
-            });
-            log.info("YAML 配置内容: {}", config);
-
-            // 获取 bot 配置
-            HashMap<String, Object> botConfig = safeCast(config.get("bot"), HashMap.class);
-            if (botConfig != null && botConfig.get("is_send") != null) {
-                isSend = Boolean.TRUE.equals(safeCast(botConfig.get("is_send"), Boolean.class));
+            // 优先尝试从classpath加载，如果失败则尝试相对路径
+            java.io.InputStream configStream = Bot.class.getClassLoader().getResourceAsStream("config.yaml");
+            HashMap<String, Object> config = null;
+            if (configStream != null) {
+                config = mapper.readValue(configStream, new TypeReference<HashMap<String, Object>>() {
+                });
             } else {
-                log.warn("配置文件中缺少 'bot.is_send' 键或值为空，不发送消息。");
-                isSend = false;
+                // 回退到文件系统路径（按优先级尝试多个路径）
+                File configFile = null;
+                String[] possiblePaths = {
+                    "src/main/resources/config.yaml",
+                    "target/classes/config.yaml",
+                    "/opt/zhitoujianli/backend/get_jobs/src/main/resources/config.yaml",
+                    "/opt/zhitoujianli/backend/get_jobs/target/classes/config.yaml"
+                };
+                for (String path : possiblePaths) {
+                    File file = new File(path);
+                    if (file.exists()) {
+                        configFile = file;
+                        break;
+                    }
+                }
+                if (configFile != null) {
+                    config = mapper.readValue(configFile, new TypeReference<HashMap<String, Object>>() {
+                    });
+                }
             }
 
-            // 获取Bark配置
-            if (botConfig != null && botConfig.get("is_bark_send") != null) {
-                isBarkSend = Boolean.TRUE.equals(safeCast(botConfig.get("is_bark_send"), Boolean.class));
+            if (config != null) {
+                log.info("YAML 配置内容: {}", config);
+
+                // 获取 bot 配置
+                HashMap<String, Object> botConfig = safeCast(config.get("bot"), HashMap.class);
+                if (botConfig != null && botConfig.get("is_send") != null) {
+                    isSend = Boolean.TRUE.equals(safeCast(botConfig.get("is_send"), Boolean.class));
+                } else {
+                    log.warn("配置文件中缺少 'bot.is_send' 键或值为空，不发送消息。");
+                    isSend = false;
+                }
+
+                // 获取Bark配置
+                if (botConfig != null && botConfig.get("is_bark_send") != null) {
+                    isBarkSend = Boolean.TRUE.equals(safeCast(botConfig.get("is_bark_send"), Boolean.class));
+                } else {
+                    log.warn("配置文件中缺少 'bot.is_bark_send' 键或值为空，不发送Bark消息。");
+                    isBarkSend = false;
+                }
             } else {
-                log.warn("配置文件中缺少 'bot.is_bark_send' 键或值为空，不发送Bark消息。");
+                log.warn("⚠️ 未找到config.yaml文件，跳过Bot配置加载");
+                isSend = false;
                 isBarkSend = false;
             }
         } catch (IOException e) {
             log.error("读取 config.yaml 异常：{}", e.getMessage());
             isSend = false; // 如果读取配置文件失败，默认不发送消息
+            isBarkSend = false;
         }
     }
 

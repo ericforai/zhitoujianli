@@ -168,9 +168,10 @@ public class UserService {
 
     /**
      * 分页获取用户列表
+     * 🔧 修复：只返回未删除的用户
      */
     public Page<User> getUsers(Pageable pageable) {
-        return userRepository.findAll(pageable);
+        return userRepository.findAllNotDeleted(pageable);
     }
 
     /**

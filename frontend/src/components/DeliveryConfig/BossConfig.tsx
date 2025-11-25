@@ -8,6 +8,8 @@
 import React, { useEffect, useState } from 'react';
 import { deliveryConfigValidator } from '../../services/deliveryService';
 import { BossConfig as BossConfigType } from '../../types/api';
+import BossServerLogin from '../BossServerLogin';
+import bossLoginService from '../../services/bossLoginService';
 
 interface BossConfigProps {
   config: BossConfigType;
@@ -24,6 +26,8 @@ const BossConfig: React.FC<BossConfigProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [newKeyword, setNewKeyword] = useState('');
   const [newCity, setNewCity] = useState('');
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [isReLogging, setIsReLogging] = useState(false);
 
   useEffect(() => {
     setFormData(config);
@@ -127,13 +131,74 @@ const BossConfig: React.FC<BossConfigProps> = ({
     }
   };
 
+  /**
+   * 处理重新登录
+   * 先清除Cookie，然后显示登录对话框
+   */
+  const handleReLogin = async () => {
+    setIsReLogging(true);
+    try {
+      // 先清除现有Cookie
+      await bossLoginService.clearCookie();
+      console.log('✅ Cookie已清除，准备重新登录');
+
+      // 显示登录对话框
+      setShowLoginDialog(true);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error('❌ 清除Cookie失败:', err);
+      alert('清除Cookie失败: ' + (err.message || '未知错误'));
+    } finally {
+      setIsReLogging(false);
+    }
+  };
+
+  /**
+   * 登录成功回调
+   */
+  const handleLoginSuccess = () => {
+    setShowLoginDialog(false);
+    console.log('✅ Boss登录成功');
+    // 可以在这里添加成功提示
+  };
+
+  /**
+   * 取消登录回调
+   */
+  const handleLoginCancel = () => {
+    setShowLoginDialog(false);
+    console.log('❌ 用户取消了登录');
+  };
+
   return (
     <div className='bg-white rounded-lg shadow-sm border border-gray-200 p-6'>
       <div className='mb-6'>
-        <h3 className='text-lg font-semibold text-gray-900'>Boss直聘配置</h3>
-        <p className='text-sm text-gray-500'>
-          配置搜索关键词、城市、薪资等投递参数
-        </p>
+        <div className='flex items-center justify-between'>
+          <div>
+            <h3 className='text-lg font-semibold text-gray-900'>Boss直聘配置</h3>
+            <p className='text-sm text-gray-500'>
+              配置搜索关键词、城市、薪资等投递参数
+            </p>
+          </div>
+          <button
+            type='button'
+            onClick={handleReLogin}
+            disabled={loading || isReLogging}
+            className='px-4 py-2 border border-orange-300 rounded-md shadow-sm text-sm font-medium text-orange-700 bg-orange-50 hover:bg-orange-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+            title='清除Cookie并重新登录Boss直聘'
+          >
+            {isReLogging ? (
+              <>
+                <span className='inline-block animate-spin mr-2'>⏳</span>
+                准备中...
+              </>
+            ) : (
+              <>
+                🔄 重新登录
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       <div className='space-y-6'>
@@ -441,6 +506,14 @@ const BossConfig: React.FC<BossConfigProps> = ({
           {loading ? '保存中...' : '保存配置'}
         </button>
       </div>
+
+      {/* Boss登录对话框 */}
+      {showLoginDialog && (
+        <BossServerLogin
+          onSuccess={handleLoginSuccess}
+          onCancel={handleLoginCancel}
+        />
+      )}
     </div>
   );
 };

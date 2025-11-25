@@ -149,6 +149,7 @@ public class BossConfig {
 
         /**
          * 匹配度阈值（0.0-1.0）
+         * 保留用于向后兼容，作为兜底阈值
          */
         private Double matchThreshold = 0.7;
 
@@ -156,6 +157,58 @@ public class BossConfig {
          * 投递时间范围
          */
         private TimeRange deliveryTimeRange;
+
+        /**
+         * 关键词匹配模式
+         * STRICT: 严格模式（只启用方案1-开头匹配）
+         * STANDARD: 标准模式（启用方案1+2+3）
+         * FLEXIBLE: 灵活模式（启用所有方案1-5）
+         * CUSTOM: 自定义模式（根据matchingSchemes配置）
+         */
+        private String keywordMatchingMode = "STANDARD";
+
+        /**
+         * 匹配方案配置
+         * 允许用户自定义启用哪些匹配方案
+         */
+        private MatchingSchemes matchingSchemes;
+    }
+
+    /**
+     * 匹配方案配置内部类
+     */
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class MatchingSchemes {
+        /**
+         * 方案1：开头匹配（岗位以关键词开头）
+         * 例如："市场总监" 匹配 "市场总监（北京）"
+         */
+        private Boolean enableScheme1 = true;
+
+        /**
+         * 方案2：关键词+职位词组合匹配
+         * 例如："市场" 匹配 "市场总监"、"市场经理"
+         */
+        private Boolean enableScheme2 = true;
+
+        /**
+         * 方案3：完整词匹配（词边界检查）
+         * 例如："营销" 匹配 "数字营销总监"（完整词）
+         */
+        private Boolean enableScheme3 = true;
+
+        /**
+         * 方案4：拆分匹配（长关键词）
+         * 例如："营销总监" 匹配 "营销运营总监"（都包含"营销"和"总监"）
+         */
+        private Boolean enableScheme4 = false;
+
+        /**
+         * 方案5：短词+职位组合匹配（短关键词）
+         * 例如："市场" 匹配 "市场销售总监"（包含"市场"+"总监"）
+         */
+        private Boolean enableScheme5 = false;
     }
 
     /**
@@ -253,11 +306,25 @@ public class BossConfig {
             if (deliveryStrategyMap != null) {
                 DeliveryStrategy strategy = mapper.convertValue(deliveryStrategyMap, DeliveryStrategy.class);
                 config.setDeliveryStrategy(strategy);
-                log.info("📊 投递策略已加载: 自动投递={}, 频率={}/小时, 每日限额={}, 间隔={}秒",
+
+                // 输出匹配策略信息
+                String matchingMode = strategy.getKeywordMatchingMode() != null ? strategy.getKeywordMatchingMode() : "STANDARD";
+                String schemesInfo = "未配置";
+                if (strategy.getMatchingSchemes() != null) {
+                    MatchingSchemes schemes = strategy.getMatchingSchemes();
+                    schemesInfo = String.format("方案1=%s, 方案2=%s, 方案3=%s, 方案4=%s, 方案5=%s",
+                        schemes.getEnableScheme1(), schemes.getEnableScheme2(), schemes.getEnableScheme3(),
+                        schemes.getEnableScheme4(), schemes.getEnableScheme5());
+                }
+
+                log.info("📊 投递策略已加载: 自动投递={}, 频率={}/小时, 每日限额={}, 间隔={}秒, 匹配阈值={}, 匹配模式={}, 匹配方案=[{}]",
                     strategy.getEnableAutoDelivery(),
                     strategy.getDeliveryFrequency(),
                     strategy.getMaxDailyDelivery(),
-                    strategy.getDeliveryInterval());
+                    strategy.getDeliveryInterval(),
+                    strategy.getMatchThreshold(),
+                    matchingMode,
+                    schemesInfo);
             } else {
                 log.info("⚠️ 未找到投递策略配置，使用默认值");
                 config.setDeliveryStrategy(new DeliveryStrategy());

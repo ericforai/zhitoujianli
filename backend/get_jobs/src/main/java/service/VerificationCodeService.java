@@ -1,144 +1,45 @@
 package service;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 验证码管理服务
- *
- * 功能:
- * - 生成验证码
- * - 存储验证码
- * - 验证验证码
- * - 自动清理过期验证码
+ * 邮箱验证码服务
+ * 用于处理用户注册和登录时的邮箱验证码
  *
  * @author ZhiTouJianLi Team
+ * @since 2025-10-01
  */
-@Slf4j
 @Service
+@Slf4j
 public class VerificationCodeService {
 
-    // 存储验证码：email -> {code, expiresAt, attempts, verified}
-    private final Map<String, Map<String, Object>> verificationCodes = new ConcurrentHashMap<>();
+    // 存储验证码：email -> {code, expiresAt}
+    private final Map<String, CodeInfo> codeStorage = new ConcurrentHashMap<>();
 
-    // 验证码有效期：5分钟
-    private static final long CODE_EXPIRE_TIME = 5 * 60 * 1000;
+    // 验证码有效期（5分钟）
+    private static final long CODE_EXPIRY_TIME = 5 * 60 * 1000;
 
-    // 最大验证尝试次数
+    // 最大尝试次数
     private static final int MAX_ATTEMPTS = 5;
 
-    // 随机数生成器
-    private static final Random random = new Random();
-
     /**
-     * 生成6位数字验证码
+     * 验证码信息
      */
-    public String generateCode() {
-        return String.format("%06d", random.nextInt(1000000));
-    }
+    private static class CodeInfo {
+        String code;
+        long expiresAt;
+        int attempts;
 
-    /**
-     * 存储验证码
-     */
-    public void storeCode(String email, String code) {
-        Map<String, Object> codeInfo = new HashMap<>();
-        codeInfo.put("code", code);
-        codeInfo.put("expiresAt", System.currentTimeMillis() + CODE_EXPIRE_TIME);
-        codeInfo.put("attempts", 0);
-        codeInfo.put("verified", false);
-
-        verificationCodes.put(email, codeInfo);
-        log.info("✅ 验证码已存储: Email={}, Code={}, 过期时间: {}秒后", email, code, CODE_EXPIRE_TIME / 1000);
-    }
-
-    /**
-     * 验证验证码
-     *
-     * @return 验证结果：success, expired, invalid, max_attempts
-     */
-    public VerificationResult verifyCode(String email, String code) {
-        Map<String, Object> codeInfo = verificationCodes.get(email);
-
-        // 验证码不存在
-        if (codeInfo == null) {
-            log.warn("❌ 验证码不存在: {}", email);
-            return VerificationResult.INVALID;
-        }
-
-        // 检查是否已过期
-        long expiresAt = (Long) codeInfo.get("expiresAt");
-        if (System.currentTimeMillis() > expiresAt) {
-            log.warn("❌ 验证码已过期: {}", email);
-            verificationCodes.remove(email);
-            return VerificationResult.EXPIRED;
-        }
-
-        // 检查尝试次数
-        int attempts = (Integer) codeInfo.get("attempts");
-        if (attempts >= MAX_ATTEMPTS) {
-            log.warn("❌ 验证码尝试次数超限: {}", email);
-            verificationCodes.remove(email);
-            return VerificationResult.MAX_ATTEMPTS;
-        }
-
-        // 验证验证码
-        String storedCode = (String) codeInfo.get("code");
-        if (storedCode.equals(code)) {
-            codeInfo.put("verified", true);
-            log.info("✅ 验证码验证成功: {}", email);
-            return VerificationResult.SUCCESS;
-        } else {
-            codeInfo.put("attempts", attempts + 1);
-            log.warn("❌ 验证码错误: {}, 剩余尝试次数: {}", email, MAX_ATTEMPTS - attempts - 1);
-            return VerificationResult.INVALID;
-        }
-    }
-
-    /**
-     * 检查验证码是否已验证
-     */
-    public boolean isVerified(String email) {
-        Map<String, Object> codeInfo = verificationCodes.get(email);
-        if (codeInfo == null) {
-            return false;
-        }
-        return Boolean.TRUE.equals(codeInfo.get("verified"));
-    }
-
-    /**
-     * 移除验证码（注册成功后调用）
-     */
-    public void removeCode(String email) {
-        verificationCodes.remove(email);
-        log.debug("✅ 验证码已清理: {}", email);
-    }
-
-    /**
-     * 定时清理过期验证码（每10分钟执行一次）
-     */
-    @Scheduled(fixedRate = 10 * 60 * 1000)
-    public void cleanExpiredCodes() {
-        final long now = System.currentTimeMillis();
-        final int[] cleaned = {0};
-
-        verificationCodes.entrySet().removeIf(entry -> {
-            long expiresAt = (Long) entry.getValue().get("expiresAt");
-            if (now > expiresAt) {
-                cleaned[0]++;
-                return true;
-            }
-            return false;
-        });
-
-        if (cleaned[0] > 0) {
-            log.info("🗑️ 清理了{}个过期验证码", cleaned[0]);
+        CodeInfo(String code, long expiresAt) {
+            this.code = code;
+            this.expiresAt = expiresAt;
+            this.attempts = 0;
         }
     }
 
@@ -146,10 +47,77 @@ public class VerificationCodeService {
      * 验证结果枚举
      */
     public enum VerificationResult {
-        SUCCESS,        // 验证成功
-        INVALID,        // 验证码错误
-        EXPIRED,        // 验证码过期
-        MAX_ATTEMPTS    // 超过最大尝试次数
+        SUCCESS,      // 验证成功
+        EXPIRED,      // 验证码已过期
+        INVALID,      // 验证码错误
+        MAX_ATTEMPTS  // 超过最大尝试次数
+    }
+
+    /**
+     * 生成6位数字验证码
+     */
+    public String generateCode() {
+        return String.format("%06d", ThreadLocalRandom.current().nextInt(100000, 999999));
+    }
+
+    /**
+     * 存储验证码
+     */
+    public void storeCode(String email, String code) {
+        long expiresAt = System.currentTimeMillis() + CODE_EXPIRY_TIME;
+        codeStorage.put(email, new CodeInfo(code, expiresAt));
+        log.info("验证码已存储: email={}, expiresAt={}", email, new java.util.Date(expiresAt));
+    }
+
+    /**
+     * 验证验证码
+     */
+    public VerificationResult verifyCode(String email, String inputCode) {
+        CodeInfo codeInfo = codeStorage.get(email);
+
+        if (codeInfo == null) {
+            log.warn("验证码不存在: email={}", email);
+            return VerificationResult.INVALID;
+        }
+
+        // 检查是否过期
+        if (System.currentTimeMillis() > codeInfo.expiresAt) {
+            codeStorage.remove(email);
+            log.warn("验证码已过期: email={}", email);
+            return VerificationResult.EXPIRED;
+        }
+
+        // 检查尝试次数
+        codeInfo.attempts++;
+        if (codeInfo.attempts > MAX_ATTEMPTS) {
+            codeStorage.remove(email);
+            log.warn("验证码尝试次数过多: email={}, attempts={}", email, codeInfo.attempts);
+            return VerificationResult.MAX_ATTEMPTS;
+        }
+
+        // 验证验证码
+        if (codeInfo.code.equals(inputCode)) {
+            codeStorage.remove(email);
+            log.info("验证码验证成功: email={}", email);
+            return VerificationResult.SUCCESS;
+        } else {
+            log.warn("验证码错误: email={}, attempts={}", email, codeInfo.attempts);
+            return VerificationResult.INVALID;
+        }
+    }
+
+    /**
+     * 清理过期的验证码
+     */
+    public void cleanupExpiredCodes() {
+        long now = System.currentTimeMillis();
+        codeStorage.entrySet().removeIf(entry -> {
+            boolean expired = entry.getValue().expiresAt < now;
+            if (expired) {
+                log.debug("清理过期验证码: email={}", entry.getKey());
+            }
+            return expired;
+        });
     }
 }
 

@@ -1,7 +1,9 @@
 package controller;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -29,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import repository.UserPlanRepository;
 import service.AdminService;
 import service.QuotaService;
+import service.UserActivationService;
 import service.UserService;
 import util.UserContextUtil;
 
@@ -60,6 +63,9 @@ public class AdminUserController {
 
     @Autowired
     private UserPlanRepository userPlanRepository;
+
+    @Autowired
+    private UserActivationService userActivationService;
 
     /**
      * 获取用户列表（分页、搜索、筛选）
@@ -304,10 +310,11 @@ public class AdminUserController {
 
     /**
      * 删除用户（软删除）
+     * 🔧 修复：支持String类型的userId（前端可能发送字符串）
      */
     @DeleteMapping("/{userId}")
     public ResponseEntity<Map<String, Object>> deleteUser(
-            @PathVariable Long userId,
+            @PathVariable String userId,
             @RequestBody(required = false) DeleteUserRequest request) {
         try {
             String adminId = UserContextUtil.getCurrentUserId();
@@ -319,11 +326,25 @@ public class AdminUserController {
                 ));
             }
 
+            // 🔧 修复：将String类型的userId转换为Long
+            Long userIdLong;
+            try {
+                userIdLong = Long.parseLong(userId);
+            } catch (NumberFormatException e) {
+                log.error("❌ 无效的用户ID格式: userId={}", userId);
+                return ResponseEntity.status(400).body(Map.of(
+                    "success", false,
+                    "message", "无效的用户ID格式"
+                ));
+            }
+
             String reason = request != null && request.getReason() != null
                 ? request.getReason()
                 : "管理员删除";
 
-            userService.softDeleteUser(userId, reason);
+            log.info("🗑️ 删除用户请求: userId={}, reason={}, adminId={}", userIdLong, reason, adminId);
+
+            userService.softDeleteUser(userIdLong, reason);
 
             return ResponseEntity.ok(Map.of(
                 "success", true,
@@ -331,15 +352,127 @@ public class AdminUserController {
             ));
 
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(404).body(Map.of(
+            // 🔧 修复：区分"用户不存在"和"用户已被删除"两种情况
+            String errorMessage = e.getMessage();
+            int statusCode;
+
+            if (errorMessage.contains("已被删除")) {
+                // 用户已被删除，使用409 Conflict（资源冲突）
+                statusCode = 409;
+            } else if (errorMessage.contains("不存在")) {
+                // 用户不存在，使用404 Not Found
+                statusCode = 404;
+            } else {
+                // 其他参数错误，使用400 Bad Request
+                statusCode = 400;
+            }
+
+            return ResponseEntity.status(statusCode).body(Map.of(
                 "success", false,
-                "message", e.getMessage()
+                "message", errorMessage
             ));
         } catch (Exception e) {
             log.error("❌ 删除用户异常", e);
             return ResponseEntity.status(500).body(Map.of(
                 "success", false,
                 "message", "删除用户失败"
+            ));
+        }
+    }
+
+    /**
+     * 批量删除用户（软删除）
+     * 🔧 新增：支持批量删除，提高管理效率
+     * 🔒 安全：限制最多50个用户，需要权限检查
+     */
+    @PostMapping("/batch-delete")
+    public ResponseEntity<Map<String, Object>> batchDeleteUsers(
+            @RequestBody BatchDeleteRequest request) {
+        try {
+            String adminId = UserContextUtil.getCurrentUserId();
+
+            if (!adminService.hasPermission(adminId, "user_management_delete")) {
+                return ResponseEntity.status(403).body(Map.of(
+                    "success", false,
+                    "message", "没有权限删除用户"
+                ));
+            }
+
+            List<String> userIdStrings = request.getUserIds();
+            if (userIdStrings == null || userIdStrings.isEmpty()) {
+                return ResponseEntity.status(400).body(Map.of(
+                    "success", false,
+                    "message", "请选择要删除的用户"
+                ));
+            }
+
+            // 🔒 安全限制：最多允许批量删除50个用户
+            if (userIdStrings.size() > 50) {
+                return ResponseEntity.status(400).body(Map.of(
+                    "success", false,
+                    "message", "批量删除最多支持50个用户，请分批操作"
+                ));
+            }
+
+            String reason = request.getReason() != null
+                ? request.getReason()
+                : "管理员批量删除";
+
+            log.info("🗑️ 批量删除用户请求: userIds={}, count={}, reason={}, adminId={}",
+                userIdStrings, userIdStrings.size(), reason, adminId);
+
+            // 批量删除结果统计
+            int successCount = 0;
+            int failCount = 0;
+            List<Map<String, Object>> failedUsers = new ArrayList<>();
+
+            for (String userIdStr : userIdStrings) {
+                try {
+                    Long userId = Long.parseLong(userIdStr);
+                    userService.softDeleteUser(userId, reason);
+                    successCount++;
+                } catch (NumberFormatException e) {
+                    log.warn("⚠️ 无效的用户ID格式: userId={}", userIdStr);
+                    failCount++;
+                    failedUsers.add(Map.of(
+                        "userId", userIdStr,
+                        "error", "无效的用户ID格式"
+                    ));
+                } catch (IllegalArgumentException e) {
+                    log.warn("⚠️ 删除用户失败: userId={}, error={}", userIdStr, e.getMessage());
+                    failCount++;
+                    failedUsers.add(Map.of(
+                        "userId", userIdStr,
+                        "error", e.getMessage()
+                    ));
+                } catch (Exception e) {
+                    log.error("❌ 删除用户异常: userId={}", userIdStr, e);
+                    failCount++;
+                    failedUsers.add(Map.of(
+                        "userId", userIdStr,
+                        "error", "删除失败: " + e.getMessage()
+                    ));
+                }
+            }
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", failCount == 0);
+            result.put("message", String.format("批量删除完成：成功 %d 个，失败 %d 个", successCount, failCount));
+            result.put("successCount", successCount);
+            result.put("failCount", failCount);
+            if (!failedUsers.isEmpty()) {
+                result.put("failedUsers", failedUsers);
+            }
+
+            log.info("✅ 批量删除完成: 成功={}, 失败={}", successCount, failCount);
+
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            log.error("❌ 批量删除用户异常", e);
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "message", "批量删除失败: " + e.getMessage()
             ));
         }
     }
@@ -461,6 +594,30 @@ public class AdminUserController {
         public void setReason(String reason) { this.reason = reason; }
     }
 
+    /**
+     * 批量删除用户请求
+     */
+    public static class BatchDeleteRequest {
+        private List<String> userIds;
+        private String reason;
+
+        public List<String> getUserIds() {
+            return userIds;
+        }
+
+        public void setUserIds(List<String> userIds) {
+            this.userIds = userIds;
+        }
+
+        public String getReason() {
+            return reason;
+        }
+
+        public void setReason(String reason) {
+            this.reason = reason;
+        }
+    }
+
     public static class ResetQuotaRequest {
         private String quotaKey;
         private String reason;
@@ -469,6 +626,149 @@ public class AdminUserController {
         public void setQuotaKey(String quotaKey) { this.quotaKey = quotaKey; }
         public String getReason() { return reason; }
         public void setReason(String reason) { this.reason = reason; }
+    }
+
+    // ==================== 用户激活邮件功能 ====================
+
+    /**
+     * 获取未使用的用户列表
+     */
+    @GetMapping("/inactive")
+    public ResponseEntity<Map<String, Object>> getInactiveUsers() {
+        try {
+            String adminUsername = UserContextUtil.getCurrentAdminUsername();
+            if (adminUsername == null) {
+                return ResponseEntity.status(401).body(Map.of(
+                    "success", false,
+                    "message", "需要管理员登录"
+                ));
+            }
+
+            if (!adminService.hasPermission(adminUsername, "user_management_read")) {
+                return ResponseEntity.status(403).body(Map.of(
+                    "success", false,
+                    "message", "没有权限查看用户列表"
+                ));
+            }
+
+            List<User> inactiveUsers = userActivationService.getInactiveUsers();
+
+            List<Map<String, Object>> usersList = inactiveUsers.stream()
+                .map(this::convertUserToResponse)
+                .collect(java.util.stream.Collectors.toList());
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "data", Map.of(
+                    "users", usersList,
+                    "total", inactiveUsers.size()
+                )
+            ));
+        } catch (Exception e) {
+            log.error("获取未使用用户列表失败", e);
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "message", "获取未使用用户列表失败: " + e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * 批量发送激活邮件给未使用的用户
+     *
+     * @param maxEmails 最大发送数量（默认50）
+     * @param delaySeconds 每封邮件之间的延迟秒数（默认2秒）
+     */
+    @PostMapping("/send-activation-emails")
+    public ResponseEntity<Map<String, Object>> sendActivationEmails(
+            @RequestParam(defaultValue = "50") int maxEmails,
+            @RequestParam(defaultValue = "2") int delaySeconds) {
+        try {
+            String adminUsername = UserContextUtil.getCurrentAdminUsername();
+            if (adminUsername == null) {
+                return ResponseEntity.status(401).body(Map.of(
+                    "success", false,
+                    "message", "需要管理员登录"
+                ));
+            }
+
+            if (!adminService.hasPermission(adminUsername, "user_management_write")) {
+                return ResponseEntity.status(403).body(Map.of(
+                    "success", false,
+                    "message", "没有权限发送激活邮件"
+                ));
+            }
+
+            log.info("📧 开始批量发送激活邮件: adminUsername={}, maxEmails={}, delaySeconds={}",
+                    adminUsername, maxEmails, delaySeconds);
+
+            // 限制最大发送数量，防止误操作
+            if (maxEmails > 200) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "单次最多发送200封邮件，请分批发送"
+                ));
+            }
+
+            Map<String, Object> result = userActivationService.sendActivationEmailsToInactiveUsers(
+                    maxEmails, delaySeconds);
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "data", result,
+                "message", String.format("激活邮件发送完成: 成功 %d 封，失败 %d 封",
+                    result.get("sentCount"), result.get("failedCount"))
+            ));
+        } catch (Exception e) {
+            log.error("批量发送激活邮件失败", e);
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "message", "批量发送激活邮件失败: " + e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * 发送激活邮件给单个用户（用于测试）
+     */
+    @PostMapping("/{userId}/send-activation-email")
+    public ResponseEntity<Map<String, Object>> sendActivationEmailToUser(@PathVariable Long userId) {
+        try {
+            String adminUsername = UserContextUtil.getCurrentAdminUsername();
+            if (adminUsername == null) {
+                return ResponseEntity.status(401).body(Map.of(
+                    "success", false,
+                    "message", "需要管理员登录"
+                ));
+            }
+
+            if (!adminService.hasPermission(adminUsername, "user_management_write")) {
+                return ResponseEntity.status(403).body(Map.of(
+                    "success", false,
+                    "message", "没有权限发送激活邮件"
+                ));
+            }
+
+            User user = userService.getUserById(userId);
+            Map<String, Object> result = userActivationService.sendActivationEmailToUser(user.getEmail());
+
+            return ResponseEntity.ok(Map.of(
+                "success", result.get("success"),
+                "data", result,
+                "message", result.get("message")
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", e.getMessage()
+            ));
+        } catch (Exception e) {
+            log.error("发送激活邮件失败: userId={}", userId, e);
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "message", "发送激活邮件失败: " + e.getMessage()
+            ));
+        }
     }
 }
 

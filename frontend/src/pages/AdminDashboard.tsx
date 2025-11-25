@@ -85,6 +85,19 @@ const AdminDashboard: React.FC = () => {
 
     console.log('✅ AdminDashboard: 认证通过，开始获取数据');
     fetchDashboardData();
+
+    // 🔧 修复：监听用户删除事件，自动刷新仪表盘数据
+    const handleUsersChanged = () => {
+      console.log('📊 收到用户变更事件，刷新仪表盘数据');
+      fetchDashboardData();
+    };
+
+    window.addEventListener('adminUsersChanged', handleUsersChanged);
+
+    // 清理事件监听器
+    return () => {
+      window.removeEventListener('adminUsersChanged', handleUsersChanged);
+    };
   }, []);
 
   const fetchDashboardData = async () => {

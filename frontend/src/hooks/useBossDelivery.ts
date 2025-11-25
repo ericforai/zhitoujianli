@@ -49,7 +49,10 @@ export const useBossDelivery = () => {
   };
 
   // 启动投递任务
+  // ✅ 修复：确保只有用户明确点击"启动投递"按钮才会启动，不会自动启动
   const handleStart = async () => {
+    console.log('✅ 用户明确点击"启动投递"按钮，开始启动投递任务');
+
     // 检查配额
     const canSubmit = hasPermission('daily_job_application', 1);
     if (!canSubmit) {
@@ -97,7 +100,9 @@ export const useBossDelivery = () => {
   };
 
   // 停止投递任务
+  // ✅ 修复：确保只有用户明确点击"停止投递"按钮才会停止
   const handleStop = async () => {
+    console.log('✅ 用户明确点击"停止投递"按钮，开始停止投递任务');
     setLoading(true);
     setMessage('');
 
@@ -144,6 +149,64 @@ export const useBossDelivery = () => {
     const interval = setInterval(fetchStatus, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  // ✅ 配额检查和自动停止逻辑
+  useEffect(() => {
+    // 如果任务正在运行，定期检查配额
+    if (!status.isRunning) {
+      return;
+    }
+
+    const checkQuotaAndStop = async () => {
+      try {
+        // 刷新配额信息
+        await refreshQuota();
+
+        // 检查配额是否足够继续投递
+        const canContinue = hasPermission('daily_job_application', 1);
+
+        if (!canContinue) {
+          // 配额已用完，自动停止投递
+          console.log('⚠️ 配额已用完，自动停止投递任务');
+          setMessage('⚠️ 今日投递配额已用完，已自动停止投递。请升级套餐继续使用！');
+
+          // 调用停止API
+          try {
+            const response = await fetch('/api/delivery/stop', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+              },
+            });
+
+            const result = await response.json();
+            if (result.success) {
+              // 更新本地状态
+              setStatus(prev => ({ ...prev, isRunning: false }));
+              // 刷新状态
+              fetchStatus();
+            }
+          } catch (error: any) {
+            console.error('自动停止投递失败:', error);
+            // 即使停止API失败，也更新本地状态
+            setStatus(prev => ({ ...prev, isRunning: false }));
+          }
+        }
+      } catch (error: any) {
+        console.error('配额检查失败:', error);
+      }
+    };
+
+    // 立即检查一次
+    checkQuotaAndStop();
+
+    // 每10秒检查一次配额（比状态刷新更频繁）
+    const quotaCheckInterval = setInterval(checkQuotaAndStop, 10000);
+
+    return () => clearInterval(quotaCheckInterval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status.isRunning]);
 
   return {
     status,

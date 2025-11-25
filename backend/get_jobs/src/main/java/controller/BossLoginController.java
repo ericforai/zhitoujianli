@@ -55,7 +55,20 @@ public class BossLoginController {
     private BossExecutionService bossExecutionService;
 
     // 二维码截图保存路径
-    private static final String QRCODE_PATH = System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode.png";
+    // ✅ 修复：二维码文件路径需要包含用户ID，与Boss.java中的生成逻辑保持一致
+    // Boss.java生成: boss_qrcode_{safeUserId}.png
+    // 此方法用于获取当前用户的二维码文件路径
+    private String getQRCodePath() {
+        try {
+            String userId = util.UserContextUtil.sanitizeUserId(util.UserContextUtil.getCurrentUserId());
+            String safeUserId = userId.replaceAll("[^a-zA-Z0-9_-]", "_");
+            return System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode_" + safeUserId + ".png";
+        } catch (SecurityException e) {
+            // 如果未登录，返回默认路径（向后兼容）
+            log.warn("无法获取用户ID，使用默认二维码路径: {}", e.getMessage());
+            return System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode.png";
+        }
+    }
 
     // 登录状态标记文件
     private static final String LOGIN_STATUS_FILE = System.getProperty("java.io.tmpdir") + File.separator + "boss_login_status.txt";
@@ -124,13 +137,21 @@ public class BossLoginController {
             // 创建登录状态文件，标记为"等待登录"
             Files.write(Paths.get(LOGIN_STATUS_FILE), "waiting".getBytes(StandardCharsets.UTF_8));
 
+            // ✅ 修复：在异步任务之前获取SecurityContext，避免在异步线程中丢失
+            final org.springframework.security.core.context.SecurityContext securityContext =
+                org.springframework.security.core.context.SecurityContextHolder.getContext();
+            final String finalUserId = userId; // 保存userId的最终引用
+
             // 异步启动Boss程序（有头模式，用于生成二维码）
             CompletableFuture.runAsync(() -> {
+                // ✅ 修复：在异步线程中恢复SecurityContext
+                org.springframework.security.core.context.SecurityContextHolder.setContext(securityContext);
+
                 try {
-                    log.info("🚀 异步启动Boss程序以生成登录二维码...");
+                    log.info("🚀 异步启动Boss程序以生成登录二维码... (用户: {})", finalUserId);
 
                     // ✅ 启动Boss程序（只登录模式，不执行投递）
-                    CompletableFuture<Void> bossFuture = bossExecutionService.executeBossProgram(
+                    bossExecutionService.executeBossProgram(
                         System.getProperty("java.io.tmpdir") + File.separator + "boss_login.log",
                         false,  // headless=false（有头模式，用于生成二维码）
                         true    // loginOnly=true（只登录，不投递）
@@ -143,18 +164,22 @@ public class BossLoginController {
                     for (int i = 0; i < maxWaitTime; i += waitInterval) {
                         Thread.sleep(waitInterval * 1000L);
 
-                        // 检查二维码文件是否生成
-                        File qrcodeFile = new File(QRCODE_PATH);
+                        // ✅ 修复：使用用户ID相关的二维码文件路径
+                        String qrcodePath = System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode_" +
+                            finalUserId.replaceAll("[^a-zA-Z0-9_-]", "_") + ".png";
+                        File qrcodeFile = new File(qrcodePath);
                         if (qrcodeFile.exists() && qrcodeFile.length() > 0) {
-                            log.info("✅ 二维码文件已生成: {} ({}KB)", QRCODE_PATH, qrcodeFile.length() / 1024);
+                            log.info("✅ 二维码文件已生成: {} ({}KB)", qrcodePath, qrcodeFile.length() / 1024);
                             break;
                         }
 
                         log.debug("⏳ 等待二维码生成... ({}/{}秒)", i + waitInterval, maxWaitTime);
                     }
 
-                    // 检查最终状态
-                    File qrcodeFile = new File(QRCODE_PATH);
+                    // ✅ 修复：检查最终状态，使用用户ID相关的二维码文件路径
+                    String qrcodePath = System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode_" +
+                        finalUserId.replaceAll("[^a-zA-Z0-9_-]", "_") + ".png";
+                    File qrcodeFile = new File(qrcodePath);
                     if (!qrcodeFile.exists() || qrcodeFile.length() == 0) {
                         log.warn("⚠️ 二维码文件未在预期时间内生成");
                         Files.write(Paths.get(LOGIN_STATUS_FILE), "failed".getBytes(StandardCharsets.UTF_8));
@@ -169,8 +194,8 @@ public class BossLoginController {
                     }
                 } finally {
                     // 【多用户支持】登录流程结束，释放用户锁
-                    userLoginStatus.put(userId, false);
-                    log.info("用户{}登录流程结束，已释放锁", userId);
+                    userLoginStatus.put(finalUserId, false);
+                    log.info("用户{}登录流程结束，已释放锁", finalUserId);
 
                     // 【向后兼容】同时释放全局锁
                     synchronized (LOGIN_LOCK) {
@@ -215,10 +240,12 @@ public class BossLoginController {
         String traceId = java.util.UUID.randomUUID().toString();
         MDC.put("traceId", traceId);
         try {
-            File qrcodeFile = new File(QRCODE_PATH);
+            // ✅ 修复：使用用户ID相关的二维码文件路径
+            String qrcodePath = getQRCodePath();
+            File qrcodeFile = new File(qrcodePath);
 
             if (!qrcodeFile.exists()) {
-                log.warn("[{}] 二维码文件不存在: {}", traceId, QRCODE_PATH);
+                log.warn("[{}] 二维码文件不存在: {}", traceId, qrcodePath);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .header("X-Request-Id", traceId)
                         .body(Map.of("success", false, "message", "二维码尚未生成", "traceId", traceId));
@@ -326,7 +353,9 @@ public class BossLoginController {
                 case "waiting":
                     response.put("status", "waiting");
                     response.put("message", "等待扫码中...");
-                    response.put("hasQRCode", new File(QRCODE_PATH).exists());
+                    // ✅ 修复：使用用户ID相关的二维码文件路径
+                    String qrcodePath = getQRCodePath();
+                    response.put("hasQRCode", new File(qrcodePath).exists());
                     break;
                 case "success":
                     response.put("status", "success");
@@ -380,10 +409,17 @@ public class BossLoginController {
                 log.info("清理用户{}的Cookie文件: {}", safeUserId, userCookiePath);
             }
 
-            // 清理全局登录文件（二维码和状态）
-            Files.deleteIfExists(Paths.get(QRCODE_PATH));
-            Files.deleteIfExists(Paths.get(LOGIN_STATUS_FILE));
-            log.info("清理登录文件完成（用户: {}）", userId);
+            // ✅ 修复：清理用户特定的二维码和状态文件
+            if (userId != null && !userId.isEmpty()) {
+                String safeUserId = userId.replaceAll("[^a-zA-Z0-9_-]", "_");
+                String qrcodePath = System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode_" + safeUserId + ".png";
+                String statusFilePath = System.getProperty("java.io.tmpdir") + File.separator + "boss_login_status_" + safeUserId + ".txt";
+                Files.deleteIfExists(Paths.get(qrcodePath));
+                Files.deleteIfExists(Paths.get(statusFilePath));
+                log.info("清理登录文件完成（用户: {}）", userId);
+            } else {
+                log.warn("用户ID为空，跳过清理登录文件");
+            }
         } catch (IOException e) {
             log.warn("清理登录文件失败", e);
         }
@@ -396,10 +432,12 @@ public class BossLoginController {
     @Deprecated
     private void cleanupLoginFiles() {
         log.warn("⚠️ 调用了过时的cleanupLoginFiles()方法，请使用带userId参数的版本");
-        // 清理全局登录文件（二维码和状态）
+        // ✅ 修复：清理默认路径的登录文件（向后兼容）
         try {
-            Files.deleteIfExists(Paths.get(QRCODE_PATH));
-            Files.deleteIfExists(Paths.get(LOGIN_STATUS_FILE));
+            String defaultQrcodePath = System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode.png";
+            String defaultStatusPath = System.getProperty("java.io.tmpdir") + File.separator + "boss_login_status.txt";
+            Files.deleteIfExists(Paths.get(defaultQrcodePath));
+            Files.deleteIfExists(Paths.get(defaultStatusPath));
         } catch (IOException e) {
             log.warn("清理登录文件失败", e);
         }

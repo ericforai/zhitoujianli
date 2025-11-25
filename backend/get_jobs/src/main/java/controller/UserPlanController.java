@@ -270,11 +270,12 @@ public class UserPlanController {
                 ));
             }
 
-            // 🔧 修复：如果配额详情为空，至少返回默认的配额结构
+            // 🔧 修复：如果配额详情为空，至少返回默认的配额结构（求职入门版：与网页公开版一致）
             if (quickAccess.isEmpty()) {
-                quickAccess.put("resume_basic_optimize", Map.of("used", 0, "limit", 10, "unlimited", false));
-                quickAccess.put("resume_advanced_optimize", Map.of("used", 0, "limit", 5, "unlimited", false));
-                quickAccess.put("daily_job_application", Map.of("used", 0, "limit", 20, "unlimited", false));
+                // ✅ 求职入门版：简历基础优化1次，高级优化0次（不支持），每日投递5次
+                quickAccess.put("resume_basic_optimize", Map.of("used", 0, "limit", 1, "unlimited", false));
+                quickAccess.put("resume_advanced_optimize", Map.of("used", 0, "limit", 0, "unlimited", false));
+                quickAccess.put("daily_job_application", Map.of("used", 0, "limit", 5, "unlimited", false));
             }
 
             response.put("quickAccess", quickAccess);
@@ -301,9 +302,10 @@ public class UserPlanController {
         response.put("quotaDetails", new ArrayList<>());
 
         Map<String, Object> quickAccess = new HashMap<>();
-        quickAccess.put("resume_basic_optimize", Map.of("used", 0, "limit", 10, "unlimited", false));
-        quickAccess.put("resume_advanced_optimize", Map.of("used", 0, "limit", 5, "unlimited", false));
-        quickAccess.put("daily_job_application", Map.of("used", 0, "limit", 20, "unlimited", false));
+        // ✅ 修复：求职入门版配额与网页公开版一致（简历基础优化1次，高级优化0次，每日投递5次）
+        quickAccess.put("resume_basic_optimize", Map.of("used", 0, "limit", 1, "unlimited", false));
+        quickAccess.put("resume_advanced_optimize", Map.of("used", 0, "limit", 0, "unlimited", false));
+        quickAccess.put("daily_job_application", Map.of("used", 0, "limit", 5, "unlimited", false));
         response.put("quickAccess", quickAccess);
 
         return ResponseEntity.ok(response);

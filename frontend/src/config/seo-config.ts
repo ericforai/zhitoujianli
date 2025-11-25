@@ -199,22 +199,6 @@ export const SEO_CONFIGS: Record<string, SEOConfig> = {
     canonical: `${BASE_URL}/resume-delivery`,
   },
 
-  // Boss直聘投递页
-  '/boss-delivery': {
-    title: 'Boss直聘智能投递 - 智投简历 | 自动化Boss直聘求职',
-    description:
-      '专为Boss直聘打造的智能投递功能。自动搜索匹配职位、生成个性化打招呼语、批量投递简历，让Boss直聘求职效率提升10倍。',
-    keywords: [
-      ...COMMON_KEYWORDS,
-      'Boss直聘投递',
-      'Boss直聘自动化',
-      'Boss直聘打招呼语',
-      'Boss直聘求职工具',
-      '自动投递Boss',
-    ],
-    canonical: `${BASE_URL}/boss-delivery`,
-  },
-
   // 配置页面
   '/config': {
     title: '投递配置 - 智投简历 | 设置搜索条件、投递偏好',

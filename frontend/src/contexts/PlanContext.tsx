@@ -162,9 +162,10 @@ export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children
           planName: '求职入门版',
           quotaDetails: [],
           quickAccess: {
-            resume_basic_optimize: { used: 0, limit: 10, unlimited: false },
-            resume_advanced_optimize: { used: 0, limit: 5, unlimited: false },
-            daily_job_application: { used: 0, limit: 20, unlimited: false },
+            // ✅ 修复：求职入门版配额与网页公开版一致（简历基础优化1次，高级优化0次，每日投递5次）
+            resume_basic_optimize: { used: 0, limit: 1, unlimited: false },
+            resume_advanced_optimize: { used: 0, limit: 0, unlimited: false },
+            daily_job_application: { used: 0, limit: 5, unlimited: false },
           },
         });
       }
@@ -180,9 +181,10 @@ export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children
         planName: '求职入门版',
         quotaDetails: [],
         quickAccess: {
-          resume_basic_optimize: { used: 0, limit: 10, unlimited: false },
-          resume_advanced_optimize: { used: 0, limit: 5, unlimited: false },
-          daily_job_application: { used: 0, limit: 20, unlimited: false },
+          // ✅ 修复：求职入门版配额与网页公开版一致（简历基础优化1次，高级优化0次，每日投递5次）
+          resume_basic_optimize: { used: 0, limit: 1, unlimited: false },
+          resume_advanced_optimize: { used: 0, limit: 0, unlimited: false },
+          daily_job_application: { used: 0, limit: 5, unlimited: false },
         },
       });
       // 不设置error，避免影响用户体验

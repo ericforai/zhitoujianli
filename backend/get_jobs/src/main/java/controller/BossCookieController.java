@@ -501,17 +501,23 @@ public class BossCookieController {
 
     /**
      * 获取Boss任务状态
+     * ✅ 修复：按用户隔离状态，确保用户只能看到自己的投递状态
      */
     @GetMapping("/status")
     public ResponseEntity<Map<String, Object>> getBossStatus() {
         try {
+            // ✅ 修复：获取当前用户ID，只返回该用户的状态
+            String userId = UserContextUtil.sanitizeUserId(
+                UserContextUtil.getCurrentUserId()
+            );
+
             Map<String, Object> status = new HashMap<>();
 
-            // 检查Boss进程是否在运行
-            boolean isRunning = checkBossProcessRunning();
+            // ✅ 修复：检查该用户的Boss进程是否在运行（通过检查日志文件）
+            boolean isRunning = checkUserBossProcessRunning(userId);
             status.put("isRunning", isRunning);
 
-            // 🔧 增强统计：获取详细的投递统计信息
+            // 🔧 增强统计：获取详细的投递统计信息（已按用户隔离）
             Map<String, Long> deliveryStats = getDetailedDeliveryStats();
             status.put("deliveryCount", deliveryStats.get("success"));  // 向后兼容
             status.put("successCount", deliveryStats.get("success"));
@@ -519,9 +525,10 @@ public class BossCookieController {
             status.put("errorCount", deliveryStats.get("error"));
             status.put("blacklistCount", deliveryStats.get("blacklist"));
             status.put("totalProcessed", deliveryStats.get("total"));
+            status.put("userId", userId); // 添加userId用于调试
 
-            log.info("Boss状态检查结果: isRunning={}, 成功={}, 跳过={}, 错误={}, 黑名单={}",
-                isRunning, deliveryStats.get("success"), deliveryStats.get("skipped"),
+            log.debug("用户{}的Boss状态检查结果: isRunning={}, 成功={}, 跳过={}, 错误={}, 黑名单={}",
+                userId, isRunning, deliveryStats.get("success"), deliveryStats.get("skipped"),
                 deliveryStats.get("error"), deliveryStats.get("blacklist"));
             return ResponseEntity.ok(status);
         } catch (Exception e) {
@@ -691,34 +698,41 @@ public class BossCookieController {
     }
 
     /**
-     * 检查Boss进程是否在运行
-     * @return true如果Boss进程在运行，false如果未运行
+     * 检查指定用户的Boss进程是否在运行
+     * ✅ 修复：按用户隔离，检查该用户的日志文件是否最近有更新
+     * @param userId 用户ID
+     * @return true如果该用户的Boss进程在运行，false如果未运行
      */
-    private boolean checkBossProcessRunning() {
+    private boolean checkUserBossProcessRunning(String userId) {
         try {
-            // 使用ps命令检查Boss进程
-            ProcessBuilder pb = new ProcessBuilder("ps", "aux");
-            Process process = pb.start();
+            // ✅ 修复：检查该用户的日志文件是否最近有更新（5分钟内）
+            String logFilePath = "/tmp/boss_delivery_" + userId + ".log";
+            File logFile = new File(logFilePath);
 
-            try (java.io.BufferedReader reader = new java.io.BufferedReader(
-                    new java.io.InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    // 检查是否包含Boss进程
-                    if (line.contains("boss.IsolatedBossRunner") &&
-                        !line.contains("grep")) {
-                        log.debug("找到Boss进程: {}", line);
-                        return true;
-                    }
-                }
+            if (!logFile.exists()) {
+                log.debug("用户{}的日志文件不存在: {}", userId, logFilePath);
+                return false;
             }
 
-            int exitCode = process.waitFor();
-            log.debug("ps命令执行完成，退出码: {}", exitCode);
-            return false;
+            // 检查日志文件的最后修改时间
+            long lastModified = logFile.lastModified();
+            long currentTime = System.currentTimeMillis();
+            long timeDiff = currentTime - lastModified;
+
+            // 如果日志文件在最近5分钟内被修改过，说明任务正在运行
+            // 5分钟 = 5 * 60 * 1000 毫秒
+            boolean isRunning = timeDiff < (5 * 60 * 1000);
+
+            if (isRunning) {
+                log.debug("用户{}的Boss进程可能在运行（日志文件最近{}秒内更新）", userId, timeDiff / 1000);
+            } else {
+                log.debug("用户{}的Boss进程可能已停止（日志文件最后更新于{}秒前）", userId, timeDiff / 1000);
+            }
+
+            return isRunning;
 
         } catch (Exception e) {
-            log.error("检查Boss进程状态失败", e);
+            log.error("检查用户{}的Boss进程状态失败", userId, e);
             return false;
         }
     }

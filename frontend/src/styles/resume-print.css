@@ -1,0 +1,249 @@
+/**
+ * 简历打印样式
+ * 优化A4纸张打印和PDF导出效果
+ */
+
+/* 预览容器样式 */
+.resume-preview-container {
+  background: #f5f5f5;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.resume-preview-content {
+  max-width: 210mm; /* A4宽度 */
+  margin: 0 auto;
+  background: white;
+  padding: 20mm;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 简历容器样式 */
+.resume-container {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #333;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+/* 头部样式 */
+.resume-header {
+  border-bottom: 2px solid #333;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.resume-name {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  color: #1a1a1a;
+}
+
+.resume-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  font-size: 13px;
+  color: #666;
+}
+
+.resume-contact span {
+  white-space: nowrap;
+}
+
+/* 章节标题 */
+.resume-section {
+  margin-bottom: 25px;
+  page-break-inside: avoid;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 15px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e0e0e0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* 教育背景 */
+.education-item {
+  margin-bottom: 15px;
+  padding-left: 10px;
+}
+
+.education-item div {
+  line-height: 1.8;
+}
+
+/* 技能列表 */
+.skills-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.skills-list li {
+  margin-bottom: 8px;
+  padding-left: 0;
+  line-height: 1.6;
+}
+
+.skills-list li::before {
+  content: '• ';
+  color: #333;
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+/* 工作经历 */
+.experience-item {
+  margin-bottom: 20px;
+  page-break-inside: avoid;
+}
+
+.experience-header {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1a1a1a;
+}
+
+.experience-bullets {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0 0;
+}
+
+.experience-bullets li {
+  margin-bottom: 6px;
+  padding-left: 20px;
+  position: relative;
+  line-height: 1.6;
+}
+
+.experience-bullets li::before {
+  content: '- ';
+  position: absolute;
+  left: 0;
+  color: #666;
+}
+
+/* 项目经验 */
+.project-item {
+  margin-bottom: 20px;
+  page-break-inside: avoid;
+}
+
+.project-header {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1a1a1a;
+}
+
+.project-bullets {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0 0;
+}
+
+.project-bullets li {
+  margin-bottom: 6px;
+  padding-left: 20px;
+  position: relative;
+  line-height: 1.6;
+}
+
+.project-bullets li::before {
+  content: '- ';
+  position: absolute;
+  left: 0;
+  color: #666;
+}
+
+/* 证书列表 */
+.certifications-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.certifications-list li {
+  margin-bottom: 8px;
+  padding-left: 0;
+  line-height: 1.6;
+}
+
+.certifications-list li::before {
+  content: '• ';
+  color: #333;
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+/* 打印样式 */
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+    background: white;
+  }
+
+  .resume-preview-container {
+    background: white;
+    padding: 0;
+  }
+
+  .resume-preview-content {
+    max-width: 100%;
+    margin: 0;
+    padding: 15mm;
+    box-shadow: none;
+  }
+
+  .resume-container {
+    font-size: 12px;
+  }
+
+  .resume-name {
+    font-size: 20px;
+  }
+
+  .section-title {
+    font-size: 16px;
+    page-break-after: avoid;
+  }
+
+  .experience-item,
+  .project-item {
+    page-break-inside: avoid;
+  }
+
+  /* 避免在章节标题后分页 */
+  .resume-section {
+    page-break-inside: avoid;
+  }
+
+  /* 确保最后一项不会被单独分页 */
+  .resume-section:last-child {
+    page-break-after: auto;
+  }
+}
+
+/* A4纸张尺寸 */
+@page {
+  size: A4;
+  margin: 15mm;
+}
+
+/* 屏幕显示优化 */
+@media screen {
+  .resume-preview-content {
+    min-height: 297mm; /* A4高度 */
+  }
+}
+

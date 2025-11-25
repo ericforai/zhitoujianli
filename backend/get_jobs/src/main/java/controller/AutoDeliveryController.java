@@ -43,12 +43,11 @@ public class AutoDeliveryController {
     @Autowired
     // private ProcessManagerService processManager; // 暂时注释
 
-    // 向后兼容的状态标记（已废弃，使用ProcessManagerService）
-    @Deprecated
-    private static boolean isRunning = false;
-    private static int totalDelivered = 0;
-    private static int successfulDelivered = 0;
-    private static int failedDelivered = 0;
+    // ✅ 修复：使用用户级别的状态映射，确保用户数据隔离
+    private static final ConcurrentHashMap<String, Boolean> userRunningStatus = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Integer> userTotalDelivered = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Integer> userSuccessfulDelivered = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Integer> userFailedDelivered = new ConcurrentHashMap<>();
 
     // 已废弃：使用ProcessManagerService替代
     @Deprecated
@@ -112,8 +111,14 @@ public class AutoDeliveryController {
             // 注册进程到用户任务映射
             userTasks.put(userId, task);
 
-            // 5. 设置运行状态（向后兼容）
-            isRunning = true;
+            // 5. ✅ 修复：设置用户级别的运行状态
+            userRunningStatus.put(userId, true);
+
+            // 任务完成时自动清除状态
+            task.whenComplete((result, throwable) -> {
+                userRunningStatus.put(userId, false);
+                log.info("✅ 用户{}的投递任务已完成，状态已清除", userId);
+            });
 
             Map<String, Object> data = new HashMap<>();
             data.put("status", "started");
@@ -147,8 +152,11 @@ public class AutoDeliveryController {
             );
             log.info("用户 {} 请求停止自动投递", userId);
 
-            // 1. 设置状态为停止
-            isRunning = false;
+            // 1. ✅ 修复：设置用户级别的状态为停止
+            userRunningStatus.put(userId, false);
+
+            // 清除任务映射
+            userTasks.remove(userId);
 
             // 2. 实际停止Boss进程
             boolean processStopped = stopBossProcess(userId);
@@ -212,16 +220,40 @@ public class AutoDeliveryController {
 
     /**
      * 获取投递状态
+     * ✅ 修复：按用户隔离状态，确保用户只能看到自己的投递状态
      */
     @GetMapping("/status")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getDeliveryStatus() {
         try {
+            // ✅ 修复：获取当前用户ID，只返回该用户的状态
+            String userId = UserContextUtil.sanitizeUserId(
+                UserContextUtil.getCurrentUserId()
+            );
+
+            // ✅ 修复：从用户级别的状态映射中获取状态
+            boolean isRunning = userRunningStatus.getOrDefault(userId, false);
+
+            // ✅ 修复：同时检查任务是否真的在运行（双重验证）
+            if (userTasks.containsKey(userId)) {
+                CompletableFuture<Void> task = userTasks.get(userId);
+                if (task != null && !task.isDone()) {
+                    isRunning = true;
+                } else if (task != null && task.isDone()) {
+                    // 任务已完成，清除状态
+                    isRunning = false;
+                    userRunningStatus.put(userId, false);
+                    userTasks.remove(userId);
+                }
+            }
+
             Map<String, Object> data = new HashMap<>();
             data.put("isRunning", isRunning);
-            data.put("totalDelivered", totalDelivered);
-            data.put("successfulDelivered", successfulDelivered);
-            data.put("failedDelivered", failedDelivered);
+            data.put("totalDelivered", userTotalDelivered.getOrDefault(userId, 0));
+            data.put("successfulDelivered", userSuccessfulDelivered.getOrDefault(userId, 0));
+            data.put("failedDelivered", userFailedDelivered.getOrDefault(userId, 0));
+            data.put("userId", userId); // 添加userId用于调试
 
+            log.debug("用户{}查询投递状态: isRunning={}", userId, isRunning);
             return ResponseEntity.ok(ApiResponse.success(data, "获取状态成功"));
         } catch (Exception e) {
             log.error("获取投递状态失败", e);
@@ -248,10 +280,20 @@ public class AutoDeliveryController {
 
     /**
      * 获取投递统计
+     * ✅ 修复：按用户隔离统计，确保用户只能看到自己的统计信息
      */
     @GetMapping("/statistics")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getDeliveryStatistics() {
         try {
+            // ✅ 修复：获取当前用户ID，只返回该用户的统计
+            String userId = UserContextUtil.sanitizeUserId(
+                UserContextUtil.getCurrentUserId()
+            );
+
+            int totalDelivered = userTotalDelivered.getOrDefault(userId, 0);
+            int successfulDelivered = userSuccessfulDelivered.getOrDefault(userId, 0);
+            int failedDelivered = userFailedDelivered.getOrDefault(userId, 0);
+
             Map<String, Object> stats = new HashMap<>();
             stats.put("totalDeliveries", totalDelivered);
             stats.put("successfulDeliveries", successfulDelivered);

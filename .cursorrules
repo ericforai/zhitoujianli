@@ -37,11 +37,21 @@ cp -r build /usr/share/nginx/html/
 **部署流程：**
 1. 修改后端代码
 2. 执行 Maven 构建：`cd backend/get_jobs && mvn clean package -DskipTests`
-3. 复制 JAR：`cp target/get_jobs-*.jar /opt/zhitoujianli/backend/get_jobs-vX.X.X.jar`
-4. 更新符号链接：`ln -sf /opt/zhitoujianli/backend/get_jobs-vX.X.X.jar /opt/zhitoujianli/backend/get_jobs-latest.jar`
-5. 执行 `systemctl daemon-reload`（如果修改了systemd配置）
-6. 重启服务：`systemctl restart zhitoujianli-backend.service`
-7. 验证：`systemctl status zhitoujianli-backend.service`
+3. **✅ 关键步骤：确保target/classes目录存在**
+   - `BossExecutionService` 使用 `target/classes` 作为 classpath 启动 `IsolatedBossRunner`
+   - Spring Boot JAR 中的类在 `BOOT-INF/classes/` 下，不能直接用 `-cp` 加载
+   - 必须执行：`cd backend/get_jobs && mvn compile -DskipTests`
+   - 验证关键类：`ls target/classes/boss/IsolatedBossRunner.class target/classes/utils/JobUtils.class`
+4. 复制 JAR：`cp target/get_jobs-*.jar /opt/zhitoujianli/backend/get_jobs-vX.X.X.jar`
+5. 更新符号链接：`ln -sf /opt/zhitoujianli/backend/get_jobs-vX.X.X.jar /opt/zhitoujianli/backend/get_jobs-latest.jar`
+6. 执行 `systemctl daemon-reload`（如果修改了systemd配置）
+7. 重启服务：`systemctl restart zhitoujianli-backend.service`
+8. 验证：`systemctl status zhitoujianli-backend.service`
+
+**🚨 重要提醒（2025-11-25修复）：**
+- `IsolatedBossRunner` 需要通过 `target/classes` 目录启动，不能使用JAR文件
+- 部署脚本已自动包含编译步骤，手动部署时必须执行 `mvn compile -DskipTests`
+- 如果缺少 `target/classes` 目录，会导致 `ClassNotFoundException: boss.IsolatedBossRunner`
 
 ### 博客部署规则（最高优先级 - 2025-11-14新增）
 
@@ -379,4 +389,187 @@ echo "请按 Ctrl + Shift + R 清除缓存"
 **🤖 AI提醒：每次执行操作前，先检查这个文件！**
 
 **🚨 v3.0.0后的铁律：frontend/是唯一源代码，没有任何例外！**
+
+---
+
+## 🔒 安全配置经验教训（2025-11-17 - 管理后台302重定向Bug）
+
+### 🚨 关键教训（永久记住！）
+
+**Bug历史**：2025-11-17，管理后台所有API调用失败，返回302重定向和CORS错误
+
+**根本原因**：
+1. **配置遗漏**（60%）：新增API路径未在安全配置中明确声明
+2. **未授权处理逻辑缺陷**（25%）：依赖请求头判断，不够可靠
+3. **前后端不一致**（10%）：前端缺少标准请求头
+4. **测试覆盖不足**（5%）：缺少端到端测试
+
+### ❌ 绝对禁止的操作
+
+**禁止新增API而不更新安全配置：**
+```java
+// ❌ 禁止：新增API控制器后，忘记更新 SimpleSecurityConfig.java
+@RestController
+@RequestMapping("/api/new-feature")  // ← 新增API
+public class NewFeatureController {
+    // ...
+}
+// ❌ 错误：没有在 SimpleSecurityConfig.java 中声明这个路径
+```
+
+**禁止依赖 `anyRequest()` 的隐式匹配：**
+```java
+// ❌ 禁止：认为 anyRequest().authenticated() 会自动覆盖所有路径
+// 必须明确声明每个API路径
+```
+
+**禁止前端直接使用 `fetch` 而不设置标准请求头：**
+```typescript
+// ❌ 禁止：缺少标准请求头
+const response = await fetch(`${apiBaseUrl}/api/endpoint`, {
+  headers: {
+    'Content-Type': 'application/json',
+    // ❌ 缺少：'Accept': 'application/json'
+    // ❌ 缺少：'X-Requested-With': 'XMLHttpRequest'
+  },
+});
+```
+
+### ✅ 必须执行的检查清单
+
+#### 新增API时的强制检查清单
+
+**后端检查（必须）：**
+- [ ] ✅ 在 `SimpleSecurityConfig.java` 中明确声明新API路径
+- [ ] ✅ 如果是公开API，添加到 `permitAll()` 列表
+- [ ] ✅ 如果需要认证，添加到 `authenticated()` 列表
+- [ ] ✅ 检查未授权处理逻辑是否正确（基于路径判断）
+- [ ] ✅ 验证API路径不会与现有路径冲突
+
+**前端检查（必须）：**
+- [ ] ✅ 使用统一的API客户端（`apiClient`），禁止直接使用 `fetch`
+- [ ] ✅ 如果必须使用 `fetch`，必须包含以下请求头：
+  - `'Accept': 'application/json'`
+  - `'X-Requested-With': 'XMLHttpRequest'`
+  - `'Content-Type': 'application/json'`
+  - `Authorization: Bearer ${token}`（如果需要认证）
+- [ ] ✅ 错误处理必须检查401状态码
+- [ ] ✅ 避免在错误处理中使用 `window.location.href` 重定向（使用React Router）
+
+**测试检查（必须）：**
+- [ ] ✅ 添加单元测试，覆盖未授权场景
+- [ ] ✅ 添加集成测试，验证安全配置
+- [ ] ✅ 添加端到端测试（E2E），覆盖完整流程
+- [ ] ✅ 测试未授权请求是否返回401 JSON（不是302重定向）
+
+### 📋 新增API的标准流程
+
+#### Step 1: 创建API控制器
+```java
+@RestController
+@RequestMapping("/api/new-feature")
+public class NewFeatureController {
+    // ...
+}
+```
+
+#### Step 2: 更新安全配置（立即执行！）
+```java
+// 在 SimpleSecurityConfig.java 中
+.requestMatchers(
+    // ... 现有路径
+    "/api/new-feature/**",  // ✅ 明确声明新路径
+).authenticated()  // 或 .permitAll()
+```
+
+#### Step 3: 前端API调用（使用统一客户端）
+```typescript
+// ✅ 正确：使用统一的API客户端
+import apiClient from '../services/apiService';
+
+const response = await apiClient.get('/new-feature/data');
+// apiClient 已经配置了标准请求头
+```
+
+#### Step 4: 如果必须使用 fetch
+```typescript
+// ✅ 正确：包含所有标准请求头
+const response = await fetch(`${config.apiBaseUrl}/new-feature/data`, {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',  // ✅ 必须
+    'X-Requested-With': 'XMLHttpRequest',  // ✅ 必须
+    Authorization: `Bearer ${token}`,  // ✅ 如果需要认证
+  },
+});
+```
+
+#### Step 5: 添加测试
+```typescript
+// ✅ 测试未授权场景
+it('should return 401 when not authenticated', async () => {
+  const response = await fetch('/api/new-feature/data');
+  expect(response.status).toBe(401);
+  const data = await response.json();
+  expect(data.success).toBe(false);
+  expect(data.message).toContain('需要登录认证');
+});
+```
+
+### 🛡️ 防护措施
+
+**AI必须遵守的铁律：**
+
+1. **新增API控制器时 → 立即检查安全配置**
+   - 必须同时更新 `SimpleSecurityConfig.java`
+   - 禁止依赖 `anyRequest()` 的隐式匹配
+   - 必须明确声明每个API路径
+
+2. **前端API调用时 → 检查请求头**
+   - 优先使用统一的 `apiClient`
+   - 如果使用 `fetch`，必须包含标准请求头
+   - 禁止缺少 `Accept: application/json` 头
+
+3. **未授权处理逻辑 → 基于路径判断**
+   - 所有 `/api/**` 路径必须返回401 JSON
+   - 禁止返回302重定向（会导致CORS错误）
+   - 判断逻辑必须基于路径，不能只依赖请求头
+
+4. **代码审查时 → 检查配置更新**
+   - 检查安全配置是否同步更新
+   - 检查前端API调用是否使用标准请求头
+   - 检查测试是否覆盖未授权场景
+
+### 🔍 验证命令（AI应定期执行）
+
+```bash
+# 验证所有API路径都在安全配置中声明
+grep -r "@RequestMapping\|@GetMapping\|@PostMapping" backend/get_jobs/src/main/java/controller/ | \
+  grep -o '/api/[^"]*' | \
+  sort -u | \
+  while read path; do
+    if ! grep -q "$path" backend/get_jobs/src/main/java/config/SimpleSecurityConfig.java; then
+      echo "⚠️ 警告：$path 未在安全配置中声明"
+    fi
+  done
+
+# 验证前端API调用是否使用标准请求头
+grep -r "fetch.*api" frontend/src --include="*.tsx" --include="*.ts" | \
+  grep -v "Accept.*application/json" | \
+  grep -v "X-Requested-With" && \
+  echo "⚠️ 警告：发现缺少标准请求头的API调用"
+```
+
+### 📚 参考文档
+
+- Bug分析报告: `/root/zhitoujianli/docs/bug-analysis/ADMIN_BACKEND_302_BUG_ANALYSIS.md`
+- 安全配置: `backend/get_jobs/src/main/java/config/SimpleSecurityConfig.java`
+- API客户端: `frontend/src/services/apiService.ts`
+
+---
+
+**🤖 AI提醒：每次新增API时，必须执行上述检查清单！**
+
+**🚨 铁律：新增API = 更新安全配置 + 使用标准请求头 + 添加测试！**
 

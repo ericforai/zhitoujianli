@@ -124,7 +124,8 @@ const DeliveryConfig: React.FC = () => {
     );
   }
 
-  // 确保配置对象有默认值
+  // 确保配置对象有默认值，处理向后兼容
+  const deliveryStrategy = config.deliveryStrategy || {};
   const safeConfig = {
     bossConfig: config.bossConfig || {
       keywords: [],
@@ -134,12 +135,25 @@ const DeliveryConfig: React.FC = () => {
       educationRequirement: '不限',
       enableSmartGreeting: true,
     },
-    deliveryStrategy: config.deliveryStrategy || {
-      enableAutoDelivery: false,
-      deliveryFrequency: 10,
-      maxDailyDelivery: 50,
-      deliveryInterval: 300,
-      matchThreshold: 0.7,
+    deliveryStrategy: {
+      enableAutoDelivery: deliveryStrategy.enableAutoDelivery || false,
+      deliveryFrequency: deliveryStrategy.deliveryFrequency || 10,
+      maxDailyDelivery: deliveryStrategy.maxDailyDelivery || 50,
+      deliveryInterval: deliveryStrategy.deliveryInterval || 300,
+      matchThreshold: deliveryStrategy.matchThreshold || 0.7,
+      deliveryTimeRange: deliveryStrategy.deliveryTimeRange || {
+        startTime: '09:00',
+        endTime: '18:00',
+      },
+      // 向后兼容：如果旧配置没有匹配策略字段，使用默认值
+      keywordMatchingMode: deliveryStrategy.keywordMatchingMode || 'STANDARD',
+      matchingSchemes: deliveryStrategy.matchingSchemes || {
+        scheme1: true,
+        scheme2: true,
+        scheme3: true,
+        scheme4: false,
+        scheme5: false,
+      },
     },
     blacklistConfig: (config.blacklistConfig
       ? {

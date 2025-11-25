@@ -163,7 +163,6 @@ const Pricing: React.FC = () => {
         '精准岗位匹配',
         '个性化打招呼语生成',
         '详细数据分析报告',
-        '邮件通知服务',
       ],
       buttonText: '立即升级',
       buttonClass: 'bg-blue-600 hover:bg-blue-700',
@@ -234,8 +233,8 @@ const Pricing: React.FC = () => {
             return (
               <div
                 key={index}
-                className={`relative bg-white rounded-2xl shadow-lg p-8 flex flex-col h-full ${
-                  plan.popular ? 'ring-2 ring-blue-500 transform scale-105' : ''
+                className={`relative bg-white rounded-2xl shadow-lg p-8 flex flex-col h-full min-h-0 ${
+                  plan.popular ? 'ring-2 ring-blue-500' : ''
                 } ${isCurrentUserPlan ? 'ring-2 ring-green-500' : ''}`}
               >
                 {/* 热门标签 */}
@@ -309,9 +308,9 @@ const Pricing: React.FC = () => {
                     isCurrentUserPlan
                       ? 'bg-gray-300 cursor-not-allowed'
                       : plan.buttonClass
-                  } text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 ${
-                    !isCurrentUserPlan ? 'transform hover:scale-105' : ''
-                  } mt-auto`}
+                  } text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 mt-auto flex-shrink-0 ${
+                    !isCurrentUserPlan ? 'hover:opacity-90' : ''
+                  }`}
                 >
                   {isCurrentUserPlan ? '当前套餐' : plan.buttonText}
                 </button>

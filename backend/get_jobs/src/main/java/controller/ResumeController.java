@@ -3,10 +3,14 @@ package controller;
 import ai.ResumeParser;
 import ai.GreetingGenerator;
 import annotation.CheckQuota;
+import entity.UserBehaviorLog;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import service.UserBehaviorLogService;
+import util.UserContextUtil;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -24,6 +28,9 @@ public class ResumeController {
 
     private final ResumeParser resumeParser;
     private final GreetingGenerator greetingGenerator;
+
+    @Autowired(required = false)
+    private UserBehaviorLogService behaviorLogService;
 
     public ResumeController() {
         this.resumeParser = new ResumeParser();
@@ -98,6 +105,25 @@ public class ResumeController {
 
             // 调用AI生成打招呼语
             Map<String, Object> greetings = greetingGenerator.generateGreetings(candidate, jobDescription, mode);
+
+            // 记录用户行为：生成打招呼语
+            try {
+                if (behaviorLogService != null && UserContextUtil.hasCurrentUser()) {
+                    String userId = UserContextUtil.getCurrentUserId();
+                    String jobName = (String) request.getOrDefault("job_name", "未知岗位");
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> greetingsData = (Map<String, Object>) greetings.get("greetings");
+                    if (greetingsData != null) {
+                        String greetingText = (String) greetingsData.getOrDefault("professional", "");
+                        if (greetingText.isEmpty() && greetingsData.containsKey("sincere")) {
+                            greetingText = (String) greetingsData.get("sincere");
+                        }
+                        behaviorLogService.logGreetingGenerate(userId, jobName, greetingText.length());
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("记录打招呼语生成行为失败: {}", e.getMessage());
+            }
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

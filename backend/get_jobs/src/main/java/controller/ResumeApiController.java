@@ -223,16 +223,65 @@ public class ResumeApiController {
             try (PDDocument document = PDDocument.load(file.getInputStream())) {
                 PDFTextStripper stripper = new PDFTextStripper();
                 return stripper.getText(document);
+            } catch (Exception e) {
+                log.error("【PDF解析】解析PDF文件失败: {}", fileName, e);
+                throw new IOException("PDF文件解析失败: " + e.getMessage(), e);
             }
         } else if (lowerFileName.endsWith(".doc")) {
-            try (HWPFDocument document = new HWPFDocument(file.getInputStream())) {
-                WordExtractor extractor = new WordExtractor(document);
-                return extractor.getText();
+            HWPFDocument document = null;
+            WordExtractor extractor = null;
+            try {
+                document = new HWPFDocument(file.getInputStream());
+                extractor = new WordExtractor(document);
+                String text = extractor.getText();
+                log.info("【Word解析】.doc文件解析成功，提取文本长度: {}", text != null ? text.length() : 0);
+                return text != null ? text : "";
+            } catch (Exception e) {
+                log.error("【Word解析】解析.doc文件失败: {}", fileName, e);
+                throw new IOException("Word文档(.doc)解析失败，文件可能已损坏或格式不正确: " + e.getMessage(), e);
+            } finally {
+                if (extractor != null) {
+                    try {
+                        extractor.close();
+                    } catch (Exception e) {
+                        log.warn("关闭WordExtractor失败", e);
+                    }
+                }
+                if (document != null) {
+                    try {
+                        document.close();
+                    } catch (Exception e) {
+                        log.warn("关闭HWPFDocument失败", e);
+                    }
+                }
             }
         } else if (lowerFileName.endsWith(".docx")) {
-            try (XWPFDocument document = new XWPFDocument(file.getInputStream())) {
-                XWPFWordExtractor extractor = new XWPFWordExtractor(document);
-                return extractor.getText();
+            XWPFDocument document = null;
+            XWPFWordExtractor extractor = null;
+            try {
+                document = new XWPFDocument(file.getInputStream());
+                extractor = new XWPFWordExtractor(document);
+                String text = extractor.getText();
+                log.info("【Word解析】.docx文件解析成功，提取文本长度: {}", text != null ? text.length() : 0);
+                return text != null ? text : "";
+            } catch (Exception e) {
+                log.error("【Word解析】解析.docx文件失败: {}", fileName, e);
+                throw new IOException("Word文档(.docx)解析失败，文件可能已损坏或格式不正确: " + e.getMessage(), e);
+            } finally {
+                if (extractor != null) {
+                    try {
+                        extractor.close();
+                    } catch (Exception e) {
+                        log.warn("关闭XWPFWordExtractor失败", e);
+                    }
+                }
+                if (document != null) {
+                    try {
+                        document.close();
+                    } catch (Exception e) {
+                        log.warn("关闭XWPFDocument失败", e);
+                    }
+                }
             }
         }
 

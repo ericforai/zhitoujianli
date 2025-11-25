@@ -1,15 +1,14 @@
 package boss;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -155,11 +154,15 @@ public class DeliveryController {
         }
 
         if (matchScore < threshold) {
-            log.info("❌ 匹配度不足: {:.1f}% < {:.1f}% (阈值)", matchScore * 100, threshold * 100);
+            log.info("❌ 匹配度不足: {}% < {}% (阈值)",
+                String.format("%.1f", matchScore * 100),
+                String.format("%.1f", threshold * 100));
             return false;
         }
 
-        log.debug("✅ 匹配度合格: {:.1f}% >= {:.1f}%", matchScore * 100, threshold * 100);
+        log.debug("✅ 匹配度合格: {}% >= {}%",
+            String.format("%.1f", matchScore * 100),
+            String.format("%.1f", threshold * 100));
         return true;
     }
 
@@ -294,11 +297,18 @@ public class DeliveryController {
     }
 
     /**
-     * 从日志文件加载今日已投递数量
+     * 从数据库加载今日已投递数量（配额使用量）
      *
-     * @return 今日已投递数量
+     * ✅ 修复：使用数据库配额作为唯一数据源，确保数据一致性
+     * 不再从日志文件统计，避免历史数据或失败投递的干扰
+     *
+     * @return 今日已投递数量（从数据库配额使用量获取）
      */
     private int loadTodayDeliveryCountFromLog() {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
         try {
             // ✅ 修复：在Boss隔离环境中，从环境变量获取用户ID（避免依赖Spring Security）
             String userId;
@@ -330,58 +340,73 @@ public class DeliveryController {
 
             if (userId == null || userId.isEmpty()) {
                 // ❌ 不再使用default_user fallback（多租户隔离要求）
-                log.error("❌ 未提供用户ID（boss.user.id或BOSS_USER_ID），无法读取投递日志");
+                log.error("❌ 未提供用户ID（boss.user.id或BOSS_USER_ID），无法查询配额使用量");
                 return 0; // 返回0表示未找到投递记录
             }
 
-            // ✅ 修复：统一使用sanitizeUserId()确保日志文件名格式一致
-            // 不再尝试多种格式，统一使用sanitize后的格式
-            String safeUserId = userId.contains("@") || userId.contains(".")
-                ? userId.replaceAll("[^a-zA-Z0-9_-]", "_")
-                : userId;
-            String[] possibleLogPaths = {
-                "/tmp/boss_delivery_" + safeUserId + ".log"
-            };
-
-            LocalDate today = LocalDate.now();
-
-            for (String logPath : possibleLogPaths) {
-                File logFile = new File(logPath);
-                if (logFile.exists()) {
-                    log.debug("📂 找到日志文件: {}, 加载今日投递数量", logPath);
-
-                    try (Stream<String> lines = Files.lines(Paths.get(logPath))) {
-                        long count = lines
-                            .filter(line -> line.contains("投递完成"))
-                            .filter(line -> {
-                                try {
-                                    // 解析日期（格式：2025-11-05 11:56:53）
-                                    if (line.length() >= 10) {
-                                        String dateStr = line.substring(0, 10);
-                                        LocalDate logDate = LocalDate.parse(dateStr);
-                                        return logDate.equals(today);
-                                    }
-                                } catch (Exception e) {
-                                    log.trace("解析日志行日期失败: {}", line);
-                                }
-                                return false;
-                            })
-                            .count();
-
-                        log.info("✅ 从日志文件加载今日已投递数量: {} (文件: {})", count, logPath);
-                        return (int) count;
-                    } catch (IOException e) {
-                        log.warn("⚠️ 读取日志文件失败: {}", logPath, e);
-                    }
-                }
+            // 从环境变量或系统属性获取数据库连接信息
+            String dbUrl = System.getProperty("DATABASE_URL", System.getenv("DATABASE_URL"));
+            if (dbUrl == null || dbUrl.isEmpty()) {
+                dbUrl = "jdbc:postgresql://localhost:5432/zhitoujianli";
+            }
+            String dbUser = System.getProperty("DB_USERNAME", System.getenv("DB_USERNAME"));
+            if (dbUser == null || dbUser.isEmpty()) {
+                dbUser = "zhitoujianli";
+            }
+            String dbPassword = System.getProperty("DB_PASSWORD", System.getenv("DB_PASSWORD"));
+            if (dbPassword == null || dbPassword.isEmpty()) {
+                dbPassword = "zhitoujianli123";
             }
 
-            log.debug("📝 未找到日志文件，今日投递数量初始化为0");
-            return 0;
+            // 建立数据库连接
+            conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+
+            // 1. 查询配额定义ID
+            String quotaKey = "daily_job_application";
+            stmt = conn.prepareStatement(
+                "SELECT id FROM quota_definitions WHERE quota_key = ? AND is_active = true");
+            stmt.setString(1, quotaKey);
+            rs = stmt.executeQuery();
+
+            if (!rs.next()) {
+                log.warn("⚠️ 配额定义不存在: quotaKey={}，今日投递数量初始化为0", quotaKey);
+                return 0;
+            }
+            Long quotaId = rs.getLong("id");
+            rs.close();
+            stmt.close();
+
+            // 2. 查询今日配额使用量
+            LocalDate today = LocalDate.now();
+            stmt = conn.prepareStatement(
+                "SELECT used_amount FROM user_quota_usage WHERE user_id = ? AND quota_id = ? AND reset_date = ?");
+            stmt.setString(1, userId);
+            stmt.setLong(2, quotaId);
+            stmt.setObject(3, today);
+            rs = stmt.executeQuery();
+
+            int usedAmount = 0;
+            if (rs.next()) {
+                usedAmount = (int) rs.getLong("used_amount");
+            }
+            rs.close();
+            stmt.close();
+
+            log.info("✅ 从数据库加载今日已投递数量: {} (用户: {}, 配额: {})", usedAmount, userId, quotaKey);
+            return usedAmount;
 
         } catch (Exception e) {
-            log.error("❌ 加载今日投递数量失败，返回0", e);
+            log.error("❌ 从数据库加载今日投递数量失败，返回0", e);
             return 0;
+        } finally {
+            // 关闭数据库连接
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                log.error("关闭数据库连接失败", e);
+            }
         }
     }
 

@@ -132,7 +132,9 @@ export const useQRCodeLogin = () => {
             clearInterval(state.qrcodeCheckInterval);
             setState(prev => ({ ...prev, qrcodeCheckInterval: null }));
           }
-          // 2秒后关闭模态框
+          console.log('✅ Boss登录成功，仅更新登录状态，不自动启动投递');
+          // ✅ 修复：登录成功后延迟关闭模态框，但不触发任何投递操作
+          // 注意：这里只关闭模态框，不自动启动投递，用户需要手动点击"启动投递"按钮
           setTimeout(() => {
             setState(prev => ({ ...prev, showQRModal: false }));
           }, 2000);
@@ -215,12 +217,16 @@ export const useQRCodeLogin = () => {
   };
 
   // 关闭二维码模态框
+  // ✅ 修复：确保关闭模态框时不会触发任何副作用，只清理定时器
   const closeQRModal = () => {
-    setState(prev => ({ ...prev, showQRModal: false }));
+    // 停止所有轮询
     if (state.qrcodeCheckInterval) {
       clearInterval(state.qrcodeCheckInterval);
       setState(prev => ({ ...prev, qrcodeCheckInterval: null }));
     }
+    // 关闭模态框，但不改变登录状态
+    setState(prev => ({ ...prev, showQRModal: false }));
+    console.log('✅ 二维码登录模态框已关闭，未触发任何投递操作');
   };
 
   // 刷新二维码

@@ -59,8 +59,11 @@ export const QuickActionPanel: React.FC<QuickActionPanelProps> = ({
   const quotaUsed = todayDeliveryCount;
   const remainingQuota = dailyQuota?.unlimited ? 999 : Math.max(0, quotaLimit - quotaUsed);
 
+  // ✅ 判断配额是否已用完（已用数量 >= 配额限制）
+  const isQuotaExceeded = !dailyQuota?.unlimited && quotaUsed >= quotaLimit;
+
   // 判断是否可以启动
-  const canStart = isBossLoggedIn && !isRunning && remainingQuota > 0;
+  const canStart = isBossLoggedIn && !isRunning && !isQuotaExceeded && remainingQuota > 0;
 
   return (
     <div className='bg-white rounded-lg border border-gray-200 shadow-sm mb-6'>
@@ -123,6 +126,29 @@ export const QuickActionPanel: React.FC<QuickActionPanelProps> = ({
                 }`}
               >
                 <p className='text-sm font-medium'>{message}</p>
+              </div>
+            )}
+
+            {/* ✅ 配额用完升级提示 - 当配额已用完时显示 */}
+            {isQuotaExceeded && (
+              <div className='mt-3 p-4 rounded-lg border-2 border-orange-300 bg-orange-50'>
+                <div className='flex items-start gap-3'>
+                  <div className='text-2xl'>⚠️</div>
+                  <div className='flex-1'>
+                    <p className='text-sm font-semibold text-orange-900 mb-1'>
+                      配额已用完
+                    </p>
+                    <p className='text-xs text-orange-700 mb-2'>
+                      今日已投递 {quotaUsed} 个职位（配额：{quotaLimit}）
+                    </p>
+                    <a
+                      href='/pricing'
+                      className='inline-block text-xs px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors'
+                    >
+                      立即升级套餐 →
+                    </a>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -198,7 +224,7 @@ export const QuickActionPanel: React.FC<QuickActionPanelProps> = ({
               <span className='text-sm font-medium text-gray-600'>配额剩余</span>
               <span
                 className={`text-xl font-bold ${
-                  remainingQuota <= 0
+                  isQuotaExceeded
                     ? 'text-red-600'
                     : remainingQuota <= quotaLimit * 0.2
                       ? 'text-orange-600'

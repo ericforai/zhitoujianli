@@ -6,13 +6,21 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import controller.BossWebSocketController;
 
 /**
  * Boss程序执行服务 - 完全隔离的执行环境
@@ -22,6 +30,12 @@ import org.springframework.stereotype.Service;
 public class BossExecutionService {
 
     private static final Logger log = LoggerFactory.getLogger(BossExecutionService.class);
+
+    @Autowired
+    private BossVerificationCodeService bossVerificationCodeService;
+
+    @Autowired
+    private BossWebSocketController bossWebSocketController;
 
     /**
      * 异步执行Boss程序 - 完全隔离模式
@@ -153,9 +167,26 @@ public class BossExecutionService {
         String javaHome = System.getProperty("java.home");
         String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
 
-        // 构建完整的classpath
+        // ✅ 修复：使用classes目录构建classpath（Spring Boot JAR中的类在BOOT-INF/classes下，不能直接用-cp加载）
+        String projectDir = "/root/zhitoujianli/backend/get_jobs";
         String mavenClasspath = buildMavenClasspath();
-        String fullClasspath = "target/classes:" + mavenClasspath;
+        String classesPath = projectDir + File.separator + "target" + File.separator + "classes";
+
+        // 验证classes目录和关键类是否存在
+        File classesDir = new File(classesPath);
+        File isolatedBossRunner = new File(classesPath, "boss/IsolatedBossRunner.class");
+        File jobUtils = new File(classesPath, "utils/JobUtils.class");
+
+        if (!classesDir.exists() || !isolatedBossRunner.exists() || !jobUtils.exists()) {
+            log.error("❌ classes目录不存在或不完整，无法启动Boss程序");
+            log.error("    classes目录: {}", classesPath);
+            log.error("    IsolatedBossRunner存在: {}", isolatedBossRunner.exists());
+            log.error("    JobUtils存在: {}", jobUtils.exists());
+            throw new IOException("classes目录不存在或不完整，请先编译项目");
+        }
+
+        String fullClasspath = classesPath + ":" + mavenClasspath;
+        log.info("✅ 使用classes目录作为classpath: {}", classesPath);
 
         // Boss程序的完全隔离JVM参数
         // ✅ 如果是只登录模式，添加 "login-only" 参数
@@ -293,6 +324,7 @@ public class BossExecutionService {
 
     /**
      * 生成最小classpath
+     * 包含Boss程序运行所需的最小依赖，包括PostgreSQL驱动（用于配额检查）
      */
     private String generateMinimalClasspath() {
         String mavenHome = System.getProperty("user.home") + "/.m2";
@@ -309,7 +341,12 @@ public class BossExecutionService {
         sb.append(mavenHome).append("/repository/com/fasterxml/jackson/core/jackson-databind/2.15.3/jackson-databind-2.15.3.jar:");
         sb.append(mavenHome).append("/repository/com/fasterxml/jackson/core/jackson-annotations/2.15.3/jackson-annotations-2.15.3.jar:");
         sb.append(mavenHome).append("/repository/com/fasterxml/jackson/core/jackson-core/2.15.3/jackson-core-2.15.3.jar:");
-        sb.append(mavenHome).append("/repository/org/yaml/snakeyaml/2.2/snakeyaml-2.2.jar");
+        sb.append(mavenHome).append("/repository/org/yaml/snakeyaml/2.2/snakeyaml-2.2.jar:");
+        // ✅ 添加PostgreSQL驱动，用于配额检查的JDBC连接
+        sb.append(mavenHome).append("/repository/org/postgresql/postgresql/42.6.0/postgresql-42.6.0.jar:");
+        sb.append(mavenHome).append("/repository/org/checkerframework/checker-qual/3.31.0/checker-qual-3.31.0.jar:");
+        // ✅ 添加dotenv-java依赖，用于Bot工具类加载环境变量
+        sb.append(mavenHome).append("/repository/io/github/cdimascio/dotenv-java/2.2.0/dotenv-java-2.2.0.jar");
         return sb.toString();
     }
 
@@ -321,9 +358,29 @@ public class BossExecutionService {
             try {
                 String line;
                 while ((line = reader.readLine()) != null) {
+                    // ✅ 过滤Playwright Node.js进程的已知错误（package.json缺失）
+                    // 这些错误来自Playwright的Node.js进程，不影响功能，但会污染日志
+                    if ("ERROR".equals(prefix)) {
+                        if (line.contains("package.json") ||
+                            line.contains("MODULE_NOT_FOUND") ||
+                            line.contains("playwright-java") ||
+                            line.contains("Cannot find module") ||
+                            line.contains("Error: Cannot find module")) {
+                            // 跳过已知错误，不写入日志（这些是Playwright清理时的已知问题）
+                            continue;
+                        }
+                    }
+
                     synchronized (logWriter) {
                         logWriter.write(line + "\n");
                         logWriter.flush();
+                    }
+
+                    // ✅ 检测验证码请求标记
+                    if (line.contains("🔐 VERIFICATION_CODE_REQUIRED:")) {
+                        String requestFile = line.substring(line.indexOf(":") + 1).trim();
+                        log.info("🔐 检测到验证码请求: {}", requestFile);
+                        handleVerificationCodeRequest(requestFile);
                     }
                 }
             } catch (Exception e) {
@@ -332,6 +389,57 @@ public class BossExecutionService {
                 latch.countDown();
             }
         });
+    }
+
+    /**
+     * 处理验证码请求
+     * 读取请求文件，创建验证码请求，并通过WebSocket通知前端
+     */
+    private void handleVerificationCodeRequest(String requestFile) {
+        try {
+            // 读取请求文件
+            String content = new String(
+                Files.readAllBytes(Paths.get(requestFile)),
+                StandardCharsets.UTF_8
+            );
+            JSONObject requestData = new JSONObject(content);
+
+            String userId = requestData.getString("userId");
+            String jobName = requestData.getString("jobName");
+            String screenshotPath = requestData.getString("screenshotPath");
+            String taskId = requestData.getString("taskId");
+
+            log.info("✅ 读取验证码请求: userId={}, jobName={}, screenshotPath={}, taskId={}",
+                userId, jobName, screenshotPath, taskId);
+
+            // 创建验证码请求
+            String requestId = bossVerificationCodeService.createVerificationRequest(
+                userId, jobName, screenshotPath, taskId);
+
+            if (requestId != null) {
+                log.info("✅ 验证码请求已创建: requestId={}", requestId);
+
+                // 通过WebSocket通知前端
+                Map<String, Object> message = new HashMap<>();
+                message.put("action", "verification_code_required");
+                message.put("requestId", requestId);
+                message.put("jobName", jobName);
+                message.put("screenshotUrl", bossVerificationCodeService.getScreenshotUrl(screenshotPath));
+                message.put("taskId", taskId);
+                message.put("timestamp", System.currentTimeMillis());
+
+                bossWebSocketController.sendVerificationCodeNotification(userId, message);
+                log.info("✅ 已通过WebSocket通知前端: userId={}", userId);
+            } else {
+                log.error("❌ 创建验证码请求失败");
+            }
+
+            // 删除请求文件（已处理）
+            Files.deleteIfExists(Paths.get(requestFile));
+
+        } catch (Exception e) {
+            log.error("处理验证码请求失败", e);
+        }
     }
 
     /**

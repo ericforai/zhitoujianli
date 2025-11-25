@@ -14,6 +14,7 @@ import {
   DeliveryStatusMessage,
   ErrorMessage,
   SuccessMessage,
+  VerificationCodeMessage,
   WebSocketMessage,
 } from '../types/api';
 
@@ -208,6 +209,22 @@ class WebSocketManager {
    * 处理接收到的消息
    */
   private handleMessage(message: WebSocketMessage): void {
+    // 处理action类型的消息（如verification_code_required）
+    if (message.data && typeof message.data === 'object' && 'action' in message.data) {
+      const action = (message.data as any).action;
+      const handlers = this.eventHandlers.get(action);
+      if (handlers) {
+        handlers.forEach(handler => {
+          try {
+            handler(message.data);
+          } catch (error) {
+            console.error('WebSocket事件处理器执行失败:', error);
+          }
+        });
+      }
+    }
+
+    // 处理type类型的消息（向后兼容）
     const handlers = this.eventHandlers.get(message.type);
     if (handlers) {
       handlers.forEach(handler => {
@@ -299,6 +316,15 @@ export const webSocketService = {
   },
 
   /**
+   * 订阅验证码请求消息
+   */
+  subscribeVerificationCode: (
+    handler: (data: VerificationCodeMessage) => void
+  ): void => {
+    wsManager.subscribe('verification_code_required', handler);
+  },
+
+  /**
    * 取消订阅投递状态更新
    */
   unsubscribeDeliveryStatus: (
@@ -337,6 +363,15 @@ export const webSocketService = {
    */
   unsubscribeSuccess: (handler: (data: SuccessMessage) => void): void => {
     wsManager.unsubscribe('success', handler);
+  },
+
+  /**
+   * 取消订阅验证码请求消息
+   */
+  unsubscribeVerificationCode: (
+    handler: (data: VerificationCodeMessage) => void
+  ): void => {
+    wsManager.unsubscribe('verification_code_required', handler);
   },
 
   /**

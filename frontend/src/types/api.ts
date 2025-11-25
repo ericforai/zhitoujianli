@@ -91,7 +91,20 @@ export interface DeliveryStrategy {
   deliveryInterval: number; // 秒
   enableAutoDelivery: boolean;
   deliveryTimeRange: TimeRange;
-  matchThreshold: number; // 匹配度阈值
+  matchThreshold: number; // 匹配度阈值（保留用于向后兼容）
+  keywordMatchingMode?: 'STRICT' | 'STANDARD' | 'FLEXIBLE' | 'CUSTOM'; // 关键词匹配模式
+  matchingSchemes?: MatchingSchemes; // 匹配方案配置
+}
+
+/**
+ * 匹配方案配置
+ */
+export interface MatchingSchemes {
+  scheme1?: boolean; // 方案1：开头匹配（岗位以关键词开头）
+  scheme2?: boolean; // 方案2：关键词+职位词组合匹配
+  scheme3?: boolean; // 方案3：完整词匹配（词边界检查）
+  scheme4?: boolean; // 方案4：拆分匹配（长关键词）
+  scheme5?: boolean; // 方案5：短词+职位组合匹配（短关键词）
 }
 
 /**
@@ -227,6 +240,18 @@ export interface DeliveryRecordMessage {
 export interface ErrorMessage {
   type: 'error';
   message: string;
+  timestamp: number;
+}
+
+/**
+ * 验证码请求WebSocket消息
+ */
+export interface VerificationCodeMessage {
+  action: 'verification_code_required';
+  requestId: string;
+  jobName: string;
+  screenshotUrl: string | null;
+  taskId: string;
   timestamp: number;
 }
 

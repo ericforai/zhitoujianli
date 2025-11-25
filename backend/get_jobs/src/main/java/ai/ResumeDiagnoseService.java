@@ -1,15 +1,16 @@
 package ai;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.json.JSONObject;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 简历诊断服务（MVP）
@@ -21,13 +22,32 @@ import java.util.regex.Pattern;
 public class ResumeDiagnoseService {
 
     private static final String SYSTEM_PROMPT =
-        "你是一名资深 HR 招聘经理 + ATS 优化专家，任务是在【不依赖任何职位JD】的前提下对简历做体检并给出可操作修订。" +
-        "强约束：\n" +
-        "A) 禁止引用或臆造 JD、岗位、招聘词、JD 关键词等字样；\n" +
-        "B) 仅基于用户提供的简历文本做分析；\n" +
-        "C) 先输出 JSON（严格遵循 Schema，缺失项用空结构），再输出 Markdown 建议；\n" +
-        "D) 所有结论需给出依据（引用原文或指出缺失），不得编造；\n" +
-        "E) 语言跟随输入，风格专业、简洁、可执行，每条建议尽量附可落地改写示例。";
+        "你现在是一名具有 10 年+ 招聘经验的 专业 HR / 招聘经理，请只基于我提供的这份简历本身进行诊断，不与任何 JD 匹配，不推断未知信息。\n\n" +
+        "请严格按照以下结构输出分析结果（必须输出严格的JSON格式）：\n\n" +
+        "1. 总体评价（overview）\n" +
+        "   - 简历第一眼的总体印象\n" +
+        "   - ATS 友好度\n" +
+        "   - HR 阅读体验（清晰度、结构性、专业感）\n\n" +
+        "2. 结构分析（structure）\n" +
+        "   - 逐项评价并指出问题点：页面结构（布局、层级、一致性）、信息密度是否合适、模块顺序是否逻辑合理、是否存在割裂、堆砌、杂乱\n\n" +
+        "3. 内容分析（contentQuality）\n" +
+        "   - 从 HR 审阅视角逐项分析：工作经历是否量化、结果导向是否明确、是否符合 STAR 表达方式、项目描述是否体现角色、动作、成果、是否存在空洞表达、流水账、过多形容词、是否缺少关键细节（规模、职责、成果、指标）\n\n" +
+        "4. 专业度与可信度（credibility）\n" +
+        "   - 描述是否专业、是否存在夸大或逻辑冲突、内容是否前后一致、年限、经历是否可信\n\n" +
+        "5. ATS 技术分析（atsCompatibility）\n" +
+        "   - 关键词是否足够、是否存在 ATS 无法解析的风险、格式是否标准、图片、特殊符号、复杂排版问题\n\n" +
+        "6. 可提升点（improvements）\n" +
+        "   - 每条必须为 可执行动作，并解释原因：结构改进、表达增强、量化建议、模块增强、去冗余、建议新增或删除的内容\n\n" +
+        "7. 重写关键段落（rewrite）\n" +
+        "   - 从 HR 视角，代写：工作经历示例（按 STAR 重写）、项目经历示例、自我介绍示例、核心能力模块示例\n\n" +
+        "8. 最终得分（scorecard）\n" +
+        "   - 从 0-10 分给出：信息清晰度、专业可信度、HR 友好度、ATS 友好度、面试通过概率（基于简历质量，不含岗位匹配）\n\n" +
+        "输出要求：\n" +
+        "- 必须输出严格的JSON格式，包含以上8个部分\n" +
+        "- 每个部分必须是对象或数组，包含具体的分析内容和建议\n" +
+        "- scorecard 部分必须包含所有5个维度的分数（数值类型）\n" +
+        "- rewrite 部分必须包含重写后的内容（可以是HTML格式的字符串）\n" +
+        "- 所有内容必须基于简历原文，不得编造任何信息";
 
     public DiagnoseResult diagnose(String text, String locale, String persona, int maxPages) {
         String userPrompt = buildUserPrompt(text, locale, persona, maxPages);
@@ -48,67 +68,78 @@ public class ResumeDiagnoseService {
 
     private String buildUserPrompt(String text, String locale, String persona, int maxPages) {
         String tpl =
-            "## User（模板，粘贴时替换花括号变量）\n" +
-            "请对以下简历文本进行仅基于简历本身的专业体检，不与任何 JD 关联：\n\n" +
-            "```\n\n%s\n\n```\n\n" +
+            "请对以下简历文本进行专业诊断，严格按照System Prompt中要求的8个部分输出JSON格式的分析结果：\n\n" +
+            "```\n%s\n```\n\n" +
             "运行参数：\n" +
-            "* 语言与本地化：%s\n" +
-            "* 候选人画像（可选）：%s\n" +
-            "* 建议页数上限：%d\n\n" +
-            "严格输出顺序：先输出 JSON（遵循预定义 Schema），再输出 Markdown 建议。";
+            "- 语言与本地化：%s\n" +
+            "- 候选人画像（可选）：%s\n" +
+            "- 建议页数上限：%d\n\n" +
+            "【重要要求】\n" +
+            "1. 所有内容必须基于简历原文，不得编造任何信息。\n" +
+            "2. 优先使用量化数据（数字、百分比、规模等），如果简历中有具体数字，必须使用原始数据。\n" +
+            "3. 每条分析都要有价值，避免空泛描述。如果简历中缺少信息，相应字段保持为空或空数组。\n" +
+            "4. rewrite 部分必须包含重写后的实际内容，格式可以是HTML或纯文本。\n" +
+            "5. scorecard 部分必须包含所有5个维度的分数（0-10分）。\n" +
+            "6. 每个分析部分都要具体、可执行，避免泛泛而谈。\n\n" +
+            "输出格式：\n" +
+            "先输出完整的JSON对象（包含overview、structure、contentQuality、credibility、atsCompatibility、improvements、rewrite、scorecard这8个字段），然后可以输出Markdown格式的补充说明（可选）。";
         return String.format(tpl, text, locale, persona == null ? "" : persona, maxPages);
     }
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> ensureSchema(Map<String, Object> src) {
         Map<String, Object> m = new HashMap<>(src == null ? new HashMap<>() : src);
-        m.putIfAbsent("overallScore", 0);
-        // scores
-        Map<String, Object> scores = (Map<String, Object>) m.get("scores");
-        if (scores == null) scores = new HashMap<>();
-        String[] scoreKeys = new String[]{"structure","readability","quantification","consistency","skillEvidence","riskCompliance","atsFriendliness"};
-        for (String k : scoreKeys) {
-            scores.putIfAbsent(k, 0);
+
+        // 新的8个分析部分结构
+        m.putIfAbsent("overview", new HashMap<>());
+        m.putIfAbsent("structure", new HashMap<>());
+        m.putIfAbsent("contentQuality", new HashMap<>());
+        m.putIfAbsent("credibility", new HashMap<>());
+        m.putIfAbsent("atsCompatibility", new HashMap<>());
+        m.putIfAbsent("improvements", new Object[] {});
+        m.putIfAbsent("rewrite", "");
+        m.putIfAbsent("scorecard", new HashMap<>());
+
+        // scorecard 必须包含5个维度的分数
+        Map<String, Object> scorecard = (Map<String, Object>) m.get("scorecard");
+        if (scorecard == null) scorecard = new HashMap<>();
+        scorecard.putIfAbsent("信息清晰度", 0);
+        scorecard.putIfAbsent("专业可信度", 0);
+        scorecard.putIfAbsent("HR友好度", 0);
+        scorecard.putIfAbsent("ATS友好度", 0);
+        scorecard.putIfAbsent("面试通过概率", 0);
+        m.put("scorecard", scorecard);
+
+        // 计算综合分数（使用面试通过概率，如果没有则计算平均值）
+        double overallScore = 0;
+        if (scorecard.containsKey("面试通过概率")) {
+            Object prob = scorecard.get("面试通过概率");
+            if (prob instanceof Number) {
+                overallScore = ((Number) prob).doubleValue();
+            }
+        } else {
+            // 如果没有面试通过概率，计算5个维度的平均值
+            double sum = 0;
+            int count = 0;
+            for (Object value : scorecard.values()) {
+                if (value instanceof Number) {
+                    sum += ((Number) value).doubleValue();
+                    count++;
+                }
+            }
+            if (count > 0) {
+                overallScore = sum / count;
+            }
         }
-        m.put("scores", scores);
-        // lengthStats
-        Map<String, Object> length = (Map<String, Object>) m.get("lengthStats");
-        if (length == null) length = new HashMap<>();
-        length.putIfAbsent("chars", 0);
-        length.putIfAbsent("words", 0);
-        length.putIfAbsent("lines", 0);
-        length.putIfAbsent("avgSentenceLength", 0);
-        length.putIfAbsent("bulletCount", 0);
-        length.putIfAbsent("quantifiedBulletRatio", 0.0);
-        m.put("lengthStats", length);
-        // arrays
+        m.put("overallScore", (int) Math.round(overallScore * 10)); // 转换为0-100分制
+
+        // 保持向后兼容：如果存在旧的字段，保留它们
+        m.putIfAbsent("scores", new HashMap<>());
+        m.putIfAbsent("lengthStats", new HashMap<>());
         m.putIfAbsent("detectedSections", new Object[] {});
-        m.putIfAbsent("sectionOrderAdvice", new Object[] {"CONTACT","SUMMARY","SKILLS","EXPERIENCE","PROJECTS","EDUCATION","CERTIFICATIONS"});
         m.putIfAbsent("issues", new Object[] {});
-        Map<String, Object> detections = (Map<String, Object>) m.get("detections");
-        if (detections == null) detections = new HashMap<>();
-        detections.putIfAbsent("privacyLeaks", new Object[] {});
-        detections.putIfAbsent("formattingRedFlags", new Object[] {});
-        detections.putIfAbsent("inconsistencies", new Object[] {});
-        detections.putIfAbsent("buzzwordsOveruse", new Object[] {});
-        detections.putIfAbsent("passiveVoiceSamples", new Object[] {});
-        detections.putIfAbsent("missingEvidenceForSkills", new Object[] {});
-        m.put("detections", detections);
-        Map<String, Object> rewrite = (Map<String, Object>) m.get("rewritePack");
-        if (rewrite == null) rewrite = new HashMap<>();
-        rewrite.putIfAbsent("summary", new HashMap<>());
-        rewrite.putIfAbsent("skills", new HashMap<>());
-        rewrite.putIfAbsent("experienceBullets", new Object[] {});
-        rewrite.putIfAbsent("projectsBullets", new Object[] {});
-        rewrite.putIfAbsent("educationNote", "");
-        m.put("rewritePack", rewrite);
-        Map<String, Object> page = (Map<String, Object>) m.get("pageFitAdvice");
-        if (page == null) page = new HashMap<>();
-        page.putIfAbsent("targetPages", 1);
-        page.putIfAbsent("whatToTrim", new Object[] {});
-        page.putIfAbsent("whatToPromote", new Object[] {});
-        page.putIfAbsent("formattingTips", new Object[] {});
-        m.put("pageFitAdvice", page);
+        m.putIfAbsent("detections", new HashMap<>());
+
         return m;
     }
 
@@ -148,48 +179,26 @@ public class ResumeDiagnoseService {
 
     public Map<String, Object> fallbackMinimal() {
         Map<String, Object> m = new HashMap<>();
-        m.put("overallScore", 50);
-        Map<String, Object> scores = new HashMap<>();
-        scores.put("structure", 8);
-        scores.put("readability", 7);
-        scores.put("quantification", 7);
-        scores.put("consistency", 7);
-        scores.put("skillEvidence", 6);
-        scores.put("riskCompliance", 7);
-        scores.put("atsFriendliness", 8);
-        m.put("scores", scores);
-        Map<String, Object> length = new HashMap<>();
-        length.put("chars", 0);
-        length.put("words", 0);
-        length.put("lines", 0);
-        length.put("avgSentenceLength", 0);
-        length.put("bulletCount", 0);
-        length.put("quantifiedBulletRatio", 0.0);
-        m.put("lengthStats", length);
-        m.put("detectedSections", new Object[] {});
-        m.put("sectionOrderAdvice", new Object[] {"CONTACT","SUMMARY","SKILLS","EXPERIENCE","PROJECTS","EDUCATION","CERTIFICATIONS"});
-        m.put("issues", new Object[] {});
-        Map<String, Object> detections = new HashMap<>();
-        detections.put("privacyLeaks", new Object[] {});
-        detections.put("formattingRedFlags", new Object[] {});
-        detections.put("inconsistencies", new Object[] {});
-        detections.put("buzzwordsOveruse", new Object[] {});
-        detections.put("passiveVoiceSamples", new Object[] {});
-        detections.put("missingEvidenceForSkills", new Object[] {});
-        m.put("detections", detections);
-        Map<String, Object> rewrite = new HashMap<>();
-        rewrite.put("summary", new HashMap<>());
-        rewrite.put("skills", new HashMap<>());
-        rewrite.put("experienceBullets", new Object[] {});
-        rewrite.put("projectsBullets", new Object[] {});
-        rewrite.put("educationNote", "");
-        m.put("rewritePack", rewrite);
-        Map<String, Object> page = new HashMap<>();
-        page.put("targetPages", 1);
-        page.put("whatToTrim", new Object[] {});
-        page.put("whatToPromote", new Object[] {});
-        page.put("formattingTips", new Object[] {});
-        m.put("pageFitAdvice", page);
+
+        // 新的8个分析部分结构
+        m.put("overview", new HashMap<>());
+        m.put("structure", new HashMap<>());
+        m.put("contentQuality", new HashMap<>());
+        m.put("credibility", new HashMap<>());
+        m.put("atsCompatibility", new HashMap<>());
+        m.put("improvements", new Object[] {});
+        m.put("rewrite", "");
+
+        // scorecard 默认分数
+        Map<String, Object> scorecard = new HashMap<>();
+        scorecard.put("信息清晰度", 5);
+        scorecard.put("专业可信度", 5);
+        scorecard.put("HR友好度", 5);
+        scorecard.put("ATS友好度", 5);
+        scorecard.put("面试通过概率", 5);
+        m.put("scorecard", scorecard);
+        m.put("overallScore", 50); // 0-100分制
+
         return m;
     }
 

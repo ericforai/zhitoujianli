@@ -7,7 +7,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { deliveryConfigValidator } from '../../services/deliveryService';
-import { DeliveryStrategy as DeliveryStrategyType } from '../../types/api';
+import { DeliveryStrategy as DeliveryStrategyType, MatchingSchemes } from '../../types/api';
 
 interface DeliverySettingsProps {
   strategy: DeliveryStrategyType;
@@ -23,8 +23,86 @@ const DeliverySettings: React.FC<DeliverySettingsProps> = ({
   const [formData, setFormData] = useState<DeliveryStrategyType>(strategy);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // 匹配策略预设配置
+  const matchingModePresets = {
+    STRICT: {
+      name: '严格模式',
+      description: '只匹配完全符合关键词的岗位，精准度高',
+      schemes: { scheme1: true, scheme2: false, scheme3: false, scheme4: false, scheme5: false },
+    },
+    STANDARD: {
+      name: '标准模式',
+      description: '平衡精准度和覆盖面，推荐使用',
+      schemes: { scheme1: true, scheme2: true, scheme3: true, scheme4: false, scheme5: false },
+    },
+    FLEXIBLE: {
+      name: '灵活模式',
+      description: '最大化匹配覆盖面，可能包含相关岗位',
+      schemes: { scheme1: true, scheme2: true, scheme3: true, scheme4: true, scheme5: true },
+    },
+  };
+
+  // 匹配方案说明
+  const schemeDescriptions = [
+    {
+      id: 'scheme1',
+      name: '方案1：开头匹配',
+      description: '岗位名称以关键词开头',
+      example: '关键词"市场总监" → 匹配"市场总监（北京）"',
+      score: '100%',
+    },
+    {
+      id: 'scheme2',
+      name: '方案2：关键词+职位词组合',
+      description: '关键词后面跟着职位相关词汇',
+      example: '关键词"市场" → 匹配"市场总监"、"市场经理"',
+      score: '80%',
+    },
+    {
+      id: 'scheme3',
+      name: '方案3：完整词匹配',
+      description: '关键词是完整词（词边界检查）',
+      example: '关键词"营销" → 匹配"数字营销总监"（完整词）',
+      score: '70%',
+    },
+    {
+      id: 'scheme4',
+      name: '方案4：拆分匹配',
+      description: '长关键词拆分匹配（适用于包含职位词的关键词）',
+      example: '关键词"营销总监" → 匹配"营销运营总监"',
+      score: '60%',
+    },
+    {
+      id: 'scheme5',
+      name: '方案5：短词+职位组合',
+      description: '短关键词与职位词组合匹配',
+      example: '关键词"市场" → 匹配"市场销售总监"',
+      score: '60%',
+    },
+  ];
+
   useEffect(() => {
-    setFormData(strategy);
+    // 处理向后兼容：为旧配置提供默认值
+    const normalizedStrategy: DeliveryStrategyType = {
+      enableAutoDelivery: strategy.enableAutoDelivery || false,
+      deliveryFrequency: strategy.deliveryFrequency || 10,
+      maxDailyDelivery: strategy.maxDailyDelivery || 50,
+      deliveryInterval: strategy.deliveryInterval || 300,
+      matchThreshold: strategy.matchThreshold || 0.7,
+      deliveryTimeRange: strategy.deliveryTimeRange || {
+        startTime: '09:00',
+        endTime: '18:00',
+      },
+      keywordMatchingMode: strategy.keywordMatchingMode || 'STANDARD',
+      matchingSchemes: strategy.matchingSchemes || {
+        scheme1: true,
+        scheme2: true,
+        scheme3: true,
+        scheme4: false,
+        scheme5: false,
+      },
+    };
+    setFormData(normalizedStrategy);
   }, [strategy]);
 
   /**
@@ -43,6 +121,41 @@ const DeliverySettings: React.FC<DeliverySettingsProps> = ({
         [field as string]: '',
       }));
     }
+  };
+
+  /**
+   * 处理匹配模式变化
+   */
+  const handleMatchingModeChange = (mode: 'STRICT' | 'STANDARD' | 'FLEXIBLE' | 'CUSTOM') => {
+    if (mode === 'CUSTOM') {
+      // 自定义模式：保持现有schemes配置
+      setFormData(prev => ({
+        ...prev,
+        keywordMatchingMode: 'CUSTOM',
+      }));
+    } else {
+      // 预设模式：应用对应的schemes配置
+      const preset = matchingModePresets[mode];
+      setFormData(prev => ({
+        ...prev,
+        keywordMatchingMode: mode,
+        matchingSchemes: preset.schemes,
+      }));
+    }
+  };
+
+  /**
+   * 处理匹配方案开关变化
+   */
+  const handleSchemeToggle = (schemeId: keyof MatchingSchemes, enabled: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      keywordMatchingMode: 'CUSTOM', // 切换到自定义模式
+      matchingSchemes: {
+        ...prev.matchingSchemes,
+        [schemeId]: enabled,
+      },
+    }));
   };
 
   /**
@@ -249,12 +362,160 @@ const DeliverySettings: React.FC<DeliverySettingsProps> = ({
           </p>
         </div>
 
-        {/* 匹配度阈值 */}
-        <div>
-          <label className='block text-sm font-medium text-gray-700 mb-2'>
-            匹配度阈值 <span className='text-red-500'>*</span>
-          </label>
-          <div className='space-y-3'>
+        {/* 关键词匹配策略 */}
+        <div className='border-t border-gray-200 pt-6'>
+          <div className='mb-4'>
+            <label className='block text-sm font-medium text-gray-900 mb-1'>
+              关键词匹配策略
+            </label>
+            <p className='text-xs text-gray-500'>
+              选择匹配方式，控制哪些岗位会被投递。匹配度会根据启用的方案自动计算。
+            </p>
+          </div>
+
+          {/* 预设模式选择 */}
+          <div className='mb-6'>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-3'>
+              {(['STRICT', 'STANDARD', 'FLEXIBLE'] as const).map(mode => {
+                const preset = matchingModePresets[mode];
+                const isSelected = formData.keywordMatchingMode === mode;
+                return (
+                  <button
+                    key={mode}
+                    type='button'
+                    onClick={() => handleMatchingModeChange(mode)}
+                    disabled={loading}
+                    className={`p-3 border-2 rounded-lg text-left transition-all ${
+                      isSelected
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300 bg-white'
+                    } ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                  >
+                    <div className='flex items-center justify-between mb-1'>
+                      <span className='text-sm font-medium text-gray-900'>
+                        {preset.name}
+                      </span>
+                      {isSelected && (
+                        <svg
+                          className='w-5 h-5 text-blue-600'
+                          fill='currentColor'
+                          viewBox='0 0 20 20'
+                        >
+                          <path
+                            fillRule='evenodd'
+                            d='M10 18a8 8 0 100-16 8 8 0 0116 0zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+                            clipRule='evenodd'
+                          />
+                        </svg>
+                      )}
+                    </div>
+                    <p className='text-xs text-gray-600'>{preset.description}</p>
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              type='button'
+              onClick={() => handleMatchingModeChange('CUSTOM')}
+              disabled={loading}
+              className={`mt-3 px-4 py-2 text-sm border-2 rounded-lg transition-all ${
+                formData.keywordMatchingMode === 'CUSTOM'
+                  ? 'border-blue-500 bg-blue-50 text-blue-700'
+                  : 'border-gray-200 hover:border-gray-300 text-gray-700'
+              } ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+            >
+              自定义匹配方案
+            </button>
+          </div>
+
+          {/* 匹配方案详细配置（自定义模式或展开查看） */}
+          <div className='bg-gray-50 rounded-lg p-4 space-y-3'>
+            <div className='text-sm font-medium text-gray-900 mb-3'>
+              匹配方案详情
+              {formData.keywordMatchingMode !== 'CUSTOM' && (
+                <span className='ml-2 text-xs font-normal text-gray-500'>
+                  （当前使用{formData.keywordMatchingMode === 'STRICT' ? '严格' : formData.keywordMatchingMode === 'FLEXIBLE' ? '灵活' : '标准'}模式预设）
+                </span>
+              )}
+            </div>
+            {schemeDescriptions.map(scheme => {
+              const schemeKey = scheme.id as keyof MatchingSchemes;
+              // 计算是否启用：优先使用matchingSchemes配置，否则根据模式推断
+              let isEnabled = false;
+              if (formData.matchingSchemes && formData.matchingSchemes[schemeKey] !== undefined) {
+                isEnabled = formData.matchingSchemes[schemeKey] || false;
+              } else {
+                // 根据匹配模式推断
+                const mode = formData.keywordMatchingMode || 'STANDARD';
+                if (mode === 'STRICT') {
+                  isEnabled = schemeKey === 'scheme1';
+                } else if (mode === 'FLEXIBLE') {
+                  isEnabled = true;
+                } else {
+                  // STANDARD 或默认
+                  isEnabled = ['scheme1', 'scheme2', 'scheme3'].includes(schemeKey);
+                }
+              }
+              const canToggle = (formData.keywordMatchingMode || 'STANDARD') === 'CUSTOM';
+
+              return (
+                <div
+                  key={scheme.id}
+                  className={`p-3 border rounded-lg ${
+                    isEnabled ? 'border-blue-200 bg-white' : 'border-gray-200 bg-gray-50'
+                  }`}
+                >
+                  <div className='flex items-start justify-between'>
+                    <div className='flex-1'>
+                      <div className='flex items-center justify-between mb-1'>
+                        <div className='flex items-center space-x-2'>
+                          <span className='text-sm font-medium text-gray-900'>
+                            {scheme.name}
+                          </span>
+                          <span className='text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded'>
+                            {scheme.score}
+                          </span>
+                        </div>
+                        {canToggle && (
+                          <label className='relative inline-flex items-center cursor-pointer'>
+                            <input
+                              type='checkbox'
+                              checked={isEnabled}
+                              onChange={e =>
+                                handleSchemeToggle(schemeKey, e.target.checked)
+                              }
+                              disabled={loading}
+                              className='sr-only peer'
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                          </label>
+                        )}
+                        {!canToggle && (
+                          <span
+                            className={`text-xs px-2 py-1 rounded ${
+                              isEnabled
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-gray-100 text-gray-500'
+                            }`}
+                          >
+                            {isEnabled ? '已启用' : '未启用'}
+                          </span>
+                        )}
+                      </div>
+                      <p className='text-xs text-gray-600 mb-1'>{scheme.description}</p>
+                      <p className='text-xs text-gray-500 italic'>{scheme.example}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* 匹配度阈值（保留作为兜底） */}
+          <div className='mt-4 pt-4 border-t border-gray-200'>
+            <label className='block text-sm font-medium text-gray-700 mb-2'>
+              匹配度阈值（兜底设置）
+            </label>
             <div className='flex items-center space-x-4'>
               <input
                 type='range'
@@ -263,10 +524,7 @@ const DeliverySettings: React.FC<DeliverySettingsProps> = ({
                 step='0.1'
                 value={formData.matchThreshold || 0.7}
                 onChange={e =>
-                  handleInputChange(
-                    'matchThreshold',
-                    parseFloat(e.target.value)
-                  )
+                  handleInputChange('matchThreshold', parseFloat(e.target.value))
                 }
                 className='flex-1'
                 disabled={loading}
@@ -275,17 +533,9 @@ const DeliverySettings: React.FC<DeliverySettingsProps> = ({
                 {Math.round((formData.matchThreshold || 0.7) * 100)}%
               </span>
             </div>
-            <div className='flex justify-between text-xs text-gray-500'>
-              <span>0%</span>
-              <span>50%</span>
-              <span>100%</span>
-            </div>
-            <p className='text-xs text-gray-500'>
-              只投递匹配度高于此阈值的职位，建议设置为70%
+            <p className='mt-1 text-xs text-gray-500'>
+              最终匹配度必须高于此阈值才会投递（建议70%）
             </p>
-            {errors.error_3 && (
-              <p className='text-sm text-red-600'>{errors.error_3}</p>
-            )}
           </div>
         </div>
       </div>

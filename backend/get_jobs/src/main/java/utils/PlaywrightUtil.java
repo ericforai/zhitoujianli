@@ -276,29 +276,71 @@ public class PlaywrightUtil {
     public static void cleanup() {
         try {
             if (DESKTOP_PAGE != null) {
-                DESKTOP_PAGE.close();
+                try {
+                    DESKTOP_PAGE.close();
+                } catch (Exception e) {
+                    log.debug("关闭桌面页面时出错（可忽略）: {}", e.getMessage());
+                }
                 DESKTOP_PAGE = null;
             }
             if (DESKTOP_CONTEXT != null) {
-                DESKTOP_CONTEXT.close();
+                try {
+                    DESKTOP_CONTEXT.close();
+                } catch (Exception e) {
+                    // Playwright关闭时可能尝试读取package.json失败，这是已知问题，不影响功能
+                    String errorMsg = e.getMessage();
+                    if (errorMsg != null && (errorMsg.contains("package.json") || errorMsg.contains("MODULE_NOT_FOUND"))) {
+                        log.debug("Playwright关闭时的已知问题（可忽略）: {}", e.getMessage());
+                    } else {
+                        log.warn("关闭桌面上下文时出错: {}", e.getMessage());
+                    }
+                }
                 DESKTOP_CONTEXT = null;
             }
             if (MOBILE_CONTEXT != null) {
-                MOBILE_CONTEXT.close();
+                try {
+                    MOBILE_CONTEXT.close();
+                } catch (Exception e) {
+                    String errorMsg = e.getMessage();
+                    if (errorMsg != null && (errorMsg.contains("package.json") || errorMsg.contains("MODULE_NOT_FOUND"))) {
+                        log.debug("Playwright关闭时的已知问题（可忽略）: {}", e.getMessage());
+                    } else {
+                        log.warn("关闭移动上下文时出错: {}", e.getMessage());
+                    }
+                }
                 MOBILE_CONTEXT = null;
             }
             if (BROWSER != null) {
-                BROWSER.close();
+                try {
+                    BROWSER.close();
+                } catch (Exception e) {
+                    log.debug("关闭浏览器时出错（可忽略）: {}", e.getMessage());
+                }
                 BROWSER = null;
             }
             if (PLAYWRIGHT != null) {
-                PLAYWRIGHT.close();
+                try {
+                    PLAYWRIGHT.close();
+                } catch (Exception e) {
+                    String errorMsg = e.getMessage();
+                    if (errorMsg != null && (errorMsg.contains("package.json") || errorMsg.contains("MODULE_NOT_FOUND"))) {
+                        log.debug("Playwright关闭时的已知问题（可忽略）: {}", e.getMessage());
+                    } else {
+                        log.warn("关闭Playwright时出错: {}", e.getMessage());
+                    }
+                }
                 PLAYWRIGHT = null;
             }
             INITIALIZED = false;
             log.info("Playwright资源已清理");
         } catch (Exception e) {
-            log.error("清理Playwright资源时出错", e);
+            // 最外层异常处理，确保不会抛出未捕获的异常
+            String errorMsg = e.getMessage();
+            if (errorMsg != null && (errorMsg.contains("package.json") || errorMsg.contains("MODULE_NOT_FOUND"))) {
+                log.debug("Playwright清理时的已知问题（可忽略）: {}", e.getMessage());
+            } else {
+                log.error("清理Playwright资源时出错", e);
+            }
         }
     }
 
@@ -341,37 +383,99 @@ public class PlaywrightUtil {
 
     /**
      * 关闭Playwright及浏览器实例，增加异常处理
+     *
+     * ✅ 修复：捕获并忽略Playwright清理时的package.json错误（已知问题，不影响功能）
      */
     public static void close() {
         try {
             if (DESKTOP_PAGE != null) {
-                DESKTOP_PAGE.close();
+                try {
+                    DESKTOP_PAGE.close();
+                } catch (Exception e) {
+                    String errorMsg = e.getMessage();
+                    if (errorMsg != null && (errorMsg.contains("package.json") || errorMsg.contains("MODULE_NOT_FOUND"))) {
+                        log.debug("Playwright关闭时的已知问题（可忽略）: {}", e.getMessage());
+                    } else {
+                        log.warn("关闭桌面页面时出错: {}", e.getMessage());
+                    }
+                }
                 DESKTOP_PAGE = null;
             }
             if (MOBILE_PAGE != null) {
-                MOBILE_PAGE.close();
+                try {
+                    MOBILE_PAGE.close();
+                } catch (Exception e) {
+                    String errorMsg = e.getMessage();
+                    if (errorMsg != null && (errorMsg.contains("package.json") || errorMsg.contains("MODULE_NOT_FOUND"))) {
+                        log.debug("Playwright关闭时的已知问题（可忽略）: {}", e.getMessage());
+                    } else {
+                        log.warn("关闭移动页面时出错: {}", e.getMessage());
+                    }
+                }
                 MOBILE_PAGE = null;
             }
             if (DESKTOP_CONTEXT != null) {
-                DESKTOP_CONTEXT.close();
+                try {
+                    DESKTOP_CONTEXT.close();
+                } catch (Exception e) {
+                    String errorMsg = e.getMessage();
+                    if (errorMsg != null && (errorMsg.contains("package.json") || errorMsg.contains("MODULE_NOT_FOUND"))) {
+                        log.debug("Playwright关闭时的已知问题（可忽略）: {}", e.getMessage());
+                    } else {
+                        log.warn("关闭桌面上下文时出错: {}", e.getMessage());
+                    }
+                }
                 DESKTOP_CONTEXT = null;
             }
             if (MOBILE_CONTEXT != null) {
-                MOBILE_CONTEXT.close();
+                try {
+                    MOBILE_CONTEXT.close();
+                } catch (Exception e) {
+                    String errorMsg = e.getMessage();
+                    if (errorMsg != null && (errorMsg.contains("package.json") || errorMsg.contains("MODULE_NOT_FOUND"))) {
+                        log.debug("Playwright关闭时的已知问题（可忽略）: {}", e.getMessage());
+                    } else {
+                        log.warn("关闭移动上下文时出错: {}", e.getMessage());
+                    }
+                }
                 MOBILE_CONTEXT = null;
             }
             if (BROWSER != null) {
-                BROWSER.close();
+                try {
+                    BROWSER.close();
+                } catch (Exception e) {
+                    String errorMsg = e.getMessage();
+                    if (errorMsg != null && (errorMsg.contains("package.json") || errorMsg.contains("MODULE_NOT_FOUND"))) {
+                        log.debug("Playwright关闭时的已知问题（可忽略）: {}", e.getMessage());
+                    } else {
+                        log.warn("关闭浏览器时出错: {}", e.getMessage());
+                    }
+                }
                 BROWSER = null;
             }
             if (PLAYWRIGHT != null) {
-                PLAYWRIGHT.close();
+                try {
+                    PLAYWRIGHT.close();
+                } catch (Exception e) {
+                    String errorMsg = e.getMessage();
+                    if (errorMsg != null && (errorMsg.contains("package.json") || errorMsg.contains("MODULE_NOT_FOUND"))) {
+                        log.debug("Playwright关闭时的已知问题（可忽略）: {}", e.getMessage());
+                    } else {
+                        log.warn("关闭Playwright时出错: {}", e.getMessage());
+                    }
+                }
                 PLAYWRIGHT = null;
             }
 
             log.info("Playwright及浏览器实例已成功关闭");
         } catch (Exception e) {
-            log.error("关闭Playwright实例时发生异常：{}", e.getMessage());
+            // 最外层异常处理，确保不会抛出未捕获的异常
+            String errorMsg = e.getMessage();
+            if (errorMsg != null && (errorMsg.contains("package.json") || errorMsg.contains("MODULE_NOT_FOUND"))) {
+                log.debug("Playwright关闭时的已知问题（可忽略）: {}", e.getMessage());
+            } else {
+                log.error("关闭Playwright实例时发生异常", e);
+            }
         }
     }
 

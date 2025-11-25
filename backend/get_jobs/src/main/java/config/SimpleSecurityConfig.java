@@ -94,7 +94,9 @@ public class SimpleSecurityConfig {
                 .requestMatchers(
                     "/status",
                     "/simple-status",
-                    "/logs"
+                    "/logs",
+                    "/api/admin/behavior/log",  // 🔧 行为记录API（允许后台任务调用，无需认证）
+                    "/api/test/email/**"        // 🧪 测试邮件接口（仅用于测试，生产环境应移除）
                 ).permitAll()
 
                 // 需要认证的端点（⚠️ 多租户模式 - 所有数据操作需认证）
@@ -105,7 +107,9 @@ public class SimpleSecurityConfig {
                     "/api/config",                          // 用户配置
                     "/api/ai-config",                       // AI配置
                     "/api/resume",                          // 简历
-                    "/api/admin/**",                        // 🔧 管理后台API（需要认证，排除/auth/**）
+                    "/api/resume/history",                  // ✅ 简历历史记录（需要认证）
+                    "/api/resume/history/**",                // ✅ 简历历史记录详情（需要认证）
+                    "/api/admin/**",                        // 🔧 管理后台API（需要认证，排除/auth/**和/behavior/log）
                     "/save-config",
                     "/start-program",
                     "/stop-program",

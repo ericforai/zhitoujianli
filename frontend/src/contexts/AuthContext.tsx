@@ -192,7 +192,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             userType,
             email,
             'result.user': result.user,
-            targetPath: isAdmin ? '/admin/dashboard' : '/boss-delivery',
+            targetPath: isAdmin ? '/admin/dashboard' : '/dashboard',
             'localStorage.userType': localStorage.getItem('userType'),
             'localStorage.authToken': !!localStorage.getItem('authToken'),
           });
@@ -211,9 +211,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
               window.location.pathname
             );
           } else {
-            console.log('🚀 普通用户登录成功，跳转到Boss投递页面');
-            navigate('/boss-delivery', { replace: true });
-            console.log('📍 检查点4: navigate 已调用 (/boss-delivery)');
+            console.log('🚀 普通用户登录成功，跳转到工作台');
+            navigate('/dashboard', { replace: true });
+            console.log('📍 检查点4: navigate 已调用 (/dashboard)');
           }
         } else {
           throw new Error(result.message || '登录失败');
@@ -254,9 +254,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             authLogger.info('✅ 已设置auth_token Cookie用于后端认证');
           }
 
-          // 跳转到前端Boss投递页面
-          const frontendUrl = '/boss-delivery';
-          authLogger.info('🚀 跳转到Boss投递页面:', frontendUrl);
+          // 跳转到前端工作台
+          const frontendUrl = '/dashboard';
+          authLogger.info('🚀 跳转到工作台:', frontendUrl);
           navigate(frontendUrl, { replace: true });
         } else {
           throw new Error(result.message || '登录失败');

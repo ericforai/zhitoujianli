@@ -64,8 +64,9 @@ export interface GenerateResponse {
 
 export interface DiagnoseResponse {
   sections: Array<{
-    name: '结构' | '关键词' | '量化' | '措辞' | '风险';
+    name: '总体评价' | '结构分析' | '内容分析' | '专业度与可信度' | 'ATS技术分析' | '可提升点' | '重写关键段落' | '最终得分';
     items: Array<{ issue: string; fix: string }>;
+    content?: string | object; // 用于存储分析内容（可能是字符串或对象）
   }>;
   /** 诊断服务耗时（毫秒） */
   tookMs?: number;
@@ -76,8 +77,10 @@ export interface DiagnoseResponse {
     experiences?: Array<{ role: string; company?: string; bullets: string[] }>;
     skills?: string[];
   };
+  /** 综合分数（0-100），从scorecard计算得出 */
   score: number;
   keywords: string[];
+  /** 重写关键段落内容（HTML格式） */
   html: string;
 }
 

@@ -219,6 +219,15 @@ const handleLoginResponse = (response: LoginResponse): LoginResponse => {
       UserManager.saveUser(response.user);
     }
 
+    // ✅ 修复：登录时清理旧的全局存储数据（异步执行，不阻塞登录流程）
+    import('./resumes')
+      .then(({ cleanupAllOldStorage }) => {
+        cleanupAllOldStorage();
+      })
+      .catch((error) => {
+        console.warn('清理旧存储失败:', error);
+      });
+
     // 🔧 修复：检查响应中是否包含管理员信息，自动设置userType
     // 如果响应中包含adminType或isAdmin字段，说明是管理员登录
     const userData = response.user as any;
@@ -371,6 +380,7 @@ export const authService = {
    * 登出
    * 🔒 安全修复：只清除认证状态，不负责页面跳转
    * 跳转逻辑由调用者（如AuthContext）统一处理，避免双重跳转冲突
+   * ✅ 修复：登出时清理用户相关的localStorage数据
    */
   logout: async (): Promise<void> => {
     try {
@@ -379,6 +389,14 @@ export const authService = {
       console.error('登出请求失败', error);
       // 即使API失败，也要清除本地状态
     } finally {
+      // ✅ 修复：清理用户简历历史记录
+      try {
+        const { clearUserHistory } = await import('./resumes');
+        clearUserHistory();
+      } catch (error) {
+        console.warn('清理简历历史记录失败:', error);
+      }
+
       // 使用TokenManager清除所有认证信息
       TokenManager.clearTokens();
       // 🔒 安全修复：不在此处跳转，由调用者统一处理

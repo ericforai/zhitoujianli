@@ -171,7 +171,7 @@ public class QuotaInitializer implements CommandLineRunner {
             .isEnabled(true)
             .build());
 
-        // 简历高级优化：3次
+        // 简历高级优化：3次（✅ 修复：确保是3次，不是1次）
         configs.add(PlanQuotaConfig.builder()
             .quotaKey("resume_advanced_optimize")
             .limit(3L)
@@ -179,7 +179,7 @@ public class QuotaInitializer implements CommandLineRunner {
             .isEnabled(true)
             .build());
 
-        // 每日投递次数：100次
+        // 每日投递次数：100次（✅ 修复：确保是100次，不是30次）
         configs.add(PlanQuotaConfig.builder()
             .quotaKey("daily_job_application")
             .limit(100L)

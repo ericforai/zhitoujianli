@@ -43,7 +43,8 @@ public class AiService {
 
     public static String sendRequest(String content) {
         // 统一更严的超时与重试策略
-        final int timeoutInSeconds = 25;
+        // 增加超时时间到120秒，因为AI诊断需要处理较长的简历内容
+        final int timeoutInSeconds = 120;
         final int maxAttempts = 3;
 
         // 创建 HttpClient 实例并设置超时

@@ -11,7 +11,10 @@ import { useWebSocket } from '../../hooks/useWebSocket';
 import {
   DeliveryProgressMessage,
   DeliveryStatusMessage,
+  VerificationCodeMessage,
 } from '../../types/api';
+import VerificationCodeDialog from '../VerificationCodeDialog';
+import { webSocketService } from '../../services/webSocketService';
 
 const DeliveryStatus: React.FC = () => {
   const { statistics, loading, error, refreshStatistics } = useDelivery();
@@ -24,6 +27,15 @@ const DeliveryStatus: React.FC = () => {
   const [realTimeProgress, setRealTimeProgress] =
     useState<DeliveryProgressMessage | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // 验证码对话框状态
+  const [verificationCodeDialog, setVerificationCodeDialog] = useState<{
+    open: boolean;
+    requestId: string;
+    jobName: string;
+    screenshotUrl: string | null;
+    taskId: string;
+  } | null>(null);
 
   /**
    * 订阅WebSocket消息
@@ -42,12 +54,26 @@ const DeliveryStatus: React.FC = () => {
       setTimeout(() => setErrorMessage(null), 5000);
     };
 
+    // 处理验证码请求
+    const handleVerificationCode = (data: VerificationCodeMessage) => {
+      console.log('收到验证码请求:', data);
+      setVerificationCodeDialog({
+        open: true,
+        requestId: data.requestId,
+        jobName: data.jobName,
+        screenshotUrl: data.screenshotUrl,
+        taskId: data.taskId,
+      });
+    };
+
     subscribeDeliveryStatus(handleStatusUpdate);
     subscribeDeliveryProgress(handleProgressUpdate);
     subscribeError(handleError);
+    webSocketService.subscribeVerificationCode(handleVerificationCode);
 
     return () => {
       // 清理订阅
+      webSocketService.unsubscribeVerificationCode(handleVerificationCode);
     };
   }, [subscribeDeliveryStatus, subscribeDeliveryProgress, subscribeError]);
 
@@ -315,6 +341,18 @@ const DeliveryStatus: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* 验证码对话框 */}
+      {verificationCodeDialog && (
+        <VerificationCodeDialog
+          open={verificationCodeDialog.open}
+          onClose={() => setVerificationCodeDialog(null)}
+          requestId={verificationCodeDialog.requestId}
+          jobName={verificationCodeDialog.jobName}
+          screenshotUrl={verificationCodeDialog.screenshotUrl}
+          taskId={verificationCodeDialog.taskId}
+        />
       )}
     </div>
   );

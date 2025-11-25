@@ -13,7 +13,11 @@ const HistoryPage: React.FC = () => {
     setLoading(true);
     try {
       const data = await list();
+      console.log('历史记录加载结果:', data);
       setItems(data);
+    } catch (error) {
+      console.error('加载历史记录失败:', error);
+      setItems([]);
     } finally {
       setLoading(false);
     }

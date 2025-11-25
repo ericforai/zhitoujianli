@@ -23,6 +23,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { path: '/admin/dashboard', label: '仪表盘', icon: '📊' },
     { path: '/admin/users', label: '用户管理', icon: '👥' },
     { path: '/admin/login-logs', label: '登录日志', icon: '📝' },
+    { path: '/admin/behavior', label: '用户行为', icon: '📈' },
     { path: '/admin/features', label: '功能开关', icon: '⚙️' },
     { path: '/admin/system', label: '系统配置', icon: '🔧' },
   ];

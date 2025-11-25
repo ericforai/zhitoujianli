@@ -26,7 +26,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ai.AiService;
 import ai.CandidateResumeService;
+import entity.UserBehaviorLog;
 import lombok.extern.slf4j.Slf4j;
+import service.UserBehaviorLogService;
 import util.UserContextUtil;
 
 /**
@@ -38,6 +40,9 @@ import util.UserContextUtil;
 @RequestMapping("/api/candidate-resume")
 @Slf4j
 public class CandidateResumeController {
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private UserBehaviorLogService behaviorLogService;
 
 
     /**
@@ -142,6 +147,16 @@ public class CandidateResumeController {
 
             // 调用简历解析
             Map<String, Object> candidateInfo = CandidateResumeService.parseAndSaveResume(resumeText);
+
+            // 记录用户行为：上传简历
+            try {
+                if (UserContextUtil.hasCurrentUser()) {
+                    String userId = UserContextUtil.getCurrentUserId();
+                    behaviorLogService.logResumeUpload(userId, fileName, file.getSize());
+                }
+            } catch (Exception e) {
+                log.warn("记录简历上传行为失败: {}", e.getMessage());
+            }
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

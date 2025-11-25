@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { PlanType } from '../../services/planService';
 
 /**
@@ -36,6 +36,8 @@ export const UpgradeConfirmDialog: React.FC<UpgradeConfirmDialogProps> = ({
   onConfirm,
   onCancel,
 }) => {
+  const [qrCodeError, setQrCodeError] = useState(false);
+
   if (!isOpen) return null;
 
   const getFeatures = (plan: PlanType) => {
@@ -46,7 +48,6 @@ export const UpgradeConfirmDialog: React.FC<UpgradeConfirmDialogProps> = ({
           '简历高级优化 1次',
           '每日投递 30次',
           '详细数据分析',
-          '邮件通知服务',
         ];
       case PlanType.PROFESSIONAL:
         return [
@@ -73,7 +74,7 @@ export const UpgradeConfirmDialog: React.FC<UpgradeConfirmDialogProps> = ({
 
       {/* 对话框 */}
       <div className="flex min-h-screen items-center justify-center p-4">
-        <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
+        <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8">
           {/* 关闭按钮 */}
           <button
             onClick={onCancel}
@@ -125,6 +126,40 @@ export const UpgradeConfirmDialog: React.FC<UpgradeConfirmDialogProps> = ({
             </ul>
           </div>
 
+          {/* 付款二维码 */}
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
+            <div className="text-center">
+              <p className="text-base font-semibold text-gray-900 mb-4">
+                扫码支付开通套餐
+              </p>
+              <div className="w-72 h-72 mx-auto mb-4 bg-white rounded-lg p-4 shadow-md flex items-center justify-center">
+                {qrCodeError ? (
+                  <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                    <svg className="h-16 w-16 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p className="text-sm text-center">请上传付款二维码</p>
+                  </div>
+                ) : (
+                  <img
+                    src="/images/alipay-payment-qrcode.jpg"
+                    alt="支付宝付款二维码"
+                    className="w-full h-full object-contain"
+                    loading="lazy"
+                    onError={() => setQrCodeError(true)}
+                    style={{ minWidth: '280px', minHeight: '280px' }}
+                  />
+                )}
+              </div>
+              <p className="text-sm text-gray-600 mb-2 font-medium">
+                使用支付宝扫码支付
+              </p>
+              <p className="text-xs text-gray-500">
+                支付成功后，套餐立即开通，配额自动更新
+              </p>
+            </div>
+          </div>
+
           {/* 提示信息 */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
             <div className="flex items-start">
@@ -133,10 +168,10 @@ export const UpgradeConfirmDialog: React.FC<UpgradeConfirmDialogProps> = ({
               </svg>
               <div>
                 <p className="text-sm font-semibold text-blue-900 mb-1">
-                  如何开通此套餐？
+                  支付说明
                 </p>
                 <p className="text-sm text-blue-800">
-                  请联系客服确认支付后，我们将为您开通套餐。升级后配额立即生效。
+                  扫码支付后，系统将自动为您开通套餐。升级后配额立即生效，无需等待。
                 </p>
               </div>
             </div>
@@ -152,18 +187,31 @@ export const UpgradeConfirmDialog: React.FC<UpgradeConfirmDialogProps> = ({
             </button>
             <button
               onClick={onConfirm}
-              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center"
+              disabled={loading}
+              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-              联系客服开通
+              {loading ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  处理中...
+                </>
+              ) : (
+                <>
+                  <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  我已支付
+                </>
+              )}
             </button>
           </div>
 
           {/* 底部说明 */}
           <p className="text-xs text-gray-500 text-center mt-4">
-            客服确认支付后，套餐立即开通，配额自动更新
+            支付成功后，套餐立即开通，配额自动更新。如有问题请联系客服。
           </p>
         </div>
       </div>

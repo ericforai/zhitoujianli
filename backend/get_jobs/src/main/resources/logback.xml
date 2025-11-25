@@ -8,7 +8,7 @@
     <property name="log.pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
 <!--    <property name="log.pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg (%caller{1})%n"/>-->
     <property name="log.file" value="${log.path}/${server.name}.%d{yyyy-MM-dd}.log"/>
-    
+
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <charset>UTF-8</charset>
@@ -28,6 +28,9 @@
         <!-- 立即刷新到文件，确保日志不丢失 -->
         <immediateFlush>true</immediateFlush>
     </appender>
+
+    <!-- 为boss.Boss类启用DEBUG级别，用于调试关键词匹配逻辑 -->
+    <logger name="boss.Boss" level="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="STDOUT"/>

@@ -325,6 +325,7 @@ public class QuotaService {
     /**
      * 获取套餐配额配置
      * ✅ 修复：实现数据库查询逻辑
+     * ✅ 修复：对于极速上岸版，强制使用正确的默认值，避免数据库中的旧配置影响
      */
     private PlanQuotaConfig getPlanQuotaConfig(PlanType planType, Long quotaId) {
         try {
@@ -332,15 +333,108 @@ public class QuotaService {
                 .findByPlanTypeAndQuotaIdAndIsEnabled(planType, quotaId, true);
 
             if (configOpt.isPresent()) {
-                return configOpt.get();
+                PlanQuotaConfig dbConfig = configOpt.get();
+
+                // ✅ 修复：对于极速上岸版，验证并修复错误的配额配置
+                if (planType == PlanType.PROFESSIONAL) {
+                    QuotaDefinition quotaDefinition = quotaDefinitionRepository.findById(quotaId).orElse(null);
+                    if (quotaDefinition != null) {
+                        String quotaKey = quotaDefinition.getQuotaKey();
+
+                        // 检查并修复错误的配额配置
+                        if ("resume_advanced_optimize".equals(quotaKey) && dbConfig.getQuotaLimit() != null && dbConfig.getQuotaLimit() == 1L) {
+                            log.warn("⚠️ 检测到极速上岸版简历高级优化配额配置错误（1次），使用正确的默认值（3次）");
+                            return getDefaultPlanQuotaConfig(planType, quotaId);
+                        }
+                        if ("daily_job_application".equals(quotaKey) && dbConfig.getQuotaLimit() != null && dbConfig.getQuotaLimit() == 30L) {
+                            log.warn("⚠️ 检测到极速上岸版每日投递配额配置错误（30次），使用正确的默认值（100次）");
+                            return getDefaultPlanQuotaConfig(planType, quotaId);
+                        }
+                    }
+                }
+
+                return dbConfig;
             }
 
-            log.debug("套餐配额配置不存在或未启用: planType={}, quotaId={}", planType, quotaId);
-            return null;
+            log.debug("套餐配额配置不存在或未启用: planType={}, quotaId={}，使用默认配置", planType, quotaId);
+
+            // ✅ 修复：如果数据库中没有配置，根据套餐类型返回硬编码的默认配额
+            return getDefaultPlanQuotaConfig(planType, quotaId);
         } catch (Exception e) {
-            log.error("查询套餐配额配置失败: planType={}, quotaId={}", planType, quotaId, e);
+            log.error("查询套餐配额配置失败: planType={}, quotaId={}，使用默认配置", planType, quotaId, e);
+
+            // ✅ 修复：查询失败时也返回默认配置，避免返回null导致配额显示错误
+            return getDefaultPlanQuotaConfig(planType, quotaId);
+        }
+    }
+
+    /**
+     * 获取默认套餐配额配置（硬编码fallback）
+     *
+     * ✅ 修复：当数据库查询失败时，使用硬编码的配额值确保正确显示
+     */
+    private PlanQuotaConfig getDefaultPlanQuotaConfig(PlanType planType, Long quotaId) {
+        // 根据quotaId获取quotaKey（需要先查询QuotaDefinition）
+        QuotaDefinition quotaDefinition = quotaDefinitionRepository.findById(quotaId).orElse(null);
+        if (quotaDefinition == null) {
+            log.warn("⚠️ 配额定义不存在: quotaId={}，无法确定默认配置", quotaId);
             return null;
         }
+
+        String quotaKey = quotaDefinition.getQuotaKey();
+
+        // 根据套餐类型和配额键返回默认配置
+        PlanQuotaConfig.PlanQuotaConfigBuilder builder = PlanQuotaConfig.builder()
+            .planType(planType)
+            .quotaId(quotaId)
+            .isEnabled(true);
+
+        switch (planType) {
+            case FREE:
+                // 入门版配额
+                if ("resume_basic_optimize".equals(quotaKey)) {
+                    return builder.quotaLimit(1L).isUnlimited(false).build();
+                } else if ("resume_advanced_optimize".equals(quotaKey)) {
+                    return builder.quotaLimit(0L).isUnlimited(false).build();
+                } else if ("daily_job_application".equals(quotaKey)) {
+                    return builder.quotaLimit(5L).isUnlimited(false).build();
+                }
+                break;
+
+            case BASIC:
+                // 高效求职版配额
+                if ("resume_basic_optimize".equals(quotaKey)) {
+                    return builder.quotaLimit(-1L).isUnlimited(true).build();
+                } else if ("resume_advanced_optimize".equals(quotaKey)) {
+                    return builder.quotaLimit(1L).isUnlimited(false).build();
+                } else if ("daily_job_application".equals(quotaKey)) {
+                    // ✅ 修复：高效求职版每日投递配额应该是30次
+                    return builder.quotaLimit(30L).isUnlimited(false).build();
+                }
+                break;
+
+            case PROFESSIONAL:
+                // 极速上岸版配额
+                // ✅ 修复：确保配额配置正确
+                // 简历基础优化：不限次
+                // 简历高级优化：3次（不是1次）
+                // 每日投递：100次（不是30次）
+                if ("resume_basic_optimize".equals(quotaKey)) {
+                    return builder.quotaLimit(-1L).isUnlimited(true).build();
+                } else if ("resume_advanced_optimize".equals(quotaKey)) {
+                    return builder.quotaLimit(3L).isUnlimited(false).build();
+                } else if ("daily_job_application".equals(quotaKey)) {
+                    return builder.quotaLimit(100L).isUnlimited(false).build();
+                }
+                break;
+
+            default:
+                log.warn("⚠️ 未知套餐类型: planType={}", planType);
+                return null;
+        }
+
+        log.warn("⚠️ 未知配额键: quotaKey={}，套餐类型: planType={}", quotaKey, planType);
+        return null;
     }
 
     /**

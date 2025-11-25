@@ -166,6 +166,27 @@ public class BossWebSocketController implements WebSocketHandler {
     }
 
     /**
+     * 发送验证码通知给前端
+     * @param userId 用户ID
+     * @param message 验证码消息（包含requestId、screenshotUrl等）
+     */
+    public void sendVerificationCodeNotification(String userId, Map<String, Object> message) {
+        WebSocketSession session = userSessions.get(userId);
+        if (session == null || !session.isOpen()) {
+            log.warn("用户会话不存在或已关闭: {}", userId);
+            return;
+        }
+
+        try {
+            sendMessage(session, message);
+            log.info("✅ 已发送验证码通知给用户: userId={}, requestId={}",
+                userId, message.get("requestId"));
+        } catch (Exception e) {
+            log.error("发送验证码通知失败", e);
+        }
+    }
+
+    /**
      * 检查用户是否在线
      */
     public boolean isUserOnline(String userId) {

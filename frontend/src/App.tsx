@@ -1,9 +1,8 @@
 import React from 'react';
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { Route, BrowserRouter as Router, Routes, Navigate } from 'react-router-dom';
 import ApiTestPage from './components/ApiTestPage';
 import AutoDelivery from './components/AutoDelivery';
 import BlogSection from './components/BlogSection';
-import BossDelivery from './components/BossDelivery';
 import Contact from './components/Contact';
 import Demo from './components/Demo';
 import DirectResumeEntry from './components/DirectResumeEntry';
@@ -49,6 +48,7 @@ import AdminUsers from './pages/AdminUsers';
 import AdminLoginLogs from './pages/AdminLoginLogs';
 import AdminFeatures from './pages/AdminFeatures';
 import AdminSystem from './pages/AdminSystem';
+import AdminUserBehavior from './pages/AdminUserBehavior';
 
 // 主页组件
 const HomePage: React.FC = () => {
@@ -96,6 +96,11 @@ function App() {
         <AuthProvider>
           <PlanProvider>
           <Routes>
+            {/* 重定向已删除的页面到新页面 */}
+            <Route
+              path='/boss-delivery'
+              element={<Navigate to='/dashboard' replace />}
+            />
             {/* 公开路由 */}
             <Route path='/' element={<HomePage />} />
             <Route path='/login' element={<Login />} />
@@ -121,14 +126,6 @@ function App() {
               element={
                 <PrivateRoute>
                   <ResumeDelivery />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path='/boss-delivery'
-              element={
-                <PrivateRoute>
-                  <BossDelivery />
                 </PrivateRoute>
               }
             />
@@ -221,6 +218,14 @@ function App() {
               element={
                 <AdminRoute>
                   <AdminSystem />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path='/admin/behavior'
+              element={
+                <AdminRoute>
+                  <AdminUserBehavior />
                 </AdminRoute>
               }
             />

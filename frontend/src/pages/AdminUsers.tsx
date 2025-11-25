@@ -29,6 +29,8 @@ const AdminUsers: React.FC = () => {
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
+  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set()); // 🔧 新增：选中的用户ID集合
+  const [batchDeleting, setBatchDeleting] = useState(false); // 🔧 新增：批量删除中状态
   const pageSize = 20;
 
   useEffect(() => {
@@ -209,20 +211,34 @@ const AdminUsers: React.FC = () => {
 
       console.log('📡 删除响应状态:', response.status, response.statusText);
 
+      const result = await response.json();
+      console.log('📥 删除响应:', result);
+
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ 删除请求失败:', errorText);
-        alert(`删除失败 (HTTP ${response.status}): ${errorText}`);
+        // 🔧 修复：根据HTTP状态码和错误消息，提供更友好的错误提示
+        const errorMessage = result.message || '未知错误';
+
+        if (response.status === 409 && errorMessage.includes('已被删除')) {
+          // 用户已被删除，提示用户刷新列表
+          alert('该用户已被删除，请刷新页面查看最新状态');
+          await fetchUsers(); // 刷新用户列表
+        } else if (response.status === 404 && errorMessage.includes('不存在')) {
+          // 用户不存在，提示用户刷新列表
+          alert('该用户不存在，请刷新页面查看最新状态');
+          await fetchUsers(); // 刷新用户列表
+        } else {
+          // 其他错误
+          alert(`删除失败: ${errorMessage}`);
+        }
         setUpdatingUserId(null);
         return;
       }
 
-      const result = await response.json();
-      console.log('✅ 删除响应:', result);
-
       if (result.success) {
         alert('用户已删除');
         await fetchUsers(); // 重新加载用户列表
+        // 🔧 修复：触发仪表盘数据刷新事件
+        window.dispatchEvent(new CustomEvent('adminUsersChanged'));
       } else {
         alert('删除失败: ' + (result.message || '未知错误'));
       }
@@ -231,6 +247,100 @@ const AdminUsers: React.FC = () => {
       alert('删除失败: ' + (err.message || '网络错误'));
     } finally {
       setUpdatingUserId(null);
+    }
+  };
+
+  // 🔧 新增：批量删除用户
+  const handleBatchDelete = async () => {
+    if (selectedUsers.size === 0) {
+      alert('请先选择要删除的用户');
+      return;
+    }
+
+    const selectedUserList = Array.from(selectedUsers);
+    const selectedUserEmails = users
+      .filter(u => selectedUserList.includes(String(u.userId || u.id)))
+      .map(u => u.email)
+      .join(', ');
+
+    const confirmMessage = `确定要删除以下 ${selectedUsers.size} 个用户吗？\n\n${selectedUserEmails}\n\n此操作不可恢复！`;
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    const reason = prompt('请输入删除原因（可选）：') || '管理员批量删除';
+
+    try {
+      setBatchDeleting(true);
+      const token = localStorage.getItem('authToken');
+
+      console.log('🗑️ 批量删除用户:', {
+        count: selectedUsers.size,
+        userIds: selectedUserList,
+        reason,
+      });
+
+      const response = await fetch(
+        `${config.apiBaseUrl}/admin/users/batch-delete`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            userIds: selectedUserList,
+            reason,
+          }),
+        }
+      );
+
+      const result = await response.json();
+      console.log('📥 批量删除响应:', result);
+
+      if (result.success) {
+        alert(`批量删除成功！\n成功: ${result.successCount} 个\n失败: ${result.failCount} 个`);
+        setSelectedUsers(new Set()); // 清空选择
+        await fetchUsers(); // 重新加载用户列表
+        // 🔧 修复：触发仪表盘数据刷新事件
+        window.dispatchEvent(new CustomEvent('adminUsersChanged'));
+      } else {
+        let errorMsg = result.message || '批量删除失败';
+        if (result.failedUsers && result.failedUsers.length > 0) {
+          errorMsg += '\n\n失败详情：\n' + result.failedUsers
+            .map((f: any) => `用户ID ${f.userId}: ${f.error}`)
+            .join('\n');
+        }
+        alert(errorMsg);
+      }
+    } catch (err: any) {
+      console.error('❌ 批量删除用户异常:', err);
+      alert('批量删除失败: ' + (err.message || '网络错误'));
+    } finally {
+      setBatchDeleting(false);
+    }
+  };
+
+  // 🔧 新增：切换用户选择状态
+  const handleToggleUserSelection = (userId: string) => {
+    const newSelected = new Set(selectedUsers);
+    if (newSelected.has(userId)) {
+      newSelected.delete(userId);
+    } else {
+      newSelected.add(userId);
+    }
+    setSelectedUsers(newSelected);
+  };
+
+  // 🔧 新增：全选/取消全选
+  const handleSelectAll = () => {
+    if (selectedUsers.size === users.length) {
+      setSelectedUsers(new Set());
+    } else {
+      const allUserIds = users.map(u => String(u.userId || u.id));
+      setSelectedUsers(new Set(allUserIds));
     }
   };
 
@@ -291,11 +401,43 @@ const AdminUsers: React.FC = () => {
           </div>
         )}
 
+        {/* 批量操作工具栏 */}
+        {selectedUsers.size > 0 && (
+          <div className='bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between'>
+            <div className='text-sm text-blue-700'>
+              已选择 <strong>{selectedUsers.size}</strong> 个用户
+            </div>
+            <div className='flex gap-2'>
+              <button
+                onClick={() => setSelectedUsers(new Set())}
+                className='px-4 py-2 text-sm font-medium text-blue-700 bg-white border border-blue-300 rounded-md hover:bg-blue-50'
+              >
+                取消选择
+              </button>
+              <button
+                onClick={handleBatchDelete}
+                disabled={batchDeleting}
+                className='px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed'
+              >
+                {batchDeleting ? '删除中...' : `批量删除 (${selectedUsers.size})`}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* 用户列表 */}
         <div className='bg-white rounded-lg shadow overflow-hidden'>
           <table className='min-w-full divide-y divide-gray-200'>
             <thead className='bg-gray-50'>
               <tr>
+                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12'>
+                  <input
+                    type='checkbox'
+                    checked={selectedUsers.size === users.length && users.length > 0}
+                    onChange={handleSelectAll}
+                    className='rounded border-gray-300 text-blue-600 focus:ring-blue-500'
+                  />
+                </th>
                 <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                   ID
                 </th>
@@ -320,83 +462,98 @@ const AdminUsers: React.FC = () => {
               </tr>
             </thead>
             <tbody className='bg-white divide-y divide-gray-200'>
-              {users.map(user => (
-                <tr key={user.id} className='hover:bg-gray-50'>
-                  <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
-                    {user.id}
-                  </td>
-                  <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
-                    {user.email}
-                  </td>
-                  <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                    {user.nickname || '-'}
-                  </td>
-                  <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                    {user.planType || 'FREE'}
-                  </td>
-                  <td className='px-6 py-4 whitespace-nowrap'>
-                    <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        user.active || user.status === 'enabled'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}
-                    >
-                      {user.active || user.status === 'enabled'
-                        ? '启用'
-                        : '禁用'}
-                    </span>
-                  </td>
-                  <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                    {new Date(user.createdAt).toLocaleDateString('zh-CN')}
-                  </td>
-                  <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
-                    <div className='flex items-center gap-2'>
-                      <button
-                        onClick={() => handleUpgradePlan(user)}
-                        disabled={
-                          updatingUserId === String(user.userId || user.id)
-                        }
-                        className='px-3 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-md text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
-                        title='升级/更改用户套餐'
-                      >
-                        升级套餐
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleToggleUserStatus(
-                            user,
-                            user.active || user.status === 'enabled'
-                          )
-                        }
-                        disabled={
-                          updatingUserId === String(user.userId || user.id)
-                        }
-                        className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+              {users.map(user => {
+                const userId = String(user.userId || user.id);
+                const isSelected = selectedUsers.has(userId);
+                return (
+                  <tr
+                    key={user.id}
+                    className={`hover:bg-gray-50 ${isSelected ? 'bg-blue-50' : ''}`}
+                  >
+                    <td className='px-6 py-4 whitespace-nowrap'>
+                      <input
+                        type='checkbox'
+                        checked={isSelected}
+                        onChange={() => handleToggleUserSelection(userId)}
+                        className='rounded border-gray-300 text-blue-600 focus:ring-blue-500'
+                      />
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
+                      {user.id}
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
+                      {user.email}
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                      {user.nickname || '-'}
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                      {user.planType || 'FREE'}
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap'>
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                           user.active || user.status === 'enabled'
-                            ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
-                            : 'bg-green-100 text-green-700 hover:bg-green-200'
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}
                       >
-                        {updatingUserId === String(user.userId || user.id)
-                          ? '处理中...'
-                          : user.active || user.status === 'enabled'
-                            ? '禁用'
-                            : '启用'}
-                      </button>
-                      <button
-                        onClick={() => handleDeleteUser(user)}
-                        disabled={
-                          updatingUserId === String(user.userId || user.id)
-                        }
-                        className='px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded-md text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
-                      >
-                        删除
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        {user.active || user.status === 'enabled'
+                          ? '启用'
+                          : '禁用'}
+                      </span>
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                      {new Date(user.createdAt).toLocaleDateString('zh-CN')}
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
+                      <div className='flex items-center gap-2'>
+                        <button
+                          onClick={() => handleUpgradePlan(user)}
+                          disabled={
+                            updatingUserId === String(user.userId || user.id)
+                          }
+                          className='px-3 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-md text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                          title='升级/更改用户套餐'
+                        >
+                          升级套餐
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleToggleUserStatus(
+                              user,
+                              user.active || user.status === 'enabled'
+                            )
+                          }
+                          disabled={
+                            updatingUserId === String(user.userId || user.id)
+                          }
+                          className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                            user.active || user.status === 'enabled'
+                              ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                              : 'bg-green-100 text-green-700 hover:bg-green-200'
+                          } disabled:opacity-50 disabled:cursor-not-allowed`}
+                        >
+                          {updatingUserId === String(user.userId || user.id)
+                            ? '处理中...'
+                            : user.active || user.status === 'enabled'
+                              ? '禁用'
+                              : '启用'}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteUser(user)}
+                          disabled={
+                            updatingUserId === String(user.userId || user.id)
+                          }
+                          className='px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded-md text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                        >
+                          删除
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
 
