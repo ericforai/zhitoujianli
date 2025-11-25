@@ -92,10 +92,10 @@ jobs:
         cd backend/get_jobs
         mvn pmd:check
 
-    - name: 运行测试
+    - name: 运行测试并生成覆盖率报告
       run: |
         cd backend/get_jobs
-        mvn test
+        mvn clean test jacoco:report
 
     - name: 生成测试报告
       uses: dorny/test-reporter@v1
@@ -104,6 +104,29 @@ jobs:
         name: Maven Tests
         path: backend/get_jobs/target/surefire-reports/*.xml
         reporter: java-junit
+
+    - name: JaCoCo覆盖率检查
+      run: |
+        cd backend/get_jobs
+        mvn jacoco:check
+      continue-on-error: true
+
+    - name: 上传JaCoCo覆盖率报告
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: jacoco-coverage-report
+        path: backend/get_jobs/target/site/jacoco/index.html
+        retention-days: 30
+
+    - name: 上传JaCoCo覆盖率到Codecov
+      uses: codecov/codecov-action@v3
+      if: always()
+      with:
+        file: ./backend/get_jobs/target/site/jacoco/jacoco.xml
+        flags: backend
+        name: backend-coverage
+        fail_ci_if_error: false
 
   # 安全扫描
   security-scan:

@@ -6,6 +6,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
+import { flushSync } from 'react-dom';
 import {
   autoDeliveryService,
   deliveryConfigService,
@@ -221,6 +222,7 @@ export const useDelivery = (): UseDeliveryReturn => {
 
   /**
    * 启动自动投递
+   * ✅ 优化：使用乐观更新策略，API返回成功后立即更新UI状态，提升用户体验
    */
   const startDelivery = useCallback(async () => {
     try {
@@ -229,17 +231,31 @@ export const useDelivery = (): UseDeliveryReturn => {
 
       const response = await autoDeliveryService.startDelivery();
       if (response.code === 200) {
-        setIsRunning(true);
-        // 重新加载状态
-        await loadStatus();
+        // ✅ 乐观更新：使用flushSync强制立即更新UI，避免React批处理延迟
+        // 这样用户点击按钮后能立即看到反馈，避免误以为没有启动成功
+        flushSync(() => {
+          setIsRunning(true);
+          setLoading(false);
+        });
+
+        // ✅ 延迟刷新详细状态，给后端一些时间更新状态
+        // 延迟1秒后再刷新，避免立即覆盖乐观更新
+        setTimeout(() => {
+          loadStatus().catch(err => {
+            console.warn('刷新状态失败，但投递已启动:', err);
+            // 如果刷新失败，保持乐观更新状态
+            // 因为API已经返回成功，说明投递确实已启动
+          });
+        }, 1000);
       } else {
         throw new Error(response.message);
       }
     } catch (err: any) {
       setError(err.message || '启动自动投递失败');
-      throw err;
-    } finally {
+      // ✅ 如果启动失败，确保状态为false
+      setIsRunning(false);
       setLoading(false);
+      throw err;
     }
   }, [loadStatus]);
 

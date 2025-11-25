@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -102,6 +103,21 @@ public class BossLoginController {
         log.info("收到启动登录请求，用户: {}", userId);
 
         Map<String, Object> response = new HashMap<>();
+
+        // ✅ 进程检查：检查是否有该用户的Boss进程在运行
+        if (util.BossProcessManager.isUserBossProcessRunning(userId)) {
+            List<Long> existingPids = util.BossProcessManager.findUserBossProcesses(userId);
+            response.put("success", false);
+            response.put("message", String.format(
+                "您已有Boss进程在运行（PID: %s），请等待当前任务完成或先终止现有进程",
+                existingPids
+            ));
+            response.put("status", "process_running");
+            response.put("existingPids", existingPids);
+            response.put("userId", userId);
+            log.warn("用户{}已有Boss进程在运行，拒绝重复启动登录流程", userId);
+            return ResponseEntity.ok(response);
+        }
 
         // 【多用户支持】用户级别的锁检查，支持超时自动释放
         Boolean inProgress = userLoginStatus.getOrDefault(userId, false);
@@ -330,6 +346,11 @@ public class BossLoginController {
         Map<String, Object> response = new HashMap<>();
 
         try {
+            // ✅ 修复：使用用户隔离的状态文件路径
+            String userId = util.UserContextUtil.sanitizeUserId(util.UserContextUtil.getCurrentUserId());
+            String safeUserId = userId.replaceAll("[^a-zA-Z0-9_-]", "_");
+            String userStatusFile = System.getProperty("java.io.tmpdir") + File.separator + "boss_login_status_" + safeUserId + ".txt";
+
             // 【新增】检查是否有登录流程正在进行
             if (isLoginInProgress) {
                 long elapsed = System.currentTimeMillis() - loginStartTime;
@@ -339,7 +360,12 @@ public class BossLoginController {
                 response.put("isInProgress", false);
             }
 
-            File statusFile = new File(LOGIN_STATUS_FILE);
+            // ✅ 修复：优先使用用户隔离的状态文件，如果不存在则使用全局状态文件（向后兼容）
+            File statusFile = new File(userStatusFile);
+            if (!statusFile.exists()) {
+                // 向后兼容：检查全局状态文件
+                statusFile = new File(LOGIN_STATUS_FILE);
+            }
 
             if (!statusFile.exists()) {
                 response.put("status", "not_started");

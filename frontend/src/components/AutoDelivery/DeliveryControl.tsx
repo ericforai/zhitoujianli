@@ -120,7 +120,8 @@ const DeliveryControl: React.FC = () => {
         </div>
         <div className='bg-yellow-50 p-4 rounded-lg'>
           <div className='text-2xl font-bold text-yellow-600'>
-            {status?.isRunning ? '运行中' : '已停止'}
+            {/* ✅ 优化：直接使用isRunning状态，确保乐观更新能立即反映在UI上 */}
+            {isRunning ? '运行中' : '已停止'}
           </div>
           <div className='text-sm text-gray-600'>当前状态</div>
         </div>

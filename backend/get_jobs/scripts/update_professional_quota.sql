@@ -57,3 +57,5 @@ WHERE p.plan_type = 'PROFESSIONAL'
     AND q.quota_key IN ('resume_basic_optimize', 'resume_advanced_optimize', 'daily_job_application')
 ORDER BY q.quota_key;
 
+
+

@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -65,6 +66,19 @@ public class BossExecutionService {
         final String userId = util.UserContextUtil.sanitizeUserId(util.UserContextUtil.getCurrentUserId());
         final org.springframework.security.core.context.SecurityContext securityContext =
             org.springframework.security.core.context.SecurityContextHolder.getContext();
+
+        // ✅ 进程检查：在启动前检查是否有该用户的进程在运行
+        if (util.BossProcessManager.isUserBossProcessRunning(userId)) {
+            List<Long> existingPids = util.BossProcessManager.findUserBossProcesses(userId);
+            String errorMsg = String.format(
+                "用户 %s 已有Boss进程在运行（PID: %s），请等待当前任务完成或先终止现有进程",
+                userId, existingPids
+            );
+            log.warn("❌ {}", errorMsg);
+            CompletableFuture<Void> failedFuture = new CompletableFuture<>();
+            failedFuture.completeExceptionally(new IllegalStateException(errorMsg));
+            return failedFuture;
+        }
 
         return CompletableFuture.runAsync(() -> {
             // 在异步线程中恢复SecurityContext

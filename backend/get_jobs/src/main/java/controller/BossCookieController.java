@@ -699,42 +699,12 @@ public class BossCookieController {
 
     /**
      * 检查指定用户的Boss进程是否在运行
-     * ✅ 修复：按用户隔离，检查该用户的日志文件是否最近有更新
+     * ✅ 修复：使用进程级别的检查，更准确可靠
      * @param userId 用户ID
      * @return true如果该用户的Boss进程在运行，false如果未运行
      */
     private boolean checkUserBossProcessRunning(String userId) {
-        try {
-            // ✅ 修复：检查该用户的日志文件是否最近有更新（5分钟内）
-            String logFilePath = "/tmp/boss_delivery_" + userId + ".log";
-            File logFile = new File(logFilePath);
-
-            if (!logFile.exists()) {
-                log.debug("用户{}的日志文件不存在: {}", userId, logFilePath);
-                return false;
-            }
-
-            // 检查日志文件的最后修改时间
-            long lastModified = logFile.lastModified();
-            long currentTime = System.currentTimeMillis();
-            long timeDiff = currentTime - lastModified;
-
-            // 如果日志文件在最近5分钟内被修改过，说明任务正在运行
-            // 5分钟 = 5 * 60 * 1000 毫秒
-            boolean isRunning = timeDiff < (5 * 60 * 1000);
-
-            if (isRunning) {
-                log.debug("用户{}的Boss进程可能在运行（日志文件最近{}秒内更新）", userId, timeDiff / 1000);
-            } else {
-                log.debug("用户{}的Boss进程可能已停止（日志文件最后更新于{}秒前）", userId, timeDiff / 1000);
-            }
-
-            return isRunning;
-
-        } catch (Exception e) {
-            log.error("检查用户{}的Boss进程状态失败", userId, e);
-            return false;
-        }
+        return util.BossProcessManager.isUserBossProcessRunning(userId);
     }
 
     /**
@@ -781,9 +751,23 @@ public class BossCookieController {
     @PostMapping("/stop-task")
     public ResponseEntity<Map<String, Object>> stopBossTask() {
         try {
+            String userId = UserContextUtil.sanitizeUserId(UserContextUtil.getCurrentUserId());
+
+            // ✅ 使用新的进程管理工具终止进程
+            int killedCount = util.BossProcessManager.killUserBossProcesses(userId);
+
             Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Boss任务停止成功");
+            if (killedCount > 0) {
+                response.put("success", true);
+                response.put("message", String.format("已成功终止%d个Boss进程", killedCount));
+                response.put("killedCount", killedCount);
+                log.info("✅ 用户{}的Boss进程已终止: {}个", userId, killedCount);
+            } else {
+                response.put("success", false);
+                response.put("message", "未找到运行中的Boss进程");
+                response.put("killedCount", 0);
+                log.info("用户{}没有运行中的Boss进程", userId);
+            }
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("停止Boss任务失败", e);

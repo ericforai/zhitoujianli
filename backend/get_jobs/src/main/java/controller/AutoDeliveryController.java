@@ -183,35 +183,16 @@ public class AutoDeliveryController {
      */
     private boolean stopBossProcess(String userId) {
         try {
-            // 使用pkill命令停止Boss进程
-            ProcessBuilder pb = new ProcessBuilder("pkill", "-f", "boss.IsolatedBossRunner");
-            Process process = pb.start();
+            // ✅ 使用新的进程管理工具终止进程
+            int killedCount = util.BossProcessManager.killUserBossProcesses(userId);
 
-            int exitCode = process.waitFor();
-            log.info("停止Boss进程命令执行完成，退出码: {}", exitCode);
-
-            // 等待2秒让进程完全停止
-            Thread.sleep(2000);
-
-            // 验证进程是否已停止
-            ProcessBuilder checkPb = new ProcessBuilder("ps", "aux");
-            Process checkProcess = checkPb.start();
-
-            try (java.io.BufferedReader reader = new java.io.BufferedReader(
-                    new java.io.InputStreamReader(checkProcess.getInputStream(), StandardCharsets.UTF_8))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (line.contains("boss.IsolatedBossRunner") &&
-                        !line.contains("grep")) {
-                        log.warn("Boss进程仍在运行: {}", line);
-                        return false;
-                    }
-                }
+            if (killedCount > 0) {
+                log.info("✅ 用户{}的Boss进程已终止: {}个", userId, killedCount);
+                return true;
+            } else {
+                log.info("用户{}没有运行中的Boss进程", userId);
+                return false;
             }
-
-            log.info("✅ Boss进程已成功停止");
-            return true;
-
         } catch (Exception e) {
             log.error("停止Boss进程失败", e);
             return false;

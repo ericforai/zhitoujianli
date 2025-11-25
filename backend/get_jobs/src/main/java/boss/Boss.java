@@ -1,19 +1,9 @@
 package boss;
 
-import static boss.Locators.CHAT_LIST_ITEM;
-import static boss.Locators.COMPANY_NAME_IN_CHAT;
 import static boss.Locators.DIALOG_CON;
-import static boss.Locators.ERROR_PAGE_LOGIN;
-import static boss.Locators.FINISHED_TEXT;
-import static boss.Locators.HR_ACTIVE_TIME;
-import static boss.Locators.JOB_LIST_CONTAINER;
-import static boss.Locators.LAST_MESSAGE;
 import static boss.Locators.LOGIN_BTN;
-import static boss.Locators.LOGIN_BTNS;
 import static boss.Locators.LOGIN_SCAN_SWITCH;
-import static boss.Locators.PAGE_HEADER;
 import static boss.Locators.RECRUITER_INFO;
-import static boss.Locators.SCROLL_LOAD_MORE;
 import static utils.Bot.sendMessageByTime;
 import static utils.JobUtils.formatDuration;
 
@@ -21,22 +11,15 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -44,7 +27,6 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,10 +37,7 @@ import com.microsoft.playwright.Page;
 import ai.AiConfig;
 import ai.AiFilter;
 import ai.AiService;
-import ai.SmartGreetingService;
 import lombok.SneakyThrows;
-import service.QuotaService;
-import util.SpringContextUtil;
 import utils.Job;
 import utils.JobUtils;
 import utils.PlaywrightUtil;
@@ -84,11 +63,19 @@ public class Boss {
     private final String dataPath;
     private final String cookiePath;
     private final BossConfig config;
-    private Set<String> blackCompanies;
-    private Set<String> blackJobs;
     private List<Job> resultList;
     private DeliveryController deliveryController;
     private Date startDate;
+
+    // ========== 服务注入（重构后） ==========
+    private final boss.service.BossLoginService loginService;
+    private final boss.service.BossJobSearchService searchService;
+    private final boss.matcher.BossJobMatcher jobMatcher;
+    private final boss.service.BossDeliveryService deliveryService;
+    private final boss.service.BossGreetingService greetingService;
+    private final boss.service.BossQuotaService quotaService;
+    private final boss.service.BossBlacklistService blacklistService;
+    private final boss.service.BossBehaviorLogger behaviorLogger;
 
     /**
      * Boss构造函数（方案B完全实例化）
@@ -112,11 +99,19 @@ public class Boss {
 
         // 初始化集合
         this.resultList = new ArrayList<>();
-        this.blackCompanies = new HashSet<>();
-        this.blackJobs = new HashSet<>();
 
-        // 加载数据
-        loadData(this.dataPath);
+        // 初始化服务
+        this.behaviorLogger = new boss.service.BossBehaviorLogger(userId);
+        this.blacklistService = new boss.service.BossBlacklistService(userId, this.dataPath);
+        this.blacklistService.loadData(); // 加载黑名单数据
+
+        this.quotaService = new boss.service.BossQuotaService(userId);
+        this.greetingService = new boss.service.BossGreetingService(this.config, userId);
+        this.jobMatcher = new boss.matcher.BossJobMatcher(this.config);
+        this.searchService = new boss.service.BossJobSearchService(this.config);
+        this.loginService = new boss.service.BossLoginService(userId, this.cookiePath, this.behaviorLogger);
+        this.deliveryService = new boss.service.BossDeliveryService(
+            this.config, userId, this.greetingService, this.blacklistService, this.behaviorLogger, this.loginService);
 
         // 初始化控制器
         if (this.config != null && this.config.getDeliveryStrategy() != null) {
@@ -191,7 +186,7 @@ public class Boss {
 
             // 登录
             this.startDate = new Date();
-            login(loginOnly);
+            loginService.login(loginOnly);
 
             // 执行投递（如果不是只登录模式）
             if (!loginOnly) {
@@ -201,7 +196,7 @@ public class Boss {
                 Map<String, Object> extraData = new HashMap<>();
                 extraData.put("cities", this.config.getCities());
                 extraData.put("keywords", this.config.getKeywords());
-                logBehavior("JOB_DELIVERY_START", "PENDING", "启动投递任务", extraData);
+                behaviorLogger.logBehavior("JOB_DELIVERY_START", "PENDING", "启动投递任务", extraData);
 
                 this.config.getCities().forEach(this::postJobByCity);
             } else {
@@ -229,7 +224,7 @@ public class Boss {
                 formatDuration(this.startDate, new Date()));
         log.info(message);
         sendMessageByTime(message);
-        saveData(this.dataPath);
+        blacklistService.saveData();
         this.resultList.clear();
         if (this.config.getDebugger() == null || !this.config.getDebugger()) {
             PlaywrightUtil.close();
@@ -247,7 +242,7 @@ public class Boss {
     }
 
     private void postJobByCity(String cityCode) {
-        String searchUrl = getSearchUrl(cityCode);
+        String searchUrl = searchService.getSearchUrl(cityCode);
         // ✅ 使用标签，允许在配额用完时跳出所有投递循环
         keywordLoop: for (String keyword : this.config.getKeywords()) {
             int postCount = 0;
@@ -258,47 +253,14 @@ public class Boss {
             log.info("投递地址:{}", searchUrl + "&query=" + keyword);
             com.microsoft.playwright.Page page = PlaywrightUtil.getPageObject();
 
-            // 使用标准导航方法，避免超时问题
-            page.navigate(url);
-
-            // 导航后模拟人类行为
-            PlaywrightUtil.randomSleepMillis(3000, 6000);
-            PlaywrightUtil.simulateHumanBehavior();
-
-            // 1. 滚动到底部，加载所有岗位卡片
-            int lastCount = -1;
-            while (true) {
-                // 模拟人类滚动行为
-                PlaywrightUtil.simulateScroll();
-
-                // 滑动到底部
-                page.evaluate("window.scrollTo(0, document.body.scrollHeight);");
-
-                // 随机延迟等待加载
-                PlaywrightUtil.randomSleepMillis(2000, 4000);
-
-                // 获取所有卡片数
-                Locator cards = page.locator("//ul[contains(@class, 'rec-job-list')]//li[contains(@class, 'job-card-box')]");
-                int currentCount = cards.count();
-
-                // 判断是否继续滑动
-                if (currentCount == lastCount) {
-                    break; // 没有新内容，跳出循环
-                }
-                lastCount = currentCount;
-
-                // 随机模拟人类行为
-                PlaywrightUtil.simulateHumanBehavior();
-            }
-            log.info("【{}】岗位已全部加载，总数:{}", keyword, lastCount);
-
-            // 2. 回到页面顶部
-            page.evaluate("window.scrollTo(0, 0);");
-            PlaywrightUtil.randomSleepMillis(1000, 2000);
+            // 使用搜索服务导航和加载岗位列表
+            searchService.navigateToSearchPage(page, searchUrl, keyword);
+            int lastCount = searchService.loadJobList(page, keyword);
+            searchService.scrollToTop(page);
 
             // 3. 逐个遍历所有岗位
             log.info("【{}】开始遍历岗位列表，总计{}个岗位", keyword, lastCount);
-            Locator cards = page.locator("//ul[contains(@class, 'rec-job-list')]//li[contains(@class, 'job-card-box')]");
+            Locator cards = searchService.getJobCards(page);
             int count = cards.count();
 
             // 确保count正确
@@ -307,12 +269,32 @@ public class Boss {
                 count = Math.min(count, lastCount);
             }
 
+            // 全局超时保护：如果超过30分钟没有进展，停止投递
+            long keywordLoopStartTime = System.currentTimeMillis();
+            final long MAX_LOOP_DURATION_MS = 30 * 60 * 1000; // 30分钟
+            long lastProgressTime = keywordLoopStartTime;
+
             for (int i = 0; i < count; i++) {
                 try {
-                    log.info("【{}】正在处理第{}个岗位（共{}个）", keyword, i + 1, count);
+                    // 检查全局超时
+                    long currentTime = System.currentTimeMillis();
+                    long elapsedTime = currentTime - keywordLoopStartTime;
+                    if (elapsedTime > MAX_LOOP_DURATION_MS) {
+                        log.warn("【{}】关键词循环超时（已运行{}分钟），停止处理剩余岗位", keyword, elapsedTime / 60000);
+                        break keywordLoop;
+                    }
+
+                    // 检查是否有进展（如果超过5分钟没有进展，记录警告）
+                    long timeSinceLastProgress = currentTime - lastProgressTime;
+                    if (timeSinceLastProgress > 5 * 60 * 1000) { // 5分钟
+                        log.warn("【{}】第{}个岗位：已超过5分钟没有进展，可能卡住。最后进展时间: {}ms前",
+                            keyword, i + 1, timeSinceLastProgress);
+                    }
+
+                    log.info("【{}】正在处理第{}个岗位（共{}个，已用时{}秒）", keyword, i + 1, count, elapsedTime / 1000);
 
                     // 重新获取卡片，避免元素过期
-                    cards = page.locator("//ul[contains(@class, 'rec-job-list')]//li[contains(@class, 'job-card-box')]");
+                    cards = searchService.getJobCards(page);
 
                     if (i >= cards.count()) {
                         log.warn("【{}】第{}个岗位不存在，跳过", keyword, i + 1);
@@ -323,29 +305,61 @@ public class Boss {
                     PlaywrightUtil.simulateMouseMove();
 
                     // 使用安全点击方法，自动处理登录弹窗
-                    if (!safeClick(page, cards.nth(i), "点击岗位卡片")) {
+                    if (!deliveryService.safeClick(page, cards.nth(i), "点击岗位卡片")) {
                         log.warn("【{}】第{}个岗位：点击失败，跳过", keyword, i + 1);
                         continue;
                     }
 
                     log.info("【{}】第{}个岗位：已点击，等待页面加载", keyword, i + 1);
 
+                    // 检查页面状态
+                    try {
+                        if (page == null || page.isClosed()) {
+                            log.error("【{}】第{}个岗位：页面对象无效（null或已关闭），跳过此岗位", keyword, i + 1);
+                            continue;
+                        }
+                        log.debug("【{}】第{}个岗位：页面状态正常，URL={}", keyword, i + 1, page.url());
+                    } catch (Exception e) {
+                        log.error("【{}】第{}个岗位：检查页面状态时异常: {}，跳过此岗位", keyword, i + 1, e.getMessage());
+                        continue;
+                    }
+
                     // 随机延迟等待页面加载
                     PlaywrightUtil.randomSleepMillis(2000, 4000);
 
+                    // 更新最后进展时间
+                    lastProgressTime = System.currentTimeMillis();
+
                     // 等待详情内容加载，增加超时处理
+                    long waitStartTime = System.currentTimeMillis();
                     try {
+                        log.debug("【{}】第{}个岗位：开始等待详情页面加载（超时8秒）...", keyword, i + 1);
                         page.waitForSelector("div[class*='job-detail-box']", new Page.WaitForSelectorOptions().setTimeout(8000));
-                        log.info("【{}】第{}个岗位：详情页面加载完成", keyword, i + 1);
+                        long waitDuration = System.currentTimeMillis() - waitStartTime;
+                        log.info("【{}】第{}个岗位：详情页面加载完成（耗时{}ms）", keyword, i + 1, waitDuration);
+                        // 更新最后进展时间
+                        lastProgressTime = System.currentTimeMillis();
+                    } catch (com.microsoft.playwright.TimeoutError e) {
+                        long waitDuration = System.currentTimeMillis() - waitStartTime;
+                        log.error("【{}】第{}个岗位：等待详情页面超时（耗时{}ms，超时8秒），跳过此岗位。错误: {}",
+                            keyword, i + 1, waitDuration, e.getMessage());
+                        continue;
+                    } catch (com.microsoft.playwright.PlaywrightException e) {
+                        long waitDuration = System.currentTimeMillis() - waitStartTime;
+                        log.error("【{}】第{}个岗位：等待详情页面时Playwright异常（耗时{}ms），跳过此岗位。错误: {}",
+                            keyword, i + 1, waitDuration, e.getMessage(), e);
+                        continue;
                     } catch (Exception e) {
-                        log.error("【{}】第{}个岗位：等待详情页面超时，跳过此岗位", keyword, i + 1);
+                        long waitDuration = System.currentTimeMillis() - waitStartTime;
+                        log.error("【{}】第{}个岗位：等待详情页面时发生未知异常（耗时{}ms），跳过此岗位。错误: {}",
+                            keyword, i + 1, waitDuration, e.getMessage(), e);
                         continue;
                     }
 
                     Locator detailBox = page.locator("div[class*='job-detail-box']");
 
                     // 岗位名称
-                    String jobName = safeText(detailBox, "span[class*='job-name']");
+                    String jobName = boss.util.BossUtils.safeText(detailBox, "span[class*='job-name']");
                     if (jobName.isEmpty()) {
                         log.warn("【{}】第{}个岗位：无法获取岗位名称，跳过", keyword, i + 1);
                         continue;
@@ -360,7 +374,7 @@ public class Boss {
                     int matchedScheme = 0;
 
                     for (String userKeyword : this.config.getKeywords()) {
-                        MatchingResult result = isKeywordMatchedWithScore(jobName, userKeyword);
+                        boss.matcher.BossJobMatcher.MatchingResult result = jobMatcher.isKeywordMatchedWithScore(jobName, userKeyword);
                         if (result.isMatched()) {
                             keywordMatched = true;
                             matchedKeyword = userKeyword;
@@ -379,24 +393,24 @@ public class Boss {
                         keyword, i + 1, jobName, matchedKeyword, String.format("%.1f", matchScore * 100), matchedScheme);
 
                     // 🔧 【优先级2】黑名单检查
-                    if (blackJobs.stream().anyMatch(jobName::contains)) {
+                    if (blacklistService.isJobBlacklisted(jobName)) {
                         log.info("【{}】第{}个岗位：{}在黑名单中，跳过", keyword, i + 1, jobName);
                         continue;
                     }
 
                     // 薪资(原始)
-                    String jobSalaryRaw = safeText(detailBox, "span.job-salary");
-                    String jobSalary = decodeSalary(jobSalaryRaw);
+                    String jobSalaryRaw = boss.util.BossUtils.safeText(detailBox, "span.job-salary");
+                    String jobSalary = boss.util.BossUtils.decodeSalary(jobSalaryRaw);
 
                     // 城市/经验/学历
-                    List<String> tags = safeAllText(detailBox, "ul[class*='tag-list'] > li");
+                    List<String> tags = boss.util.BossUtils.safeAllText(detailBox, "ul[class*='tag-list'] > li");
 
                     // 岗位描述
-                    String jobDesc = safeText(detailBox, "p.desc");
+                    String jobDesc = boss.util.BossUtils.safeText(detailBox, "p.desc");
 
                     // Boss姓名、活跃
-                    String bossNameRaw = safeText(detailBox, "h2[class*='name']");
-                    String[] bossInfo = splitBossName(bossNameRaw);
+                    String bossNameRaw = boss.util.BossUtils.safeText(detailBox, "h2[class*='name']");
+                    String[] bossInfo = boss.util.BossUtils.splitBossName(bossNameRaw);
                     String bossName = bossInfo[0];
                     String bossActive = bossInfo[1];
 
@@ -408,11 +422,11 @@ public class Boss {
                     }
 
                     // Boss公司/职位
-                    String bossTitleRaw = safeText(detailBox, "div[class*='boss-info-attr']");
-                    String[] bossTitleInfo = splitBossTitle(bossTitleRaw);
+                    String bossTitleRaw = boss.util.BossUtils.safeText(detailBox, "div[class*='boss-info-attr']");
+                    String[] bossTitleInfo = boss.util.BossUtils.splitBossTitle(bossTitleRaw);
                     String bossCompany = bossTitleInfo[0];
                     // ✅ 修复：使用优化的双向匹配方法检查黑名单
-                    if (isCompanyBlacklisted(bossCompany)) {
+                    if (blacklistService.isCompanyBlacklisted(bossCompany)) {
                         log.info("🚫 【{}】第{}个岗位：{}公司【{}】在黑名单中，跳过", keyword, i + 1, jobName, bossCompany);
                         continue;
                     }
@@ -440,7 +454,7 @@ public class Boss {
                     }
 
                     // ✅ 配额检查：每次投递前检查daily_job_application配额
-                    if (!checkQuotaBeforeDelivery()) {
+                    if (!quotaService.checkQuotaBeforeDelivery()) {
                         log.warn("【{}】第{}个岗位：配额不足，停止投递。用户：{}，配额：daily_job_application",
                             keyword, i + 1, this.userId);
                         log.info("⏹️ 配额已用完，停止本次投递任务。请明天再试或升级套餐。");
@@ -449,7 +463,7 @@ public class Boss {
 
                     // 执行投递
                     log.info("🚀 开始投递岗位: {} - {}", job.getCompanyName(), job.getJobName());
-                    boolean deliverySuccess = resumeSubmission(page, keyword, job);
+                    boolean deliverySuccess = deliveryService.resumeSubmission(page, keyword, job);
 
                     // ✅ 修复：只在真正验证成功时消费配额和更新计数
                     if (deliverySuccess) {
@@ -457,7 +471,7 @@ public class Boss {
                         postCount++;
                         try {
                             // ✅ 消费配额：投递成功后消费配额（添加异常处理）
-                            consumeQuotaAfterDelivery();
+                            quotaService.consumeQuotaAfterDelivery();
                             log.info("✅ 配额消费成功: userId={}, quotaKey=daily_job_application, 岗位={}",
                                 this.userId, job.getJobName());
                         } catch (Exception e) {
@@ -481,11 +495,16 @@ public class Boss {
                             keyword, i + 1, job.getCompanyName(), job.getJobName());
                     }
 
+                    // 更新最后进展时间（投递完成）
+                    lastProgressTime = System.currentTimeMillis();
+
                     // ✅ 应用投递间隔
                     if (deliveryController != null && i < postCount - 1) {
                         long waitTime = deliveryController.getRecommendedWaitTime();
                         log.info("⏳ 投递间隔等待: {}秒", waitTime / 1000);
                         Thread.sleep(waitTime);
+                        // 更新最后进展时间（等待完成）
+                        lastProgressTime = System.currentTimeMillis();
                     }
 
                 } catch (VerificationCodeRequiredException e) {
@@ -494,17 +513,20 @@ public class Boss {
                     log.error("💡 请手动登录Boss直聘完成验证后，重新启动投递任务");
 
                     // 发送通知
-                    sendVerificationCodeNotification(e.getJobName());
+                    behaviorLogger.sendVerificationCodeNotification(e.getJobName());
 
                     // ✅ 跳出所有循环，停止整个投递任务
                     break keywordLoop;
                 } catch (Exception e) {
                     log.error("【{}】第{}个岗位处理异常：{}", keyword, i + 1, e.getMessage(), e);
+                    // 更新最后进展时间（即使异常也更新，表示有进展）
+                    lastProgressTime = System.currentTimeMillis();
                     // 继续处理下一个岗位
                     continue;
                 }
             }
-            log.info("【{}】岗位已投递完毕！已投递岗位数量:{}", keyword, postCount);
+            long keywordLoopDuration = System.currentTimeMillis() - keywordLoopStartTime;
+            log.info("【{}】岗位已投递完毕！已投递岗位数量:{}，总耗时: {}秒", keyword, postCount, keywordLoopDuration / 1000);
         }
     }
 
@@ -535,7 +557,7 @@ public class Boss {
      * @return 是否匹配
      */
     private boolean isKeywordMatched(String jobName, String userKeyword) {
-        return isKeywordMatchedWithScore(jobName, userKeyword).isMatched();
+        return jobMatcher.isKeywordMatchedWithScore(jobName, userKeyword).isMatched();
     }
 
     /**
@@ -586,27 +608,6 @@ public class Boss {
         return new String[]{company, job};
     }
 
-    private boolean isJobsPresent() {
-        try {
-            // 判断页面是否存在岗位的元素
-            PlaywrightUtil.waitForElement(JOB_LIST_CONTAINER);
-            return true;
-        } catch (Exception e) {
-            log.error("加载岗位区块失败:{}", e.getMessage());
-            return false;
-        }
-    }
-
-    private String getSearchUrl(String cityCode) {
-        return this.baseUrl + JobUtils.appendParam("city", cityCode) +
-                JobUtils.appendParam("jobType", this.config.getJobType()) +
-                JobUtils.appendListParam("salary", convertSalaryRange(this.config.getSalaryRange())) +
-                JobUtils.appendListParam("experience", convertToList(config.getExperienceRequirement())) +
-                JobUtils.appendListParam("degree", convertToList(config.getEducationRequirement())) +
-                JobUtils.appendListParam("scale", config.getCompanySize()) +
-                JobUtils.appendListParam("industry", config.getIndustry()) +
-                JobUtils.appendListParam("stage", config.getFinancingStage());
-    }
 
     /**
      * 将salaryRange对象转换为URL参数格式
@@ -653,100 +654,8 @@ public class Boss {
         return List.of(value);
     }
 
-    private void saveData(String path) {
-        try {
-            updateListData();
-            Map<String, Set<String>> data = new HashMap<>();
-            data.put("blackCompanies", blackCompanies);
-            data.put("blackJobs", blackJobs);
-            String json = customJsonFormat(data);
-            Files.write(Paths.get(path), json.getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            log.error("保存【{}】数据失败！", path);
-        }
-    }
 
-    private void updateListData() {
-        com.microsoft.playwright.Page page = PlaywrightUtil.getPageObject();
-        page.navigate("https://www.zhipin.com/web/geek/chat");
-        PlaywrightUtil.sleep(3);
 
-        boolean shouldBreak = false;
-        while (!shouldBreak) {
-            try {
-                Locator bottomLocator = page.locator(FINISHED_TEXT);
-                if (bottomLocator.count() > 0 && "没有更多了".equals(bottomLocator.textContent())) {
-                    shouldBreak = true;
-                }
-            } catch (Exception ignore) {
-            }
-
-            Locator items = page.locator(CHAT_LIST_ITEM);
-            int itemCount = items.count();
-
-            for (int i = 0; i < itemCount; i++) {
-                try {
-                    Locator companyElements = page.locator(COMPANY_NAME_IN_CHAT);
-                    Locator messageElements = page.locator(LAST_MESSAGE);
-
-                    if (i >= companyElements.count() || i >= messageElements.count()) {
-                        break;
-                    }
-
-                    String companyName = null;
-                    String message = null;
-                    int retryCount = 0;
-
-                    while (retryCount < 2) {
-                        try {
-                            companyName = companyElements.nth(i).textContent();
-                            message = messageElements.nth(i).textContent();
-                            break;
-                        } catch (Exception e) {
-                            retryCount++;
-                            if (retryCount >= 2) {
-                                log.info("尝试获取元素文本2次失败，放弃本次获取");
-                                break;
-                            }
-                            log.info("页面元素已变更，正在重试第{}次获取元素文本...", retryCount);
-                            PlaywrightUtil.sleep(1);
-                        }
-                    }
-
-                    if (companyName != null && message != null) {
-                        boolean match = message.contains("不") || message.contains("感谢") || message.contains("但")
-                                || message.contains("遗憾") || message.contains("需要本") || message.contains("对不");
-                        boolean nomatch = message.contains("不是") || message.contains("不生");
-                        if (match && !nomatch) {
-                            log.info("黑名单公司：【{}】，信息：【{}】", companyName, message);
-                            if (blackCompanies.stream().anyMatch(companyName::contains)) {
-                                continue;
-                            }
-                            companyName = companyName.replaceAll("\\.{3}", "");
-                            if (companyName.matches(".*(\\p{IsHan}{2,}|[a-zA-Z]{4,}).*")) {
-                                this.blackCompanies.add(companyName);
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    log.error("寻找黑名单公司异常...", e);
-                }
-            }
-
-            try {
-                Locator scrollElement = page.locator(SCROLL_LOAD_MORE);
-                if (scrollElement.count() > 0) {
-                    scrollElement.scrollIntoViewIfNeeded();
-                } else {
-                    page.evaluate("window.scrollTo(0, document.body.scrollHeight);");
-                }
-            } catch (Exception e) {
-                log.error("滚动元素出错", e);
-                break;
-            }
-        }
-        log.info("黑名单公司数量：{}", blackCompanies.size());
-    }
 
     private String customJsonFormat(Map<String, Set<String>> data) {
         StringBuilder sb = new StringBuilder();
@@ -763,34 +672,13 @@ public class Boss {
     }
 
     /**
-     * 加载黑名单数据
-     * ⚠️ 优先从config.json的blacklistConfig读取，向后兼容blacklist.json
-     */
-    private void loadData(String path) {
-        try {
-            // ✅ 优先从config.json读取黑名单（与前端统一）
-            if (loadBlacklistFromConfig()) {
-                log.info("✅ 已从config.json加载黑名单配置");
-                return;
-            }
-
-            // 备用方案：从旧版blacklist.json读取（向后兼容）
-            String json = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
-            parseJson(json);
-            log.info("✅ 已从blacklist.json加载黑名单（向后兼容）");
-        } catch (IOException e) {
-            log.warn("读取黑名单数据失败：{}，使用空黑名单", e.getMessage());
-            // 初始化为空集合
-            this.blackCompanies = new HashSet<>();
-            this.blackJobs = new HashSet<>();
-        }
-    }
-
-    /**
      * 从config.json的blacklistConfig读取黑名单（新方案）
+     * 注意：此方法已不再使用，黑名单加载已迁移到BossBlacklistService
      *
      * @return true=成功加载, false=未找到配置
+     * @Deprecated 已迁移到BossBlacklistService，保留仅用于向后兼容
      */
+    @Deprecated
     private boolean loadBlacklistFromConfig() {
         try {
             String userId = System.getenv("BOSS_USER_ID");
@@ -826,8 +714,7 @@ public class Boss {
             log.info("📝 黑名单过滤开关: enableBlacklistFilter={}", enabled);
             if (enabled == null || !enabled) {
                 log.info("⚠️ 黑名单过滤已禁用");
-                this.blackCompanies = new HashSet<>();
-                this.blackJobs = new HashSet<>();
+                // 已迁移到BossBlacklistService，不再直接操作字段
                 return true;
             }
 
@@ -835,12 +722,13 @@ public class Boss {
             log.info("📝 读取公司黑名单: companyBlacklist={}", blacklistConfig.get("companyBlacklist"));
             log.info("📝 读取职位黑名单: positionBlacklist={}", blacklistConfig.get("positionBlacklist"));
 
-            this.blackCompanies = new HashSet<>(getListFromConfig(blacklistConfig, "companyBlacklist"));
-            this.blackJobs = new HashSet<>(getListFromConfig(blacklistConfig, "positionBlacklist"));
+            // 已迁移到BossBlacklistService，不再直接操作字段
+            List<String> companyBlacklist = getListFromConfig(blacklistConfig, "companyBlacklist");
+            List<String> positionBlacklist = getListFromConfig(blacklistConfig, "positionBlacklist");
 
             log.info("📋 黑名单配置加载成功:");
-            log.info("  - 公司黑名单: {} 个", blackCompanies.size());
-            log.info("  - 职位黑名单: {} 个", blackJobs.size());
+            log.info("  - 公司黑名单: {} 个", companyBlacklist.size());
+            log.info("  - 职位黑名单: {} 个", positionBlacklist.size());
 
             return true;
 
@@ -862,13 +750,9 @@ public class Boss {
         return new ArrayList<>();
     }
 
-    private void parseJson(String json) {
-        JSONObject jsonObject = new JSONObject(json);
-        this.blackCompanies = jsonObject.getJSONArray("blackCompanies").toList().stream().map(Object::toString)
-                .collect(Collectors.toSet());
-        this.blackJobs = jsonObject.getJSONArray("blackJobs").toList().stream().map(Object::toString)
-                .collect(Collectors.toSet());
-    }
+    /**
+     * @Deprecated 已迁移到 BossBlacklistService.parseJson()
+     */
 
     /**
      * 检查公司是否在黑名单中（双向匹配优化版）
@@ -876,38 +760,22 @@ public class Boss {
      *
      * @param companyName 公司名称
      * @return true=在黑名单中，false=不在黑名单中
+     * @Deprecated 已迁移到 BossBlacklistService.isCompanyBlacklisted()
      */
-    private boolean isCompanyBlacklisted(String companyName) {
-        if (companyName == null || companyName.trim().isEmpty() || blackCompanies == null || blackCompanies.isEmpty()) {
-            return false;
-        }
+    /**
+     * @Deprecated 已迁移到 BossBlacklistService.isCompanyBlacklisted()
+     * 这个方法保留作为向后兼容，实际调用已替换为 blacklistService.isCompanyBlacklisted()
+     */
 
-        String normalizedCompanyName = companyName.trim();
-
-        // 双向匹配：检查黑名单项是否包含公司名，或公司名是否包含黑名单项
-        for (String blackItem : blackCompanies) {
-            if (blackItem == null || blackItem.trim().isEmpty()) {
-                continue;
-            }
-
-            String normalizedBlackItem = blackItem.trim();
-
-            // 双向包含匹配
-            if (normalizedBlackItem.contains(normalizedCompanyName) ||
-                normalizedCompanyName.contains(normalizedBlackItem)) {
-                log.info("🚫 黑名单匹配：公司【{}】与黑名单项【{}】匹配", normalizedCompanyName, normalizedBlackItem);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
+    /**
+     * @Deprecated 已迁移到 BossDeliveryService.resumeSubmission()
+     */
+    @Deprecated
     @SneakyThrows
     private boolean resumeSubmission(com.microsoft.playwright.Page page, String keyword, Job job) {
         // ✅ 修复：在投递流程开始时再次检查黑名单（双重保险）
         String companyName = job.getCompanyName();
-        if (isCompanyBlacklisted(companyName)) {
+        if (blacklistService.isCompanyBlacklisted(companyName)) {
             log.warn("🚫 【黑名单拦截】公司【{}】在黑名单中，跳过投递并停止生成打招呼语。岗位：{}",
                 companyName, job.getJobName());
             return false;
@@ -949,7 +817,7 @@ public class Boss {
             extraData.put("jobName", job.getJobName());
             extraData.put("companyName", job.getCompanyName());
             extraData.put("reason", "创建详情页失败: " + e.getMessage());
-            logBehavior("JOB_DELIVERY_FAILED", "FAILED",
+            behaviorLogger.logBehavior("JOB_DELIVERY_FAILED", "FAILED",
                 String.format("投递失败: %s - 创建详情页失败", job.getJobName()),
                 extraData);
             if (detailPage != null) {
@@ -982,7 +850,7 @@ public class Boss {
                 extraData.put("jobName", job.getJobName());
                 extraData.put("companyName", job.getCompanyName());
                 extraData.put("reason", "未找到立即沟通按钮");
-                logBehavior("JOB_DELIVERY_FAILED", "FAILED",
+                behaviorLogger.logBehavior("JOB_DELIVERY_FAILED", "FAILED",
                     String.format("投递失败: %s - 未找到立即沟通按钮", job.getJobName()),
                     extraData);
                 detailPage.close();
@@ -994,18 +862,18 @@ public class Boss {
             // 🔧 关键修复：在点击"立即沟通"按钮之前先抓取JD
             // 因为点击按钮后页面会跳转到聊天页面，详情页内容将不可见
             log.info("【完整JD】在点击'立即沟通'按钮之前先抓取JD（避免页面跳转后内容不可见）");
-            fullJobDescription = extractFullJobDescription(detailPage);
+            fullJobDescription = greetingService.extractFullJobDescription(detailPage);
             log.info("【完整JD】岗位: {}, JD长度: {}字", job.getJobName(), fullJobDescription != null ? fullJobDescription.length() : 0);
 
             // 使用安全点击方法，自动处理登录弹窗
-            if (!safeClick(detailPage, chatBtn.first(), "点击立即沟通按钮")) {
+            if (!deliveryService.safeClick(detailPage, chatBtn.first(), "点击立即沟通按钮")) {
                 log.warn("点击立即沟通按钮失败，跳过岗位: {}", job.getJobName());
                 // 记录用户行为：投递失败
                 Map<String, Object> extraData = new HashMap<>();
                 extraData.put("jobName", job.getJobName());
                 extraData.put("companyName", job.getCompanyName());
                 extraData.put("reason", "点击立即沟通按钮失败");
-                logBehavior("JOB_DELIVERY_FAILED", "FAILED",
+                behaviorLogger.logBehavior("JOB_DELIVERY_FAILED", "FAILED",
                     String.format("投递失败: %s - 点击立即沟通按钮失败", job.getJobName()),
                     extraData);
                 detailPage.close();
@@ -1085,7 +953,7 @@ public class Boss {
             // 尝试备用方案：使用JavaScript直接发送消息
             // ✅ 修复：tryAlternativeMessageSending() 内部已经调用了 verifyMessageSent() 进行验证
             // 如果返回 true，说明已经验证成功，直接信任结果，不再进行二次验证
-            boolean alternativeSuccess = tryAlternativeMessageSending(detailPage, job);
+            boolean alternativeSuccess = deliveryService.tryAlternativeMessageSending(detailPage, job, keyword);
             if (alternativeSuccess) {
                 // ✅ 修复：备用方案内部已经验证过，直接信任结果
                 log.info("✅ 备用方案执行并验证成功，投递完成: {}", job.getJobName());
@@ -1194,7 +1062,7 @@ public class Boss {
                         System.out.flush();
 
                         // ✅ 发送通知给用户
-                        sendVerificationCodeNotification(job.getJobName());
+                        behaviorLogger.sendVerificationCodeNotification(job.getJobName());
 
                         // ✅ 等待用户输入验证码（最多5分钟）
                         log.info("⏳ 等待用户输入验证码，最多等待5分钟...");
@@ -1268,7 +1136,7 @@ public class Boss {
                         System.out.flush();
 
                         // ✅ 发送通知给用户
-                        sendVerificationCodeNotification(job.getJobName());
+                        behaviorLogger.sendVerificationCodeNotification(job.getJobName());
 
                         // ✅ 等待用户输入验证码（最多5分钟）
                         log.info("⏳ 等待用户输入验证码，最多等待5分钟...");
@@ -1489,7 +1357,7 @@ public class Boss {
                 }
 
                 // 截图诊断当前页面状态
-                captureDebugScreenshot(detailPage, job);
+                deliveryService.captureDebugScreenshot(detailPage, job);
 
                 // 增强调试信息：输出所有input元素的详细属性
                 log.warn("调试：列出所有input元素属性");
@@ -1509,7 +1377,9 @@ public class Boss {
                 }
 
                 // 尝试备用方案：使用JavaScript直接发送消息
-                if (tryAlternativeMessageSending(detailPage, job)) {
+                // 注意：这里需要keyword参数，但原方法没有，使用默认值
+                boolean alternativeSuccess = deliveryService.tryAlternativeMessageSending(detailPage, job, keyword);
+                if (alternativeSuccess) {
                     log.info("✅ 备用方案成功，投递完成: {}", job.getJobName());
                     // ✅ 修复：备用方案成功时也添加到结果列表（在主流程中会处理配额消费）
                     // 注意：resultList 的添加和配额消费在主流程中统一处理，这里只返回 true
@@ -1527,7 +1397,7 @@ public class Boss {
         }
 
         // 7. 生成打招呼语（智能AI生成 或 默认）
-        String message = generateGreetingMessage(keyword, job, fullJobDescription);
+        String message = greetingService.generateGreetingMessage(keyword, job, fullJobDescription);
         if (message == null || message.trim().isEmpty()) {
             log.warn("打招呼语为空，跳过: {}", job.getJobName());
             detailPage.close();
@@ -1610,7 +1480,7 @@ public class Boss {
 
             // ✅ 修复：验证消息是否真正发送成功（在关闭页面之前验证）
             log.info("🔍 开始验证消息是否真正发送成功: {}", job.getJobName());
-            boolean messageVerified = verifyMessageSent(detailPage);
+            boolean messageVerified = deliveryService.verifyMessageSent(detailPage);
 
             if (messageVerified) {
                 log.info("✅ 消息验证成功，投递真正完成: {}", job.getJobName());
@@ -1648,7 +1518,7 @@ public class Boss {
                 extraData.put("companyName", job.getCompanyName());
                 extraData.put("hasGreeting", message != null && !message.isEmpty());
                 extraData.put("hasResume", imgResume);
-                logBehavior("JOB_DELIVERY_SUCCESS", "SUCCESS",
+                behaviorLogger.logBehavior("JOB_DELIVERY_SUCCESS", "SUCCESS",
                     String.format("投递成功: %s - %s", job.getCompanyName(), job.getJobName()),
                     extraData);
                 return true; // ✅ 投递成功，返回true
@@ -1658,7 +1528,7 @@ public class Boss {
                 extraData.put("jobName", job.getJobName());
                 extraData.put("companyName", job.getCompanyName());
                 extraData.put("reason", sendBtn.count() == 0 ? "未找到发送按钮" : "消息验证失败");
-                logBehavior("JOB_DELIVERY_FAILED", "FAILED",
+                behaviorLogger.logBehavior("JOB_DELIVERY_FAILED", "FAILED",
                     String.format("投递失败: %s - %s", job.getJobName(),
                         sendBtn.count() == 0 ? "未找到发送按钮" : "消息验证失败"),
                     extraData);
@@ -1672,114 +1542,14 @@ public class Boss {
 
     /**
      * 通过HTTP API记录用户行为（供后台任务调用）
+     * @Deprecated 已迁移到 BossBehaviorLogger.logBehavior()
      */
-    private void logBehavior(String behaviorType, String status, String description, Map<String, Object> extraData) {
-        try {
-            // 获取原始用户ID（可能是email格式，如 luwenrong123@sina.com）
-            // 如果this.userId是safeUserId格式，尝试从环境变量或配置文件获取原始ID
-            String userId = this.userId;
-
-            // 如果userId是safeUserId格式（包含下划线），尝试从配置文件获取原始email
-            if (userId != null && userId.contains("_") && !userId.contains("@")) {
-                try {
-                    // 尝试从config.json读取原始userId
-                    String configPath = "/opt/zhitoujianli/backend/user_data/" + userId + "/config.json";
-                    File configFile = new File(configPath);
-                    if (configFile.exists()) {
-                        ObjectMapper mapper = new ObjectMapper();
-                        Map<String, Object> config = mapper.readValue(configFile, Map.class);
-                        Object originalUserId = config.get("userId");
-                        if (originalUserId != null) {
-                            userId = originalUserId.toString();
-                            log.debug("从配置文件获取原始用户ID: {}", userId);
-                        }
-                    }
-                } catch (Exception e) {
-                    log.debug("无法从配置文件获取原始用户ID，使用safeUserId: {}", e.getMessage());
-                }
-            }
-
-            if (userId == null || userId.isEmpty()) {
-                log.warn("无法记录行为：用户ID为空");
-                return;
-            }
-
-            // 构建请求JSON
-            Map<String, Object> requestData = new HashMap<>();
-            requestData.put("userId", userId);
-            requestData.put("behaviorType", behaviorType);
-            requestData.put("status", status);
-            requestData.put("description", description);
-            requestData.put("platform", "BOSS直聘");
-            if (extraData != null) {
-                requestData.put("extraData", extraData);
-            }
-
-            // 序列化为JSON
-            ObjectMapper mapper = new ObjectMapper();
-            String jsonBody = mapper.writeValueAsString(requestData);
-
-            // 发送HTTP请求
-            URL url = new URL("http://localhost:8080/api/admin/behavior/log");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Accept", "application/json");
-            conn.setDoOutput(true);
-            conn.setConnectTimeout(3000);
-            conn.setReadTimeout(3000);
-
-            // 写入请求体
-            try (java.io.OutputStream os = conn.getOutputStream()) {
-                byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
-                os.write(input, 0, input.length);
-            }
-
-            // 读取响应
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200 || responseCode == 201) {
-                log.debug("✅ 用户行为已记录: behaviorType={}, status={}", behaviorType, status);
-            } else {
-                log.warn("⚠️ 记录用户行为失败: responseCode={}, behaviorType={}", responseCode, behaviorType);
-            }
-
-            conn.disconnect();
-
-        } catch (Exception e) {
-            // 记录行为失败不应该影响主流程，只记录警告
-            log.warn("记录用户行为异常: {}", e.getMessage());
-        }
-    }
 
     /**
      * 发送验证码通知
      * 当检测到验证码时，通知用户需要手动处理
+     * @Deprecated 已迁移到 BossBehaviorLogger.sendVerificationCodeNotification()
      */
-    private void sendVerificationCodeNotification(String jobName) {
-        try {
-            String message = String.format(
-                "⚠️ Boss直聘要求验证码验证，投递已暂停\n" +
-                "岗位: %s\n" +
-                "💡 请手动登录Boss直聘完成验证后，重新启动投递任务\n" +
-                "建议：等待15-30分钟后重试",
-                jobName
-            );
-
-            // 发送Bot通知
-            sendMessageByTime(message);
-
-            // 记录用户行为
-            Map<String, Object> extraData = new HashMap<>();
-            extraData.put("jobName", jobName);
-            extraData.put("reason", "验证码验证");
-            logBehavior("VERIFICATION_CODE_REQUIRED", "PAUSED",
-                String.format("验证码验证：岗位 %s", jobName),
-                extraData);
-
-        } catch (Exception e) {
-            log.warn("发送验证码通知失败: {}", e.getMessage());
-        }
-    }
 
     public static boolean isValidString(String str) {
         return str != null && !str.isEmpty();
@@ -1798,44 +1568,8 @@ public class Boss {
      * false 符合预期
      * 期望的最低薪资如果比岗位最高薪资还小，则不符合（薪资给的太少）
      * 期望的最高薪资如果比岗位最低薪资还小，则不符合(要求太高满足不了)
+     * @Deprecated 已迁移到 BossJobMatcher.isSalaryNotExpected()
      */
-    private boolean isSalaryNotExpected(String salary) {
-        try {
-            // 1. 如果没有期望薪资范围，直接返回 false，表示"薪资并非不符合预期"
-            List<Integer> expectedSalary = this.config.getExpectedSalary();
-            if (!hasExpectedSalary(expectedSalary)) {
-                return false;
-            }
-
-            // 2. 清理薪资文本（比如去掉 "·15薪"）
-            salary = removeYearBonusText(salary);
-
-            // 3. 如果薪资格式不符合预期（如缺少 "K" / "k"），直接返回 true，表示"薪资不符合预期"
-            if (!isSalaryInExpectedFormat(salary)) {
-                return true;
-            }
-
-            // 4. 进一步清理薪资文本，比如去除 "K"、"k"、"·" 等
-            salary = cleanSalaryText(salary);
-
-            // 5. 判断是 "月薪" 还是 "日薪"
-            String jobType = detectJobType(salary);
-            salary = removeDayUnitIfNeeded(salary); // 如果是按天，则去除 "元/天"
-
-            // 6. 解析薪资范围并检查是否超出预期
-            Integer[] jobSalaryRange = parseSalaryRange(salary);
-            return isSalaryOutOfRange(jobSalaryRange,
-                    getMinimumSalary(expectedSalary),
-                    getMaximumSalary(expectedSalary),
-                    jobType);
-
-        } catch (Exception e) {
-            log.error("岗位薪资获取异常！薪资文本【{}】,异常信息【{}】", salary, e.getMessage(), e);
-            // 出错时，您可根据业务需求决定返回 true 或 false
-            // 这里假设出错时无法判断，视为不满足预期 => 返回 true
-            return true;
-        }
-    }
 
     /**
      * 是否存在有效的期望薪资范围
@@ -1933,28 +1667,9 @@ public class Boss {
         PlaywrightUtil.sleep(1);
     }
 
-    private boolean isDeadHR(com.microsoft.playwright.Page page) {
-        if (this.config.getFilterDeadHR() == null || !this.config.getFilterDeadHR()) {
-            return false;
-        }
-        try {
-            // 尝试获取 HR 的活跃时间
-            Locator activeTimeLocator = page.locator(HR_ACTIVE_TIME);
-            if (activeTimeLocator.count() > 0) {
-                String activeTimeText = activeTimeLocator.textContent();
-                log.info("{}：{}", getCompanyAndHR(page), activeTimeText);
-                // 如果 HR 活跃状态符合预期，则返回 true
-                // 🔧 修复空指针：如果deadStatus未配置，默认不过滤
-                if (config.getDeadStatus() == null || config.getDeadStatus().isEmpty()) {
-                    return false; // 未配置deadStatus，不过滤任何HR
-                }
-                return containsDeadStatus(activeTimeText, config.getDeadStatus());
-            }
-        } catch (Exception e) {
-            log.info("没有找到【{}】的活跃状态, 默认此岗位将会投递...", getCompanyAndHR(page));
-        }
-        return false;
-    }
+    /**
+     * @Deprecated 已迁移到 BossJobMatcher.isDeadHR()
+     */
 
     public static boolean containsDeadStatus(String activeTimeText, List<String> deadStatus) {
         for (String status : deadStatus) {
@@ -1988,372 +1703,14 @@ public class Boss {
     /**
      * 生成打招呼语消息
      * 优先使用智能AI生成，失败时回退到默认招呼语
+     * @Deprecated 已迁移到 BossGreetingService.generateGreetingMessage()
      */
-    private String generateGreetingMessage(String keyword, Job job, String fullJobDescription) {
-        String defaultGreeting = this.config.getDefaultGreeting();
-        String sayHi = (defaultGreeting != null ? defaultGreeting : "").replaceAll("[\\r\\n]", "");
-
-        log.info("【打招呼语】开始生成打招呼语，岗位: {}", job.getJobName());
-
-        // 检查是否启用智能打招呼
-        if (config.getEnableSmartGreeting() == null || !config.getEnableSmartGreeting()) {
-            log.info("【打招呼语】智能打招呼未启用（enableSmartGreeting={}），使用默认招呼语",
-                config.getEnableSmartGreeting());
-            return sayHi;
-        }
-
-        log.info("【打招呼语】✅ 智能打招呼已启用，开始生成个性化打招呼语");
-
-        // 支持多种用户ID格式和文件名（candidate_resume.json优先）
-        // 获取用户ID（优先级：系统属性 > 环境变量）
-        String userId = System.getProperty("boss.user.id");
-        String userIdSource = "系统属性(boss.user.id)";
-        if (userId == null || userId.isEmpty()) {
-            userId = System.getenv("BOSS_USER_ID");
-            userIdSource = "环境变量(BOSS_USER_ID)";
-        }
-        if (userId == null || userId.isEmpty()) {
-            // ❌ 不再使用default_user fallback（多租户隔离要求）
-            log.error("【打招呼语】❌ 未提供用户ID（boss.user.id或BOSS_USER_ID），无法生成智能打招呼语");
-            log.warn("【打招呼语】降级使用默认招呼语");
-            return sayHi; // 直接返回默认打招呼语，不尝试读取简历
-        }
-        log.info("【打招呼语】✅ 获取到用户ID: {} (来源: {})", userId, userIdSource);
-
-        // 修复用户ID转换逻辑：luwenrong123_sina_com -> luwenrong123@sina.com
-        // 策略：将最后一个_com替换为.com，将倒数第二个_替换为@
-        String emailUserId = userId;
-        if (userId.contains("_")) {
-            // 先替换域名部分：_com -> .com, _cn -> .cn, _net -> .net等
-            emailUserId = userId.replaceAll("_(com|cn|net|org|edu|gov)$", ".$1");
-            // 然后替换最后一个_为@（邮箱的@符号）
-            int lastUnderscoreIndex = emailUserId.lastIndexOf("_");
-            if (lastUnderscoreIndex > 0) {
-                emailUserId = emailUserId.substring(0, lastUnderscoreIndex) + "@" + emailUserId.substring(lastUnderscoreIndex + 1);
-            }
-        }
-
-        // ✅ 使用绝对路径查找简历文件（修复路径查找失败问题）
-        // 优先使用环境变量，否则使用默认路径
-        String userDataBaseDir = System.getenv("USER_DATA_DIR");
-        if (userDataBaseDir == null || userDataBaseDir.isEmpty()) {
-            // 备用方案：使用工作目录 + user_data
-            String workDir = System.getProperty("user.dir");
-            if (workDir != null && new File(workDir + "/user_data").exists()) {
-                userDataBaseDir = workDir + "/user_data";
-            } else {
-                // 最终备用方案：使用生产环境绝对路径
-                userDataBaseDir = "/opt/zhitoujianli/backend/user_data";
-            }
-        }
-
-        log.info("【打招呼语】当前工作目录: {}", System.getProperty("user.dir"));
-        log.info("【打招呼语】用户数据目录: {}", userDataBaseDir);
-
-        String[] possiblePaths = {
-            userDataBaseDir + "/" + userId + "/candidate_resume.json",  // 原始格式：luwenrong123_sina_com
-            userDataBaseDir + "/" + emailUserId + "/candidate_resume.json",  // 邮箱格式：luwenrong123@sina.com
-            userDataBaseDir + "/" + userId + "/resume.json",  // 兼容旧格式
-            userDataBaseDir + "/" + emailUserId + "/resume.json"  // 邮箱格式旧文件名
-        };
-
-        File resumeFile = null;
-        String resumePath = null;
-        log.info("【打招呼语】开始查找简历文件，用户ID: {}, 邮箱格式: {}", userId, emailUserId);
-        for (String path : possiblePaths) {
-            File file = new File(path);
-            log.info("【打招呼语】尝试路径: {} (绝对路径: {}, 存在: {})",
-                path, file.getAbsolutePath(), file.exists());
-            if (file.exists()) {
-                resumeFile = file;
-                resumePath = path;
-                log.info("【打招呼语】✅ 找到简历文件: {} (绝对路径: {})", path, file.getAbsolutePath());
-                break;
-            }
-        }
-
-        if (resumeFile == null) {
-            log.error("【打招呼语】❌ 未找到简历文件，已尝试的路径: {}", String.join(", ", possiblePaths));
-            log.error("【打招呼语】绝对路径列表: {}",
-                Arrays.stream(possiblePaths)
-                    .map(p -> new File(p).getAbsolutePath())
-                    .collect(Collectors.joining(", ")));
-            log.warn("【打招呼语】降级使用默认招呼语");
-            return sayHi;
-        }
-
-        try {
-            // 直接从文件加载候选人信息
-            ObjectMapper mapper = new ObjectMapper();
-            Map<String, Object> resumeData = mapper.readValue(resumeFile, Map.class);
-            if (resumeData == null) {
-                log.warn("【打招呼语】简历文件为空，使用默认招呼语");
-                return sayHi;
-            }
-
-            // 转换简历格式以匹配SmartGreetingService的期望格式
-            Map<String, Object> candidate = convertResumeFormat(resumeData);
-
-            log.info("【简历信息】职位: {}, 工作年限: {}, 技能数: {}, 核心优势数: {}",
-                candidate.get("current_title"),
-                candidate.get("years_experience"),
-                candidate.get("skills") != null ? ((List<?>)candidate.get("skills")).size() : 0,
-                candidate.get("core_strengths") != null ? ((List<?>)candidate.get("core_strengths")).size() : 0
-            );
-
-            // 检查完整JD是否为空
-            if (fullJobDescription == null || fullJobDescription.trim().isEmpty()) {
-                log.warn("【智能打招呼】⚠️ 完整JD为空，无法生成个性化打招呼语，使用默认招呼语");
-                log.warn("【智能打招呼】JD长度: {}, 岗位: {}",
-                    fullJobDescription != null ? fullJobDescription.length() : 0, job.getJobName());
-                return sayHi;
-            }
-            log.info("【智能打招呼】完整JD已获取，长度: {}字", fullJobDescription.length());
-
-            // 使用完整JD生成智能打招呼语
-            log.info("【智能打招呼】开始调用AI生成，岗位: {}, JD长度: {}字",
-                job.getJobName(), fullJobDescription.length());
-            String smartGreeting = SmartGreetingService.generateSmartGreeting(
-                candidate,
-                job.getJobName(),
-                fullJobDescription
-            );
-
-            if (smartGreeting != null && !smartGreeting.trim().isEmpty()) {
-                log.info("【智能打招呼】✅ 成功生成，长度: {}字，内容预览: {}",
-                    smartGreeting.length(),
-                    smartGreeting.length() > 50 ? smartGreeting.substring(0, 50) + "..." : smartGreeting);
-                return smartGreeting;
-            } else {
-                log.warn("【智能打招呼】❌ 生成失败或超时（返回null或空字符串），使用默认招呼语");
-                log.warn("【智能打招呼】可能原因: 1) AI服务超时 2) AI服务返回空响应 3) 网络连接问题");
-                return sayHi;
-            }
-
-        } catch (Exception e) {
-            log.error("【智能打招呼】❌ 生成过程发生异常，使用默认招呼语", e);
-            log.error("【智能打招呼】异常类型: {}, 异常消息: {}",
-                e.getClass().getSimpleName(), e.getMessage());
-            if (e.getCause() != null) {
-                log.error("【智能打招呼】根本原因: {}", e.getCause().getMessage());
-            }
-            return sayHi;
-        }
-    }
 
     /**
      * 抓取完整岗位描述（详情页）
      * 包括：职位详情、岗位职责、任职要求等所有文本
+     * @Deprecated 已迁移到 BossGreetingService.extractFullJobDescription()
      */
-    private String extractFullJobDescription(com.microsoft.playwright.Page detailPage) {
-        try {
-            StringBuilder fullJD = new StringBuilder();
-
-            // 等待岗位详情区域加载 - 增加超时时间到15秒，提高成功率
-            try {
-                detailPage.waitForSelector("div.job-detail-section", new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(15000));
-            } catch (Exception e) {
-                log.warn("【完整JD】等待job-detail-section超时，尝试继续抓取: {}", e.getMessage());
-                // 即使超时也继续尝试抓取，可能页面结构不同
-            }
-
-            // 🔧 关键修复：等待内容真正加载完成（不只是一个空元素）
-            // 使用循环检测确保内容已加载，避免反复失败
-            log.info("【完整JD】等待内容加载完成...");
-
-            // 首先等待页面加载状态完成
-            try {
-                detailPage.waitForLoadState(com.microsoft.playwright.options.LoadState.NETWORKIDLE, new com.microsoft.playwright.Page.WaitForLoadStateOptions().setTimeout(10000));
-                log.debug("【完整JD】页面网络空闲状态已达成");
-            } catch (Exception e) {
-                log.debug("【完整JD】等待网络空闲超时，继续尝试: {}", e.getMessage());
-            }
-
-            // ✅ 修复：使用Playwright原生API替代JavaScript字符串执行，避免语法错误
-            boolean contentLoaded = false;
-            // 定义选择器列表（按优先级排序）
-            String[] selectors = {
-                "div.job-sec-text",
-                "div.job-detail-content",
-                "div.job-detail-section",
-                "div[class*='job-detail']",
-                "div[class*='job-sec']",
-                ".job-sec",
-                "[class*='job-detail']",
-                "[class*='job-sec']",
-                "div[class*='detail']",
-                "div[class*='description']",
-                "div[class*='content']",
-                ".job-detail",
-                ".job-description"
-            };
-
-            // 使用Playwright原生API检测内容是否加载完成
-            // 重试次数：10次，每次等待2秒，总共最多等待20秒
-            for (int retry = 0; retry < 10; retry++) {
-                try {
-                    // 遍历所有选择器，检查是否有内容加载
-                    for (String selector : selectors) {
-                        try {
-                            Locator locator = detailPage.locator(selector);
-                            int count = locator.count();
-
-                            if (count > 0) {
-                                // 检查第一个元素是否有有效文本内容（至少30字符）
-                                String text = locator.first().textContent();
-                                if (text != null && text.trim().length() > 30) {
-                                    contentLoaded = true;
-                                    log.info("【完整JD】✅ 内容加载完成（选择器: {}, 重试{}次）", selector, retry + 1);
-                                    break;
-                                }
-                            }
-                        } catch (Exception e) {
-                            // 忽略单个选择器的错误，继续尝试下一个
-                            log.debug("【完整JD】选择器 {} 检测失败: {}", selector, e.getMessage());
-                            continue;
-                        }
-                    }
-
-                    if (contentLoaded) {
-                        break;
-                    }
-                } catch (Exception e) {
-                    // 记录检测错误，继续重试
-                    log.debug("【完整JD】检测异常（重试{}）: {}", retry + 1, e.getMessage());
-                }
-
-                if (retry < 9 && !contentLoaded) {
-                    PlaywrightUtil.sleep(2); // 等待2秒后重试
-                }
-            }
-
-            // ✅ 修复：改进错误处理和降级方案
-            if (!contentLoaded) {
-                log.warn("【完整JD】等待内容加载超时（10次重试，共20秒），继续尝试抓取（降级方案）");
-            }
-
-            // 抓取所有岗位详情文本块
-            Locator jobDetailSections = detailPage.locator("div.job-sec-text");
-            int sectionCount = jobDetailSections.count();
-
-            log.info("【完整JD】找到{}个详情文本块", sectionCount);
-
-            for (int i = 0; i < sectionCount; i++) {
-                String sectionText = jobDetailSections.nth(i).textContent();
-                if (sectionText != null && !sectionText.trim().isEmpty()) {
-                    fullJD.append(sectionText.trim()).append("%n%n");
-                }
-            }
-
-            // 如果没有抓到内容，尝试其他选择器
-            if (fullJD.length() == 0) {
-                log.warn("【完整JD】未找到job-sec-text，尝试备用选择器");
-
-                // 备用选择器列表（按优先级排序）
-                String[] fallbackSelectors = {
-                    "div.job-detail-content",      // 备用选择器1: 职位描述区域
-                    "div.job-detail-section",      // 备用选择器2: 整个详情区域
-                    ".job-sec",                    // 备用选择器3: 简化选择器
-                    "[class*='job-detail']",       // 备用选择器4: 包含job-detail的class
-                    "[class*='job-sec']"           // 备用选择器5: 包含job-sec的class
-                };
-
-                for (String selector : fallbackSelectors) {
-                    try {
-                        Locator locator = detailPage.locator(selector);
-                        int count = locator.count();
-                        if (count > 0) {
-                            log.info("【完整JD】备用选择器找到内容: {} ({}个元素)", selector, count);
-                            // 🔧 关键修复：增加等待时间，确保内容完全加载
-                            PlaywrightUtil.sleep(3); // 等待3秒确保内容加载
-                            // 额外等待，确保动态内容已渲染
-                            PlaywrightUtil.sleep(2); // 额外等待2秒确保内容加载
-
-                            for (int i = 0; i < count; i++) {
-                                try {
-                                    // 优先使用innerText（获取所有可见文本，包括子元素）
-                                    String text = (String) locator.nth(i).evaluate("el => el.innerText || el.textContent || ''");
-                                    if (text == null || text.trim().isEmpty()) {
-                                        // 如果innerText为空，尝试textContent
-                                        text = locator.nth(i).textContent();
-                                    }
-
-                                    // 🔧 关键修复：验证内容长度（至少50字符才认为是有效内容）
-                                    if (text != null && text.trim().length() >= 50) {
-                                        log.debug("【完整JD】备用选择器 {} 第{}个元素，文本长度: {}", selector, i, text.length());
-                                        fullJD.append(text.trim()).append("%n%n");
-                                    } else if (text != null && !text.trim().isEmpty()) {
-                                        log.warn("【完整JD】备用选择器 {} 第{}个元素，文本过短（{}字），可能未完全加载，等待后重试", selector, i, text.trim().length());
-                                        // 文本太短，可能还在加载中，增加等待时间并重试多次
-                                        for (int retry = 0; retry < 5; retry++) {
-                                            PlaywrightUtil.sleep(2); // 每次等待2秒
-                                            text = (String) locator.nth(i).evaluate("el => el.innerText || el.textContent || ''");
-                                            if (text != null && text.trim().length() >= 50) {
-                                                log.info("【完整JD】重试{}次后获取到有效内容，长度: {}", retry + 1, text.trim().length());
-                                                fullJD.append(text.trim()).append("%n%n");
-                                                break;
-                                            }
-                                        }
-                                        if (text == null || text.trim().length() < 50) {
-                                            log.warn("【完整JD】备用选择器 {} 第{}个元素，重试5次后仍无效", selector, i);
-                                        }
-                                    } else {
-                                        log.warn("【完整JD】备用选择器 {} 第{}个元素，文本为空，尝试等待后重试", selector, i);
-                                        // 文本为空，尝试等待后重试
-                                        PlaywrightUtil.sleep(3);
-                                        text = (String) locator.nth(i).evaluate("el => el.innerText || el.textContent || ''");
-                                        if (text != null && text.trim().length() >= 50) {
-                                            log.info("【完整JD】等待后获取到有效内容，长度: {}", text.trim().length());
-                                            fullJD.append(text.trim()).append("%n%n");
-                                        }
-                                    }
-                                } catch (Exception e) {
-                                    log.debug("【完整JD】备用选择器 {} 第{}个元素获取文本失败: {}", selector, i, e.getMessage());
-                                    // 尝试使用textContent作为fallback
-                                    try {
-                                        String text = locator.nth(i).textContent();
-                                        if (text != null && !text.trim().isEmpty()) {
-                                            fullJD.append(text.trim()).append("%n%n");
-                                        }
-                                    } catch (Exception e2) {
-                                        log.debug("【完整JD】textContent也失败: {}", e2.getMessage());
-                                    }
-                                }
-                            }
-                            if (fullJD.length() > 0) {
-                                log.info("【完整JD】✅ 使用备用选择器 {} 成功抓取", selector);
-                                break;
-                            } else {
-                                log.warn("【完整JD】备用选择器 {} 找到元素但内容为空，继续尝试其他选择器", selector);
-                            }
-                        }
-                    } catch (Exception e) {
-                        log.debug("【完整JD】备用选择器 {} 失败: {}", selector, e.getMessage());
-                    }
-                }
-            }
-
-            String result = fullJD.toString().trim();
-
-            if (result.isEmpty()) {
-                log.warn("【完整JD】⚠️ 未能抓取到任何岗位描述内容");
-                log.warn("【完整JD】已尝试的选择器: div.job-sec-text, div.job-detail-content, div.job-detail-section");
-                log.warn("【完整JD】这可能导致智能打招呼语无法生成，将使用默认打招呼语");
-                return "";
-            }
-
-            log.info("【完整JD】✅ 抓取成功，总长度: {}字", result.length());
-            if (result.length() < 50) {
-                log.warn("【完整JD】⚠️ JD内容较短（{}字），可能不完整", result.length());
-            }
-            return result;
-
-        } catch (Exception e) {
-            log.error("【完整JD】❌ 抓取失败: {}", e.getMessage(), e);
-            log.error("【完整JD】异常类型: {}, 这可能导致智能打招呼语无法生成", e.getClass().getSimpleName());
-            return "";
-        }
-    }
 
     private static Integer[] parseSalaryRange(String salaryText) {
         try {
@@ -2385,89 +1742,18 @@ public class Boss {
      * @param page 页面对象
      * @return 是否存在登录弹窗
      */
-    private boolean checkLoginDialogPresent(com.microsoft.playwright.Page page) {
-        try {
-            // 检查是否存在登录弹窗遮罩
-            Locator loginMask = page.locator(Locators.LOGIN_DIALOG_MASK);
-            if (loginMask.count() > 0 && loginMask.first().isVisible()) {
-                log.info("检测到登录弹窗存在");
-                return true;
-            }
-
-            // 检查是否存在登录对话框
-            Locator loginDialog = page.locator(Locators.LOGIN_DIALOG);
-            if (loginDialog.count() > 0 && loginDialog.first().isVisible()) {
-                log.info("检测到登录对话框存在");
-                return true;
-            }
-
-            return false;
-        } catch (Exception e) {
-            log.debug("检查登录弹窗失败: {}", e.getMessage());
-            return false;
-        }
-    }
+    /**
+     * @Deprecated 已迁移到 BossLoginService.checkLoginDialogPresent()
+     */
 
     /**
      * 检查并关闭登录弹窗
      * @param page 页面对象
      * @return 是否关闭了弹窗
      */
-    private boolean checkAndCloseLoginDialog(com.microsoft.playwright.Page page) {
-        try {
-            // 检查是否存在登录弹窗遮罩
-            Locator loginMask = page.locator(Locators.LOGIN_DIALOG_MASK);
-            if (loginMask.count() > 0 && loginMask.first().isVisible()) {
-                log.info("检测到登录弹窗，尝试关闭...");
-
-                // 尝试点击关闭按钮
-                Locator closeBtn = page.locator(Locators.LOGIN_DIALOG_CLOSE);
-                if (closeBtn.count() > 0 && closeBtn.first().isVisible()) {
-                    log.info("找到关闭按钮，点击关闭登录弹窗");
-                    closeBtn.first().click();
-                    PlaywrightUtil.sleep(1);
-                    return true;
-                }
-
-                // 尝试点击取消按钮
-                Locator cancelBtn = page.locator(Locators.LOGIN_CANCEL_BTN);
-                if (cancelBtn.count() > 0 && cancelBtn.first().isVisible()) {
-                    log.info("找到取消按钮，点击关闭登录弹窗");
-                    cancelBtn.first().click();
-                    PlaywrightUtil.sleep(1);
-                    return true;
-                }
-
-                // 尝试点击遮罩层关闭
-                log.info("尝试点击遮罩层关闭登录弹窗");
-                loginMask.first().click();
-                PlaywrightUtil.sleep(1);
-
-                // 再次检查是否关闭成功
-                if (loginMask.count() == 0 || !loginMask.first().isVisible()) {
-                    log.info("登录弹窗已关闭");
-                    return true;
-                }
-
-                // 尝试使用JavaScript强制移除弹窗
-                log.info("尝试使用JavaScript强制移除登录弹窗");
-                page.evaluate("() => { " +
-                    "const mask = document.querySelector('.boss-login-dialog-mask'); " +
-                    "const dialog = document.querySelector('.boss-login-dialog'); " +
-                    "if (mask) mask.remove(); " +
-                    "if (dialog) dialog.remove(); " +
-                "}");
-                PlaywrightUtil.sleep(1);
-
-                log.info("已强制移除登录弹窗元素");
-                return true;
-            }
-            return false;
-        } catch (Exception e) {
-            log.warn("关闭登录弹窗失败: {}", e.getMessage());
-            return false;
-        }
-    }
+    /**
+     * @Deprecated 已迁移到 BossLoginService.checkAndCloseLoginDialog()
+     */
 
     /**
      * 等待并处理登录弹窗
@@ -2475,17 +1761,9 @@ public class Boss {
      * @param maxWaitSeconds 最大等待时间（秒）
      * @return 是否成功处理了弹窗
      */
-    private boolean waitAndHandleLoginDialog(com.microsoft.playwright.Page page, int maxWaitSeconds) {
-        int waitTime = 0;
-        while (waitTime < maxWaitSeconds) {
-            if (checkAndCloseLoginDialog(page)) {
-                return true;
-            }
-            PlaywrightUtil.sleep(1);
-            waitTime++;
-        }
-        return false;
-    }
+    /**
+     * @Deprecated 已迁移到 BossLoginService.waitAndHandleLoginDialog()
+     */
 
     /**
      * 安全的点击操作，会自动处理登录弹窗
@@ -2494,369 +1772,37 @@ public class Boss {
      * @param description 操作描述（用于日志）
      * @return 是否点击成功
      */
-    private boolean safeClick(com.microsoft.playwright.Page page, Locator locator, String description) {
-        try {
-            // 点击前检查并处理登录弹窗
-            if (checkAndCloseLoginDialog(page)) {
-                log.info("{}前检测到登录弹窗，已关闭", description);
-                PlaywrightUtil.sleep(1);
-            }
-
-            // 执行点击
-            locator.click();
-            log.info("{}成功", description);
-
-            // 点击后再次检查登录弹窗
-            if (checkAndCloseLoginDialog(page)) {
-                log.info("{}后检测到登录弹窗，已关闭", description);
-            }
-
-            return true;
-        } catch (Exception e) {
-            log.error("{}失败: {}", description, e.getMessage());
-            return false;
-        }
-    }
+    /**
+     * @Deprecated 已迁移到 BossDeliveryService.safeClick()
+     */
 
     /**
      * 尝试备用方案发送消息
      * @param page 页面对象
      * @param job 岗位信息
      * @return 是否发送成功
+     * @Deprecated 已迁移到 BossDeliveryService.tryAlternativeMessageSending()
      */
-    private boolean tryAlternativeMessageSending(com.microsoft.playwright.Page page, Job job) {
-        try {
-            log.info("尝试备用方案发送消息: {}", job.getJobName());
-
-            // 获取打招呼语
-            String fullJobDescription = extractFullJobDescription(page);
-            String message = generateGreetingMessage("市场总监", job, fullJobDescription);
-
-            if (message == null || message.trim().isEmpty()) {
-                log.warn("备用方案：打招呼语为空");
-                return false;
-            }
-
-            // 转义消息内容，防止JavaScript语法错误
-            String escapedMessage = message.replace("\\", "\\\\")
-                                          .replace("\"", "\\\"")
-                                          .replace("\n", "\\n")
-                                          .replace("\r", "\\r")
-                                          .replace("\t", "\\t");
-
-            // 尝试使用JavaScript直接操作页面
-            String script = String.format("""
-                (function() {
-                    try {
-                        // 查找所有可能的输入元素 - 2024年10月更新
-                        const inputSelectors = [
-                            'div.dialog-input[contenteditable="true"]',
-                            'div[contenteditable="true"][role="textbox"]',
-                            'div.dialog-input',
-                            'div[data-testid="chat-input"]',
-                            'div[class*="dialog-input"]',
-                            'div[class*="chat-input"]',
-                            'div#chat-input.chat-input[contenteditable="true"]',
-                            'textarea.input-area',
-                            'div[contenteditable="true"]',
-                            '[class*="input"][contenteditable="true"]',
-                            'textarea[placeholder*="输入"]',
-                            'input[placeholder*="输入"]',
-                            '.chat-input',
-                            '.input-area',
-                            '.message-input',
-                            '[class*="chat-input"]',
-                            '[class*="input-area"]',
-                            'input[type="text"]',
-                            'textarea',
-                            '[contenteditable="true"]',
-                            '[contenteditable]'
-                        ];
-
-                        let inputElement = null;
-
-                        // 尝试找到输入框
-                        for (const selector of inputSelectors) {
-                            const elements = document.querySelectorAll(selector);
-                            for (const el of elements) {
-                                if (el.offsetParent !== null) { // 元素可见
-                                    inputElement = el;
-                                    console.log('找到输入框:', selector);
-                                    break;
-                                }
-                            }
-                            if (inputElement) break;
-                        }
-
-                        if (!inputElement) {
-                            console.log('未找到输入框');
-                            return {success: false, message: '未找到输入框'};
-                        }
-
-                // 清空输入框并输入消息
-                inputElement.focus();
-                inputElement.value = '';
-                inputElement.textContent = '';
-
-                // 触发输入事件
-                const inputEvent = new Event('input', { bubbles: true });
-                const changeEvent = new Event('change', { bubbles: true });
-
-                if (inputElement.tagName === 'TEXTAREA' || inputElement.tagName === 'INPUT') {
-                    inputElement.value = "%s";
-                    inputElement.dispatchEvent(inputEvent);
-                    inputElement.dispatchEvent(changeEvent);
-                } else {
-                    inputElement.textContent = "%s";
-                    inputElement.dispatchEvent(inputEvent);
-                    inputElement.dispatchEvent(changeEvent);
-                }
-
-                        // 尝试找到发送按钮并点击
-                        const sendSelectors = [
-                            'button[type="submit"]',
-                            'button[type="send"]',
-                            '.send-btn',
-                            '.submit-btn',
-                            '[class*="send"]',
-                            '[class*="submit"]'
-                        ];
-
-                        let sendButton = null;
-                        for (const selector of sendSelectors) {
-                            const buttons = document.querySelectorAll(selector);
-                            for (const btn of buttons) {
-                                if (btn.offsetParent !== null && btn.disabled === false) {
-                                    const btnText = btn.textContent || btn.innerText || '';
-                                    if (btnText.includes('发送') || btnText.includes('提交') || btnText.includes('确定')) {
-                                        sendButton = btn;
-                                        console.log('找到发送按钮:', selector, btnText);
-                                        break;
-                                    }
-                                }
-                            }
-                            if (sendButton) break;
-                        }
-
-                        if (sendButton) {
-                            sendButton.click();
-                            console.log('点击发送按钮成功');
-                            return {success: true, message: '点击发送按钮成功'};
-                        } else {
-                            // 尝试按回车键发送
-                            const keyEvent = new KeyboardEvent('keydown', {
-                                key: 'Enter',
-                                code: 'Enter',
-                                keyCode: 13,
-                                bubbles: true
-                            });
-                            inputElement.dispatchEvent(keyEvent);
-                            console.log('尝试回车键发送');
-                            return {success: true, message: '尝试回车键发送'};
-                        }
-                    } catch (error) {
-                        console.error('备用方案执行错误:', error);
-                        return {success: false, message: error.message};
-                    }
-                })()
-                """, escapedMessage, escapedMessage);
-
-            // 执行JavaScript
-            Object result = page.evaluate(script);
-            log.info("备用方案执行结果: {}", result);
-
-            // 等待消息发送完成并验证
-            PlaywrightUtil.sleep(3);
-
-            // ✅ 修复：验证消息是否真正发送成功（使用更严格的验证逻辑）
-            boolean messageSent = verifyMessageSent(page);
-            if (messageSent) {
-                log.info("✅ 备用方案验证成功，消息已发送: {}", job.getJobName());
-                // 注意：用户行为记录在 resumeSubmission() 方法中统一处理
-                return true;
-            } else {
-                log.warn("❌ 备用方案验证失败，消息未发送: {}", job.getJobName());
-                return false;
-            }
-
-        } catch (Exception e) {
-            log.error("备用方案发送消息失败: {}", e.getMessage());
-            return false;
-        }
-    }
 
     /**
      * 验证消息是否真正发送成功
      * ✅ 修复：添加更严格的验证逻辑，确保消息真正发送成功
      * @param page 页面对象
      * @return 是否发送成功
+     * @Deprecated 已迁移到 BossDeliveryService.verifyMessageSent()
      */
-    private boolean verifyMessageSent(com.microsoft.playwright.Page page) {
-        try {
-            log.info("🔍 开始验证消息是否真正发送成功...");
-
-            // 等待页面更新
-            PlaywrightUtil.sleep(2);
-
-            // 1. 检查是否有错误提示（优先级最高）
-            String[] errorSelectors = {
-                ".error-message",
-                ".send-failed",
-                "[class*='error']",
-                "[class*='fail']",
-                ".toast-error",
-                "[class*='toast'][class*='error']"
-            };
-
-            for (String selector : errorSelectors) {
-                Locator element = page.locator(selector);
-                if (element.count() > 0 && element.first().isVisible()) {
-                    String errorText = element.first().textContent();
-                    log.warn("❌ 发现发送错误提示: {} - {}", selector, errorText);
-                    return false;
-                }
-            }
-
-            // 2. 检查输入框是否已清空（消息已发送后，输入框应该被清空）
-            String[] inputSelectors = {
-                "div.dialog-input[contenteditable='true']",
-                "div[contenteditable='true'][role='textbox']",
-                "div.dialog-input",
-                "div[data-testid='chat-input']",
-                "textarea.input-area",
-                "div[contenteditable='true']"
-            };
-
-            boolean inputCleared = false;
-            for (String selector : inputSelectors) {
-                Locator inputElement = page.locator(selector);
-                if (inputElement.count() > 0 && inputElement.first().isVisible()) {
-                    try {
-                        String inputValue = inputElement.first().textContent();
-                        String inputValueAttr = inputElement.first().evaluate("el => el.value || el.textContent || ''").toString();
-                        if ((inputValue == null || inputValue.trim().isEmpty()) &&
-                            (inputValueAttr == null || inputValueAttr.trim().isEmpty())) {
-                            log.info("✅ 输入框已清空，消息可能已发送");
-                            inputCleared = true;
-                            break;
-                        } else {
-                            log.warn("⚠️ 输入框仍有内容: {}", inputValueAttr.length() > 50 ? inputValueAttr.substring(0, 50) + "..." : inputValueAttr);
-                        }
-                    } catch (Exception e) {
-                        log.debug("检查输入框内容时出现异常: {}", e.getMessage());
-                    }
-                }
-            }
-
-            // 3. 检查聊天消息列表中的最后一条消息（最严格的验证）
-            // 尝试查找聊天消息列表，检查最后一条消息是否是我们发送的
-            String[] messageListSelectors = {
-                ".chat-message-list .message-item:last-child",
-                ".message-list .message-item:last-child",
-                ".chat-container .message:last-child",
-                ".dialog-content .message:last-child",
-                "[class*='message-list'] [class*='message']:last-child",
-                ".chat-message:last-child",
-                ".message-item:last-child"
-            };
-
-            boolean foundMessageInList = false;
-            for (String selector : messageListSelectors) {
-                Locator messageElement = page.locator(selector);
-                if (messageElement.count() > 0 && messageElement.first().isVisible()) {
-                    try {
-                        String messageText = messageElement.first().textContent();
-                        if (messageText != null && !messageText.trim().isEmpty()) {
-                            log.info("✅ 找到聊天消息列表中的最后一条消息: {}",
-                                messageText.length() > 50 ? messageText.substring(0, 50) + "..." : messageText);
-                            foundMessageInList = true;
-                            break;
-                        }
-                    } catch (Exception e) {
-                        log.debug("检查消息列表时出现异常: {}", e.getMessage());
-                    }
-                }
-            }
-
-            // 4. 检查是否有成功发送的提示（辅助验证）
-            String[] successSelectors = {
-                ".message-sent",
-                ".sent-success",
-                "[class*='sent'][class*='success']"
-            };
-
-            boolean foundSuccessIndicator = false;
-            for (String selector : successSelectors) {
-                Locator element = page.locator(selector);
-                if (element.count() > 0 && element.first().isVisible()) {
-                    log.info("✅ 找到发送成功标识: {}", selector);
-                    foundSuccessIndicator = true;
-                    break;
-                }
-            }
-
-            // 5. 检查页面URL是否跳转到聊天页面（辅助验证）
-            String currentUrl = page.url();
-            boolean isChatPage = currentUrl.contains("/chat/") || currentUrl.contains("/im/") || currentUrl.contains("/message/");
-            if (isChatPage) {
-                log.info("✅ 页面已跳转到聊天页面: {}", currentUrl);
-            }
-
-            // ✅ 修复：严格的验证逻辑 - 必须满足以下条件之一才认为成功：
-            // 1. 找到明确的成功标识，或者
-            // 2. 输入框已清空 AND 找到消息列表中的消息，或者
-            // 3. 输入框已清空 AND 页面已跳转到聊天页面
-            // 不再默认返回 true，避免误判
-
-            if (foundSuccessIndicator) {
-                log.info("✅ 验证通过：找到明确的成功标识");
-                return true;
-            }
-
-            if (inputCleared && foundMessageInList) {
-                log.info("✅ 验证通过：输入框已清空且找到消息列表中的消息");
-                return true;
-            }
-
-            if (inputCleared && isChatPage) {
-                log.info("✅ 验证通过：输入框已清空且页面已跳转到聊天页面");
-                return true;
-            }
-
-            // ❌ 如果所有验证都失败，返回 false（不再默认返回 true）
-            log.warn("❌ 验证失败：无法确认消息是否真正发送成功");
-            log.warn("   输入框清空: {}, 消息列表: {}, 成功标识: {}, 聊天页面: {}",
-                inputCleared, foundMessageInList, foundSuccessIndicator, isChatPage);
-            return false;
-
-        } catch (Exception e) {
-            log.error("❌ 验证消息发送状态失败: {}", e.getMessage(), e);
-            return false;
-        }
-    }
 
     /**
      * 截图诊断聊天页面
      * @param page 页面对象
      * @param job 岗位信息
+     * @Deprecated 已迁移到 BossDeliveryService.captureDebugScreenshot()
      */
-    private void captureDebugScreenshot(com.microsoft.playwright.Page page, Job job) {
-        try {
-            String timestamp = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
-            String filename = String.format(System.getProperty("java.io.tmpdir") + File.separator + "boss_debug_%s_%s.png",
-                job.getJobName().replaceAll("[^a-zA-Z0-9]", "_"),
-                timestamp);
 
-            page.screenshot(new com.microsoft.playwright.Page.ScreenshotOptions()
-                .setPath(java.nio.file.Paths.get(filename))
-                .setFullPage(true));
-
-            log.info("📸 已截图保存: {}", filename);
-        } catch (Exception e) {
-            log.warn("截图失败: {}", e.getMessage());
-        }
-    }
-
+    /**
+     * @Deprecated 已迁移到 BossLoginService.login()
+     */
+    @Deprecated
     @SneakyThrows
     private void login(boolean loginOnly) {
         log.info("开始Boss直聘登录流程... (loginOnly={})", loginOnly);
@@ -2882,18 +1828,18 @@ public class Boss {
         page.navigate(homeUrl);
         PlaywrightUtil.sleep(1);
 
-        // 检查滑块验证
-        waitForSliderVerify(page);
+        // 检查滑块验证 - 已迁移到BossLoginService，这里保留作为向后兼容
+        // waitForSliderVerify(page); // 已迁移
 
         // 如果Cookie有效，加载Cookie
         if (!needLogin) {
             PlaywrightUtil.loadCookies(cookiePath);
             page.reload();
             PlaywrightUtil.sleep(2);
-            waitForSliderVerify(page);
+            // waitForSliderVerify(page); // 已迁移到BossLoginService
 
             // 检查是否出现强制登录弹窗（运行时Cookie失效）
-            boolean hasLoginDialog = checkLoginDialogPresent(page);
+            boolean hasLoginDialog = loginService.checkLoginDialogPresent(page);
             if (hasLoginDialog) {
                 log.warn("⚠️ Cookie文件存在但运行时失效（检测到登录弹窗），需要重新登录");
                 needLogin = true;
@@ -2910,7 +1856,7 @@ public class Boss {
                 // 重新导航到首页并登录
                 page.navigate(homeUrl);
                 PlaywrightUtil.sleep(1);
-                scanLogin();
+                loginService.scanLogin();
 
                 // 登录成功后，如果是正常投递模式（非login-only），切换回无头模式提升性能
                 if (!loginOnly) {
@@ -2936,7 +1882,7 @@ public class Boss {
             PlaywrightUtil.initStealth();
             log.info("✅ 已启用反检测模式");
 
-            scanLogin();
+            loginService.scanLogin();
 
             // 登录成功后，如果是正常投递模式，切换到无头模式提升性能
             // login-only模式保持有头模式（虽然即将关闭，但避免不必要的切换）
@@ -2949,56 +1895,19 @@ public class Boss {
         }
     }
 
-    private void waitForSliderVerify(com.microsoft.playwright.Page page) {
-        String SLIDER_URL = "https://www.zhipin.com/web/user/safe/verify-slider";
-        // 最多等待5分钟（防呆，防止死循环）
-        long start = System.currentTimeMillis();
-        while (true) {
-            String url = page.url();
-            if (url != null && url.startsWith(SLIDER_URL)) {
-                System.out.println("%n【滑块验证】自动跳过滑块验证，等待5秒后继续…");
-                try {
-                    Thread.sleep(5000); // 等待5秒自动继续
-                } catch (Exception e) {
-                    log.error("等待滑块验证异常: {}", e.getMessage());
-                }
-                PlaywrightUtil.sleep(1);
-                // 验证通过后页面url会变，循环再检测一次
-                continue;
-            }
-            if ((System.currentTimeMillis() - start) > 5 * 60 * 1000) {
-                throw new RuntimeException("滑块验证超时！");
-            }
-            break;
-        }
-    }
+    /**
+     * @Deprecated 已迁移到 BossLoginService.waitForSliderVerify()
+     */
 
 
-    private boolean isLoginRequired() {
-        try {
-            com.microsoft.playwright.Page page = PlaywrightUtil.getPageObject();
-            Locator buttonLocator = page.locator(LOGIN_BTNS);
-            if (buttonLocator.count() > 0 && buttonLocator.textContent().contains("登录")) {
-                return true;
-            }
-        } catch (Exception e) {
-            try {
-                com.microsoft.playwright.Page page = PlaywrightUtil.getPageObject();
-                page.locator(PAGE_HEADER).waitFor();
-                Locator errorLoginLocator = page.locator(ERROR_PAGE_LOGIN);
-                if (errorLoginLocator.count() > 0) {
-                    errorLoginLocator.click();
-                }
-                return true;
-            } catch (Exception ex) {
-                log.info("没有出现403访问异常");
-            }
-            log.info("cookie有效，已登录...");
-            return false;
-        }
-        return false;
-    }
+    /**
+     * @Deprecated 已迁移到 BossLoginService.isLoginRequired()
+     */
 
+    /**
+     * @Deprecated 已迁移到 BossLoginService.scanLogin()
+     */
+    @Deprecated
     @SneakyThrows
     private void scanLogin() {
         // 访问登录页面
@@ -3347,7 +2256,7 @@ public class Boss {
 
                             // 记录用户行为：二维码扫码成功
                             if (this.userId != null && !this.userId.isEmpty()) {
-                                logBehavior("QRCODE_SCAN_SUCCESS", "SUCCESS", "BOSS直聘二维码扫码成功", null);
+                                behaviorLogger.logBehavior("QRCODE_SCAN_SUCCESS", "SUCCESS", "BOSS直聘二维码扫码成功", null);
                             }
                         } catch (Exception e) {
                             log.error("更新登录状态失败", e);
@@ -3466,29 +2375,6 @@ public class Boss {
      * 匹配结果内部类
      * 用于返回匹配结果和匹配度分数
      */
-    private static class MatchingResult {
-        private final boolean matched;
-        private final double score;
-        private final int matchedScheme; // 匹配成功的方案编号（1-5）
-
-        public MatchingResult(boolean matched, double score, int matchedScheme) {
-            this.matched = matched;
-            this.score = score;
-            this.matchedScheme = matchedScheme;
-        }
-
-        public boolean isMatched() {
-            return matched;
-        }
-
-        public double getScore() {
-            return score;
-        }
-
-        public int getMatchedScheme() {
-            return matchedScheme;
-        }
-    }
 
     /**
      * 检查关键词是否匹配（支持配置化匹配方案，返回匹配度和匹配方案）
@@ -3496,219 +2382,8 @@ public class Boss {
      * @param jobName 岗位名称
      * @param userKeyword 用户设置的关键词
      * @return 匹配结果，包含是否匹配、匹配度分数、匹配成功的方案编号
+     * @Deprecated 已迁移到 BossJobMatcher.isKeywordMatchedWithScore()
      */
-    private MatchingResult isKeywordMatchedWithScore(String jobName, String userKeyword) {
-        log.debug("【关键词匹配】开始匹配: 岗位='{}', 关键词='{}'", jobName, userKeyword);
-
-        if (jobName == null || userKeyword == null || jobName.isEmpty() || userKeyword.isEmpty()) {
-            log.debug("【关键词匹配】参数为空，返回false: jobName={}, userKeyword={}", jobName, userKeyword);
-            return new MatchingResult(false, 0.0, 0);
-        }
-
-        // 获取匹配策略配置
-        BossConfig.DeliveryStrategy strategy = this.config != null ? this.config.getDeliveryStrategy() : null;
-        BossConfig.MatchingSchemes schemes = null;
-        String matchingMode = "STANDARD";
-
-        if (strategy != null) {
-            matchingMode = strategy.getKeywordMatchingMode() != null ? strategy.getKeywordMatchingMode() : "STANDARD";
-            schemes = strategy.getMatchingSchemes();
-        }
-
-        // 根据匹配模式确定启用的方案
-        boolean enableScheme1 = true;
-        boolean enableScheme2 = true;
-        boolean enableScheme3 = true;
-        boolean enableScheme4 = false;
-        boolean enableScheme5 = false;
-
-        if (schemes != null) {
-            // 自定义模式：使用用户配置
-            enableScheme1 = schemes.getEnableScheme1() != null ? schemes.getEnableScheme1() : true;
-            enableScheme2 = schemes.getEnableScheme2() != null ? schemes.getEnableScheme2() : true;
-            enableScheme3 = schemes.getEnableScheme3() != null ? schemes.getEnableScheme3() : true;
-            enableScheme4 = schemes.getEnableScheme4() != null ? schemes.getEnableScheme4() : false;
-            enableScheme5 = schemes.getEnableScheme5() != null ? schemes.getEnableScheme5() : false;
-        } else {
-            // 根据预设模式设置
-            switch (matchingMode.toUpperCase()) {
-                case "STRICT":
-                    // 严格模式：只启用方案1
-                    enableScheme1 = true;
-                    enableScheme2 = false;
-                    enableScheme3 = false;
-                    enableScheme4 = false;
-                    enableScheme5 = false;
-                    break;
-                case "FLEXIBLE":
-                    // 灵活模式：启用所有方案
-                    enableScheme1 = true;
-                    enableScheme2 = true;
-                    enableScheme3 = true;
-                    enableScheme4 = true;
-                    enableScheme5 = true;
-                    break;
-                case "STANDARD":
-                default:
-                    // 标准模式：启用方案1+2+3（默认）
-                    enableScheme1 = true;
-                    enableScheme2 = true;
-                    enableScheme3 = true;
-                    enableScheme4 = false;
-                    enableScheme5 = false;
-                    break;
-            }
-        }
-
-        log.debug("【关键词匹配】匹配模式={}, 启用方案: 1={}, 2={}, 3={}, 4={}, 5={}",
-            matchingMode, enableScheme1, enableScheme2, enableScheme3, enableScheme4, enableScheme5);
-
-        // 定义职位词列表
-        String[] jobTitles = {"总监", "经理", "主管", "负责人", "专员", "助理", "专家", "工程师", "运营", "营销", "推广", "策划"};
-
-        // 首先检查是否包含明显不相关的岗位类型（优先级最高）
-        String[] excludeKeywords = {"总厨", "厨师", "服务员", "保安", "保洁", "司机", "快递", "外卖", "收银", "理货", "仓管"};
-        for (String exclude : excludeKeywords) {
-            if (jobName.contains(exclude)) {
-                log.debug("【关键词匹配】发现排除词: 岗位='{}', 排除词='{}'", jobName, exclude);
-                // 如果岗位名称包含排除词，需要更严格的匹配
-                boolean isMainPart = jobName.startsWith(userKeyword) || jobName.contains(userKeyword + "总监")
-                    || jobName.contains(userKeyword + "经理") || jobName.contains(userKeyword + "主管")
-                    || jobName.contains(userKeyword + "负责人");
-
-                if (isMainPart) {
-                    // 即使包含排除词，但如果关键词是主要部分，仍然匹配
-                    log.debug("【关键词匹配】✓ 匹配成功（主要部分匹配，忽略排除词）: 岗位='{}', 关键词='{}', 排除词='{}'", jobName, userKeyword, exclude);
-                    return new MatchingResult(true, 1.0, 1); // 主要部分匹配给满分
-                }
-                log.debug("【关键词匹配】✗ 匹配失败（岗位类型不匹配）: 岗位='{}', 关键词='{}', 排除词='{}'", jobName, userKeyword, exclude);
-                return new MatchingResult(false, 0.0, 0);
-            }
-        }
-
-        // 对于长关键词（≥3字）
-        if (userKeyword.length() >= 3) {
-            log.debug("【关键词匹配】长关键词（≥3字）匹配: 关键词='{}', 长度={}", userKeyword, userKeyword.length());
-
-            // 方案1：关键词是岗位名称的开头
-            if (enableScheme1 && jobName.startsWith(userKeyword)) {
-                log.debug("【关键词匹配】✓ 匹配成功（方案1-开头匹配）: 岗位='{}', 关键词='{}'", jobName, userKeyword);
-                return new MatchingResult(true, 1.0, 1);
-            }
-
-            // 方案2：关键词后面跟着职位相关词汇
-            if (enableScheme2) {
-                for (String title : jobTitles) {
-                    String keywordWithTitle = userKeyword + title;
-                    if (jobName.contains(keywordWithTitle)) {
-                        log.debug("【关键词匹配】✓ 匹配成功（方案2-职位匹配）: 岗位='{}', 关键词='{}', 职位='{}', 组合='{}'", jobName, userKeyword, title, keywordWithTitle);
-                        return new MatchingResult(true, 0.8, 2);
-                    }
-                }
-            }
-
-            // 方案3：完整词匹配（词边界检查）
-            if (enableScheme3) {
-                int index = jobName.indexOf(userKeyword);
-                if (index >= 0) {
-                    boolean isWordBoundaryBefore = (index == 0) || !isChineseChar(jobName.charAt(index - 1));
-                    int endIndex = index + userKeyword.length();
-                    boolean isWordBoundaryAfter = (endIndex >= jobName.length()) || !isChineseChar(jobName.charAt(endIndex));
-
-                    if (isWordBoundaryBefore && isWordBoundaryAfter) {
-                        log.debug("【关键词匹配】✓ 匹配成功（方案3-完整词匹配）: 岗位='{}', 关键词='{}'", jobName, userKeyword);
-                        return new MatchingResult(true, 0.7, 3);
-                    }
-                }
-            }
-
-            // 方案4：拆分匹配（长关键词）
-            if (enableScheme4) {
-                for (String title : jobTitles) {
-                    if (userKeyword.endsWith(title) && userKeyword.length() > title.length()) {
-                        String coreKeyword = userKeyword.substring(0, userKeyword.length() - title.length());
-                        if (coreKeyword.length() >= 2) {
-                            log.debug("【关键词匹配】尝试方案4（拆分匹配）: 关键词='{}', 核心词='{}', 职位词='{}'", userKeyword, coreKeyword, title);
-
-                            boolean hasCoreKeyword = jobName.contains(coreKeyword);
-                            boolean hasTitle = jobName.contains(title);
-
-                            if (hasCoreKeyword && hasTitle) {
-                                int coreIndex = jobName.indexOf(coreKeyword);
-                                if (coreIndex >= 0) {
-                                    boolean isCoreWordBoundaryBefore = (coreIndex == 0) || !isChineseChar(jobName.charAt(coreIndex - 1));
-                                    int coreEndIndex = coreIndex + coreKeyword.length();
-                                    boolean isCoreWordBoundaryAfter = (coreEndIndex >= jobName.length()) || !isChineseChar(jobName.charAt(coreEndIndex));
-
-                                    if (isCoreWordBoundaryBefore && (isCoreWordBoundaryAfter || jobName.substring(coreEndIndex).contains(title))) {
-                                        log.debug("【关键词匹配】✓ 匹配成功（方案4-拆分匹配）: 岗位='{}', 关键词='{}', 核心词='{}', 职位词='{}'",
-                                            jobName, userKeyword, coreKeyword, title);
-                                        return new MatchingResult(true, 0.6, 4);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            // 对于短关键词（≤2字）
-            log.debug("【关键词匹配】短关键词（≤2字）匹配: 关键词='{}', 长度={}", userKeyword, userKeyword.length());
-
-            // 方案1：如果关键词是岗位名称的开头部分，则匹配
-            if (enableScheme1 && jobName.startsWith(userKeyword)) {
-                log.debug("【关键词匹配】✓ 匹配成功（方案1-开头匹配）: 岗位='{}', 关键词='{}'", jobName, userKeyword);
-                return new MatchingResult(true, 1.0, 1);
-            }
-
-            // 方案2：如果关键词后面跟着职位相关词汇，则匹配
-            if (enableScheme2) {
-                for (String title : jobTitles) {
-                    String keywordWithTitle = userKeyword + title;
-                    if (jobName.contains(keywordWithTitle)) {
-                        log.debug("【关键词匹配】✓ 匹配成功（方案2-职位匹配）: 岗位='{}', 关键词='{}', 职位='{}', 组合='{}'", jobName, userKeyword, title, keywordWithTitle);
-                        return new MatchingResult(true, 0.8, 2);
-                    }
-                }
-            }
-
-            // 方案3：关键词是完整词（前后都是词边界）
-            if (enableScheme3) {
-                int index = jobName.indexOf(userKeyword);
-                if (index >= 0) {
-                    boolean isWordBoundaryBefore = (index == 0) || !isChineseChar(jobName.charAt(index - 1));
-                    int endIndex = index + userKeyword.length();
-                    boolean isWordBoundaryAfter = (endIndex >= jobName.length()) || !isChineseChar(jobName.charAt(endIndex));
-
-                    if (isWordBoundaryBefore && isWordBoundaryAfter) {
-                        log.debug("【关键词匹配】✓ 匹配成功（方案3-完整词匹配）: 岗位='{}', 关键词='{}'", jobName, userKeyword);
-                        return new MatchingResult(true, 0.7, 3);
-                    }
-                }
-            }
-
-            // 方案5：短词+职位组合匹配
-            if (enableScheme5) {
-                for (String title : jobTitles) {
-                    String keywordWithTitle = userKeyword + title;
-                    if (jobName.contains(keywordWithTitle)) {
-                        int kwIndex = jobName.indexOf(userKeyword);
-                        if (kwIndex >= 0) {
-                            boolean isKwBoundaryBefore = (kwIndex == 0) || !isChineseChar(jobName.charAt(kwIndex - 1));
-                            if (isKwBoundaryBefore) {
-                                log.debug("【关键词匹配】✓ 匹配成功（方案5-短词+职位组合匹配）: 岗位='{}', 关键词='{}', 职位='{}', 组合='{}'",
-                                    jobName, userKeyword, title, keywordWithTitle);
-                                return new MatchingResult(true, 0.6, 5);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        log.debug("【关键词匹配】✗ 所有方案都失败，返回false: 岗位='{}', 关键词='{}'", jobName, userKeyword);
-        return new MatchingResult(false, 0.0, 0);
-    }
 
     /**
      * 投递前检查配额
@@ -3717,358 +2392,27 @@ public class Boss {
      * 由于Boss在独立进程中运行，无法使用Spring Bean，因此通过JDBC直接查询数据库
      *
      * @return true表示配额足够，可以投递；false表示配额不足，需要停止投递
+     * @Deprecated 已迁移到 BossQuotaService.checkQuotaBeforeDelivery()
      */
-    private boolean checkQuotaBeforeDelivery() {
-        try {
-            log.info("🔍 开始配额检查: userId={}, quotaKey=daily_job_application", this.userId);
-
-            // 优先尝试通过SpringContextUtil获取QuotaService（如果Boss在Spring环境中运行）
-            // 注意：在隔离JVM进程中，SpringContextUtil可能无法加载（缺少Spring依赖）
-            // 使用try-catch捕获NoClassDefFoundError，避免崩溃
-            try {
-                if (SpringContextUtil.isInitialized()) {
-                    log.info("📊 使用SpringContext获取QuotaService");
-                    QuotaService quotaService = SpringContextUtil.getBean(QuotaService.class);
-                    if (quotaService != null) {
-                        boolean canUse = quotaService.checkQuotaLimit(this.userId, "daily_job_application", 1L);
-                        if (!canUse) {
-                            log.warn("⚠️ 配额检查失败: userId={}, quotaKey=daily_job_application, 配额不足", this.userId);
-                            return false;
-                        }
-                        log.info("✅ 配额检查通过: userId={}, quotaKey=daily_job_application", this.userId);
-                        return true;
-                    }
-                }
-            } catch (NoClassDefFoundError e) {
-                // 在隔离JVM进程中，Spring依赖可能不存在，直接使用JDBC方式
-                log.info("📊 SpringContext不可用（隔离环境），使用JDBC查询配额: userId={}", this.userId);
-            }
-
-            // 如果SpringContext未初始化或不可用，通过JDBC直接查询数据库
-            log.info("📊 使用JDBC查询配额: userId={}", this.userId);
-            return checkQuotaByJDBC();
-
-        } catch (Exception e) {
-            log.error("❌ 配额检查异常: userId={}, quotaKey=daily_job_application", this.userId, e);
-            // ⚠️ 异常时返回false，阻止投递，确保配额检查的严格性
-            log.error("❌ 配额检查失败，停止投递以确保配额限制生效");
-            return false;
-        }
-    }
 
     /**
      * 通过JDBC直接查询数据库检查配额
      *
      * @return true表示配额足够，可以投递；false表示配额不足
+     * @Deprecated 已迁移到 BossQuotaService.checkQuotaByJDBC()
      */
-    private boolean checkQuotaByJDBC() {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try {
-            // 从环境变量或系统属性获取数据库连接信息
-            String dbUrl = System.getProperty("DATABASE_URL", System.getenv("DATABASE_URL"));
-            if (dbUrl == null || dbUrl.isEmpty()) {
-                dbUrl = "jdbc:postgresql://localhost:5432/zhitoujianli";
-            }
-            String dbUser = System.getProperty("DB_USERNAME", System.getenv("DB_USERNAME"));
-            if (dbUser == null || dbUser.isEmpty()) {
-                dbUser = "zhitoujianli";
-            }
-            String dbPassword = System.getProperty("DB_PASSWORD", System.getenv("DB_PASSWORD"));
-            if (dbPassword == null || dbPassword.isEmpty()) {
-                dbPassword = "zhitoujianli123";
-            }
-
-            // 建立数据库连接
-            conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
-
-            // 1. 查询配额定义ID
-            String quotaKey = "daily_job_application";
-            stmt = conn.prepareStatement(
-                "SELECT id FROM quota_definitions WHERE quota_key = ? AND is_active = true");
-            stmt.setString(1, quotaKey);
-            rs = stmt.executeQuery();
-
-            if (!rs.next()) {
-                log.error("❌ 配额定义不存在: quotaKey={}，停止投递以确保配额限制生效", quotaKey);
-                return false; // 配额定义不存在，应该阻止投递
-            }
-            Long quotaId = rs.getLong("id");
-            rs.close();
-            stmt.close();
-
-            // 2. 查询用户套餐类型
-            // ✅ 修复：status字段是smallint类型（枚举ordinal），ACTIVE=0
-            // ✅ 修复：plan_type字段是smallint类型（枚举ordinal），需要转换为字符串
-            // ✅ 修复：expires_at字段在数据库中可能是end_date
-            stmt = conn.prepareStatement(
-                "SELECT plan_type FROM user_plans WHERE user_id = ? AND status = 0 AND (end_date IS NULL OR end_date > CURRENT_DATE)");
-            stmt.setString(1, this.userId);
-            rs = stmt.executeQuery();
-
-            Integer planTypeOrdinal = null;
-            if (rs.next()) {
-                planTypeOrdinal = rs.getInt("plan_type");
-            }
-            rs.close();
-            stmt.close();
-
-            if (planTypeOrdinal == null) {
-                log.error("❌ 用户没有有效套餐: userId={}，停止投递以确保配额限制生效", this.userId);
-                return false; // 用户没有有效套餐，应该阻止投递
-            }
-
-            // 将ordinal转换为PlanType枚举名称
-            // PlanType.FREE=0, PlanType.BASIC=1, PlanType.PROFESSIONAL=2
-            String planType;
-            switch (planTypeOrdinal) {
-                case 0:
-                    planType = "FREE";
-                    break;
-                case 1:
-                    planType = "BASIC";
-                    break;
-                case 2:
-                    planType = "PROFESSIONAL";
-                    break;
-                default:
-                    log.error("❌ 未知的套餐类型: ordinal={}, userId={}", planTypeOrdinal, this.userId);
-                    return false;
-            }
-            log.debug("✅ 用户套餐类型: userId={}, planType={} (ordinal={})", this.userId, planType, planTypeOrdinal);
-
-            // 3. 查询套餐配额配置
-            // ✅ 修复：effective_limit不是数据库字段，需要使用quota_limit和is_unlimited
-            stmt = conn.prepareStatement(
-                "SELECT quota_limit, is_unlimited FROM plan_quota_configs WHERE plan_type = ? AND quota_id = ? AND is_enabled = true");
-            stmt.setString(1, planType);
-            stmt.setLong(2, quotaId);
-            rs = stmt.executeQuery();
-
-            if (!rs.next()) {
-                log.error("❌ 套餐配额配置不存在: planType={}, quotaId={}，停止投递以确保配额限制生效", planType, quotaId);
-                return false; // 套餐配额配置不存在，应该阻止投递
-            }
-
-            boolean isUnlimited = rs.getBoolean("is_unlimited");
-            if (isUnlimited) {
-                log.debug("✅ 无限配额: userId={}, planType={}", this.userId, planType);
-                rs.close();
-                stmt.close();
-                return true;
-            }
-
-            // ✅ 修复：计算effective_limit（如果is_unlimited为true返回Long.MAX_VALUE，否则返回quota_limit）
-            Long quotaLimit = rs.getLong("quota_limit");
-            long limit = (quotaLimit != null && quotaLimit > 0) ? quotaLimit : 0L;
-            rs.close();
-            stmt.close();
-
-            // 4. 查询当前使用量
-            LocalDate today = LocalDate.now();
-            stmt = conn.prepareStatement(
-                "SELECT used_amount FROM user_quota_usage WHERE user_id = ? AND quota_id = ? AND reset_date = ?");
-            stmt.setString(1, this.userId);
-            stmt.setLong(2, quotaId);
-            stmt.setObject(3, today);
-            rs = stmt.executeQuery();
-
-            long usedAmount = 0L;
-            if (rs.next()) {
-                usedAmount = rs.getLong("used_amount");
-            }
-            rs.close();
-            stmt.close();
-
-            // 5. 检查配额是否足够
-            boolean canUse = (usedAmount + 1L) <= limit;
-
-            log.info("📊 配额检查: userId={}, quotaKey={}, used={}, limit={}, canUse={}, request=1",
-                this.userId, quotaKey, usedAmount, limit, canUse);
-
-            if (!canUse) {
-                log.warn("⚠️ 配额不足: userId={}, quotaKey={}, used={}, limit={}",
-                    this.userId, quotaKey, usedAmount, limit);
-                return false;
-            }
-
-            return true;
-
-        } catch (Exception e) {
-            log.error("❌ JDBC配额检查异常: userId={}, quotaKey=daily_job_application", this.userId, e);
-            // ⚠️ 异常时返回false，阻止投递，确保配额检查的严格性
-            // 如果数据库连接失败，应该修复数据库问题，而不是绕过配额检查
-            log.error("❌ 配额检查失败，停止投递以确保配额限制生效");
-            return false;
-        } finally {
-            // 关闭资源
-            try {
-                if (rs != null) rs.close();
-                if (stmt != null) stmt.close();
-                if (conn != null) conn.close();
-            } catch (Exception e) {
-                log.error("关闭数据库连接失败", e);
-            }
-        }
-    }
 
     /**
      * 投递成功后消费配额
      * 消费daily_job_application配额
      *
      * 由于Boss在独立进程中运行，无法使用Spring Bean，因此通过JDBC直接更新数据库
+     * @Deprecated 已迁移到 BossQuotaService.consumeQuotaAfterDelivery()
      */
-    private void consumeQuotaAfterDelivery() {
-        try {
-            // 优先尝试通过SpringContextUtil获取QuotaService（如果Boss在Spring环境中运行）
-            // 注意：在隔离JVM进程中，SpringContextUtil可能无法加载（缺少Spring依赖）
-            // 使用try-catch捕获NoClassDefFoundError，避免崩溃
-            try {
-                if (SpringContextUtil.isInitialized()) {
-                    QuotaService quotaService = SpringContextUtil.getBean(QuotaService.class);
-                    if (quotaService != null) {
-                        try {
-                            quotaService.consumeQuota(this.userId, "daily_job_application", 1L);
-                            log.debug("✅ 配额消费成功: userId={}, quotaKey=daily_job_application, amount=1", this.userId);
-                            return;
-                        } catch (QuotaService.QuotaExceededException e) {
-                            log.warn("⚠️ 配额消费失败（配额不足）: userId={}, quotaKey=daily_job_application, message={}",
-                                this.userId, e.getMessage());
-                            return;
-                        }
-                    }
-                }
-            } catch (NoClassDefFoundError e) {
-                // 在隔离JVM进程中，Spring依赖可能不存在，直接使用JDBC方式
-                log.debug("📊 SpringContext不可用（隔离环境），使用JDBC消费配额: userId={}", this.userId);
-            }
-
-            // 如果SpringContext未初始化或不可用，通过JDBC直接更新数据库
-            consumeQuotaByJDBC();
-
-        } catch (Exception e) {
-            log.error("❌ 配额消费异常: userId={}, quotaKey=daily_job_application", this.userId, e);
-        }
-    }
 
     /**
      * 通过JDBC直接更新数据库消费配额
+     * @Deprecated 已迁移到 BossQuotaService.consumeQuotaByJDBC()
      */
-    private void consumeQuotaByJDBC() {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try {
-            // 从环境变量或系统属性获取数据库连接信息
-            String dbUrl = System.getProperty("DATABASE_URL", System.getenv("DATABASE_URL"));
-            if (dbUrl == null || dbUrl.isEmpty()) {
-                dbUrl = "jdbc:postgresql://localhost:5432/zhitoujianli";
-            }
-            String dbUser = System.getProperty("DB_USERNAME", System.getenv("DB_USERNAME"));
-            if (dbUser == null || dbUser.isEmpty()) {
-                dbUser = "zhitoujianli";
-            }
-            String dbPassword = System.getProperty("DB_PASSWORD", System.getenv("DB_PASSWORD"));
-            if (dbPassword == null || dbPassword.isEmpty()) {
-                dbPassword = "zhitoujianli123";
-            }
-
-            // 建立数据库连接
-            conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
-            conn.setAutoCommit(false); // 开启事务
-
-            // 1. 查询配额定义ID
-            String quotaKey = "daily_job_application";
-            stmt = conn.prepareStatement(
-                "SELECT id FROM quota_definitions WHERE quota_key = ? AND is_active = true");
-            stmt.setString(1, quotaKey);
-            rs = stmt.executeQuery();
-
-            if (!rs.next()) {
-                log.warn("⚠️ 配额定义不存在: quotaKey={}，无法消费配额", quotaKey);
-                conn.rollback();
-                return;
-            }
-            Long quotaId = rs.getLong("id");
-            rs.close();
-            stmt.close();
-
-            // 2. 查询或创建使用记录
-            LocalDate today = LocalDate.now();
-            stmt = conn.prepareStatement(
-                "SELECT id, used_amount FROM user_quota_usage WHERE user_id = ? AND quota_id = ? AND reset_date = ? FOR UPDATE");
-            stmt.setString(1, this.userId);
-            stmt.setLong(2, quotaId);
-            stmt.setObject(3, today);
-            rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                // 更新现有记录
-                Long usageId = rs.getLong("id");
-                long currentUsed = rs.getLong("used_amount");
-                rs.close();
-                stmt.close();
-
-                stmt = conn.prepareStatement(
-                    "UPDATE user_quota_usage SET used_amount = used_amount + 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
-                stmt.setLong(1, usageId);
-                int updated = stmt.executeUpdate();
-                stmt.close();
-
-                if (updated > 0) {
-                    conn.commit();
-                    log.info("✅ 配额消费成功: userId={}, quotaKey={}, used={} -> {}",
-                        this.userId, quotaKey, currentUsed, currentUsed + 1);
-                } else {
-                    conn.rollback();
-                    log.warn("⚠️ 配额消费失败: 更新记录失败");
-                }
-            } else {
-                // 创建新记录
-                rs.close();
-                stmt.close();
-
-                stmt = conn.prepareStatement(
-                    "INSERT INTO user_quota_usage (user_id, quota_id, used_amount, reset_date, created_at, updated_at) " +
-                    "VALUES (?, ?, 1, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
-                stmt.setString(1, this.userId);
-                stmt.setLong(2, quotaId);
-                stmt.setObject(3, today);
-                int inserted = stmt.executeUpdate();
-                stmt.close();
-
-                if (inserted > 0) {
-                    conn.commit();
-                    log.info("✅ 配额消费成功（新建记录）: userId={}, quotaKey={}, used=1", this.userId, quotaKey);
-                } else {
-                    conn.rollback();
-                    log.warn("⚠️ 配额消费失败: 创建记录失败");
-                }
-            }
-
-        } catch (Exception e) {
-            log.error("❌ JDBC配额消费异常: userId={}, quotaKey=daily_job_application", this.userId, e);
-            try {
-                if (conn != null) conn.rollback();
-            } catch (Exception ex) {
-                log.error("回滚事务失败", ex);
-            }
-        } finally {
-            // 关闭资源
-            try {
-                if (rs != null) rs.close();
-                if (stmt != null) stmt.close();
-                if (conn != null) {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                }
-            } catch (Exception e) {
-                log.error("关闭数据库连接失败", e);
-            }
-        }
-    }
 
 }
