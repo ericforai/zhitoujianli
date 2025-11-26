@@ -110,7 +110,19 @@ public class UserBehaviorLog {
 
         // 打招呼语相关
         GREETING_GENERATE("生成打招呼语"),
-        GREETING_USE("使用打招呼语");
+        GREETING_USE("使用打招呼语"),
+
+        // 验证码相关
+        VERIFICATION_CODE_REQUIRED("需要验证码验证"),
+
+        // 配额相关
+        QUOTA_EXCEEDED("配额已用完"),
+
+        // 黑名单相关
+        BLACKLIST_MATCHED("匹配到黑名单"),
+
+        // 测试相关（用于测试和调试）
+        TEST_BEHAVIOR("测试行为");
 
         private final String description;
 

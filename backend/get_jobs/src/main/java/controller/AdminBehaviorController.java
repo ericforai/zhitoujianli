@@ -1,10 +1,14 @@
 package controller;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -265,6 +269,230 @@ public class AdminBehaviorController {
                 "success", false,
                 "message", "记录用户行为失败: " + e.getMessage()
             ));
+        }
+    }
+
+    /**
+     * 获取行为趋势分析
+     */
+    @GetMapping("/stats/trend")
+    public ResponseEntity<Map<String, Object>> getBehaviorTrend(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @RequestParam(defaultValue = "day") String groupBy,
+            @RequestParam(required = false) String behaviorType) {
+        try {
+            String adminUsername = UserContextUtil.getCurrentAdminUsername();
+            if (adminUsername == null) {
+                return ResponseEntity.status(401).body(Map.of(
+                    "success", false,
+                    "message", "需要管理员登录"
+                ));
+            }
+
+            if (!adminService.hasPermission(adminUsername, "analytics_read")) {
+                return ResponseEntity.status(403).body(Map.of(
+                    "success", false,
+                    "message", "没有权限查看趋势分析"
+                ));
+            }
+
+            // 默认查询最近30天
+            LocalDate start = startDate != null ? LocalDate.parse(startDate) : LocalDate.now().minusDays(30);
+            LocalDate end = endDate != null ? LocalDate.parse(endDate) : LocalDate.now();
+
+            UserBehaviorLog.BehaviorType type = null;
+            if (behaviorType != null && !behaviorType.isEmpty()) {
+                try {
+                    type = UserBehaviorLog.BehaviorType.valueOf(behaviorType);
+                } catch (IllegalArgumentException e) {
+                    return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "message", "无效的行为类型: " + behaviorType
+                    ));
+                }
+            }
+
+            Map<String, Object> trend = behaviorLogService.getBehaviorTrend(start, end, groupBy, type);
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "data", trend
+            ));
+
+        } catch (Exception e) {
+            log.error("❌ 获取行为趋势异常", e);
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "message", "获取行为趋势失败: " + e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * 获取转化漏斗分析
+     */
+    @GetMapping("/stats/funnel")
+    public ResponseEntity<Map<String, Object>> getConversionFunnel(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        try {
+            String adminUsername = UserContextUtil.getCurrentAdminUsername();
+            if (adminUsername == null) {
+                return ResponseEntity.status(401).body(Map.of(
+                    "success", false,
+                    "message", "需要管理员登录"
+                ));
+            }
+
+            if (!adminService.hasPermission(adminUsername, "analytics_read")) {
+                return ResponseEntity.status(403).body(Map.of(
+                    "success", false,
+                    "message", "没有权限查看转化漏斗"
+                ));
+            }
+
+            // 默认查询最近30天
+            LocalDate start = startDate != null ? LocalDate.parse(startDate) : LocalDate.now().minusDays(30);
+            LocalDate end = endDate != null ? LocalDate.parse(endDate) : LocalDate.now();
+
+            Map<String, Object> funnel = behaviorLogService.getConversionFunnel(start, end);
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "data", funnel
+            ));
+
+        } catch (Exception e) {
+            log.error("❌ 获取转化漏斗异常", e);
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "message", "获取转化漏斗失败: " + e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * 获取活跃用户统计
+     */
+    @GetMapping("/stats/active-users")
+    public ResponseEntity<Map<String, Object>> getActiveUsersStats(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        try {
+            String adminUsername = UserContextUtil.getCurrentAdminUsername();
+            if (adminUsername == null) {
+                return ResponseEntity.status(401).body(Map.of(
+                    "success", false,
+                    "message", "需要管理员登录"
+                ));
+            }
+
+            if (!adminService.hasPermission(adminUsername, "analytics_read")) {
+                return ResponseEntity.status(403).body(Map.of(
+                    "success", false,
+                    "message", "没有权限查看活跃用户统计"
+                ));
+            }
+
+            // 默认查询最近30天
+            LocalDate start = startDate != null ? LocalDate.parse(startDate) : LocalDate.now().minusDays(30);
+            LocalDate end = endDate != null ? LocalDate.parse(endDate) : LocalDate.now();
+
+            Map<String, Object> stats = behaviorLogService.getActiveUsersStats(start, end);
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "data", stats
+            ));
+
+        } catch (Exception e) {
+            log.error("❌ 获取活跃用户统计异常", e);
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "message", "获取活跃用户统计失败: " + e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * 获取用户留存分析
+     */
+    @GetMapping("/stats/retention")
+    public ResponseEntity<Map<String, Object>> getRetentionStats(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        try {
+            String adminUsername = UserContextUtil.getCurrentAdminUsername();
+            if (adminUsername == null) {
+                return ResponseEntity.status(401).body(Map.of(
+                    "success", false,
+                    "message", "需要管理员登录"
+                ));
+            }
+
+            if (!adminService.hasPermission(adminUsername, "analytics_read")) {
+                return ResponseEntity.status(403).body(Map.of(
+                    "success", false,
+                    "message", "没有权限查看留存分析"
+                ));
+            }
+
+            // 默认查询最近30天
+            LocalDate start = startDate != null ? LocalDate.parse(startDate) : LocalDate.now().minusDays(30);
+            LocalDate end = endDate != null ? LocalDate.parse(endDate) : LocalDate.now();
+
+            Map<String, Object> stats = behaviorLogService.getRetentionStats(start, end);
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "data", stats
+            ));
+
+        } catch (Exception e) {
+            log.error("❌ 获取留存分析异常", e);
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "message", "获取留存分析失败: " + e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * 导出行为日志数据
+     */
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportBehaviorLogs(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @RequestParam(required = false) String userId) {
+        try {
+            String adminUsername = UserContextUtil.getCurrentAdminUsername();
+            if (adminUsername == null) {
+                return ResponseEntity.status(401).build();
+            }
+
+            if (!adminService.hasPermission(adminUsername, "analytics_read")) {
+                return ResponseEntity.status(403).build();
+            }
+
+            // 默认查询最近30天
+            LocalDate start = startDate != null ? LocalDate.parse(startDate) : LocalDate.now().minusDays(30);
+            LocalDate end = endDate != null ? LocalDate.parse(endDate) : LocalDate.now();
+
+            String csv = behaviorLogService.exportBehaviorLogs(start, end, userId);
+            byte[] csvBytes = csv.getBytes("UTF-8");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType("text/csv; charset=UTF-8"));
+            headers.setContentDispositionFormData("attachment",
+                String.format("behavior_logs_%s_%s.csv", start, end));
+
+            return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
+
+        } catch (Exception e) {
+            log.error("❌ 导出行为日志异常", e);
+            return ResponseEntity.status(500).build();
         }
     }
 }

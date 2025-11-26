@@ -314,10 +314,37 @@ public class BossCookieController {
 
         script.append("// Boss投递本地运行脚本 - 用户ID: ").append(userId).append("%n");
         script.append("// 生成时间: ").append(new java.util.Date()).append("%n");
-        script.append("// 需要先安装依赖: npm install playwright ws%n%n");
+        script.append("// 需要先安装依赖: npm install playwright ws%n");
+        script.append("// 然后安装浏览器: npx playwright install chromium%n%n");
 
-        script.append("const { chromium } = require('playwright');%n");
-        script.append("const WebSocket = require('ws');%n%n");
+        script.append("// 检查并加载依赖（服务器端脚本）%n");
+        script.append("// 注意：这是服务器端脚本，依赖应该在服务器上已安装%n");
+        script.append("let chromium, WebSocket;%n%n");
+        script.append("try {%n");
+        script.append("    // 尝试从当前目录的 node_modules 加载%n");
+        script.append("    ({ chromium } = require('playwright'));%n");
+        script.append("    WebSocket = require('ws');%n");
+        script.append("} catch (error) {%n");
+        script.append("    // 如果当前目录没有，尝试从父目录加载（服务器端部署时依赖在 backend/get_jobs/node_modules）%n");
+        script.append("    try {%n");
+        script.append("        const path = require('path');%n");
+        script.append("        const parentNodeModules = path.resolve(__dirname, '../../../../node_modules');%n");
+        script.append("        ({ chromium } = require(path.join(parentNodeModules, 'playwright')));%n");
+        script.append("        WebSocket = require(path.join(parentNodeModules, 'ws'));%n");
+        script.append("    } catch (parentError) {%n");
+        script.append("        console.error('❌ 依赖模块加载失败！');%n");
+        script.append("        console.error('');%n");
+        script.append("        console.error('这是服务器端脚本，依赖应该在服务器上已安装。');%n");
+        script.append("        console.error('请检查服务器上的 Node.js 依赖安装情况。');%n");
+        script.append("        console.error('');%n");
+        script.append("        console.error('详细错误信息：');%n");
+        script.append("        console.error('当前目录错误:', error.message);%n");
+        script.append("        console.error('父目录错误:', parentError.message);%n");
+        script.append("        console.error('');%n");
+        script.append("        console.error('如果问题仍然存在，请联系系统管理员。');%n");
+        script.append("        process.exit(1);%n");
+        script.append("    }%n");
+        script.append("}%n%n");
 
         script.append("class BossRunner {%n");
         script.append("    constructor(serverUrl, userId) {%n");
