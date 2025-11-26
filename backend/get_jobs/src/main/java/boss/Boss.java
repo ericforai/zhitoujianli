@@ -253,279 +253,475 @@ public class Boss {
             log.info("投递地址:{}", searchUrl + "&query=" + keyword);
             com.microsoft.playwright.Page page = PlaywrightUtil.getPageObject();
 
-            // 使用搜索服务导航和加载岗位列表
+            // 使用搜索服务导航到搜索页面
             searchService.navigateToSearchPage(page, searchUrl, keyword);
-            int lastCount = searchService.loadJobList(page, keyword);
             searchService.scrollToTop(page);
 
-            // 3. 逐个遍历所有岗位
-            log.info("【{}】开始遍历岗位列表，总计{}个岗位", keyword, lastCount);
-            Locator cards = searchService.getJobCards(page);
-            int count = cards.count();
+            // ✅ 优化：改为"滚动一次，投递一次"模式，而不是先滚动完所有岗位再投递
+            log.info("【{}】开始边滚动边投递模式...", keyword);
 
-            // 确保count正确
-            if (count != lastCount) {
-                log.warn("【{}】列表计数不一致！定位器找到{}个，加载时有{}个", keyword, count, lastCount);
-                count = Math.min(count, lastCount);
-            }
+            // 初始化滚动相关变量
+            int lastCount = 0;
+            int processedCount = 0; // 已处理的岗位数量
+            int scrollCount = 0;
+            final int MAX_SCROLL_ATTEMPTS = 50; // 最多滚动50次
+            final long MAX_LOAD_DURATION_MS = 5 * 60 * 1000; // 最多5分钟
+            long loadStartTime = System.currentTimeMillis();
 
             // 全局超时保护：如果超过30分钟没有进展，停止投递
             long keywordLoopStartTime = System.currentTimeMillis();
             final long MAX_LOOP_DURATION_MS = 30 * 60 * 1000; // 30分钟
             long lastProgressTime = keywordLoopStartTime;
 
-            for (int i = 0; i < count; i++) {
+            // 统计计数器
+            int skipCount = 0;
+            int failCount = 0;
+
+            // ✅ 优化：边滚动边投递的循环
+            while (scrollCount < MAX_SCROLL_ATTEMPTS) {
+                // 检查超时
+                long loadElapsedTime = System.currentTimeMillis() - loadStartTime;
+                if (loadElapsedTime > MAX_LOAD_DURATION_MS) {
+                    log.warn("【{}】加载岗位列表超时（已用时{}秒），停止滚动", keyword, loadElapsedTime / 1000);
+                    break;
+                }
+
+                // 1. 滚动加载更多岗位
+                scrollCount++;
+                log.info("【{}】第{}次滚动，当前已处理{}个岗位", keyword, scrollCount, processedCount);
+
                 try {
-                    // 检查全局超时
-                    long currentTime = System.currentTimeMillis();
-                    long elapsedTime = currentTime - keywordLoopStartTime;
-                    if (elapsedTime > MAX_LOOP_DURATION_MS) {
-                        log.warn("【{}】关键词循环超时（已运行{}分钟），停止处理剩余岗位", keyword, elapsedTime / 60000);
-                        break keywordLoop;
-                    }
+                    // 模拟人类滚动行为
+                    PlaywrightUtil.simulateScroll();
 
-                    // 检查是否有进展（如果超过5分钟没有进展，记录警告）
-                    long timeSinceLastProgress = currentTime - lastProgressTime;
-                    if (timeSinceLastProgress > 5 * 60 * 1000) { // 5分钟
-                        log.warn("【{}】第{}个岗位：已超过5分钟没有进展，可能卡住。最后进展时间: {}ms前",
-                            keyword, i + 1, timeSinceLastProgress);
-                    }
+                    // 滑动到底部
+                    log.debug("【{}】执行滚动操作...", keyword);
+                    long scrollStartTime = System.currentTimeMillis();
+                    page.evaluate("window.scrollTo(0, document.body.scrollHeight);");
+                    long scrollDuration = System.currentTimeMillis() - scrollStartTime;
+                    log.debug("【{}】滚动操作完成（耗时{}ms）", keyword, scrollDuration);
 
-                    log.info("【{}】正在处理第{}个岗位（共{}个，已用时{}秒）", keyword, i + 1, count, elapsedTime / 1000);
-
-                    // 重新获取卡片，避免元素过期
-                    cards = searchService.getJobCards(page);
-
-                    if (i >= cards.count()) {
-                        log.warn("【{}】第{}个岗位不存在，跳过", keyword, i + 1);
-                        continue;
-                    }
-
-                    // 模拟人类行为后再点击
-                    PlaywrightUtil.simulateMouseMove();
-
-                    // 使用安全点击方法，自动处理登录弹窗
-                    if (!deliveryService.safeClick(page, cards.nth(i), "点击岗位卡片")) {
-                        log.warn("【{}】第{}个岗位：点击失败，跳过", keyword, i + 1);
-                        continue;
-                    }
-
-                    log.info("【{}】第{}个岗位：已点击，等待页面加载", keyword, i + 1);
-
-                    // 检查页面状态
-                    try {
-                        if (page == null || page.isClosed()) {
-                            log.error("【{}】第{}个岗位：页面对象无效（null或已关闭），跳过此岗位", keyword, i + 1);
-                            continue;
-                        }
-                        log.debug("【{}】第{}个岗位：页面状态正常，URL={}", keyword, i + 1, page.url());
-                    } catch (Exception e) {
-                        log.error("【{}】第{}个岗位：检查页面状态时异常: {}，跳过此岗位", keyword, i + 1, e.getMessage());
-                        continue;
-                    }
-
-                    // 随机延迟等待页面加载
+                    // 随机延迟等待加载
+                    log.debug("【{}】等待页面加载（2-4秒）...", keyword);
                     PlaywrightUtil.randomSleepMillis(2000, 4000);
 
-                    // 更新最后进展时间
-                    lastProgressTime = System.currentTimeMillis();
+                    // 获取当前岗位数量
+                    Locator cards = searchService.getJobCards(page);
+                    int currentCount = cards.count();
+                    log.info("【{}】当前岗位总数: {}个（已处理: {}个）", keyword, currentCount, processedCount);
 
-                    // 等待详情内容加载，增加超时处理
-                    long waitStartTime = System.currentTimeMillis();
-                    try {
-                        log.debug("【{}】第{}个岗位：开始等待详情页面加载（超时8秒）...", keyword, i + 1);
-                        page.waitForSelector("div[class*='job-detail-box']", new Page.WaitForSelectorOptions().setTimeout(8000));
-                        long waitDuration = System.currentTimeMillis() - waitStartTime;
-                        log.info("【{}】第{}个岗位：详情页面加载完成（耗时{}ms）", keyword, i + 1, waitDuration);
-                        // 更新最后进展时间
-                        lastProgressTime = System.currentTimeMillis();
-                    } catch (com.microsoft.playwright.TimeoutError e) {
-                        long waitDuration = System.currentTimeMillis() - waitStartTime;
-                        log.error("【{}】第{}个岗位：等待详情页面超时（耗时{}ms，超时8秒），跳过此岗位。错误: {}",
-                            keyword, i + 1, waitDuration, e.getMessage());
-                        continue;
-                    } catch (com.microsoft.playwright.PlaywrightException e) {
-                        long waitDuration = System.currentTimeMillis() - waitStartTime;
-                        log.error("【{}】第{}个岗位：等待详情页面时Playwright异常（耗时{}ms），跳过此岗位。错误: {}",
-                            keyword, i + 1, waitDuration, e.getMessage(), e);
-                        continue;
-                    } catch (Exception e) {
-                        long waitDuration = System.currentTimeMillis() - waitStartTime;
-                        log.error("【{}】第{}个岗位：等待详情页面时发生未知异常（耗时{}ms），跳过此岗位。错误: {}",
-                            keyword, i + 1, waitDuration, e.getMessage(), e);
-                        continue;
-                    }
-
-                    Locator detailBox = page.locator("div[class*='job-detail-box']");
-
-                    // 岗位名称
-                    String jobName = boss.util.BossUtils.safeText(detailBox, "span[class*='job-name']");
-                    if (jobName.isEmpty()) {
-                        log.warn("【{}】第{}个岗位：无法获取岗位名称，跳过", keyword, i + 1);
-                        continue;
-                    }
-
-                    // 🔧 【优先级1】二次关键词匹配检查：确保岗位名称包含用户设置的关键词之一
-                    // 注意：必须在黑名单检查之前，否则"销售总监"会被黑名单直接过滤掉
-                    // ✅ 改进：使用更严格的匹配规则，避免误匹配（如"市场"匹配到"市场品牌区域总厨"）
-                    boolean keywordMatched = false;
-                    String matchedKeyword = null;
-                    double matchScore = 0.0;
-                    int matchedScheme = 0;
-
-                    for (String userKeyword : this.config.getKeywords()) {
-                        boss.matcher.BossJobMatcher.MatchingResult result = jobMatcher.isKeywordMatchedWithScore(jobName, userKeyword);
-                        if (result.isMatched()) {
-                            keywordMatched = true;
-                            matchedKeyword = userKeyword;
-                            matchScore = result.getScore();
-                            matchedScheme = result.getMatchedScheme();
-                            break;
+                    // 判断是否有新岗位
+                    if (currentCount == lastCount) {
+                        log.info("【{}】岗位数量未变化（{}个），停止滚动", keyword, currentCount);
+                        // 处理剩余的岗位
+                        if (processedCount < currentCount) {
+                            log.info("【{}】开始处理剩余{}个岗位", keyword, currentCount - processedCount);
+                        } else {
+                            break; // 没有新内容，跳出循环
                         }
-                    }
-                    if (!keywordMatched) {
-                        log.info("【{}】第{}个岗位：{}不包含任何用户设置的关键词，跳过（Boss搜索匹配不准确）", keyword, i + 1, jobName);
-                        // ✅ 添加详细DEBUG日志，显示所有关键词的匹配尝试
-                        log.debug("【{}】第{}个岗位：尝试匹配的关键词列表: {}", keyword, i + 1, this.config.getKeywords());
-                        continue;
-                    }
-                    log.info("【{}】第{}个岗位：关键词匹配成功，岗位='{}', 匹配关键词='{}', 匹配度={}%, 匹配方案=方案{}",
-                        keyword, i + 1, jobName, matchedKeyword, String.format("%.1f", matchScore * 100), matchedScheme);
-
-                    // 🔧 【优先级2】黑名单检查
-                    if (blacklistService.isJobBlacklisted(jobName)) {
-                        log.info("【{}】第{}个岗位：{}在黑名单中，跳过", keyword, i + 1, jobName);
-                        continue;
-                    }
-
-                    // 薪资(原始)
-                    String jobSalaryRaw = boss.util.BossUtils.safeText(detailBox, "span.job-salary");
-                    String jobSalary = boss.util.BossUtils.decodeSalary(jobSalaryRaw);
-
-                    // 城市/经验/学历
-                    List<String> tags = boss.util.BossUtils.safeAllText(detailBox, "ul[class*='tag-list'] > li");
-
-                    // 岗位描述
-                    String jobDesc = boss.util.BossUtils.safeText(detailBox, "p.desc");
-
-                    // Boss姓名、活跃
-                    String bossNameRaw = boss.util.BossUtils.safeText(detailBox, "h2[class*='name']");
-                    String[] bossInfo = boss.util.BossUtils.splitBossName(bossNameRaw);
-                    String bossName = bossInfo[0];
-                    String bossActive = bossInfo[1];
-
-                    // 🔧 修复空指针：检查deadStatus是否为null
-                    if (config.getDeadStatus() != null &&
-                        config.getDeadStatus().stream().anyMatch(bossActive::contains)) {
-                        log.info("【{}】第{}个岗位：{}Boss状态异常，跳过", keyword, i + 1, jobName);
-                        continue;
-                    }
-
-                    // Boss公司/职位
-                    String bossTitleRaw = boss.util.BossUtils.safeText(detailBox, "div[class*='boss-info-attr']");
-                    String[] bossTitleInfo = boss.util.BossUtils.splitBossTitle(bossTitleRaw);
-                    String bossCompany = bossTitleInfo[0];
-                    // ✅ 修复：使用优化的双向匹配方法检查黑名单
-                    if (blacklistService.isCompanyBlacklisted(bossCompany)) {
-                        log.info("🚫 【{}】第{}个岗位：{}公司【{}】在黑名单中，跳过", keyword, i + 1, jobName, bossCompany);
-                        continue;
-                    }
-                    // 招聘者职位黑名单已删除（前端不支持此功能）
-
-                    // 创建Job对象
-                    Job job = new Job();
-                    job.setJobName(jobName);
-                    job.setSalary(jobSalary);
-                    job.setJobArea(String.join(", ", tags));
-                    job.setCompanyName(bossCompany);
-                    job.setRecruiter(bossName);
-                    job.setJobInfo(jobDesc);
-
-                    log.info("【{}】第{}个岗位：准备投递{}，公司：{}，Boss：{}", keyword, i + 1, jobName, bossCompany, bossName);
-
-                    // ✅ 投递策略检查（频率限制、每日限额、投递间隔等）
-                    if (deliveryController != null) {
-                        // 使用真实计算的匹配度分数
-                        if (!this.deliveryController.canDeliver(matchScore)) {
-                            log.warn("【{}】第{}个岗位：投递策略限制，匹配度={}%，跳过 - {}",
-                                keyword, i + 1, String.format("%.1f", matchScore * 100), deliveryController.getStatistics());
-                            continue;
-                        }
-                    }
-
-                    // ✅ 配额检查：每次投递前检查daily_job_application配额
-                    if (!quotaService.checkQuotaBeforeDelivery()) {
-                        log.warn("【{}】第{}个岗位：配额不足，停止投递。用户：{}，配额：daily_job_application",
-                            keyword, i + 1, this.userId);
-                        log.info("⏹️ 配额已用完，停止本次投递任务。请明天再试或升级套餐。");
-                        break keywordLoop; // ✅ 跳出所有投递循环（关键词循环+岗位循环），彻底停止投递
-                    }
-
-                    // 执行投递
-                    log.info("🚀 开始投递岗位: {} - {}", job.getCompanyName(), job.getJobName());
-                    boolean deliverySuccess = deliveryService.resumeSubmission(page, keyword, job);
-
-                    // ✅ 修复：只在真正验证成功时消费配额和更新计数
-                    if (deliverySuccess) {
-                        log.info("✅ 投递验证成功，开始消费配额: {} - {}", job.getCompanyName(), job.getJobName());
-                        postCount++;
-                        try {
-                            // ✅ 消费配额：投递成功后消费配额（添加异常处理）
-                            quotaService.consumeQuotaAfterDelivery();
-                            log.info("✅ 配额消费成功: userId={}, quotaKey=daily_job_application, 岗位={}",
-                                this.userId, job.getJobName());
-                        } catch (Exception e) {
-                            // ✅ 修复：配额消费失败时记录错误，但不影响投递流程
-                            log.error("❌ 配额消费失败: userId={}, quotaKey=daily_job_application, 岗位={}, error={}",
-                                this.userId, job.getJobName(), e.getMessage());
-                            // 注意：即使配额消费失败，投递已经成功，所以仍然记录投递
-                        }
-
-                        // ✅ 记录投递（更新计数器）
-                        if (deliveryController != null) {
-                            this.deliveryController.recordDelivery();
-                        }
-
-                        // ✅ 修复：只有在真正成功时才记录"投递完成"
-                        log.info("【{}】第{}个岗位：投递完成！{}", keyword, i + 1,
-                            deliveryController != null ? deliveryController.getStatistics() : "");
                     } else {
-                        // ✅ 修复：投递失败时明确记录，不消费配额
-                        log.warn("❌ 【{}】第{}个岗位：投递失败，不消费配额 - {} - {}",
-                            keyword, i + 1, job.getCompanyName(), job.getJobName());
+                        int newJobs = currentCount - lastCount;
+                        log.info("【{}】新增{}个岗位，开始处理新岗位", keyword, newJobs);
                     }
+                    lastCount = currentCount;
+                } catch (Exception e) {
+                    log.error("【{}】滚动加载岗位失败: {}", keyword, e.getMessage(), e);
+                    break;
+                }
 
-                    // 更新最后进展时间（投递完成）
-                    lastProgressTime = System.currentTimeMillis();
-
-                    // ✅ 应用投递间隔
-                    if (deliveryController != null && i < postCount - 1) {
-                        long waitTime = deliveryController.getRecommendedWaitTime();
-                        log.info("⏳ 投递间隔等待: {}秒", waitTime / 1000);
-                        Thread.sleep(waitTime);
-                        // 更新最后进展时间（等待完成）
-                        lastProgressTime = System.currentTimeMillis();
+                // 2. 处理新加载的岗位
+                // ✅ 修复：在获取卡片前检查页面状态，防止 TargetClosedError
+                try {
+                    if (page == null || page.isClosed()) {
+                        log.error("【{}】页面已关闭或为null，无法获取岗位卡片", keyword);
+                        break keywordLoop;
                     }
+                } catch (Exception e) {
+                    log.error("【{}】检查页面状态时发生异常: {}，停止处理", keyword, e.getMessage());
+                    break keywordLoop;
+                }
 
-                } catch (VerificationCodeRequiredException e) {
-                    // ✅ 验证码异常：停止整个投递任务
-                    log.error("⏹️ 检测到验证码验证，停止所有投递任务。岗位: {}, 原因: {}", e.getJobName(), e.getReason());
-                    log.error("💡 请手动登录Boss直聘完成验证后，重新启动投递任务");
-
-                    // 发送通知
-                    behaviorLogger.sendVerificationCodeNotification(e.getJobName());
-
-                    // ✅ 跳出所有循环，停止整个投递任务
+                Locator cards;
+                int currentCount;
+                try {
+                    cards = searchService.getJobCards(page);
+                    currentCount = cards.count();
+                } catch (com.microsoft.playwright.PlaywrightException e) {
+                    // 检查是否是页面关闭相关的错误（包括 TargetClosedError）
+                    String errorMsg = e.getMessage() != null ? e.getMessage() : "";
+                    String errorClass = e.getClass().getName();
+                    if (errorClass.contains("TargetClosed") || errorMsg.contains("closed") || errorMsg.contains("Target")) {
+                        log.error("【{}】页面/浏览器已关闭（PlaywrightException: {}），停止处理岗位: {}", keyword, errorClass, errorMsg);
+                        break keywordLoop;
+                    }
+                    log.error("【{}】获取岗位卡片时发生Playwright异常: {}，停止处理", keyword, errorMsg);
                     break keywordLoop;
                 } catch (Exception e) {
-                    log.error("【{}】第{}个岗位处理异常：{}", keyword, i + 1, e.getMessage(), e);
-                    // 更新最后进展时间（即使异常也更新，表示有进展）
-                    lastProgressTime = System.currentTimeMillis();
-                    // 继续处理下一个岗位
-                    continue;
+                    // 检查是否是页面关闭相关的错误（包括 TargetClosedError）
+                    String errorMsg = e.getMessage() != null ? e.getMessage() : "";
+                    String errorClass = e.getClass().getName();
+                    if (errorClass.contains("TargetClosed") || errorMsg.contains("closed") || errorMsg.contains("Target")) {
+                        log.error("【{}】页面/浏览器已关闭（Exception: {}），停止处理岗位: {}", keyword, errorClass, errorMsg);
+                        break keywordLoop;
+                    }
+                    log.error("【{}】获取岗位卡片时发生异常: {}，停止处理", keyword, errorMsg);
+                    break keywordLoop;
                 }
+
+                // 处理从 processedCount 到 currentCount 的岗位
+                for (int i = processedCount; i < currentCount; i++) {
+                    try {
+                        // 每10个岗位记录一次进度
+                        if ((i + 1) % 10 == 0) {
+                            log.info("【{}】进度报告：已处理{}/{}个岗位，已用时{}秒，成功={}, 跳过={}, 失败={}",
+                                keyword, i + 1, currentCount, (System.currentTimeMillis() - keywordLoopStartTime) / 1000,
+                                postCount, skipCount, failCount);
+                        }
+
+                        // 检查全局超时
+                        long currentTime = System.currentTimeMillis();
+                        long elapsedTime = currentTime - keywordLoopStartTime;
+                        if (elapsedTime > MAX_LOOP_DURATION_MS) {
+                            log.warn("【{}】关键词循环超时（已运行{}分钟），停止处理剩余岗位", keyword, elapsedTime / 60000);
+                            break keywordLoop;
+                        }
+
+                        // 检查是否有进展（如果超过5分钟没有进展，记录警告）
+                        long timeSinceLastProgress = currentTime - lastProgressTime;
+                        if (timeSinceLastProgress > 5 * 60 * 1000) { // 5分钟
+                            log.warn("【{}】第{}个岗位：已超过5分钟没有进展，可能卡住。最后进展时间: {}ms前",
+                                keyword, i + 1, timeSinceLastProgress);
+                        }
+
+                        log.info("【{}】正在处理第{}个岗位（共{}个，已用时{}秒）", keyword, i + 1, currentCount, elapsedTime / 1000);
+
+                        // ✅ 修复：在重新获取卡片前检查页面状态，防止 TargetClosedError
+                        try {
+                            if (page == null || page.isClosed()) {
+                                log.error("【{}】第{}个岗位：页面已关闭或为null，跳过并停止处理", keyword, i + 1);
+                                break keywordLoop;
+                            }
+                        } catch (Exception e) {
+                            log.error("【{}】第{}个岗位：检查页面状态时发生异常: {}，跳过并停止处理", keyword, i + 1, e.getMessage());
+                            break keywordLoop;
+                        }
+
+                        // 重新获取卡片，避免元素过期
+                        int actualCount;
+                        try {
+                            cards = searchService.getJobCards(page);
+                            actualCount = cards.count();
+                        } catch (com.microsoft.playwright.PlaywrightException e) {
+                            // 检查是否是页面关闭相关的错误（包括 TargetClosedError）
+                            String errorMsg = e.getMessage() != null ? e.getMessage() : "";
+                            String errorClass = e.getClass().getName();
+                            if (errorClass.contains("TargetClosed") || errorMsg.contains("closed") || errorMsg.contains("Target")) {
+                                log.error("【{}】第{}个岗位：页面/浏览器已关闭（PlaywrightException: {}），停止处理: {}", keyword, i + 1, errorClass, errorMsg);
+                                break keywordLoop;
+                            }
+                            log.error("【{}】第{}个岗位：获取岗位卡片时发生Playwright异常: {}，跳过", keyword, i + 1, errorMsg);
+                            skipCount++;
+                            continue;
+                        } catch (Exception e) {
+                            // 检查是否是页面关闭相关的错误（包括 TargetClosedError）
+                            String errorMsg = e.getMessage() != null ? e.getMessage() : "";
+                            String errorClass = e.getClass().getName();
+                            if (errorClass.contains("TargetClosed") || errorMsg.contains("closed") || errorMsg.contains("Target")) {
+                                log.error("【{}】第{}个岗位：页面/浏览器已关闭（Exception: {}），停止处理: {}", keyword, i + 1, errorClass, errorMsg);
+                                break keywordLoop;
+                            }
+                            log.error("【{}】第{}个岗位：获取岗位卡片时发生异常: {}，跳过", keyword, i + 1, errorMsg);
+                            skipCount++;
+                            continue;
+                        }
+
+                        if (i >= actualCount) {
+                            log.warn("【{}】第{}个岗位不存在（实际只有{}个），跳过", keyword, i + 1, actualCount);
+                            skipCount++;
+                            // ✅ 修复：如果岗位数量减少，更新processedCount并继续
+                            if (actualCount < processedCount) {
+                                processedCount = actualCount;
+                            }
+                            continue;
+                        }
+
+                        // 模拟人类行为后再点击
+                        PlaywrightUtil.simulateMouseMove();
+
+                        // 使用安全点击方法，自动处理登录弹窗
+                        if (!deliveryService.safeClick(page, cards.nth(i), "点击岗位卡片")) {
+                            log.warn("【{}】第{}个岗位：点击失败，跳过", keyword, i + 1);
+                            skipCount++;
+                            continue;
+                        }
+
+                        log.info("【{}】第{}个岗位：已点击，等待页面加载", keyword, i + 1);
+
+                        // 检查页面状态
+                        try {
+                            if (page == null || page.isClosed()) {
+                                log.error("【{}】第{}个岗位：页面对象无效（null或已关闭），跳过此岗位", keyword, i + 1);
+                                skipCount++;
+                                continue;
+                            }
+                            log.debug("【{}】第{}个岗位：页面状态正常，URL={}", keyword, i + 1, page.url());
+                        } catch (Exception e) {
+                            log.error("【{}】第{}个岗位：检查页面状态时异常: {}，跳过此岗位", keyword, i + 1, e.getMessage());
+                            skipCount++;
+                            continue;
+                        }
+
+                        // 随机延迟等待页面加载
+                        PlaywrightUtil.randomSleepMillis(2000, 4000);
+
+                        // 更新最后进展时间
+                        lastProgressTime = System.currentTimeMillis();
+
+                        // 等待详情内容加载，增加超时处理
+                        long waitStartTime = System.currentTimeMillis();
+                        try {
+                            log.debug("【{}】第{}个岗位：开始等待详情页面加载（超时8秒）...", keyword, i + 1);
+                            page.waitForSelector("div[class*='job-detail-box']", new Page.WaitForSelectorOptions().setTimeout(8000));
+                            long waitDuration = System.currentTimeMillis() - waitStartTime;
+                            log.info("【{}】第{}个岗位：详情页面加载完成（耗时{}ms）", keyword, i + 1, waitDuration);
+                            // 更新最后进展时间
+                            lastProgressTime = System.currentTimeMillis();
+                        } catch (com.microsoft.playwright.TimeoutError e) {
+                            long waitDuration = System.currentTimeMillis() - waitStartTime;
+                            // 增强：记录页面状态信息
+                            try {
+                                String currentUrl = page.url();
+                                String pageTitle = page.title();
+                                log.error("【{}】第{}个岗位：等待详情页面超时（耗时{}ms，超时8秒）", keyword, i + 1, waitDuration);
+                                log.error("  页面URL: {}", currentUrl);
+                                log.error("  页面标题: {}", pageTitle);
+                                log.error("  错误信息: {}", e.getMessage());
+                            } catch (Exception ex) {
+                                log.error("  获取页面信息失败: {}", ex.getMessage());
+                            }
+                            skipCount++;
+                            continue;
+                        } catch (com.microsoft.playwright.PlaywrightException e) {
+                            long waitDuration = System.currentTimeMillis() - waitStartTime;
+                            // 增强：记录页面状态信息
+                            try {
+                                String currentUrl = page.url();
+                                String pageTitle = page.title();
+                                log.error("【{}】第{}个岗位：等待详情页面时Playwright异常（耗时{}ms）", keyword, i + 1, waitDuration);
+                                log.error("  页面URL: {}", currentUrl);
+                                log.error("  页面标题: {}", pageTitle);
+                                log.error("  错误信息: {}", e.getMessage());
+                            } catch (Exception ex) {
+                                log.error("  获取页面信息失败: {}", ex.getMessage());
+                            }
+                            skipCount++;
+                            continue;
+                        } catch (Exception e) {
+                            long waitDuration = System.currentTimeMillis() - waitStartTime;
+                            // 增强：记录页面状态信息
+                            try {
+                                String currentUrl = page.url();
+                                String pageTitle = page.title();
+                                log.error("【{}】第{}个岗位：等待详情页面时发生未知异常（耗时{}ms）", keyword, i + 1, waitDuration);
+                                log.error("  页面URL: {}", currentUrl);
+                                log.error("  页面标题: {}", pageTitle);
+                                log.error("  错误信息: {}", e.getMessage());
+                            } catch (Exception ex) {
+                                log.error("  获取页面信息失败: {}", ex.getMessage());
+                            }
+                            skipCount++;
+                            continue;
+                        }
+
+                        Locator detailBox = page.locator("div[class*='job-detail-box']");
+
+                        // 岗位名称
+                        String jobName = boss.util.BossUtils.safeText(detailBox, "span[class*='job-name']");
+                        if (jobName.isEmpty()) {
+                            log.warn("【{}】第{}个岗位：无法获取岗位名称，跳过", keyword, i + 1);
+                            skipCount++;
+                            continue;
+                        }
+
+                        // 🔧 【优先级1】二次关键词匹配检查：确保岗位名称包含用户设置的关键词之一
+                        // 注意：必须在黑名单检查之前，否则"销售总监"会被黑名单直接过滤掉
+                        // ✅ 改进：使用更严格的匹配规则，避免误匹配（如"市场"匹配到"市场品牌区域总厨"）
+                        boolean keywordMatched = false;
+                        String matchedKeyword = null;
+                        double matchScore = 0.0;
+                        int matchedScheme = 0;
+
+                        for (String userKeyword : this.config.getKeywords()) {
+                            boss.matcher.BossJobMatcher.MatchingResult result = jobMatcher.isKeywordMatchedWithScore(jobName, userKeyword);
+                            if (result.isMatched()) {
+                                keywordMatched = true;
+                                matchedKeyword = userKeyword;
+                                matchScore = result.getScore();
+                                matchedScheme = result.getMatchedScheme();
+                                break;
+                            }
+                        }
+                        if (!keywordMatched) {
+                            log.info("【{}】第{}个岗位：{}不包含任何用户设置的关键词，跳过（Boss搜索匹配不准确）", keyword, i + 1, jobName);
+                            // ✅ 添加详细DEBUG日志，显示所有关键词的匹配尝试
+                            log.debug("【{}】第{}个岗位：尝试匹配的关键词列表: {}", keyword, i + 1, this.config.getKeywords());
+                            skipCount++;
+                            continue;
+                        }
+                        log.info("【{}】第{}个岗位：关键词匹配成功，岗位='{}', 匹配关键词='{}', 匹配度={}%, 匹配方案=方案{}",
+                            keyword, i + 1, jobName, matchedKeyword, String.format("%.1f", matchScore * 100), matchedScheme);
+
+                        // 🔧 【优先级2】黑名单检查
+                        if (blacklistService.isJobBlacklisted(jobName)) {
+                            log.info("【{}】第{}个岗位：{}在黑名单中，跳过", keyword, i + 1, jobName);
+                            skipCount++;
+                            continue;
+                        }
+
+                        // 薪资(原始)
+                        String jobSalaryRaw = boss.util.BossUtils.safeText(detailBox, "span.job-salary");
+                        String jobSalary = boss.util.BossUtils.decodeSalary(jobSalaryRaw);
+
+                        // 城市/经验/学历
+                        List<String> tags = boss.util.BossUtils.safeAllText(detailBox, "ul[class*='tag-list'] > li");
+
+                        // 岗位描述
+                        String jobDesc = boss.util.BossUtils.safeText(detailBox, "p.desc");
+
+                        // Boss姓名、活跃
+                        String bossNameRaw = boss.util.BossUtils.safeText(detailBox, "h2[class*='name']");
+                        String[] bossInfo = boss.util.BossUtils.splitBossName(bossNameRaw);
+                        String bossName = bossInfo[0];
+                        String bossActive = bossInfo[1];
+
+                        // 🔧 修复空指针：检查deadStatus是否为null
+                        if (config.getDeadStatus() != null &&
+                            config.getDeadStatus().stream().anyMatch(bossActive::contains)) {
+                            log.info("【{}】第{}个岗位：{}Boss状态异常，跳过", keyword, i + 1, jobName);
+                            skipCount++;
+                            continue;
+                        }
+
+                        // Boss公司/职位
+                        String bossTitleRaw = boss.util.BossUtils.safeText(detailBox, "div[class*='boss-info-attr']");
+                        String[] bossTitleInfo = boss.util.BossUtils.splitBossTitle(bossTitleRaw);
+                        String bossCompany = bossTitleInfo[0];
+                        // ✅ 修复：使用优化的双向匹配方法检查黑名单
+                        if (blacklistService.isCompanyBlacklisted(bossCompany)) {
+                            log.info("🚫 【{}】第{}个岗位：{}公司【{}】在黑名单中，跳过", keyword, i + 1, jobName, bossCompany);
+                            skipCount++;
+                            continue;
+                        }
+                        // 招聘者职位黑名单已删除（前端不支持此功能）
+
+                        // 创建Job对象
+                        Job job = new Job();
+                        job.setJobName(jobName);
+                        job.setSalary(jobSalary);
+                        job.setJobArea(String.join(", ", tags));
+                        job.setCompanyName(bossCompany);
+                        job.setRecruiter(bossName);
+                        job.setJobInfo(jobDesc);
+
+                        log.info("【{}】第{}个岗位：准备投递{}，公司：{}，Boss：{}", keyword, i + 1, jobName, bossCompany, bossName);
+
+                        // ✅ 投递策略检查（频率限制、每日限额、投递间隔等）
+                        if (deliveryController != null) {
+                            // 使用真实计算的匹配度分数
+                            if (!this.deliveryController.canDeliver(matchScore)) {
+                                log.warn("【{}】第{}个岗位：投递策略限制，匹配度={}%，跳过 - {}",
+                                    keyword, i + 1, String.format("%.1f", matchScore * 100), deliveryController.getStatistics());
+                                skipCount++;
+                                continue;
+                            }
+                        }
+
+                        // ✅ 配额检查：每次投递前检查daily_job_application配额
+                        if (!quotaService.checkQuotaBeforeDelivery()) {
+                            log.warn("【{}】第{}个岗位：配额不足，停止投递。用户：{}，配额：daily_job_application",
+                                keyword, i + 1, this.userId);
+                            log.info("⏹️ 配额已用完，停止本次投递任务。请明天再试或升级套餐。");
+                            break keywordLoop; // ✅ 跳出所有投递循环（关键词循环+岗位循环），彻底停止投递
+                        }
+
+                        // 执行投递
+                        log.info("🚀 开始投递岗位: {} - {}", job.getCompanyName(), job.getJobName());
+                        boolean deliverySuccess = deliveryService.resumeSubmission(page, keyword, job);
+
+                        // ✅ 修复：只在真正验证成功时消费配额和更新计数
+                        if (deliverySuccess) {
+                            log.info("✅ 投递验证成功，开始消费配额: {} - {}", job.getCompanyName(), job.getJobName());
+                            postCount++;
+                            try {
+                                // ✅ 消费配额：投递成功后消费配额（添加异常处理）
+                                quotaService.consumeQuotaAfterDelivery();
+                                log.info("✅ 配额消费成功: userId={}, quotaKey=daily_job_application, 岗位={}",
+                                    this.userId, job.getJobName());
+                            } catch (Exception e) {
+                                // ✅ 修复：配额消费失败时记录错误，但不影响投递流程
+                                log.error("❌ 配额消费失败: userId={}, quotaKey=daily_job_application, 岗位={}, error={}",
+                                    this.userId, job.getJobName(), e.getMessage());
+                                // 注意：即使配额消费失败，投递已经成功，所以仍然记录投递
+                            }
+
+                            // ✅ 记录投递（更新计数器）
+                            if (deliveryController != null) {
+                                this.deliveryController.recordDelivery();
+                            }
+
+                            // ✅ 修复：只有在真正成功时才记录"投递完成"
+                            log.info("【{}】第{}个岗位：投递完成！{}", keyword, i + 1,
+                                deliveryController != null ? deliveryController.getStatistics() : "");
+                        } else {
+                            // ✅ 修复：投递失败时明确记录，不消费配额
+                            log.warn("❌ 【{}】第{}个岗位：投递失败，不消费配额 - {} - {}",
+                                keyword, i + 1, job.getCompanyName(), job.getJobName());
+                            failCount++;
+                        }
+
+                        // 更新最后进展时间（投递完成）
+                        lastProgressTime = System.currentTimeMillis();
+
+                        // ✅ 应用投递间隔
+                        if (deliveryController != null && i < postCount - 1) {
+                            long waitTime = deliveryController.getRecommendedWaitTime();
+                            log.info("⏳ 投递间隔等待: {}秒", waitTime / 1000);
+                            Thread.sleep(waitTime);
+                            // 更新最后进展时间（等待完成）
+                            lastProgressTime = System.currentTimeMillis();
+                        }
+
+                    } catch (VerificationCodeRequiredException e) {
+                        // ✅ 验证码异常：停止整个投递任务
+                        log.error("⏹️ 检测到验证码验证，停止所有投递任务。岗位: {}, 原因: {}", e.getJobName(), e.getReason());
+                        log.error("💡 请手动登录Boss直聘完成验证后，重新启动投递任务");
+
+                        // 发送通知
+                        behaviorLogger.sendVerificationCodeNotification(e.getJobName());
+
+                        // ✅ 跳出所有循环，停止整个投递任务
+                        break keywordLoop;
+                    } catch (Exception e) {
+                        log.error("【{}】第{}个岗位处理异常：{}", keyword, i + 1, e.getMessage(), e);
+                        // 更新最后进展时间（即使异常也更新，表示有进展）
+                        lastProgressTime = System.currentTimeMillis();
+                        failCount++;
+                        // 继续处理下一个岗位
+                        continue;
+                    }
+                }
+
+                // 更新已处理数量
+                processedCount = currentCount;
+
+                // 随机模拟人类行为
+                PlaywrightUtil.simulateHumanBehavior();
             }
+
             long keywordLoopDuration = System.currentTimeMillis() - keywordLoopStartTime;
+            log.info("【{}】岗位循环结束！", keyword);
+            log.info("【{}】统计信息：总岗位数={}, 已处理={}, 已投递={}, 跳过={}, 失败={}",
+                keyword, lastCount, processedCount, postCount, skipCount, failCount);
             log.info("【{}】岗位已投递完毕！已投递岗位数量:{}，总耗时: {}秒", keyword, postCount, keywordLoopDuration / 1000);
         }
     }
@@ -1400,6 +1596,13 @@ public class Boss {
         String message = greetingService.generateGreetingMessage(keyword, job, fullJobDescription);
         if (message == null || message.trim().isEmpty()) {
             log.warn("打招呼语为空，跳过: {}", job.getJobName());
+            detailPage.close();
+            return false;
+        }
+
+        // ✅ 修复：在使用 inputLocator 前添加 null 检查，防止 NullPointerException
+        if (inputLocator == null || !inputReady) {
+            log.error("❌ 聊天输入框未找到（inputLocator为null或inputReady为false），无法输入打招呼语: {}", job.getJobName());
             detailPage.close();
             return false;
         }

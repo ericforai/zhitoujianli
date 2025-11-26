@@ -3,8 +3,58 @@
  * 用户下载后在本地运行，负责控制本地浏览器
  */
 
-const { chromium } = require('playwright');
-const WebSocket = require('ws');
+// 检查并加载依赖
+// 注意：这是服务器端脚本，依赖应该在服务器上已安装
+let chromium, WebSocket;
+
+try {
+    // 尝试从当前目录的 node_modules 加载
+    ({ chromium } = require('playwright'));
+    WebSocket = require('ws');
+} catch (error) {
+    // 如果当前目录没有，尝试从多个可能的路径加载（服务器端部署时依赖可能在多个位置）
+    try {
+        const path = require('path');
+        const fs = require('fs');
+
+        // 尝试多个可能的 node_modules 路径
+        // 注意：__dirname 在打包后的 JAR 中可能不可靠，使用绝对路径更可靠
+        const possiblePaths = [
+            '/root/zhitoujianli/node_modules',  // 项目根目录绝对路径（优先，因为依赖在这里）
+            '/root/zhitoujianli/backend/get_jobs/node_modules',  // backend/get_jobs/node_modules
+            path.resolve(__dirname, '../../../../../node_modules'), // 项目根目录 node_modules（相对路径）
+            path.resolve(__dirname, '../../../../node_modules')  // backend/get_jobs/node_modules（相对路径）
+        ];
+
+        let foundPath = null;
+        for (const nodeModulesPath of possiblePaths) {
+            const playwrightPath = path.join(nodeModulesPath, 'playwright');
+            if (fs.existsSync(playwrightPath)) {
+                foundPath = nodeModulesPath;
+                break;
+            }
+        }
+
+        if (!foundPath) {
+            throw new Error('未找到 node_modules 目录');
+        }
+
+        ({ chromium } = require(path.join(foundPath, 'playwright')));
+        WebSocket = require(path.join(foundPath, 'ws'));
+    } catch (parentError) {
+        console.error('❌ 依赖模块加载失败！');
+        console.error('');
+        console.error('这是服务器端脚本，依赖应该在服务器上已安装。');
+        console.error('请检查服务器上的 Node.js 依赖安装情况。');
+        console.error('');
+        console.error('详细错误信息：');
+        console.error('当前目录错误:', error.message);
+        console.error('父目录错误:', parentError.message);
+        console.error('');
+        console.error('如果问题仍然存在，请联系系统管理员。');
+        process.exit(1);
+    }
+}
 
 class BossRunner {
     constructor(serverUrl, userId) {

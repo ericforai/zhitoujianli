@@ -164,10 +164,33 @@ public class BossJobSearchService {
             // 滑动到底部
                 try {
                     log.debug("【{}】执行滚动操作...", keyword);
-            page.evaluate("window.scrollTo(0, document.body.scrollHeight);");
-                    log.debug("【{}】滚动操作完成", keyword);
+                    long scrollStartTime = System.currentTimeMillis();
+                    // ✅ 修复：增加超时保护，防止evaluate()操作卡住
+                    // 注意：Playwright的evaluate()方法本身没有超时参数，但可以通过设置页面超时来控制
+                    page.evaluate("window.scrollTo(0, document.body.scrollHeight);");
+                    long scrollDuration = System.currentTimeMillis() - scrollStartTime;
+                    log.debug("【{}】滚动操作完成（耗时{}ms）", keyword, scrollDuration);
+
+                    // ✅ 修复：如果滚动操作耗时过长，记录警告
+                    if (scrollDuration > 5000) {
+                        log.warn("【{}】滚动操作耗时过长（{}ms），可能页面响应慢", keyword, scrollDuration);
+                    }
+                } catch (com.microsoft.playwright.TimeoutError e) {
+                    log.error("【{}】滚动页面超时: {}", keyword, e.getMessage());
+                    log.error("【{}】当前页面URL: {}", keyword, page != null && !page.isClosed() ? page.url() : "页面已关闭");
+                    break;
                 } catch (Exception e) {
                     log.error("【{}】滚动页面失败: {}", keyword, e.getMessage(), e);
+                    // ✅ 修复：记录页面状态信息
+                    try {
+                        if (page != null && !page.isClosed()) {
+                            log.error("【{}】页面URL: {}", keyword, page.url());
+                        } else {
+                            log.error("【{}】页面已关闭或为null", keyword);
+                        }
+                    } catch (Exception ex) {
+                        log.error("【{}】获取页面信息失败: {}", keyword, ex.getMessage());
+                    }
                     break;
                 }
 
@@ -178,9 +201,17 @@ public class BossJobSearchService {
             // 获取所有卡片数
                 try {
                     log.debug("【{}】获取岗位卡片数量...", keyword);
-            Locator cards = page.locator("//ul[contains(@class, 'rec-job-list')]//li[contains(@class, 'job-card-box')]");
-            int currentCount = cards.count();
-                    log.info("【{}】获取到{}个岗位卡片", keyword, currentCount);
+                    // ✅ 修复：增加超时保护，防止count()操作卡住
+                    long countStartTime = System.currentTimeMillis();
+                    Locator cards = page.locator("//ul[contains(@class, 'rec-job-list')]//li[contains(@class, 'job-card-box')]");
+                    int currentCount = cards.count();
+                    long countDuration = System.currentTimeMillis() - countStartTime;
+                    log.info("【{}】获取到{}个岗位卡片（耗时{}ms）", keyword, currentCount, countDuration);
+
+                    // ✅ 修复：如果count()操作耗时过长，记录警告
+                    if (countDuration > 5000) {
+                        log.warn("【{}】获取岗位卡片数量耗时过长（{}ms），可能页面响应慢", keyword, countDuration);
+                    }
 
             // 判断是否继续滑动
             if (currentCount == lastCount) {
@@ -191,8 +222,27 @@ public class BossJobSearchService {
             lastCount = currentCount;
                     int increased = oldCount == -1 ? currentCount : (currentCount - oldCount);
                     log.info("【{}】岗位数量更新: {}个（增加了{}个）", keyword, currentCount, increased);
+                } catch (com.microsoft.playwright.TimeoutError e) {
+                    log.error("【{}】获取岗位卡片数量超时: {}", keyword, e.getMessage());
+                    log.error("【{}】当前页面URL: {}", keyword, page != null && !page.isClosed() ? page.url() : "页面已关闭");
+                    // ✅ 修复：超时后使用lastCount作为返回值，而不是抛出异常
+                    log.warn("【{}】使用已加载的岗位数量: {}", keyword, lastCount);
+                    break;
                 } catch (Exception e) {
-                    log.error("【{}】获取岗位卡片数量失败: {}", keyword, e.getMessage());
+                    log.error("【{}】获取岗位卡片数量失败: {}", keyword, e.getMessage(), e);
+                    // ✅ 修复：记录页面状态信息
+                    try {
+                        if (page != null && !page.isClosed()) {
+                            log.error("【{}】页面URL: {}", keyword, page.url());
+                            log.error("【{}】页面标题: {}", keyword, page.title());
+                        } else {
+                            log.error("【{}】页面已关闭或为null", keyword);
+                        }
+                    } catch (Exception ex) {
+                        log.error("【{}】获取页面信息失败: {}", keyword, ex.getMessage());
+                    }
+                    // ✅ 修复：异常后使用lastCount作为返回值，而不是抛出异常
+                    log.warn("【{}】使用已加载的岗位数量: {}", keyword, lastCount);
                     break;
                 }
 

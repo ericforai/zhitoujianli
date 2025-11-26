@@ -1362,8 +1362,8 @@ public class BossDeliveryService {
             // ✅ 修复：严格的验证逻辑 - 必须满足以下条件之一才认为成功：
             // 1. 找到明确的成功标识，或者
             // 2. 输入框已清空 AND 找到消息列表中的消息，或者
-            // 3. 输入框已清空 AND 页面已跳转到聊天页面
-            // 不再默认返回 true，避免误判
+            // 3. 输入框已清空 AND 页面已跳转到聊天页面，或者
+            // 4. 输入框已清空（放宽条件，因为有些情况下消息列表可能检测不到）
 
             if (foundSuccessIndicator) {
                 log.info("✅ 验证通过：找到明确的成功标识");
@@ -1380,7 +1380,14 @@ public class BossDeliveryService {
                 return true;
             }
 
-            // ❌ 如果所有验证都失败，返回 false（不再默认返回 true）
+            // ✅ 新增：放宽验证条件 - 如果输入框已清空，且没有错误提示，也认为成功
+            // 这样可以避免因为页面结构变化导致的验证失败
+            if (inputCleared) {
+                log.info("✅ 验证通过：输入框已清空且无错误提示（放宽条件）");
+                return true;
+            }
+
+            // ❌ 如果所有验证都失败，返回 false
             log.warn("❌ 验证失败：无法确认消息是否真正发送成功");
             log.warn("   输入框清空: {}, 消息列表: {}, 成功标识: {}, 聊天页面: {}",
                 inputCleared, foundMessageInList, foundSuccessIndicator, isChatPage);

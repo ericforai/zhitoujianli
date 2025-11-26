@@ -132,8 +132,14 @@ public class BossExecutionService {
                     outputThread.start();
                     errorThread.start();
 
-                    // 等待进程完成，最长60分钟（支持更多岗位投递）
-                    boolean finished = process.waitFor(60, TimeUnit.MINUTES);
+                    // ✅ 修复：根据用户投递策略动态计算超时时间
+                    int timeoutMinutes = calculateTimeoutMinutes(userId, loginOnly);
+                    log.info("⏱️ Boss程序超时设置: {}分钟 (用户: {})", timeoutMinutes, userId);
+                    logWriter.write(formatTimestamp() + " - 超时设置: " + timeoutMinutes + "分钟\n");
+                    logWriter.flush();
+
+                    // 等待进程完成，使用动态计算的超时时间
+                    boolean finished = process.waitFor(timeoutMinutes, TimeUnit.MINUTES);
 
                     // 等待日志线程完成，检查返回值
                     boolean outputFinished = outputLatch.await(5, TimeUnit.SECONDS);
@@ -372,14 +378,19 @@ public class BossExecutionService {
             try {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    // ✅ 过滤Playwright Node.js进程的已知错误（package.json缺失）
+                    // ✅ 过滤Playwright Node.js进程的已知错误（package.json缺失、模块加载失败等）
                     // 这些错误来自Playwright的Node.js进程，不影响功能，但会污染日志
                     if ("ERROR".equals(prefix)) {
                         if (line.contains("package.json") ||
                             line.contains("MODULE_NOT_FOUND") ||
                             line.contains("playwright-java") ||
                             line.contains("Cannot find module") ||
-                            line.contains("Error: Cannot find module")) {
+                            line.contains("Error: Cannot find module") ||
+                            line.contains("const err = new Error") ||
+                            line.contains("Require stack:") ||
+                            line.contains("node:internal/modules/cjs/loader") ||
+                            line.contains("Node.js v") ||
+                            (line.contains("^") && line.contains("at Function.") && line.contains("node:"))) {
                             // 跳过已知错误，不写入日志（这些是Playwright清理时的已知问题）
                             continue;
                         }
@@ -510,5 +521,108 @@ public class BossExecutionService {
      */
     private String formatTimestamp() {
         return new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
+    }
+
+    /**
+     * 根据用户投递策略计算超时时间（分钟）
+     *
+     * ✅ 修复：根据用户配置的投递频率、间隔和每日限额动态计算超时时间
+     * 避免因投递频率限制导致等待时间累积超过固定超时阈值
+     *
+     * @param userId 用户ID
+     * @param loginOnly 是否只登录不投递
+     * @return 超时时间（分钟）
+     */
+    private int calculateTimeoutMinutes(String userId, boolean loginOnly) {
+        // 如果只是登录，不需要长时间等待
+        if (loginOnly) {
+            return 10; // 登录操作通常很快，10分钟足够
+        }
+
+        try {
+            // 读取用户配置文件
+            // ✅ 修复：在异步线程中，使用userId直接构建路径，避免依赖SecurityContext
+            String sanitizedUserId = util.UserContextUtil.sanitizeUserId(userId);
+            String configPath = "/opt/zhitoujianli/backend/user_data/" + sanitizedUserId + "/config.json";
+            File configFile = new File(configPath);
+
+            if (!configFile.exists()) {
+                log.warn("⚠️ 用户配置文件不存在: {}，使用默认超时时间", configPath);
+                return 60; // 默认60分钟
+            }
+
+            // 解析JSON配置
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            @SuppressWarnings("unchecked")
+            Map<String, Object> config = mapper.readValue(configFile, Map.class);
+
+            // 提取投递策略
+            @SuppressWarnings("unchecked")
+            Map<String, Object> deliveryStrategy = (Map<String, Object>) config.get("deliveryStrategy");
+
+            if (deliveryStrategy == null) {
+                log.warn("⚠️ 用户配置中未找到投递策略，使用默认超时时间");
+                return 60; // 默认60分钟
+            }
+
+            // 获取投递策略参数
+            Integer deliveryFrequency = getIntegerValue(deliveryStrategy, "deliveryFrequency", 10);
+            Integer maxDailyDelivery = getIntegerValue(deliveryStrategy, "maxDailyDelivery", 100);
+            Integer deliveryInterval = getIntegerValue(deliveryStrategy, "deliveryInterval", 300);
+
+            log.info("📊 用户投递策略: 频率={}/小时, 每日限额={}, 间隔={}秒",
+                deliveryFrequency, maxDailyDelivery, deliveryInterval);
+
+            // 计算最大可能耗时
+            // 1. 计算完成所有投递需要多少小时
+            int maxHours = (int) Math.ceil((double) maxDailyDelivery / deliveryFrequency);
+
+            // 2. 计算每小时需要的时间（分钟）
+            // 每小时投递次数 × 每次间隔（秒）÷ 60 = 每小时需要时间（分钟）
+            int minutesPerHour = (deliveryFrequency * deliveryInterval) / 60;
+
+            // 3. 计算总耗时（分钟）
+            int totalMinutes = maxHours * minutesPerHour;
+
+            // 4. 添加缓冲时间（30分钟，用于处理网络延迟、页面加载等）
+            int timeoutMinutes = totalMinutes + 30;
+
+            // 5. 设置最小和最大超时时间限制
+            int minTimeout = 60;  // 最小60分钟
+            int maxTimeout = 600; // 最大10小时（防止配置错误导致无限等待）
+
+            timeoutMinutes = Math.max(minTimeout, Math.min(timeoutMinutes, maxTimeout));
+
+            log.info("⏱️ 计算超时时间: {}小时 × {}分钟/小时 + 30分钟缓冲 = {}分钟 (限制在{}分钟)",
+                maxHours, minutesPerHour, timeoutMinutes, maxTimeout);
+
+            return timeoutMinutes;
+
+        } catch (Exception e) {
+            log.error("❌ 计算超时时间失败，使用默认值: {}", e.getMessage(), e);
+            return 60; // 默认60分钟
+        }
+    }
+
+    /**
+     * 从Map中安全获取Integer值
+     */
+    private Integer getIntegerValue(Map<String, Object> map, String key, Integer defaultValue) {
+        Object value = map.get(key);
+        if (value == null) {
+            return defaultValue;
+        }
+        if (value instanceof Integer) {
+            return (Integer) value;
+        }
+        if (value instanceof Number) {
+            return ((Number) value).intValue();
+        }
+        try {
+            return Integer.parseInt(value.toString());
+        } catch (Exception e) {
+            log.warn("⚠️ 无法解析配置值: {}={}，使用默认值: {}", key, value, defaultValue);
+            return defaultValue;
+        }
     }
 }
