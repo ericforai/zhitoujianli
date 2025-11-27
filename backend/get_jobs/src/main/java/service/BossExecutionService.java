@@ -133,34 +133,83 @@ public class BossExecutionService {
                     errorThread.start();
 
                     // ✅ 修复：根据用户投递策略动态计算超时时间
+                    long startTime = System.currentTimeMillis();
                     int timeoutMinutes = calculateTimeoutMinutes(userId, loginOnly);
+
+                    // 记录任务开始时间和超时设置（确保写入日志文件）
+                    String startTimeStr = formatTimestamp();
                     log.info("⏱️ Boss程序超时设置: {}分钟 (用户: {})", timeoutMinutes, userId);
-                    logWriter.write(formatTimestamp() + " - 超时设置: " + timeoutMinutes + "分钟\n");
+                    logWriter.write(startTimeStr + " - 任务开始时间: " + startTimeStr + "\n");
+                    logWriter.write(startTimeStr + " - 超时设置: " + timeoutMinutes + "分钟\n");
+                    logWriter.write(startTimeStr + " - 超时时间计算详情: 已根据用户投递策略动态计算\n");
                     logWriter.flush();
 
                     // 等待进程完成，使用动态计算的超时时间
                     boolean finished = process.waitFor(timeoutMinutes, TimeUnit.MINUTES);
 
-                    // 等待日志线程完成，检查返回值
-                    boolean outputFinished = outputLatch.await(5, TimeUnit.SECONDS);
-                    boolean errorFinished = errorLatch.await(5, TimeUnit.SECONDS);
+                    // 计算实际执行时间
+                    long endTime = System.currentTimeMillis();
+                    long actualDurationMinutes = (endTime - startTime) / 1000 / 60;
+                    long actualDurationSeconds = (endTime - startTime) / 1000;
 
+                    // ✅ 修复：增加日志线程等待时间（从5秒改为15秒），减少日志线程超时警告
+                    int logThreadWaitSeconds = 15;
+                    boolean outputFinished = outputLatch.await(logThreadWaitSeconds, TimeUnit.SECONDS);
+                    boolean errorFinished = errorLatch.await(logThreadWaitSeconds, TimeUnit.SECONDS);
+
+                    // ✅ 修复：添加更详细的日志线程超时原因日志
+                    String currentTimeStr = formatTimestamp();
                     if (!outputFinished) {
-                        logWriter.write(formatTimestamp() + " - WARNING: 输出日志线程未在5秒内完成\n");
+                        String warningMsg = String.format(
+                            "WARNING: 输出日志线程未在%d秒内完成（可能原因: 1) 日志缓冲区数据量大 2) 文件I/O阻塞 3) 进程终止后仍有数据待处理）",
+                            logThreadWaitSeconds
+                        );
+                        logWriter.write(currentTimeStr + " - " + warningMsg + "\n");
+                        log.warn("输出日志线程超时: 等待{}秒后仍未完成", logThreadWaitSeconds);
                     }
                     if (!errorFinished) {
-                        logWriter.write(formatTimestamp() + " - WARNING: 错误日志线程未在5秒内完成\n");
+                        String warningMsg = String.format(
+                            "WARNING: 错误日志线程未在%d秒内完成（可能原因: 1) 错误日志缓冲区数据量大 2) 文件I/O阻塞 3) 进程终止后仍有数据待处理）",
+                            logThreadWaitSeconds
+                        );
+                        logWriter.write(currentTimeStr + " - " + warningMsg + "\n");
+                        log.warn("错误日志线程超时: 等待{}秒后仍未完成", logThreadWaitSeconds);
                     }
 
+                    // ✅ 修复：添加更详细的超时原因日志，便于后续分析
                     if (!finished) {
-                        logWriter.write(formatTimestamp() + " - WARNING: Boss程序超时未完成\n");
+                        String timeoutMsg = String.format(
+                            "WARNING: Boss程序超时未完成\n" +
+                            "  - 任务开始时间: %s\n" +
+                            "  - 超时设置: %d分钟\n" +
+                            "  - 实际执行时间: %d分钟 %d秒 (%.2f分钟)\n" +
+                            "  - 超时原因: 任务执行时间(%.2f分钟)超过了设定的超时时间(%d分钟)\n" +
+                            "  - 建议: 1) 检查用户投递策略配置 2) 考虑增加超时时间 3) 优化任务执行效率",
+                            startTimeStr, timeoutMinutes, actualDurationMinutes,
+                            actualDurationSeconds % 60, (double) actualDurationSeconds / 60,
+                            (double) actualDurationSeconds / 60, timeoutMinutes
+                        );
+                        logWriter.write(currentTimeStr + " - " + timeoutMsg + "\n");
+                        logWriter.flush();
                         process.destroyForcibly();
-                        log.error("Boss程序超时，强制终止");
+                        log.error("Boss程序超时，强制终止 - 执行时间: {}分钟，超时设置: {}分钟",
+                            actualDurationMinutes, timeoutMinutes);
                     } else {
                         int exitCode = process.exitValue();
-                        logWriter.write(formatTimestamp() + " - Boss程序完成，退出码: " + exitCode + "\n");
-                        log.info("Boss程序执行完成，退出码: {}", exitCode);
+                        String successMsg = String.format(
+                            "Boss程序完成，退出码: %d\n" +
+                            "  - 任务开始时间: %s\n" +
+                            "  - 任务结束时间: %s\n" +
+                            "  - 实际执行时间: %d分钟 %d秒 (%.2f分钟)\n" +
+                            "  - 超时设置: %d分钟",
+                            exitCode, startTimeStr, currentTimeStr,
+                            actualDurationMinutes, actualDurationSeconds % 60,
+                            (double) actualDurationSeconds / 60, timeoutMinutes
+                        );
+                        logWriter.write(currentTimeStr + " - " + successMsg + "\n");
+                        log.info("Boss程序执行完成，退出码: {}，执行时间: {}分钟", exitCode, actualDurationMinutes);
                     }
+                    logWriter.flush();
 
                 } catch (Exception e) {
                     log.error("Boss程序执行异常", e);
@@ -389,6 +438,13 @@ public class BossExecutionService {
                             line.contains("const err = new Error") ||
                             line.contains("Require stack:") ||
                             line.contains("node:internal/modules/cjs/loader") ||
+                            line.contains("node:diagnostics_channel") ||
+                            line.contains("Function._resolveFilename") ||
+                            line.contains("Function._load") ||
+                            line.contains("TracingChannel.traceSync") ||
+                            line.contains("wrapModuleLoad") ||
+                            line.contains("Module.require") ||
+                            line.contains("require (node:internal/helpers") ||
                             line.contains("Node.js v") ||
                             (line.contains("^") && line.contains("at Function.") && line.contains("node:"))) {
                             // 跳过已知错误，不写入日志（这些是Playwright清理时的已知问题）
@@ -556,9 +612,21 @@ public class BossExecutionService {
             @SuppressWarnings("unchecked")
             Map<String, Object> config = mapper.readValue(configFile, Map.class);
 
-            // 提取投递策略
+            // ✅ 修复：支持从bossConfig字段读取投递策略（兼容新旧配置格式）
             @SuppressWarnings("unchecked")
             Map<String, Object> deliveryStrategy = (Map<String, Object>) config.get("deliveryStrategy");
+
+            // 如果deliveryStrategy不存在，尝试从bossConfig字段读取
+            if (deliveryStrategy == null) {
+                @SuppressWarnings({"unchecked", "rawtypes"})
+                Map<String, Object> bossConfig = (Map) config.get("bossConfig");
+                if (bossConfig != null) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> strategy = (Map<String, Object>) bossConfig.get("deliveryStrategy");
+                    deliveryStrategy = strategy;
+                    log.info("✅ 从bossConfig字段读取投递策略");
+                }
+            }
 
             if (deliveryStrategy == null) {
                 log.warn("⚠️ 用户配置中未找到投递策略，使用默认超时时间");
@@ -573,13 +641,19 @@ public class BossExecutionService {
             log.info("📊 用户投递策略: 频率={}/小时, 每日限额={}, 间隔={}秒",
                 deliveryFrequency, maxDailyDelivery, deliveryInterval);
 
-            // 计算最大可能耗时
-            // 1. 计算完成所有投递需要多少小时
+            // ✅ 修复：优化超时时间计算逻辑
+            // 1. 计算完成所有投递需要多少小时（向上取整）
             int maxHours = (int) Math.ceil((double) maxDailyDelivery / deliveryFrequency);
+            if (maxHours == 0) {
+                maxHours = 1; // 至少1小时
+            }
 
             // 2. 计算每小时需要的时间（分钟）
             // 每小时投递次数 × 每次间隔（秒）÷ 60 = 每小时需要时间（分钟）
             int minutesPerHour = (deliveryFrequency * deliveryInterval) / 60;
+            if (minutesPerHour == 0) {
+                minutesPerHour = 1; // 至少1分钟
+            }
 
             // 3. 计算总耗时（分钟）
             int totalMinutes = maxHours * minutesPerHour;
@@ -593,8 +667,14 @@ public class BossExecutionService {
 
             timeoutMinutes = Math.max(minTimeout, Math.min(timeoutMinutes, maxTimeout));
 
-            log.info("⏱️ 计算超时时间: {}小时 × {}分钟/小时 + 30分钟缓冲 = {}分钟 (限制在{}分钟)",
-                maxHours, minutesPerHour, timeoutMinutes, maxTimeout);
+            // ✅ 修复：添加详细的超时时间计算日志
+            log.info("⏱️ 超时时间计算详情:");
+            log.info("  - 投递策略: 频率={}/小时, 每日限额={}, 间隔={}秒",
+                deliveryFrequency, maxDailyDelivery, deliveryInterval);
+            log.info("  - 计算过程: {}小时 × {}分钟/小时 + 30分钟缓冲 = {}分钟",
+                maxHours, minutesPerHour, totalMinutes + 30);
+            log.info("  - 最终超时时间: {}分钟 (限制范围: {}-{}分钟)",
+                timeoutMinutes, minTimeout, maxTimeout);
 
             return timeoutMinutes;
 

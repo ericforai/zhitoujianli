@@ -322,3 +322,5 @@ boolean finished = process.waitFor(timeoutMinutes, TimeUnit.MINUTES);
 **分析人员**: AI Assistant
 **结论**: ✅ 已确认真实原因 - 投递频率限制导致等待时间累积
 
+
+
