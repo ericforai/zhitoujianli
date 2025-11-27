@@ -15,7 +15,7 @@ describe('PreviewPane', () => {
         pagesEstimate={1}
       />
     );
-    expect(screen.getByText(/ATS 分数：80/)).toBeInTheDocument();
+    expect(screen.getByText(/ATS 分数（预估）：80/)).toBeInTheDocument();
     expect(screen.getByText('AIGC')).toBeInTheDocument();
   });
 });

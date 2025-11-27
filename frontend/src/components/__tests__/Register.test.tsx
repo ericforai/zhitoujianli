@@ -12,7 +12,39 @@ jest.mock('react-router-dom', () => ({
   BrowserRouter: ({ children }: { children: React.ReactNode }) => (
     <div>{children}</div>
   ),
+  Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
+    <a href={to}>{children}</a>
+  ),
   useNavigate: () => jest.fn(),
+}));
+
+// Mock SEOHead
+jest.mock('../seo/SEOHead', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+// Mock config
+jest.mock('../../config/environment', () => ({
+  __esModule: true,
+  default: {
+    apiBaseUrl: '/api',
+    isProduction: false,
+  },
+}));
+
+// Mock services
+jest.mock('../../services/authService', () => ({
+  authService: {
+    register: jest.fn(),
+  },
+}));
+
+jest.mock('../../services/analyticsService', () => ({
+  __esModule: true,
+  default: {
+    trackEvent: jest.fn(),
+  },
 }));
 
 // Mock fetch API
