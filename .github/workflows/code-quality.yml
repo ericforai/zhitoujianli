@@ -178,6 +178,17 @@ jobs:
         npm ci
         npm run build
 
+    - name: 构建Astro博客
+      run: |
+        cd blog/zhitoujianli-blog
+        npm ci
+        npm run build
+
+    - name: 生成和合并Sitemap
+      run: |
+        python3 scripts/generate-sitemap-main.py
+        python3 scripts/merge-sitemaps.py
+
     - name: 设置Java
       uses: actions/setup-java@v4
       with:
