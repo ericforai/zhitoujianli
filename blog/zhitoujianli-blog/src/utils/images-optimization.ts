@@ -223,14 +223,35 @@ export const astroAssetsOptimizer: ImagesOptimizer = async (
     return [];
   }
 
+  // 检查是否是本地路径字符串（如 /blog/images/og-share-logo.jpg）
+  const isLocalPathString = typeof image === 'string' && image.startsWith('/') && !image.startsWith('http');
+
+  // 对于本地路径字符串，使用明确的尺寸而不是 inferSize
+  const useInferSize = !isLocalPathString;
+  const defaultHeight = _height || (_width ? Math.floor(_width / (16 / 9)) : 630); // 默认 16:9 比例
+
   return Promise.all(
     breakpoints.map(async (w: number) => {
-      const result = await getImage({ src: image, width: w, inferSize: true, ...(format ? { format: format } : {}) });
+      const height = _height || Math.floor(w / (16 / 9)); // 16:9 比例
+      const imageOptions: any = {
+        src: image,
+        width: w,
+        ...(format ? { format: format } : {}),
+      };
+
+      // 对于本地路径字符串，明确指定高度以避免推断失败
+      if (isLocalPathString) {
+        imageOptions.height = height;
+      } else {
+        imageOptions.inferSize = useInferSize;
+      }
+
+      const result = await getImage(imageOptions);
 
       return {
         src: result?.src,
         width: result?.attributes?.width ?? w,
-        height: result?.attributes?.height,
+        height: result?.attributes?.height ?? height,
       };
     })
   );

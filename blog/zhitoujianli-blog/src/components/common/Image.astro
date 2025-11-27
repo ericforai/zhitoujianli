@@ -39,6 +39,12 @@ if (!props.decoding) {
 
 const _image = await findImage(props.src);
 
+// 如果是默认图片路径，明确指定尺寸
+if (typeof _image === 'string' && _image.includes('/blog/images/og-share-logo.jpg')) {
+  if (!props.width) props.width = 1200;
+  if (!props.height) props.height = 630;
+}
+
 let image: ImageType | undefined = undefined;
 
 if (
