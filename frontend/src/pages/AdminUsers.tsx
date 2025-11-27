@@ -5,7 +5,7 @@
  * @since 2025-10-31
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import AdminLayout from '../components/admin/AdminLayout';
 import config from '../config/environment';
 
@@ -31,12 +31,64 @@ const AdminUsers: React.FC = () => {
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set()); // 🔧 新增：选中的用户ID集合
   const [batchDeleting, setBatchDeleting] = useState(false); // 🔧 新增：批量删除中状态
+  const [canScrollLeft, setCanScrollLeft] = useState(false); // 🔧 新增：是否可以向左滚动
+  const [canScrollRight, setCanScrollRight] = useState(false); // 🔧 新增：是否可以向右滚动
+  const tableContainerRef = useRef<HTMLDivElement>(null); // 🔧 新增：表格容器引用
   const pageSize = 20;
 
   useEffect(() => {
     fetchUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
+
+  // 🔧 新增：检查滚动状态
+  const checkScrollStatus = () => {
+    const container = tableContainerRef.current;
+    if (!container) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = container;
+    setCanScrollLeft(scrollLeft > 0);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
+  };
+
+  // 🔧 新增：滚动到左侧
+  const scrollLeft = () => {
+    const container = tableContainerRef.current;
+    if (!container) return;
+
+    container.scrollBy({ left: -300, behavior: 'smooth' });
+    // 延迟检查，等待滚动动画完成
+    setTimeout(checkScrollStatus, 300);
+  };
+
+  // 🔧 新增：滚动到右侧
+  const scrollRight = () => {
+    const container = tableContainerRef.current;
+    if (!container) return;
+
+    container.scrollBy({ left: 300, behavior: 'smooth' });
+    // 延迟检查，等待滚动动画完成
+    setTimeout(checkScrollStatus, 300);
+  };
+
+  // 🔧 新增：监听滚动事件
+  useEffect(() => {
+    const container = tableContainerRef.current;
+    if (!container) return;
+
+    // 初始检查
+    checkScrollStatus();
+
+    // 监听滚动事件
+    container.addEventListener('scroll', checkScrollStatus);
+    // 监听窗口大小变化
+    window.addEventListener('resize', checkScrollStatus);
+
+    return () => {
+      container.removeEventListener('scroll', checkScrollStatus);
+      window.removeEventListener('resize', checkScrollStatus);
+    };
+  }, [users]); // 当用户列表变化时重新检查
 
   // 切换用户状态（启用/禁用）
   const handleToggleUserStatus = async (user: User, currentActive: boolean) => {
@@ -427,7 +479,13 @@ const AdminUsers: React.FC = () => {
 
         {/* 用户列表 */}
         <div className='bg-white rounded-lg shadow overflow-hidden'>
-          <table className='min-w-full divide-y divide-gray-200'>
+          {/* 🔧 新增：可滚动的表格容器 */}
+          <div
+            ref={tableContainerRef}
+            className='overflow-x-auto'
+            style={{ scrollbarWidth: 'thin' }}
+          >
+            <table className='min-w-full divide-y divide-gray-200'>
             <thead className='bg-gray-50'>
               <tr>
                 <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12'>
@@ -556,27 +614,76 @@ const AdminUsers: React.FC = () => {
               })}
             </tbody>
           </table>
+          </div>
 
           {/* 分页 */}
           <div className='bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200'>
             <div className='text-sm text-gray-700'>
               共 {total} 个用户，第 {page + 1} 页
             </div>
-            <div className='flex gap-2'>
-              <button
-                onClick={() => setPage(Math.max(0, page - 1))}
-                disabled={page === 0}
-                className='px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
-              >
-                上一页
-              </button>
-              <button
-                onClick={() => setPage(page + 1)}
-                disabled={(page + 1) * pageSize >= total}
-                className='px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
-              >
-                下一页
-              </button>
+            <div className='flex items-center gap-2'>
+              {/* 🔧 新增：左右滑动按钮 */}
+              <div className='flex items-center gap-1 border-r border-gray-300 pr-2 mr-2'>
+                <button
+                  onClick={scrollLeft}
+                  disabled={!canScrollLeft}
+                  className='p-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+                  title='向左滚动'
+                  aria-label='向左滚动表格'
+                >
+                  <svg
+                    className='w-4 h-4'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M15 19l-7-7 7-7'
+                    />
+                  </svg>
+                </button>
+                <button
+                  onClick={scrollRight}
+                  disabled={!canScrollRight}
+                  className='p-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+                  title='向右滚动'
+                  aria-label='向右滚动表格'
+                >
+                  <svg
+                    className='w-4 h-4'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M9 5l7 7-7 7'
+                    />
+                  </svg>
+                </button>
+              </div>
+              {/* 分页按钮 */}
+              <div className='flex gap-2'>
+                <button
+                  onClick={() => setPage(Math.max(0, page - 1))}
+                  disabled={page === 0}
+                  className='px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
+                >
+                  上一页
+                </button>
+                <button
+                  onClick={() => setPage(page + 1)}
+                  disabled={(page + 1) * pageSize >= total}
+                  className='px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
+                >
+                  下一页
+                </button>
+              </div>
             </div>
           </div>
         </div>

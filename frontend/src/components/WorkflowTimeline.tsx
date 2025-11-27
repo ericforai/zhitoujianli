@@ -126,7 +126,9 @@ const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({ steps }) => {
 
               {/* 步骤描述 */}
               <p
-                className={`text-sm text-center ${
+                className={`text-sm ${
+                  step.id === 'logs' ? 'text-left' : 'text-center'
+                } ${
                   step.disabled
                     ? 'text-gray-400'
                     : step.status === 'completed'
@@ -195,6 +197,8 @@ const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({ steps }) => {
                   </h3>
                   <p
                     className={`text-sm ${
+                      step.id === 'logs' ? 'text-left' : ''
+                    } ${
                       step.disabled
                         ? 'text-gray-400'
                         : step.status === 'completed'

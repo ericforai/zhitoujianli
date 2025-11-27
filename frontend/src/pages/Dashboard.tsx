@@ -245,7 +245,7 @@ const Dashboard: React.FC = () => {
         id: 'logs',
         label: '查看日志',
         icon: '📋',
-        description: '监控投递状态和结果',
+        description: ' 如遇问题，复制这里面的内容发给客服，添麻烦了。',
         status: isRunning ? 'active' : 'pending',
         action: async () => {
           await fetchLogs();
