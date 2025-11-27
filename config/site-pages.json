@@ -1,0 +1,92 @@
+{
+  "site_url": "https://zhitoujianli.com",
+  "pages": [
+    {
+      "path": "/",
+      "priority": 1.0,
+      "changefreq": "weekly",
+      "lastmod": "2025-11-26"
+    },
+    {
+      "path": "/2025-job-market-truth.html",
+      "priority": 0.6,
+      "changefreq": "monthly",
+      "lastmod": "2025-11-15"
+    },
+    {
+      "path": "/2025-recruitment-market-report.html",
+      "priority": 0.6,
+      "changefreq": "monthly",
+      "lastmod": "2025-11-15"
+    },
+    {
+      "path": "/blog-index.html",
+      "priority": 0.6,
+      "changefreq": "weekly",
+      "lastmod": "2025-11-26"
+    },
+    {
+      "path": "/contact",
+      "priority": 0.7,
+      "changefreq": "monthly",
+      "lastmod": "2025-11-12"
+    },
+    {
+      "path": "/guide",
+      "priority": 0.7,
+      "changefreq": "monthly",
+      "lastmod": "2025-11-12"
+    },
+    {
+      "path": "/help",
+      "priority": 0.7,
+      "changefreq": "monthly",
+      "lastmod": "2025-11-12"
+    },
+    {
+      "path": "/login",
+      "priority": 0.6,
+      "changefreq": "monthly",
+      "lastmod": "2025-11-12"
+    },
+    {
+      "path": "/pricing",
+      "priority": 0.9,
+      "changefreq": "weekly",
+      "lastmod": "2025-11-12"
+    },
+    {
+      "path": "/privacy",
+      "priority": 0.5,
+      "changefreq": "yearly",
+      "lastmod": "2025-11-12"
+    },
+    {
+      "path": "/register",
+      "priority": 0.8,
+      "changefreq": "monthly",
+      "lastmod": "2025-11-12"
+    },
+    {
+      "path": "/resume-optimization-guide.html",
+      "priority": 0.6,
+      "changefreq": "monthly",
+      "lastmod": "2025-11-15"
+    },
+    {
+      "path": "/terms",
+      "priority": 0.5,
+      "changefreq": "yearly",
+      "lastmod": "2025-11-12"
+    },
+    {
+      "path": "/user-success-stories.html",
+      "priority": 0.6,
+      "changefreq": "monthly",
+      "lastmod": "2025-11-15"
+    }
+  ]
+}
+
+
+

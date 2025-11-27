@@ -1,0 +1,230 @@
+name: Sitemap和死链验证
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  validate-sitemap-and-links:
+    name: 验证Sitemap和链接
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+
+    - name: 设置Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: 安装Python依赖
+      run: |
+        python3 -m pip install --upgrade pip
+        pip install requests beautifulsoup4 lxml
+
+    - name: 构建Astro博客（生成博客sitemap）
+      run: |
+        cd blog/zhitoujianli-blog
+        npm ci
+        npm run build
+      continue-on-error: false
+
+    - name: 生成主站sitemap
+      run: |
+        python3 scripts/generate-sitemap-main.py
+
+    - name: 合并sitemap
+      run: |
+        python3 scripts/merge-sitemaps.py
+
+    - name: 验证Sitemap XML格式
+      run: |
+        python3 << 'PYTHON'
+        import xml.etree.ElementTree as ET
+        import sys
+
+        errors = []
+
+        # 验证主站sitemap
+        try:
+            tree = ET.parse('frontend/public/sitemap-main.xml')
+            print("✓ sitemap-main.xml 格式正确")
+        except Exception as e:
+            errors.append(f"sitemap-main.xml 格式错误: {e}")
+
+        # 验证合并后的sitemap
+        try:
+            tree = ET.parse('frontend/public/sitemap.xml')
+            root = tree.getroot()
+            urls = root.findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}url')
+            print(f"✓ sitemap.xml 格式正确，包含 {len(urls)} 个URL")
+
+            # 检查重复URL
+            url_set = set()
+            for url in urls:
+                loc = url.find('{http://www.sitemaps.org/schemas/sitemap/0.9}loc')
+                if loc is not None and loc.text:
+                    if loc.text in url_set:
+                        errors.append(f"重复URL: {loc.text}")
+                    url_set.add(loc.text)
+
+            if len(url_set) == len(urls):
+                print("✓ 无重复URL")
+        except Exception as e:
+            errors.append(f"sitemap.xml 格式错误: {e}")
+
+        if errors:
+            print("\n❌ 发现以下错误:")
+            for error in errors:
+                print(f"  - {error}")
+            sys.exit(1)
+        else:
+            print("\n✅ Sitemap验证通过")
+        PYTHON
+
+    - name: 安装Lychee（死链检查工具）
+      run: |
+        # 安装lychee（如果没有，使用Python替代方案）
+        if ! command -v lychee &> /dev/null; then
+          echo "Lychee未安装，使用Python脚本进行链接验证"
+        else
+          echo "✓ Lychee已安装"
+        fi
+
+    - name: 验证Sitemap中的链接（Python实现）
+      run: |
+        python3 << 'PYTHON'
+        import xml.etree.ElementTree as ET
+        import requests
+        from urllib.parse import urlparse
+        import sys
+
+        # 仅验证本地文件链接（生产环境URL需要实际服务器）
+        def check_local_file(url, base_path="frontend/public"):
+            """检查本地文件是否存在"""
+            parsed = urlparse(url)
+            if parsed.netloc in ['zhitoujianli.com', 'www.zhitoujianli.com', 'localhost']:
+                path = parsed.path
+                if path.startswith('/'):
+                    path = path[1:]
+                if not path:
+                    path = 'index.html'
+                elif not path.endswith('.html') and '.' not in path.split('/')[-1]:
+                    # 可能是路由，检查是否有对应的HTML文件
+                    if not path.endswith('/'):
+                        path += '.html'
+
+                full_path = f"{base_path}/{path}"
+                import os
+                if os.path.exists(full_path):
+                    return True, None
+                else:
+                    return False, f"文件不存在: {full_path}"
+            return None, None
+
+        print("检查Sitemap中的链接...")
+        errors = []
+        warnings = []
+
+        try:
+            tree = ET.parse('frontend/public/sitemap.xml')
+            root = tree.getroot()
+            urls = root.findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}url')
+
+            local_urls = []
+            external_urls = []
+
+            for url in urls:
+                loc = url.find('{http://www.sitemaps.org/schemas/sitemap/0.9}loc')
+                if loc is not None and loc.text:
+                    url_text = loc.text
+                    result = check_local_file(url_text)
+                    if result[0] is True:
+                        local_urls.append(url_text)
+                    elif result[0] is False:
+                        errors.append(f"❌ {url_text}: {result[1]}")
+                    else:
+                        external_urls.append(url_text)
+
+            print(f"\n✓ 本地文件链接检查: {len(local_urls)} 个链接通过")
+            if external_urls:
+                print(f"⚠ 外部链接需要在实际环境中验证: {len(external_urls)} 个")
+            if warnings:
+                print("\n⚠ 警告:")
+                for w in warnings:
+                    print(f"  - {w}")
+
+        except Exception as e:
+            errors.append(f"解析sitemap失败: {e}")
+
+        if errors:
+            print("\n❌ 发现以下错误:")
+            for error in errors:
+                print(f"  {error}")
+            sys.exit(1)
+        else:
+            print("\n✅ 链接验证通过（本地文件检查）")
+        PYTHON
+
+    - name: 验证静态HTML文件存在
+      run: |
+        python3 << 'PYTHON'
+        import xml.etree.ElementTree as ET
+        from pathlib import Path
+        import sys
+
+        print("验证静态HTML文件...")
+
+        # 从sitemap-main.xml读取需要存在的HTML文件
+        try:
+            tree = ET.parse('frontend/public/sitemap-main.xml')
+            root = tree.getroot()
+            urls = root.findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}url')
+
+            missing_files = []
+
+            for url in urls:
+                loc = url.find('{http://www.sitemaps.org/schemas/sitemap/0.9}loc')
+                if loc is not None:
+                    url_path = loc.text.replace('https://zhitoujianli.com', '')
+                    if url_path.endswith('.html') or not url_path or url_path == '/':
+                        # 检查文件是否存在
+                        if url_path == '/' or not url_path:
+                            file_path = Path('frontend/public/index.html')
+                        else:
+                            file_path = Path(f"frontend/public{url_path}")
+
+                        if not file_path.exists():
+                            missing_files.append(str(file_path))
+
+            if missing_files:
+                print("\n❌ 以下文件在sitemap中但不存在:")
+                for f in missing_files:
+                    print(f"  - {f}")
+                sys.exit(1)
+            else:
+                print("✓ 所有静态HTML文件都存在")
+
+        except Exception as e:
+            print(f"❌ 验证失败: {e}")
+            sys.exit(1)
+        PYTHON
+
+    - name: 生成验证报告
+      run: |
+        echo "## Sitemap和链接验证报告" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✅ 所有验证通过" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- Sitemap XML格式验证: ✅" >> $GITHUB_STEP_SUMMARY
+        echo "- 重复URL检查: ✅" >> $GITHUB_STEP_SUMMARY
+        echo "- 静态文件存在性检查: ✅" >> $GITHUB_STEP_SUMMARY
+        echo "- 链接验证: ✅" >> $GITHUB_STEP_SUMMARY
+
+
+

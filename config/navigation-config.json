@@ -1,0 +1,69 @@
+{
+  "site_url": "https://zhitoujianli.com",
+  "navigation": {
+    "main": [
+      {"label": "首页", "path": "/"},
+      {"label": "定价", "path": "/pricing"},
+      {"label": "场景", "path": "/scenes"},
+      {"label": "简历", "path": "/resume"},
+      {
+        "label": "博客",
+        "path": "/blog/",
+        "children": [
+          {"label": "全部博客", "path": "/blog/"},
+          {"label": "求职指南", "path": "/blog/category/job-guide/"},
+          {"label": "职场建议", "path": "/blog/category/career-advice/"},
+          {"label": "产品动态", "path": "/blog/category/product-updates/"}
+        ]
+      },
+      {"label": "关于我们", "path": "/blog/about/#company"}
+    ]
+  },
+  "footer": {
+    "links": [
+      {
+        "title": "快速链接",
+        "items": [
+          {"label": "定价", "path": "/pricing"},
+          {"label": "使用指南", "path": "/guide"},
+          {"label": "常见问题", "path": "/help"},
+          {"label": "联系我们", "path": "/contact"}
+        ]
+      },
+      {
+        "title": "博客分类",
+        "items": [
+          {"label": "产品动态", "path": "/blog/category/product-updates/"},
+          {"label": "求职指南", "path": "/blog/category/job-guide/"},
+          {"label": "职场建议", "path": "/blog/category/career-advice/"}
+        ]
+      },
+      {
+        "title": "帮助支持",
+        "items": [
+          {"label": "使用指南", "path": "/guide"},
+          {"label": "常见问题", "path": "/help"},
+          {"label": "联系我们", "path": "/contact"}
+        ]
+      },
+      {
+        "title": "关于我们",
+        "items": [
+          {"label": "公司介绍", "path": "/blog/about/#company"},
+          {"label": "服务条款", "path": "/terms"},
+          {"label": "隐私政策", "path": "/privacy"}
+        ]
+      }
+    ],
+    "bottom": {
+      "copyright": "© 2025 智投简历 All Rights Reserved",
+      "links": [
+        {"label": "服务条款", "path": "/terms"},
+        {"label": "隐私政策", "path": "/privacy"}
+      ]
+    }
+  }
+}
+
+
+
