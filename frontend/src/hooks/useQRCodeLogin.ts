@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import config from '../config/environment';
 
 /**
  * 二维码登录Hook
@@ -49,7 +50,8 @@ export const useQRCodeLogin = () => {
   const loadQRCode = async () => {
     try {
       const timestamp = new Date().getTime();
-      const url = `/api/boss/login/qrcode?format=base64&t=${timestamp}`;
+      // 🔧 修复：使用config中的apiBaseUrl
+      const url = `${config.apiBaseUrl}/boss/login/qrcode?format=base64&t=${timestamp}`;
       const exec = async (): Promise<string | null> => {
         const response = await fetch(url, {
           headers: {
@@ -115,7 +117,8 @@ export const useQRCodeLogin = () => {
   // 检查登录状态
   const checkLoginStatus = async () => {
     try {
-      const response = await fetch('/api/boss/login/status');
+      // 🔧 修复：使用config中的apiBaseUrl
+      const response = await fetch(`${config.apiBaseUrl}/boss/login/status`);
       const result = await response.json();
 
       // 显示运行进度
@@ -188,7 +191,8 @@ export const useQRCodeLogin = () => {
       }));
 
       // 调用后端启动登录
-      const response = await fetch('/api/boss/login/start', {
+      // 🔧 修复：使用config中的apiBaseUrl
+      const response = await fetch(`${config.apiBaseUrl}/boss/login/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });

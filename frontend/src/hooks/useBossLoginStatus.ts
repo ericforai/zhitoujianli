@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import config from '../config/environment';
 
 /**
  * Boss登录状态检查Hook
@@ -28,7 +29,7 @@ export const useBossLoginStatus = () => {
     try {
       setStatus(prev => ({ ...prev, isLoading: true, error: null }));
 
-      const response = await fetch('/api/boss/login/check-status', {
+      const response = await fetch(`${config.apiBaseUrl}/boss/login/check-status`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('authToken')}`,
           'Content-Type': 'application/json',

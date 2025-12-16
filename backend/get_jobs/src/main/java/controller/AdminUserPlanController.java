@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import entity.UserPlan;
-import enums.AdminType;
 import enums.PlanType;
 import lombok.extern.slf4j.Slf4j;
 import repository.UserPlanRepository;
@@ -32,7 +31,7 @@ import util.UserContextUtil;
 @Slf4j
 @RestController
 @RequestMapping("/api/admin/user-plans")
-@CrossOrigin(origins = "*", allowedHeaders = "*", maxAge = 3600)
+// ✅ 修复：移除@CrossOrigin注解，使用全局CorsConfig统一管理
 public class AdminUserPlanController {
 
     @Autowired

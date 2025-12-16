@@ -122,6 +122,17 @@ public class BossLoginService {
                 // 启用反检测模式
                 PlaywrightUtil.initStealth();
                 log.info("Cookie已加载，登录状态正常，继续执行...");
+
+                // ✅ 修复：Cookie有效时也要更新状态文件为success，让前端知道登录成功
+                try {
+                    String userId = System.getenv("BOSS_USER_ID");
+                    String safeUserId = userId != null ? userId.replaceAll("[^a-zA-Z0-9_-]", "_") : "default";
+                    String statusFile = System.getProperty("java.io.tmpdir") + java.io.File.separator + "boss_login_status_" + safeUserId + ".txt";
+                    java.nio.file.Files.write(java.nio.file.Paths.get(statusFile), "success".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                    log.info("✅ Cookie有效，登录状态已更新为success (用户: {})", safeUserId);
+                } catch (Exception e) {
+                    log.warn("更新登录状态文件失败: {}", e.getMessage());
+                }
             }
         } else {
             // Cookie无效，需要登录
@@ -391,9 +402,9 @@ public class BossLoginService {
                         } else {
                             log.warn("   ❌ 未发现登录Cookie (wt2/geek_zp_token)");
                             // ✅ 新增：手机端扫码提示
-                            if (elapsedSeconds >= 30 && elapsedSeconds % 60 == 0) {
+                            if (elapsedSeconds >= 20 && elapsedSeconds % 20 == 0) {
                                 log.info("   💡 提示：如果您已在手机上扫码并确认登录，请稍等片刻，系统正在检测Cookie...");
-                                log.info("   💡 如果长时间未响应，系统会在60秒后自动刷新页面以同步Cookie");
+                                log.info("   💡 系统会在20秒后自动刷新页面以同步Cookie");
                             }
                         }
                     }
@@ -445,14 +456,29 @@ public class BossLoginService {
                                 hasGeekToken ? "✓" : "✗", hasUabCollina ? "✓" : "✗", cookies.size());
                         } else {
                             // ✅ 修复：改进刷新策略 - 手机端扫码后，Cookie同步可能需要更长时间
-                            // 1. 等待至少60秒后才考虑刷新（给手机端用户更多时间确认）
-                            // 2. 每隔60秒刷新一次（不要频繁刷新）
+                            // 1. 等待至少90秒后才考虑刷新（给用户充足时间扫码确认）
+                            // 2. 每隔90秒刷新一次（避免二维码频繁失效）
                             // 3. 刷新后等待更长时间（5秒）让页面完全加载
                             // 4. 刷新后重新截图二维码（如果还在登录页）
+                            // 5. 检测Cookie数量变化时立即刷新
                             long elapsedSecondsForRefresh = (System.currentTimeMillis() - startTime) / 1000;
-                            if (elapsedSecondsForRefresh >= 60 && elapsedSecondsForRefresh % 60 == 0 && cookies.size() <= 10) {
-                                log.warn("⚠️ Cookie数量未增加（{}个），已等待{}秒，尝试刷新页面触发Cookie设置（手机端扫码后可能需要刷新才能同步Cookie）...",
-                                    cookies.size(), elapsedSecondsForRefresh);
+                            int currentCookieCount = cookies.size();
+
+                            // 检测Cookie数量是否增加（说明扫码有进展）
+                            boolean cookieCountIncreased = previousCookieCountRef[0] > 0 && currentCookieCount > previousCookieCountRef[0];
+
+                            // 条件：(1)Cookie增加立即刷新 或 (2)每90秒定时刷新（给用户充足时间）
+                            boolean shouldRefresh = cookieCountIncreased ||
+                                (elapsedSecondsForRefresh >= 90 && elapsedSecondsForRefresh % 90 == 0);
+
+                            if (shouldRefresh && currentCookieCount <= 15) {
+                                if (cookieCountIncreased) {
+                                    log.info("🔔 检测到Cookie数量增加（{}→{}个），立即刷新页面同步登录状态...",
+                                        previousCookieCountRef[0], currentCookieCount);
+                                } else {
+                                    log.warn("⚠️ Cookie数量未增加（{}个），已等待{}秒，尝试刷新页面触发Cookie设置...",
+                                        currentCookieCount, elapsedSecondsForRefresh);
+                                }
 
                                 try {
                                     // 刷新前保存当前URL

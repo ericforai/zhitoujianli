@@ -4,6 +4,7 @@
  */
 import type { GenerateResponse } from '../types/resume';
 import { authService } from './authService';
+import config from '../config/environment';
 
 export interface HistoryItem {
   id: string;
@@ -61,8 +62,9 @@ function save(list: HistoryItem[]) {
 async function listRemote(): Promise<HistoryItem[] | null> {
   try {
     // ✅ 修复：使用统一的API客户端，自动添加认证头
+    // 🔧 修复：apiClient的baseURL已经包含/api，所以路径不需要再加/api前缀
     const apiClient = (await import('./apiService')).default;
-    const response = await apiClient.get('/api/resume/history?page=1&pageSize=20');
+    const response = await apiClient.get('/resume/history?page=1&pageSize=20');
 
     const items: any[] = (response?.data as any)?.items || response?.data || [];
     if (Array.isArray(items)) {
@@ -100,9 +102,10 @@ export async function createVersion(params: {
   meta?: Record<string, unknown>;
 }): Promise<HistoryItem> {
   // ✅ 修复：尝试后端优先，使用统一的API客户端
+  // 🔧 修复：apiClient的baseURL已经包含/api，所以路径不需要再加/api前缀
   try {
     const apiClient = (await import('./apiService')).default;
-    const response = await apiClient.post('/api/resume/history', params);
+    const response = await apiClient.post('/resume/history', params);
 
     if (response.data?.success !== false && response.data?.data) {
       const item = response.data.data;
@@ -138,7 +141,7 @@ export async function createVersion(params: {
 export async function incrementExport(id: string, downloadUrl?: string) {
   // 尝试后端优先
   try {
-    const res = await fetch(`/api/resume/history/${encodeURIComponent(id)}/export`, {
+    const res = await fetch(`${config.apiBaseUrl}/resume/history/${encodeURIComponent(id)}/export`, {
       method: 'PATCH',
       credentials: 'include',
       headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
@@ -173,7 +176,7 @@ export async function replaceMeta(id: string, metaPatch: Record<string, unknown>
   }
   // 后端存在时可同时 PATCH /api/resume/history/{id}
   try {
-    await fetch(`/api/resume/history/${encodeURIComponent(id)}`, {
+    await fetch(`${config.apiBaseUrl}/resume/history/${encodeURIComponent(id)}`, {
       method: 'PATCH',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },

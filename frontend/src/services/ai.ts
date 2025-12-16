@@ -4,6 +4,7 @@
  * - /api/ai/diagnose
  */
 import type { DiagnoseResponse, GenerateResponse, ResumeInput } from '../types/resume';
+import config from '../config/environment';
 
 const DEV_MOCK = String(process.env.REACT_APP_RESUME_DEV_MOCK || '').toLowerCase() === 'true';
 
@@ -25,7 +26,7 @@ export async function generate(input: ResumeInput): Promise<GenerateResponse> {
     return data.default as unknown as GenerateResponse;
   }
   try {
-    return await fetchJSON<GenerateResponse>('/api/ai/generate', {
+    return await fetchJSON<GenerateResponse>(`${config.apiBaseUrl}/ai/generate`, {
       method: 'POST',
       body: JSON.stringify({ input })
     });
@@ -65,7 +66,7 @@ export async function diagnose(params: {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const res = await fetch('/api/ai/diagnose', {
+    const res = await fetch(`${config.apiBaseUrl}/ai/diagnose`, {
       method: 'POST',
       headers,
       credentials: 'include',

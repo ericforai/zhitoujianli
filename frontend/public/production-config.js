@@ -28,10 +28,12 @@
 
     console.log('🔧 配置已加载:', window.__PRODUCTION_CONFIG__);
   } else {
-    // 开发环境
+    // 开发环境（localhost）
+    // 本地开发时，指向后端 9091 端口（当前本地后端运行端口）
+    const localPort = 9091;
     window.__PRODUCTION_CONFIG__ = {
-      API_BASE_URL: '/api',
-      WS_BASE_URL: 'ws://localhost:3000/ws',
+      API_BASE_URL: `http://localhost:${localPort}/api`,
+      WS_BASE_URL: `ws://localhost:${localPort}/ws`,
       IS_SECURE: false,
       ENVIRONMENT: 'development',
     };

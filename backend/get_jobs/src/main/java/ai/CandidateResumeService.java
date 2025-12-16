@@ -107,7 +107,21 @@ public class CandidateResumeService {
             String aiResponse = AiService.sendRequest(fullPrompt);
 
             if (aiResponse == null || aiResponse.trim().isEmpty()) {
-                throw new RuntimeException("AI服务返回空响应");
+                // ✅ 改进：提供更详细的错误信息，帮助用户诊断问题
+                String apiKey = System.getenv("DEEPSEEK_API_KEY");
+                String apiKeyEnv = System.getenv("API_KEY");
+                boolean hasApiKey = (apiKey != null && !apiKey.isEmpty()) || (apiKeyEnv != null && !apiKeyEnv.isEmpty());
+                
+                String errorMsg = "AI服务返回空响应";
+                if (!hasApiKey) {
+                    errorMsg += "（可能原因：API_KEY环境变量未配置）";
+                } else {
+                    errorMsg += "（可能原因：API_KEY无效、网络问题或AI服务异常，请查看后端日志获取详细信息）";
+                }
+                log.error("【简历解析】{}，API_KEY配置状态: DEEPSEEK_API_KEY={}, API_KEY={}", 
+                    errorMsg, hasApiKey ? "已配置" : "未配置", 
+                    apiKeyEnv != null && !apiKeyEnv.isEmpty() ? "已配置" : "未配置");
+                throw new RuntimeException(errorMsg);
             }
 
             log.info("【简历解析】AI响应长度: {}", aiResponse.length());

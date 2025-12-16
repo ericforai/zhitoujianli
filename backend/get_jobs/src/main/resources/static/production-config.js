@@ -28,10 +28,11 @@
 
     console.log('🔧 配置已加载:', window.__PRODUCTION_CONFIG__);
   } else {
-    // 开发环境
+    // 开发环境（localhost）
+    // 本地开发时，直接指向后端8080端口
     window.__PRODUCTION_CONFIG__ = {
-      API_BASE_URL: '/api',
-      WS_BASE_URL: 'ws://localhost:3000/ws',
+      API_BASE_URL: 'http://localhost:8080/api',
+      WS_BASE_URL: 'ws://localhost:8080/ws',
       IS_SECURE: false,
       ENVIRONMENT: 'development',
     };

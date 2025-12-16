@@ -227,17 +227,85 @@ public class BossExecutionService {
     }
 
     /**
+     * 自动检测项目目录（支持本地开发和生产环境）
+     * @return 项目目录路径
+     */
+    private String detectProjectDir() {
+        // 优先检查生产环境路径
+        File prodPath = new File("/root/zhitoujianli/backend/get_jobs");
+        if (prodPath.exists() && new File(prodPath, "pom.xml").exists()) {
+            return prodPath.getAbsolutePath();
+        }
+        
+        // 尝试从当前工作目录检测
+        String userDir = System.getProperty("user.dir");
+        if (userDir != null) {
+            // 如果当前目录就是 get_jobs，直接返回
+            if (userDir.endsWith("get_jobs") && new File(userDir, "pom.xml").exists()) {
+                return userDir;
+            }
+            // 如果在项目根目录，尝试找到 backend/get_jobs
+            File backendPath = new File(userDir, "backend/get_jobs");
+            if (backendPath.exists() && new File(backendPath, "pom.xml").exists()) {
+                return backendPath.getAbsolutePath();
+            }
+            // 如果在 backend 目录，尝试找到 get_jobs
+            if (userDir.endsWith("backend")) {
+                File getJobsPath = new File(userDir, "get_jobs");
+                if (getJobsPath.exists() && new File(getJobsPath, "pom.xml").exists()) {
+                    return getJobsPath.getAbsolutePath();
+                }
+            }
+        }
+        
+        // 尝试从类路径检测（通过类加载器）
+        try {
+            String classPath = this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+            if (classPath.contains("get_jobs")) {
+                // 从类路径中提取项目目录
+                int index = classPath.indexOf("get_jobs");
+                String projectPath = classPath.substring(0, index + "get_jobs".length());
+                File projectDir = new File(projectPath);
+                if (projectDir.exists() && new File(projectDir, "pom.xml").exists()) {
+                    return projectDir.getAbsolutePath();
+                }
+            }
+        } catch (Exception e) {
+            log.debug("无法从类路径检测项目目录: {}", e.getMessage());
+        }
+        
+        // 默认返回生产环境路径（向后兼容）
+        log.warn("⚠️ 无法自动检测项目目录，使用默认路径: /root/zhitoujianli/backend/get_jobs");
+        return "/root/zhitoujianli/backend/get_jobs";
+    }
+
+    /**
      * 创建完全隔离的Boss进程
      * @param userId 用户ID（支持多用户隔离）
      * @param headless 是否使用无头模式
      * @param loginOnly 是否只登录不投递（用于二维码登录）
      */
     private ProcessBuilder createIsolatedBossProcess(String userId, boolean headless, boolean loginOnly) throws IOException {
-        String javaHome = System.getProperty("java.home");
-        String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
+        // 🔧 修复：自动检测项目目录，支持本地开发和生产环境
+        String projectDir = detectProjectDir();
+        
+        // 🔧 修复：优先使用系统PATH中的java，如果失败再使用java.home
+        String javaBin = "java"; // 默认使用PATH中的java
+        try {
+            // 验证java命令是否可用（使用超时避免阻塞）
+            Process testProcess = new ProcessBuilder("java", "-version").redirectErrorStream(true).start();
+            boolean finished = testProcess.waitFor(2, java.util.concurrent.TimeUnit.SECONDS);
+            if (!finished) {
+                testProcess.destroy();
+            }
+        } catch (Exception e) {
+            // 如果PATH中的java不可用，使用java.home
+            String javaHome = System.getProperty("java.home");
+            javaBin = javaHome + File.separator + "bin" + File.separator + "java";
+            log.warn("PATH中的java不可用，使用java.home: {}", javaBin);
+        }
 
         // ✅ 修复：使用classes目录构建classpath（Spring Boot JAR中的类在BOOT-INF/classes下，不能直接用-cp加载）
-        String projectDir = "/root/zhitoujianli/backend/get_jobs";
         String mavenClasspath = buildMavenClasspath();
         String classesPath = projectDir + File.separator + "target" + File.separator + "classes";
 
@@ -286,28 +354,53 @@ public class BossExecutionService {
 
         ProcessBuilder pb = new ProcessBuilder(command);
         // 工作目录保持在项目目录（需要classpath.txt等文件）
-        pb.directory(new File("/root/zhitoujianli/backend/get_jobs"));
+        // 🔧 修复：使用自动检测的项目目录，而不是硬编码路径
+        pb.directory(new File(projectDir));
 
         // 设置环境变量
         pb.environment().putAll(System.getenv());
-        pb.environment().put("PLAYWRIGHT_BROWSERS_PATH", "/root/.cache/ms-playwright");
+
+        // ✅ 修复：根据操作系统自动配置Playwright环境
+        String osName = System.getProperty("os.name").toLowerCase();
+        boolean isMac = osName.contains("mac");
+        boolean isLinux = osName.contains("linux");
+
+        if (isMac) {
+            // Mac环境：使用用户目录下的Playwright浏览器缓存
+            String userHome = System.getProperty("user.home");
+            String macPlaywrightPath = userHome + "/Library/Caches/ms-playwright";
+            pb.environment().put("PLAYWRIGHT_BROWSERS_PATH", macPlaywrightPath);
+            log.info("🍎 Mac环境检测: 使用Playwright路径 {}", macPlaywrightPath);
+
+            // Mac不需要虚拟显示，浏览器可以直接运行
+            // 不设置DISPLAY环境变量，让Playwright自动处理
+            pb.environment().remove("DISPLAY");
+            log.info("🍎 Mac环境: 不设置DISPLAY，浏览器将直接显示");
+        } else if (isLinux) {
+            // Linux生产环境
+            pb.environment().put("PLAYWRIGHT_BROWSERS_PATH", "/root/.cache/ms-playwright");
+
+            // 【关键】Linux服务器需要虚拟显示
+            pb.environment().put("DISPLAY", ":99");
+            pb.environment().put("XVFB_DISPLAY", ":99");
+            pb.environment().put("SCREEN_RESOLUTION", "1920x1080x24");
+            log.info("🐧 Linux环境检测: 使用Xvfb虚拟显示 :99");
+        } else {
+            // Windows或其他环境
+            String userHome = System.getProperty("user.home");
+            pb.environment().put("PLAYWRIGHT_BROWSERS_PATH", userHome + "/.cache/ms-playwright");
+            log.info("💻 其他环境检测: 使用默认Playwright路径");
+        }
+
         pb.environment().put("PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD", "true");
         pb.environment().put("NODE_OPTIONS", "--max-old-space-size=512");
 
         // ✅ 修复：防止Playwright临时目录package.json丢失导致崩溃
-        // 设置固定的工作目录，避免/tmp目录被清理
-        String playwrightWorkDir = "/opt/zhitoujianli/backend/.playwright-cache";
+        // 根据操作系统设置不同的工作目录
+        String playwrightWorkDir = isMac
+            ? System.getProperty("user.home") + "/.playwright-cache"
+            : "/opt/zhitoujianli/backend/.playwright-cache";
         new File(playwrightWorkDir).mkdirs();
-        // ❌ 修复：PLAYWRIGHT_NODEJS_PATH 必须是 Node.js 可执行文件路径，不是目录
-        // 删除错误的配置，让 Playwright 使用系统默认的 Node.js
-        // pb.environment().put("PLAYWRIGHT_NODEJS_PATH", playwrightWorkDir); // 已删除错误配置
-
-        // 【关键修复】设置虚拟显示，让浏览器在Xvfb上运行
-        pb.environment().put("DISPLAY", ":99");
-
-        // 确保Xvfb环境变量正确传递
-        pb.environment().put("XVFB_DISPLAY", ":99");
-        pb.environment().put("SCREEN_RESOLUTION", "1920x1080x24");
 
         // 【重要】显式传递AI服务的环境变量（.env文件中的变量不会自动传递）
         loadAndSetEnvVariables(pb);
@@ -343,7 +436,9 @@ public class BossExecutionService {
         try {
             // ✅ 优先读取生产环境配置文件
             File prodEnvFile = new File("/etc/zhitoujianli/backend.env");
-            File devEnvFile = new File("/root/zhitoujianli/backend/get_jobs/.env");
+            // 🔧 修复：自动检测项目目录，支持本地开发和生产环境
+            String projectDir = detectProjectDir();
+            File devEnvFile = new File(projectDir + File.separator + ".env");
 
             File envFile = prodEnvFile.exists() ? prodEnvFile : devEnvFile;
 

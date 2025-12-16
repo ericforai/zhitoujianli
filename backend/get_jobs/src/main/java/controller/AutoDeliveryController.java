@@ -70,26 +70,43 @@ public class AutoDeliveryController {
             log.info("用户 {} 请求启动自动投递", userId);
 
             // 2. 检查用户是否已有Boss账号登录（检查cookie文件）
+            // ✅ 修复：使用与check-status API相同的检查逻辑，确保状态一致性
             // ❌ 已删除default_user fallback机制（2025-11-06修复多租户隔离BUG）
             // 每个用户必须使用自己的Boss账号登录，不能共享Cookie
+            String sanitizedUserId = util.UserContextUtil.sanitizeUserId(userId);
+            String tempDir = System.getProperty("java.io.tmpdir");
             String[] possiblePaths = {
-                "/tmp/boss_cookies_" + userId + ".json",        // 用户特定Cookie（第一优先级）
-                "user_data/" + userId + "/boss_cookie.json"     // 用户数据目录（第二优先级）
+                tempDir + File.separator + "boss_cookies_" + sanitizedUserId + ".json",  // 系统临时目录（第一优先级）
+                "/tmp/boss_cookies_" + sanitizedUserId + ".json",  // Linux标准临时目录（第二优先级）
+                "user_data/" + sanitizedUserId + "/boss_cookie.json"  // 用户数据目录（第三优先级）
             };
 
             File cookieFile = null;
             for (String path : possiblePaths) {
                 File tempFile = new File(path);
-                log.info("检查cookie文件路径: {} (存在: {})", tempFile.getAbsolutePath(), tempFile.exists());
-                if (tempFile.exists()) {
-                    cookieFile = tempFile;
-                    log.info("✅ 找到用户{}的cookie文件: {} (存在: {})", userId, tempFile.getAbsolutePath(), tempFile.exists());
-                    break;
+                log.info("检查cookie文件路径: {} (存在: {}, 大小: {}KB)", 
+                    tempFile.getAbsolutePath(), tempFile.exists(), 
+                    tempFile.exists() ? tempFile.length() / 1024 : 0);
+                if (tempFile.exists() && tempFile.length() > 0) {
+                    // ✅ 修复：检查Cookie文件内容是否有效（与checkCookieValidity保持一致）
+                    try {
+                        String content = new String(Files.readAllBytes(tempFile.toPath()));
+                        if (content.trim().length() > 0 && !content.trim().equals("[]")) {
+                            cookieFile = tempFile;
+                            log.info("✅ 找到用户{}的有效cookie文件: {} ({}KB)", 
+                                userId, tempFile.getAbsolutePath(), tempFile.length() / 1024);
+                            break;
+                        } else {
+                            log.warn("Cookie文件为空或无效: {}", path);
+                        }
+                    } catch (Exception e) {
+                        log.warn("读取Cookie文件失败: {}", path, e);
+                    }
                 }
             }
 
             if (cookieFile == null) {
-                log.warn("用户{}的所有可能cookie文件路径都不存在，返回错误", userId);
+                log.warn("用户{}的所有可能cookie文件路径都不存在或无效，返回错误", userId);
                 return ResponseEntity.ok(ApiResponse.error("未登录Boss账号，请先扫码登录"));
             }
 

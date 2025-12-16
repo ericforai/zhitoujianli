@@ -108,7 +108,17 @@ const getCookieDomain = (): string => {
  * 获取API基础URL
  */
 const getApiBaseUrl = (env: Environment): string => {
-  // 优先使用环境变量
+  // 🔧 修复：在浏览器环境中，优先检查是否为localhost
+  // 如果是localhost，默认走前端代理 /api（代理目标 8080）
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    if ((hostname === 'localhost' || hostname === '127.0.0.1') && env === Environment.Development) {
+      // localhost开发环境：使用代理路径，必要时可通过环境变量覆盖
+      return process.env.REACT_APP_DEV_API_URL || '/api';
+    }
+  }
+
+  // 优先使用环境变量（但localhost环境已在上面的逻辑中处理）
   if (process.env.REACT_APP_API_URL) {
     return process.env.REACT_APP_API_URL;
   }
@@ -116,7 +126,7 @@ const getApiBaseUrl = (env: Environment): string => {
   // 根据环境返回默认值
   switch (env) {
     case Environment.Development:
-      // 开发环境：使用开发服务器地址
+      // 开发环境：默认使用前端代理 /api，若需要直连可通过 REACT_APP_DEV_API_URL 指定
       return process.env.REACT_APP_DEV_API_URL || '/api';
     case Environment.Staging:
       // 测试环境

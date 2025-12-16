@@ -133,8 +133,68 @@ public class BossQuotaService {
             stmt.close();
 
             if (planTypeOrdinal == null) {
-                log.error("❌ 用户没有有效套餐: userId={}，停止投递以确保配额限制生效", this.userId);
-                return false; // 用户没有有效套餐，应该阻止投递
+                log.warn("⚠️ 用户没有有效套餐: userId={}，自动创建默认免费套餐", this.userId);
+                // ✅ 修复：自动为用户创建默认免费套餐
+                try {
+                    // 先检查是否已存在（可能状态不是ACTIVE）
+                    stmt = conn.prepareStatement(
+                        "SELECT plan_type FROM user_plans WHERE user_id = ?");
+                    stmt.setString(1, this.userId);
+                    rs = stmt.executeQuery();
+                    boolean userPlanExists = rs.next();
+                    if (userPlanExists) {
+                        // 如果存在但状态不是ACTIVE，更新为ACTIVE
+                        rs.close();
+                        stmt.close();
+                        stmt = conn.prepareStatement(
+                            "UPDATE user_plans SET plan_type = 0, status = 0, start_date = CURRENT_DATE, end_date = NULL, updated_at = CURRENT_TIMESTAMP " +
+                            "WHERE user_id = ?");
+                        stmt.setString(1, this.userId);
+                        int updated = stmt.executeUpdate();
+                        stmt.close();
+                        if (updated > 0) {
+                            log.info("✅ 已更新用户套餐为默认免费套餐: userId={}", this.userId);
+                            planTypeOrdinal = 0; // FREE套餐
+                        }
+                    } else {
+                        rs.close();
+                        stmt.close();
+                        // 如果不存在，创建新记录
+                        stmt = conn.prepareStatement(
+                            "INSERT INTO user_plans (user_id, plan_type, status, start_date, end_date, auto_renewal, purchase_price, created_at, updated_at) " +
+                            "VALUES (?, 0, 0, CURRENT_DATE, NULL, false, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+                        stmt.setString(1, this.userId);
+                        int rowsAffected = stmt.executeUpdate();
+                        stmt.close();
+                        
+                        if (rowsAffected > 0) {
+                            log.info("✅ 已为用户创建默认免费套餐: userId={}", this.userId);
+                            planTypeOrdinal = 0; // FREE套餐
+                        }
+                    }
+                    
+                    // 如果还是null，再次查询确认
+                    if (planTypeOrdinal == null) {
+                        stmt = conn.prepareStatement(
+                            "SELECT plan_type FROM user_plans WHERE user_id = ? AND status = 0 AND (end_date IS NULL OR end_date > CURRENT_DATE)");
+                        stmt.setString(1, this.userId);
+                        rs = stmt.executeQuery();
+                        if (rs.next()) {
+                            planTypeOrdinal = rs.getInt("plan_type");
+                            log.info("✅ 查询到用户套餐: userId={}, planType={}", this.userId, planTypeOrdinal);
+                        }
+                        rs.close();
+                        stmt.close();
+                    }
+                    
+                    if (planTypeOrdinal == null) {
+                        log.error("❌ 创建默认套餐失败: userId={}，停止投递", this.userId);
+                        return false;
+                    }
+                } catch (Exception e) {
+                    log.error("❌ 创建默认套餐异常: userId={}", this.userId, e);
+                    return false;
+                }
             }
 
             // 将ordinal转换为PlanType枚举名称
@@ -164,24 +224,42 @@ public class BossQuotaService {
             stmt.setLong(2, quotaId);
             rs = stmt.executeQuery();
 
+            long limit;
+            boolean isUnlimited = false;
+            
             if (!rs.next()) {
-                log.error("❌ 套餐配额配置不存在: planType={}, quotaId={}，停止投递以确保配额限制生效", planType, quotaId);
-                return false; // 套餐配额配置不存在，应该阻止投递
-            }
-
-            boolean isUnlimited = rs.getBoolean("is_unlimited");
-            if (isUnlimited) {
-                log.debug("✅ 无限配额: userId={}, planType={}", this.userId, planType);
+                log.warn("⚠️ 套餐配额配置不存在: planType={}, quotaId={}，使用默认配额", planType, quotaId);
+                // ✅ 修复：如果套餐配额配置不存在，使用默认值（临时方案）
+                if ("FREE".equals(planType)) {
+                    limit = 5L; // FREE套餐默认每日投递5次
+                } else if ("BASIC".equals(planType)) {
+                    limit = 30L; // BASIC套餐默认每日投递30次
+                } else if ("PROFESSIONAL".equals(planType)) {
+                    limit = 100L; // PROFESSIONAL套餐默认每日投递100次
+                } else {
+                    log.error("❌ 套餐配额配置不存在且无默认值: planType={}, quotaId={}，停止投递", planType, quotaId);
+                    rs.close();
+                    stmt.close();
+                    return false;
+                }
+                log.info("✅ 使用{}套餐默认配额: daily_job_application={}次", planType, limit);
                 rs.close();
                 stmt.close();
-                return true;
-            }
+            } else {
+                isUnlimited = rs.getBoolean("is_unlimited");
+                if (isUnlimited) {
+                    log.debug("✅ 无限配额: userId={}, planType={}", this.userId, planType);
+                    rs.close();
+                    stmt.close();
+                    return true;
+                }
 
-            // ✅ 修复：计算effective_limit（如果is_unlimited为true返回Long.MAX_VALUE，否则返回quota_limit）
-            Long quotaLimit = rs.getLong("quota_limit");
-            long limit = (quotaLimit != null && quotaLimit > 0) ? quotaLimit : 0L;
-            rs.close();
-            stmt.close();
+                // ✅ 修复：计算effective_limit（如果is_unlimited为true返回Long.MAX_VALUE，否则返回quota_limit）
+                Long quotaLimit = rs.getLong("quota_limit");
+                limit = (quotaLimit != null && quotaLimit > 0) ? quotaLimit : 0L;
+                rs.close();
+                stmt.close();
+            }
 
             log.info("📋 套餐配额配置: userId={}, planType={}, quotaKey={}, quotaId={}, quotaLimit={}",
                 this.userId, planType, quotaKey, quotaId, limit);

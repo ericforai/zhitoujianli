@@ -34,7 +34,7 @@ import util.UserContextUtil;
 @Slf4j
 @RestController
 @RequestMapping("/api/user/plan")
-@CrossOrigin(origins = "*", allowedHeaders = "*", maxAge = 3600)
+// ✅ 修复：移除@CrossOrigin注解，使用全局CorsConfig统一管理
 public class UserPlanController {
 
     @Autowired

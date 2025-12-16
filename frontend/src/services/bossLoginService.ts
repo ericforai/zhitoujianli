@@ -254,13 +254,17 @@ export const bossLoginService = {
       return { valid: false, message: 'Cookie列表为空' };
     }
 
-    // 检查是否包含关键Cookie
+    // 检查是否包含关键Cookie - wt2 或 token 或 bst
     const hasWt2 = cookies.some(c => c.name === 'wt2');
+    const hasToken = cookies.some(c => c.name === 'token');
+    const hasBst = cookies.some(c => c.name === 'bst');
+    const hasZpStoken = cookies.some(c => c.name === '__zp_stoken__');
 
-    if (!hasWt2) {
+    // 只要有任意一个关键Cookie就认为有效
+    if (!hasWt2 && !hasToken && !hasBst && !hasZpStoken) {
       return {
         valid: false,
-        message: '缺少关键Cookie: wt2，请确保已成功登录Boss直聘',
+        message: '缺少登录Cookie，请确保已成功登录Boss直聘（登录后刷新页面再提取）',
       };
     }
 

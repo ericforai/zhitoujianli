@@ -108,7 +108,12 @@ export async function parse(file: File): Promise<ParseResult> {
     }
 
     // 后端实际可用端点：/api/resume/upload
-    const res = await fetch('/api/resume/upload', {
+    // 🔧 修复：默认走前端代理 /api，必要时可通过 REACT_APP_DEV_API_URL 覆盖
+    const apiBaseUrl =
+      typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? process.env.REACT_APP_DEV_API_URL || '/api'
+        : '/api';
+    const res = await fetch(`${apiBaseUrl}/resume/upload`, {
       method: 'POST',
       body: form,
       credentials: 'include',

@@ -58,10 +58,19 @@ const BossServerLogin: React.FC<BossServerLoginProps> = ({
       clearInterval(qrcodePollIntervalRef.current);
     }
 
+    let qrPollCount = 0;
+
     qrcodePollIntervalRef.current = setInterval(async () => {
       try {
+        qrPollCount++;
         const result = await bossLoginService.getQRCode();
+
+        if (qrPollCount % 3 === 0) {
+          console.log(`📷 [二维码轮询 #${qrPollCount}] hasQRCode=${result.hasQRCode}, message=${result.message}`);
+        }
+
         if (result.hasQRCode && result.imageData) {
+          console.log('✅ 二维码已获取，停止轮询');
           setQrcodeImage(result.imageData);
           setMessage('请使用Boss直聘App扫描下方二维码');
           // 二维码获取成功后停止轮询
@@ -71,7 +80,8 @@ const BossServerLogin: React.FC<BossServerLoginProps> = ({
           }
         }
       } catch (err) {
-        // 忽略错误，继续轮询
+        // 输出错误但继续轮询
+        console.warn('⚠️ 获取二维码失败，继续轮询...', err);
       }
     }, 2000); // 每2秒轮询一次
   };
@@ -82,11 +92,20 @@ const BossServerLogin: React.FC<BossServerLoginProps> = ({
       clearInterval(statusPollIntervalRef.current);
     }
 
+    let pollCount = 0; // 轮询计数器
+
     statusPollIntervalRef.current = setInterval(async () => {
       try {
+        pollCount++;
         const result = await bossLoginService.getLoginStatus();
 
+        // 每5次轮询输出一次详细日志（约10秒一次）
+        if (pollCount % 5 === 0) {
+          console.log(`🔍 [登录状态轮询 #${pollCount}] status=${result.status}, message=${result.message}, hasCookie=${result.hasCookie}`);
+        }
+
         if (result.status === 'success') {
+          console.log('✅ 登录成功！停止轮询');
           setStatus('success');
           setMessage('登录成功！Cookie已自动保存');
 
@@ -103,6 +122,7 @@ const BossServerLogin: React.FC<BossServerLoginProps> = ({
             }
           }, 1500);
         } else if (result.status === 'failed') {
+          console.log('❌ 登录失败！停止轮询');
           setStatus('failed');
           setMessage('登录失败，请重试');
 
@@ -114,9 +134,13 @@ const BossServerLogin: React.FC<BossServerLoginProps> = ({
         } else if (result.status === 'waiting') {
           setStatus('waiting');
           setMessage(result.message || '等待扫码登录...');
+        } else if (result.status === 'not_started') {
+          // 登录任务可能还没启动完成，继续等待
+          console.log('⏳ 登录任务尚未就绪，继续等待...');
         }
       } catch (err) {
-        // 忽略错误，继续轮询
+        // 输出错误但继续轮询
+        console.warn('⚠️ 获取登录状态失败，继续轮询...', err);
       }
     }, 2000); // 每2秒轮询一次
   };

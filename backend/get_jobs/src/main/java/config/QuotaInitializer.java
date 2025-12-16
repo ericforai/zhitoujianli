@@ -3,13 +3,20 @@ package config;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import entity.PlanQuotaConfig;
+import entity.QuotaDefinition;
+import enums.PlanType;
 import enums.QuotaCategory;
 import enums.ResetPeriod;
 import enums.UnitType;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import repository.PlanQuotaConfigRepository;
+import repository.QuotaDefinitionRepository;
 
 /**
  * 配额系统初始化器
@@ -20,6 +27,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class QuotaInitializer implements CommandLineRunner {
+
+    @Autowired
+    private QuotaDefinitionRepository quotaDefinitionRepository;
+
+    @Autowired
+    private PlanQuotaConfigRepository planQuotaConfigRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -62,8 +75,41 @@ public class QuotaInitializer implements CommandLineRunner {
         // 高级功能配额
         quotaDefinitions.addAll(createAdvancedQuotas());
 
-        // FIXME: 保存到数据库
-        // quotaDefinitionRepository.saveAll(quotaDefinitions);
+        // ✅ 修复：保存配额定义到数据库（如果不存在则创建）
+        if (quotaDefinitionRepository != null) {
+            for (QuotaDefinition tempDef : quotaDefinitions) {
+                String quotaKey = tempDef.getQuotaKey();
+                // 检查是否已存在
+                if (!quotaDefinitionRepository.existsByQuotaKey(quotaKey)) {
+                    // 转换为实体类并保存
+                    entity.QuotaDefinition quota = entity.QuotaDefinition.builder()
+                        .quotaKey(tempDef.getQuotaKey())
+                        .quotaName(tempDef.getQuotaName())
+                        .quotaDescription(tempDef.getQuotaDescription())
+                        .quotaCategory(tempDef.getQuotaCategory())
+                        .unitType(tempDef.getUnitType())
+                        .resetPeriod(tempDef.getResetPeriod())
+                        .isActive(tempDef.getIsActive())
+                        .sortOrder(tempDef.getSortOrder())
+                        .build();
+                    quotaDefinitionRepository.save(quota);
+                    log.info("✅ 创建配额定义: {}", quotaKey);
+                } else {
+                    // 如果已存在但未启用，则更新为启用状态
+                    entity.QuotaDefinition existing = quotaDefinitionRepository.findByQuotaKey(quotaKey).orElse(null);
+                    if (existing != null && !existing.getIsActive()) {
+                        existing.setIsActive(true);
+                        quotaDefinitionRepository.save(existing);
+                        log.info("✅ 启用配额定义: {}", quotaKey);
+                    } else {
+                        log.debug("配额定义已存在: {}", quotaKey);
+                    }
+                }
+            }
+            log.info("✅ 配额定义保存完成，共 {} 个配额", quotaDefinitions.size());
+        } else {
+            log.warn("⚠️ QuotaDefinitionRepository未注入，无法保存配额定义到数据库");
+        }
 
         log.info("配额定义初始化完成，共 {} 个配额", quotaDefinitions.size());
     }
@@ -76,19 +122,66 @@ public class QuotaInitializer implements CommandLineRunner {
 
         List<PlanQuotaConfig> configs = new ArrayList<>();
 
-        // 入门版（FREE）配置
-        configs.addAll(createFreePlanConfigs());
+        // ✅ 修复：分别处理每个套餐的配置，并保存到数据库
+        if (planQuotaConfigRepository != null && quotaDefinitionRepository != null) {
+            // 入门版（FREE）配置
+            List<PlanQuotaConfig> freeConfigs = createFreePlanConfigs();
+            savePlanQuotaConfigs(PlanType.FREE, freeConfigs);
 
-        // 高效版（BASIC）配置
-        configs.addAll(createBasicPlanConfigs());
+            // 高效版（BASIC）配置
+            List<PlanQuotaConfig> basicConfigs = createBasicPlanConfigs();
+            savePlanQuotaConfigs(PlanType.BASIC, basicConfigs);
 
-        // 极速版（PROFESSIONAL）配置
-        configs.addAll(createProfessionalPlanConfigs());
+            // 极速版（PROFESSIONAL）配置
+            List<PlanQuotaConfig> professionalConfigs = createProfessionalPlanConfigs();
+            savePlanQuotaConfigs(PlanType.PROFESSIONAL, professionalConfigs);
 
-        // FIXME: 保存到数据库
-        // planQuotaConfigRepository.saveAll(configs);
+            log.info("✅ 套餐配额配置保存完成");
+        } else {
+            log.warn("⚠️ PlanQuotaConfigRepository或QuotaDefinitionRepository未注入，无法保存套餐配额配置");
+            // 仍然创建配置列表（向后兼容）
+            configs.addAll(createFreePlanConfigs());
+            configs.addAll(createBasicPlanConfigs());
+            configs.addAll(createProfessionalPlanConfigs());
+        }
 
         log.info("套餐配额配置初始化完成，共 {} 个配置", configs.size());
+    }
+
+    /**
+     * 保存套餐配额配置到数据库
+     */
+    private void savePlanQuotaConfigs(PlanType planType, List<PlanQuotaConfig> configs) {
+        for (PlanQuotaConfig tempConfig : configs) {
+            String quotaKey = tempConfig.getQuotaKey();
+            
+            // 获取配额定义ID（使用实体类）
+            entity.QuotaDefinition quotaDef = quotaDefinitionRepository.findByQuotaKey(quotaKey).orElse(null);
+            if (quotaDef == null) {
+                log.warn("⚠️ 配额定义不存在，跳过套餐配额配置: planType={}, quotaKey={}", planType, quotaKey);
+                continue;
+            }
+            
+            // 检查是否已存在
+            Optional<entity.PlanQuotaConfig> existing = planQuotaConfigRepository.findByPlanTypeAndQuotaId(
+                planType, quotaDef.getId());
+            
+            if (!existing.isPresent()) {
+                // 转换为实体类并保存
+                entity.PlanQuotaConfig config = entity.PlanQuotaConfig.builder()
+                    .planType(planType)
+                    .quotaId(quotaDef.getId())
+                    .quotaLimit(tempConfig.getLimit())
+                    .isUnlimited(tempConfig.getIsUnlimited())
+                    .isEnabled(tempConfig.getIsEnabled())
+                    .build();
+                planQuotaConfigRepository.save(config);
+                log.info("✅ 创建套餐配额配置: planType={}, quotaKey={}, limit={}", 
+                    planType, quotaKey, tempConfig.getLimit());
+            } else {
+                log.debug("套餐配额配置已存在: planType={}, quotaKey={}", planType, quotaKey);
+            }
+        }
     }
 
     /**

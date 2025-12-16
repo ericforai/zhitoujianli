@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BossStatus, bossService } from '../services/bossService';
 import { usePlan } from '../contexts/PlanContext';
+import config from '../config/environment';
 
 /**
  * Boss投递控制Hook
@@ -31,20 +32,50 @@ export const useBossDelivery = () => {
   const fetchLogs = async () => {
     try {
       // 调用Boss投递专用日志API
-      const response = await fetch('/api/delivery/logs?lines=100', {
+      const response = await fetch(`${config.apiBaseUrl}/delivery/logs?lines=100`, {
         headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
+
+      // ✅ 修复：检查响应状态和Content-Type
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        // 返回了非JSON响应（可能是代理错误或HTML页面）
+        const text = await response.text();
+        console.error('API返回了非JSON响应:', text.substring(0, 200));
+        setLogs([`获取日志失败: 服务器返回了错误响应 (${response.status})`]);
+        return;
+      }
+
+      if (!response.ok) {
+        // 尝试解析错误响应
+        try {
+          const errorResult = await response.json();
+          setLogs([`获取日志失败: ${errorResult.message || `HTTP ${response.status}`}`]);
+        } catch {
+          setLogs([`获取日志失败: HTTP ${response.status}`]);
+        }
+        return;
+      }
+
       const data = await response.json();
-      if (data.success && data.data.logs) {
+      if (data.success && data.data && data.data.logs) {
         setLogs(data.data.logs);
       } else {
         setLogs(['暂无日志数据']);
       }
     } catch (error: any) {
       console.error('获取日志失败:', error);
-      setLogs(['获取日志失败: ' + error.message]);
+      // ✅ 修复：处理JSON解析错误
+      if (error.message && error.message.includes('JSON')) {
+        setLogs(['获取日志失败: 服务器返回了非JSON格式的响应，可能是代理错误']);
+      } else {
+        setLogs(['获取日志失败: ' + (error.message || '未知错误')]);
+      }
     }
   };
 
@@ -65,7 +96,7 @@ export const useBossDelivery = () => {
 
     try {
       // 调用新的自动投递API
-      const response = await fetch('/api/delivery/start', {
+      const response = await fetch(`${config.apiBaseUrl}/delivery/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -108,7 +139,7 @@ export const useBossDelivery = () => {
 
     try {
       // 调用停止投递API
-      const response = await fetch('/api/delivery/stop', {
+      const response = await fetch(`${config.apiBaseUrl}/delivery/stop`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

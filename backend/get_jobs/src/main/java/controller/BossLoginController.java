@@ -15,12 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,7 +46,7 @@ import service.BossExecutionService;
  */
 @RestController
 @RequestMapping("/api/boss/login")
-@CrossOrigin(origins = "*")
+// ✅ 修复：移除@CrossOrigin注解，使用全局CorsConfig统一管理
 @Deprecated
 public class BossLoginController {
 
@@ -54,6 +54,44 @@ public class BossLoginController {
 
     @Autowired
     private BossExecutionService bossExecutionService;
+
+    @Autowired
+    private Environment environment;
+
+    /**
+     * 检查是否为生产环境
+     */
+    private boolean isProductionEnvironment() {
+        String[] activeProfiles = environment.getActiveProfiles();
+        for (String profile : activeProfiles) {
+            if ("production".equalsIgnoreCase(profile) || "prod".equalsIgnoreCase(profile)) {
+                return true;
+            }
+        }
+        // 从环境变量检查
+        String envProfile = System.getProperty("spring.profiles.active");
+        if (envProfile != null) {
+            return "production".equalsIgnoreCase(envProfile) || "prod".equalsIgnoreCase(envProfile);
+        }
+        return false;
+    }
+
+    /**
+     * 返回废弃接口的引导信息（410 Gone）
+     */
+    private ResponseEntity<Map<String, Object>> createDeprecatedResponse() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", false);
+        response.put("deprecated", true);
+        response.put("status", "gone");
+        response.put("message", "此接口已废弃，请使用新的本地登录方案");
+        response.put("alternative", Map.of(
+            "guide", "/api/boss/local-login/guide",
+            "upload", "/api/boss/local-login/upload-cookie",
+            "description", "推荐使用本地浏览器登录Boss直聘，然后上传Cookie到服务器"
+        ));
+        return ResponseEntity.status(HttpStatus.GONE).body(response);
+    }
 
     // 二维码截图保存路径
     // ✅ 修复：二维码文件路径需要包含用户ID，与Boss.java中的生成逻辑保持一致
@@ -96,6 +134,12 @@ public class BossLoginController {
     @PostMapping("/start")
     @Deprecated
     public ResponseEntity<Map<String, Object>> startLogin() {
+        // ✅ 修复：生产环境直接返回410 Gone状态码
+        if (isProductionEnvironment()) {
+            log.warn("⚠️ 生产环境拒绝访问已废弃的接口 /api/boss/login/start");
+            return createDeprecatedResponse();
+        }
+
         // 获取当前用户ID（多用户支持）
         String userId = util.UserContextUtil.getCurrentUserId();
         log.warn("⚠️ 用户{}调用了已废弃的接口 /api/boss/login/start", userId);
@@ -250,6 +294,12 @@ public class BossLoginController {
     @GetMapping("/qrcode")
     @Deprecated
     public ResponseEntity<?> getQRCode(@RequestParam(value = "format", required = false) String format) {
+        // ✅ 修复：生产环境直接返回410 Gone状态码
+        if (isProductionEnvironment()) {
+            log.warn("⚠️ 生产环境拒绝访问已废弃的接口 /api/boss/login/qrcode");
+            return createDeprecatedResponse();
+        }
+
         log.warn("⚠️ 调用了已废弃的接口 /api/boss/login/qrcode");
         log.warn("⚠️ 服务器无图形界面，无法生成二维码，请使用本地登录方案");
         // 为链路追踪生成traceId并写入响应头
@@ -481,10 +531,15 @@ public class BossLoginController {
             // 每个用户只检查自己的Cookie文件
             String sanitizedUserId = util.UserContextUtil.sanitizeUserId(userId);
 
+            // ✅ 修复：使用System.getProperty("java.io.tmpdir")获取临时目录，与BossLoginService保持一致
+            String tempDir = System.getProperty("java.io.tmpdir");
             String[] possiblePaths = {
-                "/tmp/boss_cookies_" + sanitizedUserId + ".json",  // 用户特定Cookie（第一优先级）
-                "user_data/" + sanitizedUserId + "/boss_cookie.json"  // 用户数据目录（第二优先级）
+                tempDir + File.separator + "boss_cookies_" + sanitizedUserId + ".json",  // 系统临时目录（第一优先级）
+                "/tmp/boss_cookies_" + sanitizedUserId + ".json",  // Linux标准临时目录（第二优先级）
+                "user_data/" + sanitizedUserId + "/boss_cookie.json"  // 用户数据目录（第三优先级）
             };
+
+            log.info("检查Cookie文件路径，用户: {}, 临时目录: {}", sanitizedUserId, tempDir);
 
             // 检查每个可能的路径
             for (String path : possiblePaths) {

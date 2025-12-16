@@ -1,6 +1,41 @@
+# 智投简历 - Robots.txt
 # https://www.robotstxt.org/robotstxt.html
-User-agent: *
-Disallow:
 
-# Sitemap 位置
+User-agent: *
+Allow: /
+
+# 禁止访问后台和用户Dashboard
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /config/
+
+# 禁止访问博客管理后台
+Disallow: /blog/admin/
+Disallow: /blog/cms/
+Disallow: /blog/decapcms/
+Disallow: /blog/github-admin/
+Disallow: /blog/simple-admin/
+
+# 允许访问博客静态资源
+Allow: /blog/_astro/
+Allow: /blog/images/
+Allow: /blog/favicons/
+
+# 站点地图（统一入口）
 Sitemap: https://zhitoujianli.com/sitemap.xml
+
+# 百度蜘蛛配置
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 1
+
+# Google蜘蛛配置
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Bing蜘蛛配置
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1

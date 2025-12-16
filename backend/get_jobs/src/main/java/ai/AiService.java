@@ -76,7 +76,11 @@ public class AiService {
         messages.put(userMsg);
         requestData.put("messages", messages);
 
-        log.info("使用DeepSeek API，模型: {}", MODEL);
+        // ✅ 调试：记录API配置（不输出完整API_KEY，只显示前10个字符）
+        String apiKeyMasked = (API_KEY != null && API_KEY.length() > 10) 
+            ? API_KEY.substring(0, 10) + "..." 
+            : (API_KEY != null && !API_KEY.isEmpty() ? "已配置" : "未配置");
+        log.info("使用DeepSeek API，模型: {}, BASE_URL: {}, API_KEY: {}", MODEL, BASE_URL, apiKeyMasked);
 
         // 构建API端点
         String apiEndpoint = BASE_URL + "/v1/chat/completions";
@@ -110,7 +114,27 @@ public class AiService {
                     log.error("AI响应中没有有效的choices，完整响应: {}", response.body());
                     return "";
                 } else {
-                    log.warn("AI请求失败 attempt={} code={} body={}", attempt, code, response.body());
+                    String errorBody = response.body();
+                    log.error("AI请求失败 attempt={} code={} body={}", attempt, code, errorBody);
+                    
+                    // ✅ 改进：对于认证错误（401），立即返回，不重试
+                    if (code == 401) {
+                        log.error("❌ AI服务认证失败（401），API_KEY可能无效或已过期");
+                        // 尝试解析错误信息
+                        try {
+                            JSONObject errorObj = new JSONObject(errorBody);
+                            JSONObject error = errorObj.optJSONObject("error");
+                            if (error != null) {
+                                String errorMsg = error.optString("message", "API_KEY认证失败");
+                                log.error("❌ AI服务错误详情: {}", errorMsg);
+                                log.error("❌ 解决方案: 请检查DeepSeek账户中的API_KEY是否有效，如果无效请生成新的API_KEY并更新环境变量");
+                            }
+                        } catch (Exception e) {
+                            // 忽略JSON解析错误
+                        }
+                        return ""; // 认证错误不重试
+                    }
+                    
                     if (code == 429 || code >= 500) {
                         Thread.sleep(1000L * (1L << (attempt - 1))); // 1s,2s 退避
                         continue;

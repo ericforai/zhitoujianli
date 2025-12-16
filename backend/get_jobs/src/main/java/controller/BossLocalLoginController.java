@@ -12,7 +12,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,7 +37,7 @@ import util.UserContextUtil;
 @RestController
 @RequestMapping("/api/boss/local-login")
 @Slf4j
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080", "http://115.190.182.95:3000", "https://zhitoujianli.com"})
+// ✅ 修复：移除@CrossOrigin注解，使用全局CorsConfig统一管理（已包含所有需要的域名）
 public class BossLocalLoginController {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
