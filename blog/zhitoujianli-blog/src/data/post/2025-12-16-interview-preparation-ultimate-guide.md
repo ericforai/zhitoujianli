@@ -30,10 +30,10 @@ structuredData: |
       "name": "智投简历",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://zhitoujianli.com/images/logo.png"
+        "url": "https://www.zhitoujianli.com/images/logo.png"
       }
     },
-    "image": "https://zhitoujianli.com/blog/images/og-share-logo.jpg"
+    "image": "https://www.zhitoujianli.com/blog/images/og-share-logo.jpg"
   }
 ---
 
