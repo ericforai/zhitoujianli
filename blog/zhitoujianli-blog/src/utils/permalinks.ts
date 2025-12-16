@@ -30,7 +30,9 @@ export const POST_PERMALINK_PATTERN = trimSlash(APP_BLOG?.post?.permalink || `${
 
 /** */
 export const getCanonical = (path = ''): string | URL => {
-  const url = String(new URL(path, SITE.site));
+  // 强制使用www版本作为规范域名（SEO最佳实践）
+  const siteUrl = SITE.site?.replace(/^https?:\/\/(?!www\.)/, 'https://www.') || 'https://www.zhitoujianli.com';
+  const url = String(new URL(path, siteUrl));
   if (SITE.trailingSlash == false && path && url.endsWith('/')) {
     return url.slice(0, -1);
   } else if (SITE.trailingSlash == true && path && !url.endsWith('/')) {

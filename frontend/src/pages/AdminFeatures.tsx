@@ -35,7 +35,7 @@ const AdminFeatures: React.FC = () => {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'X-Requested-With': 'XMLHttpRequest',
           Authorization: `Bearer ${token}`,
         },
@@ -65,7 +65,7 @@ const AdminFeatures: React.FC = () => {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
+            Accept: 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
             Authorization: `Bearer ${token}`,
           },
@@ -78,7 +78,9 @@ const AdminFeatures: React.FC = () => {
       if (result.success) {
         // 更新本地状态
         setFeatures(prev =>
-          prev.map(f => (f.featureKey === featureKey ? { ...f, isEnabled: enabled } : f))
+          prev.map(f =>
+            f.featureKey === featureKey ? { ...f, isEnabled: enabled } : f
+          )
         );
       } else {
         setError(result.message || '更新功能状态失败');

@@ -210,7 +210,11 @@ class WebSocketManager {
    */
   private handleMessage(message: WebSocketMessage): void {
     // 处理action类型的消息（如verification_code_required）
-    if (message.data && typeof message.data === 'object' && 'action' in message.data) {
+    if (
+      message.data &&
+      typeof message.data === 'object' &&
+      'action' in message.data
+    ) {
       const action = (message.data as any).action;
       const handlers = this.eventHandlers.get(action);
       if (handlers) {

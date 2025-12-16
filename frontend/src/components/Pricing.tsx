@@ -84,7 +84,8 @@ const Pricing: React.FC = () => {
     setShowUpgradeDialog(false);
 
     // 跳转到联系页面，带上套餐参数
-    const planParam = selectedPlan === PlanType.BASIC ? 'basic' : 'professional';
+    const planParam =
+      selectedPlan === PlanType.BASIC ? 'basic' : 'professional';
     navigate(`/contact?plan=${planParam}&action=upgrade`);
   };
 
@@ -127,7 +128,6 @@ const Pricing: React.FC = () => {
         return 0;
     }
   };
-
 
   const pricingPlans = [
     {
@@ -218,7 +218,9 @@ const Pricing: React.FC = () => {
               <div className='bg-blue-50 border border-blue-200 rounded-lg px-6 py-3'>
                 <span className='text-sm text-blue-800'>
                   您当前使用的是：
-                  <span className='font-semibold ml-2'>{userPlan.planName}</span>
+                  <span className='font-semibold ml-2'>
+                    {userPlan.planName}
+                  </span>
                 </span>
               </div>
             </div>

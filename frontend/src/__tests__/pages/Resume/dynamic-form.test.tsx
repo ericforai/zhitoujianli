@@ -11,5 +11,3 @@ describe('DynamicForm', () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 });
-
-

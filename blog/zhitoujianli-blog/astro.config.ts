@@ -23,7 +23,7 @@ const whenExternalScripts = (items: (() => AstroIntegration) | (() => AstroInteg
 
 export default defineConfig({
   output: 'static',
-  site: 'https://zhitoujianli.com',
+  site: 'https://www.zhitoujianli.com', // 使用www作为规范域名（与Nginx配置一致）
   base: '/blog',
   compressHTML: true, // 启用HTML压缩
   trailingSlash: 'ignore',
@@ -33,18 +33,17 @@ export default defineConfig({
       applyBaseStyles: false,
     }),
     sitemap({
-      filter: (page) =>
-        !page.includes('/tag/'),  // 简化：只过滤标签页
+      filter: (page) => !page.includes('/tag/'), // 简化：只过滤标签页
       changefreq: 'weekly',
       priority: 0.7,
       lastmod: new Date(),
       customPages: [
-        'https://zhitoujianli.com/blog/',
-        'https://zhitoujianli.com/blog/category/product-updates/',
-        'https://zhitoujianli.com/blog/category/job-guide/',
-        'https://zhitoujianli.com/blog/category/career-advice/',
-        'https://zhitoujianli.com/blog/category/tech-depth/',
-        'https://zhitoujianli.com/blog/category/industry-analysis/',
+        'https://www.zhitoujianli.com/blog/',
+        'https://www.zhitoujianli.com/blog/category/product-updates/',
+        'https://www.zhitoujianli.com/blog/category/job-guide/',
+        'https://www.zhitoujianli.com/blog/category/career-advice/',
+        'https://www.zhitoujianli.com/blog/category/tech-depth/',
+        'https://www.zhitoujianli.com/blog/category/industry-analysis/',
       ],
     }),
     mdx(),

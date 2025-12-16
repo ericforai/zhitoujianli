@@ -28,8 +28,16 @@ const TemplatesPreview: React.FC = () => {
         setHtml(res.html);
         setScore(res.score);
         setKeywords(res.atsKeywords || []);
-        setLatestResult({ html: res.html, score: res.score, keywords: res.atsKeywords });
-        const created = await createVersion({ type: '模板', score: res.score, meta: { persona: form.persona } });
+        setLatestResult({
+          html: res.html,
+          score: res.score,
+          keywords: res.atsKeywords,
+        });
+        const created = await createVersion({
+          type: '模板',
+          score: res.score,
+          meta: { persona: form.persona },
+        });
         setHistoryId(created.id);
       } catch {
         // ignore
@@ -40,7 +48,9 @@ const TemplatesPreview: React.FC = () => {
   }, []);
 
   const sanitized = useMemo(() => {
-    return DOMPurify.sanitize(html || '<div class="text-gray-500">暂无预览</div>');
+    return DOMPurify.sanitize(
+      html || '<div class="text-gray-500">暂无预览</div>'
+    );
   }, [html]);
 
   const handleExport = async () => {
@@ -61,14 +71,20 @@ const TemplatesPreview: React.FC = () => {
           <div className='text-xl font-semibold'>AI 生成预览</div>
           <div className='flex items-center gap-3'>
             <ScoreBadge score={score} />
-            <button onClick={handleExport} className='px-4 py-2 rounded-lg bg-emerald-600 text-white'>
+            <button
+              onClick={handleExport}
+              className='px-4 py-2 rounded-lg bg-emerald-600 text-white'
+            >
               导出 PDF
             </button>
           </div>
         </div>
         <div className='flex flex-wrap gap-2'>
           {keywords.map(k => (
-            <span key={k} className='px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs'>
+            <span
+              key={k}
+              className='px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs'
+            >
               {k}
             </span>
           ))}
@@ -82,7 +98,10 @@ const TemplatesPreview: React.FC = () => {
               <div className='h-4 bg-gray-200 rounded w-2/3' />
             </div>
           ) : (
-            <div className='prose max-w-none' dangerouslySetInnerHTML={{ __html: sanitized }} />
+            <div
+              className='prose max-w-none'
+              dangerouslySetInnerHTML={{ __html: sanitized }}
+            />
           )}
         </div>
       </main>
@@ -92,5 +111,3 @@ const TemplatesPreview: React.FC = () => {
 };
 
 export default TemplatesPreview;
-
-

@@ -32,14 +32,17 @@ export const useBossDelivery = () => {
   const fetchLogs = async () => {
     try {
       // 调用Boss投递专用日志API
-      const response = await fetch(`${config.apiBaseUrl}/delivery/logs?lines=100`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
+      const response = await fetch(
+        `${config.apiBaseUrl}/delivery/logs?lines=100`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
 
       // ✅ 修复：检查响应状态和Content-Type
       const contentType = response.headers.get('content-type');
@@ -55,7 +58,9 @@ export const useBossDelivery = () => {
         // 尝试解析错误响应
         try {
           const errorResult = await response.json();
-          setLogs([`获取日志失败: ${errorResult.message || `HTTP ${response.status}`}`]);
+          setLogs([
+            `获取日志失败: ${errorResult.message || `HTTP ${response.status}`}`,
+          ]);
         } catch {
           setLogs([`获取日志失败: HTTP ${response.status}`]);
         }
@@ -199,7 +204,9 @@ export const useBossDelivery = () => {
         if (!canContinue) {
           // 配额已用完，自动停止投递
           console.log('⚠️ 配额已用完，自动停止投递任务');
-          setMessage('⚠️ 今日投递配额已用完，已自动停止投递。请升级套餐继续使用！');
+          setMessage(
+            '⚠️ 今日投递配额已用完，已自动停止投递。请升级套餐继续使用！'
+          );
 
           // 调用停止API
           try {

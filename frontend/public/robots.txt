@@ -22,7 +22,7 @@ Allow: /blog/_astro/
 Allow: /blog/images/
 Allow: /blog/favicons/
 
-# 站点地图（统一入口）
+# 站点地图（统一入口 - 包含所有URL）
 Sitemap: https://zhitoujianli.com/sitemap.xml
 
 # 百度蜘蛛配置

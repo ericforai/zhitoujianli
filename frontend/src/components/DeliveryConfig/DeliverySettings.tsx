@@ -7,7 +7,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { deliveryConfigValidator } from '../../services/deliveryService';
-import { DeliveryStrategy as DeliveryStrategyType, MatchingSchemes } from '../../types/api';
+import {
+  DeliveryStrategy as DeliveryStrategyType,
+  MatchingSchemes,
+} from '../../types/api';
 
 interface DeliverySettingsProps {
   strategy: DeliveryStrategyType;
@@ -28,17 +31,35 @@ const DeliverySettings: React.FC<DeliverySettingsProps> = ({
     STRICT: {
       name: '严格模式',
       description: '只匹配完全符合关键词的岗位，精准度高',
-      schemes: { scheme1: true, scheme2: false, scheme3: false, scheme4: false, scheme5: false },
+      schemes: {
+        scheme1: true,
+        scheme2: false,
+        scheme3: false,
+        scheme4: false,
+        scheme5: false,
+      },
     },
     STANDARD: {
       name: '标准模式',
       description: '平衡精准度和覆盖面，推荐使用',
-      schemes: { scheme1: true, scheme2: true, scheme3: true, scheme4: false, scheme5: false },
+      schemes: {
+        scheme1: true,
+        scheme2: true,
+        scheme3: true,
+        scheme4: false,
+        scheme5: false,
+      },
     },
     FLEXIBLE: {
       name: '灵活模式',
       description: '最大化匹配覆盖面，可能包含相关岗位',
-      schemes: { scheme1: true, scheme2: true, scheme3: true, scheme4: true, scheme5: true },
+      schemes: {
+        scheme1: true,
+        scheme2: true,
+        scheme3: true,
+        scheme4: true,
+        scheme5: true,
+      },
     },
   };
 
@@ -126,7 +147,9 @@ const DeliverySettings: React.FC<DeliverySettingsProps> = ({
   /**
    * 处理匹配模式变化
    */
-  const handleMatchingModeChange = (mode: 'STRICT' | 'STANDARD' | 'FLEXIBLE' | 'CUSTOM') => {
+  const handleMatchingModeChange = (
+    mode: 'STRICT' | 'STANDARD' | 'FLEXIBLE' | 'CUSTOM'
+  ) => {
     if (mode === 'CUSTOM') {
       // 自定义模式：保持现有schemes配置
       setFormData(prev => ({
@@ -147,7 +170,10 @@ const DeliverySettings: React.FC<DeliverySettingsProps> = ({
   /**
    * 处理匹配方案开关变化
    */
-  const handleSchemeToggle = (schemeId: keyof MatchingSchemes, enabled: boolean) => {
+  const handleSchemeToggle = (
+    schemeId: keyof MatchingSchemes,
+    enabled: boolean
+  ) => {
     setFormData(prev => ({
       ...prev,
       keywordMatchingMode: 'CUSTOM', // 切换到自定义模式
@@ -409,7 +435,9 @@ const DeliverySettings: React.FC<DeliverySettingsProps> = ({
                         </svg>
                       )}
                     </div>
-                    <p className='text-xs text-gray-600'>{preset.description}</p>
+                    <p className='text-xs text-gray-600'>
+                      {preset.description}
+                    </p>
                   </button>
                 );
               })}
@@ -434,7 +462,13 @@ const DeliverySettings: React.FC<DeliverySettingsProps> = ({
               匹配方案详情
               {formData.keywordMatchingMode !== 'CUSTOM' && (
                 <span className='ml-2 text-xs font-normal text-gray-500'>
-                  （当前使用{formData.keywordMatchingMode === 'STRICT' ? '严格' : formData.keywordMatchingMode === 'FLEXIBLE' ? '灵活' : '标准'}模式预设）
+                  （当前使用
+                  {formData.keywordMatchingMode === 'STRICT'
+                    ? '严格'
+                    : formData.keywordMatchingMode === 'FLEXIBLE'
+                      ? '灵活'
+                      : '标准'}
+                  模式预设）
                 </span>
               )}
             </div>
@@ -442,7 +476,10 @@ const DeliverySettings: React.FC<DeliverySettingsProps> = ({
               const schemeKey = scheme.id as keyof MatchingSchemes;
               // 计算是否启用：优先使用matchingSchemes配置，否则根据模式推断
               let isEnabled = false;
-              if (formData.matchingSchemes && formData.matchingSchemes[schemeKey] !== undefined) {
+              if (
+                formData.matchingSchemes &&
+                formData.matchingSchemes[schemeKey] !== undefined
+              ) {
                 isEnabled = formData.matchingSchemes[schemeKey] || false;
               } else {
                 // 根据匹配模式推断
@@ -453,16 +490,21 @@ const DeliverySettings: React.FC<DeliverySettingsProps> = ({
                   isEnabled = true;
                 } else {
                   // STANDARD 或默认
-                  isEnabled = ['scheme1', 'scheme2', 'scheme3'].includes(schemeKey);
+                  isEnabled = ['scheme1', 'scheme2', 'scheme3'].includes(
+                    schemeKey
+                  );
                 }
               }
-              const canToggle = (formData.keywordMatchingMode || 'STANDARD') === 'CUSTOM';
+              const canToggle =
+                (formData.keywordMatchingMode || 'STANDARD') === 'CUSTOM';
 
               return (
                 <div
                   key={scheme.id}
                   className={`p-3 border rounded-lg ${
-                    isEnabled ? 'border-blue-200 bg-white' : 'border-gray-200 bg-gray-50'
+                    isEnabled
+                      ? 'border-blue-200 bg-white'
+                      : 'border-gray-200 bg-gray-50'
                   }`}
                 >
                   <div className='flex items-start justify-between'>
@@ -502,8 +544,12 @@ const DeliverySettings: React.FC<DeliverySettingsProps> = ({
                           </span>
                         )}
                       </div>
-                      <p className='text-xs text-gray-600 mb-1'>{scheme.description}</p>
-                      <p className='text-xs text-gray-500 italic'>{scheme.example}</p>
+                      <p className='text-xs text-gray-600 mb-1'>
+                        {scheme.description}
+                      </p>
+                      <p className='text-xs text-gray-500 italic'>
+                        {scheme.example}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -524,7 +570,10 @@ const DeliverySettings: React.FC<DeliverySettingsProps> = ({
                 step='0.1'
                 value={formData.matchThreshold || 0.7}
                 onChange={e =>
-                  handleInputChange('matchThreshold', parseFloat(e.target.value))
+                  handleInputChange(
+                    'matchThreshold',
+                    parseFloat(e.target.value)
+                  )
                 }
                 className='flex-1'
                 disabled={loading}

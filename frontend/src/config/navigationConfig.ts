@@ -116,6 +116,3 @@ export const loadNavigationConfig = async (): Promise<NavigationConfig> => {
 export const getNavigationConfig = (): NavigationConfig => {
   return defaultConfig;
 };
-
-
-

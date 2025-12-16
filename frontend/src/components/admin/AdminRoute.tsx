@@ -8,7 +8,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import config from '../../config/environment';
 
 interface AdminRouteProps {
   children: React.ReactNode;
@@ -27,7 +26,8 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
     const checkAdminStatus = async () => {
       try {
         // 优先检查 authToken，因为登录时设置的是 authToken
-        const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+        const token =
+          localStorage.getItem('authToken') || localStorage.getItem('token');
         const currentPath = window.location.pathname;
 
         console.log('🔍 AdminRoute检查:', {
@@ -63,12 +63,16 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
                 localStorage.setItem('userType', 'admin');
               } else {
                 // 即使Token中没有管理员标识，但路径是admin且有token，也恢复userType
-                console.log('⚠️ Token中没有管理员标识，但路径是admin，恢复userType=admin');
+                console.log(
+                  '⚠️ Token中没有管理员标识，但路径是admin，恢复userType=admin'
+                );
                 localStorage.setItem('userType', 'admin');
               }
             } else {
               // Token格式不正确，但路径是admin且有token，也恢复userType
-              console.log('⚠️ Token格式不正确，但路径是admin，恢复userType=admin');
+              console.log(
+                '⚠️ Token格式不正确，但路径是admin，恢复userType=admin'
+              );
               localStorage.setItem('userType', 'admin');
             }
           } catch (e) {
@@ -118,10 +122,13 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
       } catch (error) {
         console.error('❌ 检查管理员状态失败:', error);
         // 🔧 修复：即使出错，如果路径是admin且有token，也允许通过（容错处理）
-        const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+        const token =
+          localStorage.getItem('authToken') || localStorage.getItem('token');
         const currentPath = window.location.pathname;
         if (currentPath.startsWith('/admin') && token) {
-          console.warn('⚠️ 检查过程出错，但路径是admin且有token，允许通过（容错）');
+          console.warn(
+            '⚠️ 检查过程出错，但路径是admin且有token，允许通过（容错）'
+          );
           localStorage.setItem('userType', 'admin');
           setIsAdmin(true);
         } else {

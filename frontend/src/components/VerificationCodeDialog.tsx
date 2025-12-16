@@ -31,7 +31,8 @@ const VerificationCodeDialog: React.FC<VerificationCodeDialogProps> = ({
   requestId,
   jobName,
   screenshotUrl,
-  taskId,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  taskId: _taskId,
 }) => {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -81,9 +82,7 @@ const VerificationCodeDialog: React.FC<VerificationCodeDialogProps> = ({
     } catch (err: any) {
       console.error('提交验证码失败:', err);
       setError(
-        err.response?.data?.message ||
-          err.message ||
-          '提交验证码失败，请重试'
+        err.response?.data?.message || err.message || '提交验证码失败，请重试'
       );
     } finally {
       setLoading(false);
@@ -302,4 +301,3 @@ const VerificationCodeDialog: React.FC<VerificationCodeDialogProps> = ({
 };
 
 export default VerificationCodeDialog;
-

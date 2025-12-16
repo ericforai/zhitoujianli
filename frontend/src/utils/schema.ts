@@ -7,9 +7,21 @@ import type { Persona, ResumeInput } from '../types/resume';
 export const BASE_SCHEMA: Record<string, unknown> = {
   title: 'ResumeInput',
   type: 'object',
-  required: ['persona', 'targetRole', 'name', 'email', 'skills', 'experiences', 'projects', 'education'],
+  required: [
+    'persona',
+    'targetRole',
+    'name',
+    'email',
+    'skills',
+    'experiences',
+    'projects',
+    'education',
+  ],
   properties: {
-    persona: { type: 'string', enum: ['graduate', 'no_experience', 'experienced', 'freelancer'] },
+    persona: {
+      type: 'string',
+      enum: ['graduate', 'no_experience', 'experienced', 'freelancer'],
+    },
     targetRole: { type: 'string', minLength: 2, title: '目标职位' },
     targetIndustry: { type: 'string', title: '目标行业' },
     jdText: { type: 'string', title: '职位JD文本' },
@@ -30,10 +42,14 @@ export const BASE_SCHEMA: Record<string, unknown> = {
         required: ['name'],
         properties: {
           name: { type: 'string', title: '技能名称' },
-          level: { type: 'string', enum: ['basic', 'intermediate', 'advanced'], title: '熟练度' }
-        }
+          level: {
+            type: 'string',
+            enum: ['basic', 'intermediate', 'advanced'],
+            title: '熟练度',
+          },
+        },
       },
-      minItems: 1
+      minItems: 1,
     },
     experiences: {
       type: 'array',
@@ -48,11 +64,20 @@ export const BASE_SCHEMA: Record<string, unknown> = {
           start: { type: 'string', title: '开始时间' },
           end: { type: 'string', title: '结束时间' },
           isCurrent: { type: 'boolean', title: '当前在任' },
-          bullets: { type: 'array', items: { type: 'string' }, minItems: 1, title: '要点' },
-          techStack: { type: 'array', items: { type: 'string' }, title: '技术栈' }
-        }
+          bullets: {
+            type: 'array',
+            items: { type: 'string' },
+            minItems: 1,
+            title: '要点',
+          },
+          techStack: {
+            type: 'array',
+            items: { type: 'string' },
+            title: '技术栈',
+          },
+        },
       },
-      minItems: 1
+      minItems: 1,
     },
     projects: {
       type: 'array',
@@ -66,11 +91,20 @@ export const BASE_SCHEMA: Record<string, unknown> = {
           link: { type: 'string', title: '链接' },
           start: { type: 'string', title: '开始' },
           end: { type: 'string', title: '结束' },
-          bullets: { type: 'array', items: { type: 'string' }, minItems: 1, title: '要点' },
-          techStack: { type: 'array', items: { type: 'string' }, title: '技术栈' }
-        }
+          bullets: {
+            type: 'array',
+            items: { type: 'string' },
+            minItems: 1,
+            title: '要点',
+          },
+          techStack: {
+            type: 'array',
+            items: { type: 'string' },
+            title: '技术栈',
+          },
+        },
       },
-      minItems: 0
+      minItems: 0,
     },
     education: {
       type: 'array',
@@ -86,13 +120,13 @@ export const BASE_SCHEMA: Record<string, unknown> = {
           end: { type: 'string', title: '结束' },
           gpa: { type: 'string', title: 'GPA' },
           courses: { type: 'array', items: { type: 'string' }, title: '课程' },
-          awards: { type: 'array', items: { type: 'string' }, title: '奖项' }
-        }
+          awards: { type: 'array', items: { type: 'string' }, title: '奖项' },
+        },
       },
-      minItems: 0
+      minItems: 0,
     },
-    certifications: { type: 'array', items: { type: 'string' }, title: '证书' }
-  }
+    certifications: { type: 'array', items: { type: 'string' }, title: '证书' },
+  },
 };
 
 export const PERSONA_RULES: Record<
@@ -104,25 +138,82 @@ export const PERSONA_RULES: Record<
   }
 > = {
   graduate: {
-    required: ['persona', 'targetRole', 'name', 'email', 'skills', 'education', 'experiences', 'projects'],
+    required: [
+      'persona',
+      'targetRole',
+      'name',
+      'email',
+      'skills',
+      'education',
+      'experiences',
+      'projects',
+    ],
     placeholders: { summary: '突出校园经历与实习成果，量化产出' },
-    fieldOrder: ['persona', 'targetRole', 'jdText', 'name', 'email', 'summary', 'skills', 'projects', 'experiences', 'education']
+    fieldOrder: [
+      'persona',
+      'targetRole',
+      'jdText',
+      'name',
+      'email',
+      'summary',
+      'skills',
+      'projects',
+      'experiences',
+      'education',
+    ],
   },
   no_experience: {
     required: ['persona', 'targetRole', 'name', 'email', 'skills', 'projects'],
     placeholders: { summary: '无正式工作经验也可突出项目/竞赛/课程' },
-    fieldOrder: ['persona', 'targetRole', 'jdText', 'name', 'email', 'summary', 'skills', 'projects', 'education']
+    fieldOrder: [
+      'persona',
+      'targetRole',
+      'jdText',
+      'name',
+      'email',
+      'summary',
+      'skills',
+      'projects',
+      'education',
+    ],
   },
   experienced: {
-    required: ['persona', 'targetRole', 'name', 'email', 'skills', 'experiences'],
+    required: [
+      'persona',
+      'targetRole',
+      'name',
+      'email',
+      'skills',
+      'experiences',
+    ],
     placeholders: { summary: '强调业绩指标与业务影响（用数字）' },
-    fieldOrder: ['persona', 'targetRole', 'jdText', 'name', 'email', 'summary', 'skills', 'experiences', 'projects', 'education']
+    fieldOrder: [
+      'persona',
+      'targetRole',
+      'jdText',
+      'name',
+      'email',
+      'summary',
+      'skills',
+      'experiences',
+      'projects',
+      'education',
+    ],
   },
   freelancer: {
     required: ['persona', 'targetRole', 'name', 'email', 'skills', 'projects'],
     placeholders: { summary: '强调客户案例、交付物与工具栈' },
-    fieldOrder: ['persona', 'targetRole', 'jdText', 'name', 'email', 'summary', 'skills', 'projects', 'experiences', 'education']
-  }
+    fieldOrder: [
+      'persona',
+      'targetRole',
+      'jdText',
+      'name',
+      'email',
+      'summary',
+      'skills',
+      'projects',
+      'experiences',
+      'education',
+    ],
+  },
 };
-
-

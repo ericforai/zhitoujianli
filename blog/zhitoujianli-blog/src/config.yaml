@@ -1,6 +1,6 @@
 site:
   name: 智投简历博客
-  site: 'https://zhitoujianli.com'
+  site: 'https://www.zhitoujianli.com'  # 使用www作为规范域名（与Nginx配置一致）
   base: '/blog' # 生产环境使用/blog前缀
   trailingSlash: true
 

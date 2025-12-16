@@ -37,7 +37,7 @@
     "lint:check": "eslint src/**/*.{js,jsx,ts,tsx} --max-warnings 0",
     "format": "prettier --write src/**/*.{js,jsx,ts,tsx,json,css,md}",
     "format:check": "prettier --check src/**/*.{js,jsx,ts,tsx,json,css,md}",
-    "type-check": "tsc --noEmit",
+    "type-check": "tsc --noEmit --skipLibCheck",
     "code-quality": "npm run type-check && npm run lint:check && npm run format:check",
     "prepare": "husky"
   },

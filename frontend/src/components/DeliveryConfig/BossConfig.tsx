@@ -175,7 +175,9 @@ const BossConfig: React.FC<BossConfigProps> = ({
       <div className='mb-6'>
         <div className='flex items-center justify-between'>
           <div>
-            <h3 className='text-lg font-semibold text-gray-900'>Boss直聘配置</h3>
+            <h3 className='text-lg font-semibold text-gray-900'>
+              Boss直聘配置
+            </h3>
             <p className='text-sm text-gray-500'>
               配置搜索关键词、城市、薪资等投递参数
             </p>
@@ -193,9 +195,7 @@ const BossConfig: React.FC<BossConfigProps> = ({
                 准备中...
               </>
             ) : (
-              <>
-                🔄 重新登录
-              </>
+              <>🔄 重新登录</>
             )}
           </button>
         </div>

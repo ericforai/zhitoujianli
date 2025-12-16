@@ -66,7 +66,9 @@ const BossServerLogin: React.FC<BossServerLoginProps> = ({
         const result = await bossLoginService.getQRCode();
 
         if (qrPollCount % 3 === 0) {
-          console.log(`📷 [二维码轮询 #${qrPollCount}] hasQRCode=${result.hasQRCode}, message=${result.message}`);
+          console.log(
+            `📷 [二维码轮询 #${qrPollCount}] hasQRCode=${result.hasQRCode}, message=${result.message}`
+          );
         }
 
         if (result.hasQRCode && result.imageData) {
@@ -101,7 +103,9 @@ const BossServerLogin: React.FC<BossServerLoginProps> = ({
 
         // 每5次轮询输出一次详细日志（约10秒一次）
         if (pollCount % 5 === 0) {
-          console.log(`🔍 [登录状态轮询 #${pollCount}] status=${result.status}, message=${result.message}, hasCookie=${result.hasCookie}`);
+          console.log(
+            `🔍 [登录状态轮询 #${pollCount}] status=${result.status}, message=${result.message}, hasCookie=${result.hasCookie}`
+          );
         }
 
         if (result.status === 'success') {

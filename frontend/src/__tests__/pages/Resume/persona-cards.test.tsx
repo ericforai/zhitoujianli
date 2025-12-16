@@ -11,5 +11,3 @@ describe('PersonaCards', () => {
     expect(onChange).toHaveBeenCalled();
   });
 });
-
-

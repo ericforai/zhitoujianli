@@ -1,0 +1,83 @@
+spring:
+  application:
+    name: zhitoujianli-backend-dev
+  # PostgreSQL数据库配置（开发环境）
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/zhitoujianli}
+    driverClassName: org.postgresql.Driver
+    username: ${DB_USERNAME:zhitoujianli}
+    password: ${DB_PASSWORD:zhitoujianli123}
+    hikari:
+      minimum-idle: 2
+      maximum-pool-size: 10
+      connection-timeout: 30000
+      max-lifetime: 1800000
+      idle-timeout: 600000
+      connection-test-query: SELECT 1
+      pool-name: ZhiTouJianLi-Dev-Pool
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update # 🔧 开发环境允许自动更新表结构
+    show-sql: true # 🔧 开发环境显示SQL
+    properties:
+      hibernate:
+        format_sql: true
+        # 缓存配置
+        cache:
+          use_second_level_cache: false
+          use_query_cache: false
+        # 批处理大小
+        jdbc:
+          batch_size: 20
+
+# 安全认证开关
+security:
+  enabled: ${SECURITY_ENABLED:true} # 🔧 开发环境可以设置为false进行测试
+
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET:dev_secret_key_for_local_development_only_12345678901234567890}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+# 服务器配置
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  compression:
+    enabled: false # 🔧 开发环境禁用压缩，便于调试
+
+# 日志配置（开发环境详细日志）
+logging:
+  level:
+    root: INFO
+    com.superxiang: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    security: DEBUG
+    config: DEBUG
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
+  file:
+    name: logs/zhitoujianli-dev.log
+    max-size: 50MB
+    max-history: 7
+
+# DeepSeek AI配置
+ai:
+  base-url: ${BASE_URL:https://api.deepseek.com}
+  api-key: ${API_KEY:}
+  model: ${MODEL:deepseek-chat}
+
+# CORS配置（开发环境允许所有来源）
+cors:
+  allowed-origins: '*'
+  allowed-methods: '*'
+  allowed-headers: '*'
+  allow-credentials: true
+
+
+

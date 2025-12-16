@@ -264,7 +264,8 @@ export const bossLoginService = {
     if (!hasWt2 && !hasToken && !hasBst && !hasZpStoken) {
       return {
         valid: false,
-        message: '缺少登录Cookie，请确保已成功登录Boss直聘（登录后刷新页面再提取）',
+        message:
+          '缺少登录Cookie，请确保已成功登录Boss直聘（登录后刷新页面再提取）',
       };
     }
 

@@ -114,6 +114,16 @@ else
 fi
 echo ""
 
+# 5. 合并sitemap
+echo -e "${BLUE}[5/5] 合并sitemap...${NC}"
+if [ -f "$PROJECT_ROOT/scripts/merge-sitemap.sh" ]; then
+    bash "$PROJECT_ROOT/scripts/merge-sitemap.sh"
+    echo -e "${GREEN}✓ Sitemap合并完成${NC}"
+else
+    echo -e "${YELLOW}⚠️  Sitemap合并脚本不存在，跳过${NC}"
+fi
+echo ""
+
 # 完成
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}  博客部署完成！${NC}"

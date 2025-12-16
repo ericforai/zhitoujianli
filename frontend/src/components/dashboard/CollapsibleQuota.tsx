@@ -50,7 +50,9 @@ export const CollapsibleQuota: React.FC<CollapsibleQuotaProps> = ({
                   <span>
                     📮 每日投递:{' '}
                     <span className='font-medium text-gray-900'>
-                      {dailyQuota.unlimited ? '∞' : `${dailyQuota.used}/${dailyQuota.limit}`}
+                      {dailyQuota.unlimited
+                        ? '∞'
+                        : `${dailyQuota.used}/${dailyQuota.limit}`}
                     </span>
                   </span>
                 )}
@@ -107,4 +109,3 @@ export const CollapsibleQuota: React.FC<CollapsibleQuotaProps> = ({
 };
 
 export default CollapsibleQuota;
-

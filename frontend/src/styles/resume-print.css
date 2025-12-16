@@ -20,7 +20,10 @@
 
 /* 简历容器样式 */
 .resume-container {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial,
+    sans-serif;
   color: #333;
   line-height: 1.6;
   font-size: 14px;
@@ -246,4 +249,3 @@
     min-height: 297mm; /* A4高度 */
   }
 }
-

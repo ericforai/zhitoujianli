@@ -3,7 +3,11 @@
  * 说明：严格按照需求提供的类型声明，供表单、服务与页面使用
  */
 
-export type Persona = 'graduate' | 'no_experience' | 'experienced' | 'freelancer';
+export type Persona =
+  | 'graduate'
+  | 'no_experience'
+  | 'experienced'
+  | 'freelancer';
 
 export interface ResumeInput {
   persona: Persona;
@@ -64,7 +68,15 @@ export interface GenerateResponse {
 
 export interface DiagnoseResponse {
   sections: Array<{
-    name: '总体评价' | '结构分析' | '内容分析' | '专业度与可信度' | 'ATS技术分析' | '可提升点' | '重写关键段落' | '最终得分';
+    name:
+      | '总体评价'
+      | '结构分析'
+      | '内容分析'
+      | '专业度与可信度'
+      | 'ATS技术分析'
+      | '可提升点'
+      | '重写关键段落'
+      | '最终得分';
     items: Array<{ issue: string; fix: string }>;
     content?: string | object; // 用于存储分析内容（可能是字符串或对象）
   }>;
@@ -83,5 +95,3 @@ export interface DiagnoseResponse {
   /** 重写关键段落内容（HTML格式） */
   html: string;
 }
-
-

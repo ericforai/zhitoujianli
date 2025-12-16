@@ -1,654 +1,694 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <!-- 主站页面 -->
-  
   <url>
-    <loc>https://zhitoujianli.com/</loc>
+    <loc>https://www.zhitoujianli.com/</loc>
     <lastmod>2025-11-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/2025-job-market-truth.html</loc>
+    <loc>https://www.zhitoujianli.com/2025-job-market-truth.html</loc>
     <lastmod>2025-11-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/2025-recruitment-market-report.html</loc>
+    <loc>https://www.zhitoujianli.com/2025-recruitment-market-report.html</loc>
     <lastmod>2025-11-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog-index.html</loc>
+    <loc>https://www.zhitoujianli.com/blog-index.html</loc>
     <lastmod>2025-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/contact</loc>
+    <loc>https://www.zhitoujianli.com/contact</loc>
     <lastmod>2025-11-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/guide</loc>
+    <loc>https://www.zhitoujianli.com/guide</loc>
     <lastmod>2025-11-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/help</loc>
+    <loc>https://www.zhitoujianli.com/help</loc>
     <lastmod>2025-11-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/login</loc>
+    <loc>https://www.zhitoujianli.com/login</loc>
     <lastmod>2025-11-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/pricing</loc>
+    <loc>https://www.zhitoujianli.com/pricing</loc>
     <lastmod>2025-11-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/privacy</loc>
+    <loc>https://www.zhitoujianli.com/privacy</loc>
     <lastmod>2025-11-12</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/register</loc>
+    <loc>https://www.zhitoujianli.com/register</loc>
     <lastmod>2025-11-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/resume-optimization-guide.html</loc>
+    <loc>https://www.zhitoujianli.com/resume-optimization-guide.html</loc>
     <lastmod>2025-11-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/terms</loc>
+    <loc>https://www.zhitoujianli.com/terms</loc>
     <lastmod>2025-11-12</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/user-success-stories.html</loc>
+    <loc>https://www.zhitoujianli.com/user-success-stories.html</loc>
     <lastmod>2025-11-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
-  <!-- 博客页面 -->
-  
+  <!-- 博客页面（由Astro自动生成） -->
   <url>
-    <loc>https://zhitoujianli.com/blog/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/2/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/2/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/3/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/3/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/4/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/4/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/5/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/5/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/6/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/6/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/7/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/7/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/8/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/8/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/9/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/9/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/10/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/10/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/11/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/11/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/30-days-urgent-job-hunting-plan/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/12/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/2025-fresh-graduate-job-hunting-complete-guide/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/30-days-urgent-job-hunting-plan/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/2025-job-hunting-guide-ai-revolution/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/2025-12-12-ai-resume-delivery-complete-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/2025-job-market-trends-analysis/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/2025-12-12-resume-keywords-optimization-complete-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/2025-job-market-truth-90-percent-resume-sink/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/2025-12-12-workplace-success-platform-vs-ability/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/2025-recruitment-trends-report/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/2025-12-16-interview-preparation-ultimate-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/2025-winter-recruitment-season-guide/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/2025-fresh-graduate-job-hunting-complete-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/2025-year-end-job-switch-guide/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/2025-job-hunting-guide-ai-revolution/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/about/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/2025-job-market-trends-analysis/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/ai-job-hunting-not-luck/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/2025-job-market-truth-90-percent-resume-sink/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/ai-job-matching-technology-explained/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/2025-recruitment-trends-report/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/ai-job-matching-technology/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/2025-winter-recruitment-season-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/ai-resume-writing-guide/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/2025-year-end-job-switch-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/ai-smart-greeting-deep-dive/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/about/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/best-time-to-send-resume/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/ai-job-hunting-not-luck/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/boss-zhipin-auto-delivery-guide/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/ai-job-matching-technology-explained/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/career-development-continuous-learning-guide/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/ai-job-matching-technology/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/career-development-guide/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/ai-resume-writing-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/career-development-strategies/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/ai-smart-greeting-deep-dive/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/career-planning-5-year-roadmap/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/best-time-to-send-resume/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/career-transition-complete-guide/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/boss-zhipin-auto-delivery-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/category/career-advice/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/career-development-continuous-learning-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/category/career-advice/2/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/career-development-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/category/career-advice/3/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/career-development-strategies/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/category/hang2-ye4-dong4-cha2/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/career-planning-5-year-roadmap/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/category/industry-analysis/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/career-transition-complete-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/category/job-guide/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/category/career-advice/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/category/job-guide/2/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/category/career-advice/2/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/category/job-guide/3/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/category/career-advice/3/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/category/job-guide/4/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/category/hang2-ye4-dong4-cha2/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/category/job-guide/5/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/category/industry-analysis/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/category/product-updates/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/category/job-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/category/product-updates/2/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/category/job-guide/2/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/category/product-updates/3/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/category/job-guide/3/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/category/tech-depth/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/category/job-guide/4/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/category/yong4-hu4-an4-li4/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/category/job-guide/5/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/classic-resume-template-faang-gold-standard/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/category/job-guide/6/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/college-graduate-job-hunting-2025/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/category/product-updates/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/college-student-career-planning-first-job/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/category/product-updates/2/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/college-student-job-hunting-strategy-complete-guide/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/category/product-updates/3/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/college-student-success-story-zhitoujianli/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/category/tech-depth/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/contact/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/category/yong4-hu4-an4-li4/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/fresh-graduate-job-hunting-mistakes/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/category/zhi2-chang3-zhi3-nan2/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/fresh-graduate-zero-experience-resume-template-and-rewrite-checklist/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/classic-resume-template-faang-gold-standard/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/in-job-switch-30-day-action-plan-sop/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/college-graduate-job-hunting-2025/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/industry-trends-analysis/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/college-student-career-planning-first-job/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/intelligent-greeting-feature/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/college-student-job-hunting-strategy-complete-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/interview-preparation-guide/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/college-student-success-story-zhitoujianli/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/job-hopping-strategy-salary-increase-guide/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/contact/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/job-hunting-efficiency-tools-comparison/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/fresh-graduate-job-hunting-mistakes/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/job-hunting-fatigue-efficiency-guide/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/fresh-graduate-zero-experience-resume-template-and-rewrite-checklist/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/personalized-greeting-golden-rules/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/in-job-switch-30-day-action-plan-sop/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/privacy/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/industry-trends-analysis/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/product-best-practices-maximize-resume-delivery-success/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/intelligent-greeting-feature/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/product-update-ai-greeting-v2-and-bulk-versioning/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/interview-preparation-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/product-update-ai-resume-rewrite-assistant/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/job-hopping-strategy-salary-increase-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/product-update-batch-delivery-optimization/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/job-hunting-efficiency-tools-comparison/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/product-update-realtime-delivery-monitoring/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/job-hunting-fatigue-efficiency-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/product-update-resume-diagnosis-v2-enhancement/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/personalized-greeting-golden-rules/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/product-update-smart-resume-versioning/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/privacy/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/resume-delivery-efficiency-10x-improvement/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/product-best-practices-maximize-resume-delivery-success/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/resume-keywords-optimization-guide/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/product-update-ai-greeting-v2-and-bulk-versioning/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/resume-optimization-complete-guide/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/product-update-ai-resume-rewrite-assistant/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/resume-optimization-tips/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/product-update-batch-delivery-optimization/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/resume-parsing-technology-ai-reads-resume/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/product-update-realtime-delivery-monitoring/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/resume-rejected-ai-smart-delivery/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/product-update-resume-diagnosis-v2-enhancement/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/resume-rejected-ai-solution/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/product-update-smart-resume-versioning/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/resume-rejection-reasons-and-solutions/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/resume-delivery-efficiency-10x-improvement/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/resume-template-generator-launch/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/resume-keywords-optimization-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/resume-upload-diagnosis-optimizer-launch/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/resume-optimization-complete-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/resume-writing-hr-open-rate-optimization-guide/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/resume-optimization-tips/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/smart-job-matching-how-to-find-perfect-job/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/resume-parsing-technology-ai-reads-resume/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/terms/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/resume-rejected-ai-smart-delivery/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/user-success-stories-collection/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/resume-rejected-ai-solution/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/user-success-stories-zhitoujianli/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/resume-rejection-reasons-and-solutions/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/winter-recruitment-season-2025-guide/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/resume-template-generator-launch/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/work-efficiency-productivity-methods/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/resume-upload-diagnosis-optimizer-launch/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/workplace-communication-mistakes-avoid/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/resume-writing-hr-open-rate-optimization-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/workplace-communication-soft-skills/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/smart-job-matching-how-to-find-perfect-job/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/workplace-negotiation-salary-promotion-guide/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/terms/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/workplace-remote-work-productivity-guide/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/user-success-stories-collection/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/workplace-time-management-productivity/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/user-success-stories-zhitoujianli/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://zhitoujianli.com/blog/zhitoujianli-introduction/</loc>
-    <lastmod>2025-11-26T06:10:24.217Z</lastmod>
+    <loc>https://www.zhitoujianli.com/blog/winter-recruitment-season-2025-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.zhitoujianli.com/blog/work-efficiency-productivity-methods/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.zhitoujianli.com/blog/workplace-communication-mistakes-avoid/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.zhitoujianli.com/blog/workplace-communication-soft-skills/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.zhitoujianli.com/blog/workplace-negotiation-salary-promotion-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.zhitoujianli.com/blog/workplace-remote-work-productivity-guide/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.zhitoujianli.com/blog/workplace-time-management-productivity/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.zhitoujianli.com/blog/zhitoujianli-introduction/</loc>
+    <lastmod>2025-12-16T06:42:23.695Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

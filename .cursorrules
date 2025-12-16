@@ -1,6 +1,9 @@
 # ============================================================
+
 # 智投简历项目 - Cursor AI 工作规则
+
 # 每次打开项目时，AI必须遵守以下规则
+
 # ============================================================
 
 ## 🚨 部署规则（最高优先级）
@@ -8,6 +11,7 @@
 ### 前端部署 - 绝对禁止手动操作
 
 **❌ 永远不要执行以下操作：**
+
 ```bash
 # ❌ 禁止！会部署到错误路径
 cp build/* /usr/share/nginx/html/
@@ -17,6 +21,7 @@ cp -r build /usr/share/nginx/html/
 ```
 
 **✅ 必须使用自动化脚本：**
+
 ```bash
 # ✅ 正确方式（在项目根目录）
 ./deploy-frontend.sh
@@ -26,6 +31,7 @@ cp -r build /usr/share/nginx/html/
 ```
 
 **部署流程检查清单：**
+
 1. 修改前端代码
 2. 执行 `./deploy-frontend.sh`（自动构建+部署）
 3. 等待脚本完成
@@ -35,6 +41,7 @@ cp -r build /usr/share/nginx/html/
 ### 后端部署规则
 
 **部署流程：**
+
 1. 修改后端代码
 2. 执行 Maven 构建：`cd backend/get_jobs && mvn clean package -DskipTests`
 3. **✅ 关键步骤：确保target/classes目录存在**
@@ -49,6 +56,7 @@ cp -r build /usr/share/nginx/html/
 8. 验证：`systemctl status zhitoujianli-backend.service`
 
 **🚨 重要提醒（2025-11-25修复）：**
+
 - `IsolatedBossRunner` 需要通过 `target/classes` 目录启动，不能使用JAR文件
 - 部署脚本已自动包含编译步骤，手动部署时必须执行 `mvn compile -DskipTests`
 - 如果缺少 `target/classes` 目录，会导致 `ClassNotFoundException: boss.IsolatedBossRunner`
@@ -56,6 +64,7 @@ cp -r build /usr/share/nginx/html/
 ### 博客部署规则（最高优先级 - 2025-11-14新增）
 
 **❌ 绝对禁止的操作：**
+
 ```bash
 # ❌ 禁止！不要使用frontend/public/blog/中的任何文件
 cp /root/zhitoujianli/frontend/public/blog/* /var/www/zhitoujianli/blog/
@@ -68,6 +77,7 @@ cp -r frontend/public/blog/* /var/www/zhitoujianli/blog/
 ```
 
 **✅ 必须使用自动化脚本：**
+
 ```bash
 # ✅ 唯一正确的博客部署方式（在项目根目录）
 ./scripts/deploy-blog.sh
@@ -77,6 +87,7 @@ cp -r frontend/public/blog/* /var/www/zhitoujianli/blog/
 ```
 
 **博客部署流程检查清单：**
+
 1. 修改博客代码（在 `blog/zhitoujianli-blog/src/` 目录）
 2. 执行 `./scripts/deploy-blog.sh`（自动构建+部署）
 3. 脚本会自动：
@@ -90,22 +101,25 @@ cp -r frontend/public/blog/* /var/www/zhitoujianli/blog/
 5. 验证部署成功（访问 https://zhitoujianli.com/blog/）
 
 **重要路径（必须记住）：**
+
 ```yaml
 博客源代码: /root/zhitoujianli/blog/zhitoujianli-blog/src/
-博客构建输出: /root/zhitoujianli/blog/zhitoujianli-blog/dist/  # ← 唯一正确的部署源
-博客部署路径: /var/www/zhitoujianli/blog/  # ← Nginx配置的路径
-博客部署脚本: /root/zhitoujianli/scripts/deploy-blog.sh  # ← 唯一正确的部署方式
+博客构建输出: /root/zhitoujianli/blog/zhitoujianli-blog/dist/ # ← 唯一正确的部署源
+博客部署路径: /var/www/zhitoujianli/blog/ # ← Nginx配置的路径
+博客部署脚本: /root/zhitoujianli/scripts/deploy-blog.sh # ← 唯一正确的部署方式
 
 # ❌ 错误的路径（永远不要使用）：
-错误静态HTML: /root/zhitoujianli/frontend/public/blog/  # ← 已删除，不要使用
+错误静态HTML: /root/zhitoujianli/frontend/public/blog/ # ← 已删除，不要使用
 ```
 
 **博客部署验证标准：**
+
 - ✅ 部署后的 `index.html` 文件大小应该 ≥ 50KB（Astro构建的完整应用）
 - ❌ 如果文件大小 < 20KB，说明部署了错误的静态HTML文件
 - ✅ 部署脚本会自动验证文件大小并警告
 
 **历史教训（2025-11-14修复）：**
+
 1. **错误原因**：之前错误地将 `frontend/public/blog/index.html`（9.7KB静态HTML）部署到了生产环境
 2. **正确文件**：应该使用 `blog/zhitoujianli-blog/dist/index.html`（56KB Astro应用）
 3. **解决方案**：
@@ -120,25 +134,81 @@ cp -r frontend/public/blog/* /var/www/zhitoujianli/blog/
 ### 重要路径（必须记住）
 
 ```yaml
-前端唯一源代码: /root/zhitoujianli/frontend/  # ← v3.0.0后唯一官方源代码
+前端唯一源代码: /root/zhitoujianli/frontend/ # ← v3.0.0后唯一官方源代码
 前端构建源: /root/zhitoujianli/frontend/build/
-前端部署路径: /var/www/zhitoujianli/build/  # ← Nginx配置的路径
+前端部署路径: /var/www/zhitoujianli/build/ # ← Nginx配置的路径
 后端JAR路径: /opt/zhitoujianli/backend/
 环境变量文件: /etc/zhitoujianli/backend.env
 部署脚本: /opt/zhitoujianli/scripts/
 
 # 博客部署路径（2025-11-14新增）
 博客源代码: /root/zhitoujianli/blog/zhitoujianli-blog/src/
-博客构建输出: /root/zhitoujianli/blog/zhitoujianli-blog/dist/  # ← 唯一正确的部署源
-博客部署路径: /var/www/zhitoujianli/blog/  # ← Nginx配置的路径
-博客部署脚本: /root/zhitoujianli/scripts/deploy-blog.sh  # ← 唯一正确的部署方式
+博客构建输出: /root/zhitoujianli/blog/zhitoujianli-blog/dist/ # ← 唯一正确的部署源
+博客部署路径: /var/www/zhitoujianli/blog/ # ← Nginx配置的路径
+博客部署脚本: /root/zhitoujianli/scripts/deploy-blog.sh # ← 唯一正确的部署方式
 ```
 
 ## 🔧 开发规则
 
+### 🚀 生产环境标准发布流程（最高优先级 - 必须遵守）
+
+**⚠️ 重要：这是唯一正确的生产环境发布流程，禁止跳过任何步骤！**
+
+#### 标准发布命令（一键执行）
+
+```bash
+cd /root/zhitoujianli
+git pull origin main
+./deploy-frontend.sh
+./scripts/deploy-backend.sh
+```
+
+#### 或使用发布脚本（推荐）
+
+```bash
+cd /root/zhitoujianli
+./scripts/deploy-production.sh
+```
+
+#### 流程说明
+
+1. **拉取代码**: `git pull origin main` - 从GitHub主分支拉取最新代码，确保代码版本一致
+2. **部署前端**: `./deploy-frontend.sh` - 自动构建、部署、验证前端代码
+3. **部署后端**: `./scripts/deploy-backend.sh` - 自动构建、编译、部署、重启后端服务
+
+#### 部署前检查清单
+
+- [ ] 代码已提交到GitHub主分支
+- [ ] 本地测试通过
+- [ ] 生产环境配置正确（`/etc/zhitoujianli/backend.env`）
+- [ ] 数据库备份完成（如需要）
+
+#### 部署后验证
+
+```bash
+# 检查前端
+curl -I https://www.zhitoujianli.com/
+
+# 检查后端
+curl https://www.zhitoujianli.com/api/auth/health
+
+# 检查服务状态
+systemctl status zhitoujianli-backend.service
+```
+
+#### 禁止的操作
+
+- ❌ **禁止**在生产环境直接修改代码
+- ❌ **禁止**跳过 `git pull` 步骤
+- ❌ **禁止**手动复制文件到部署目录
+- ❌ **禁止**手动重启服务而不使用部署脚本
+
+**详细文档**: `docs/PRODUCTION_RELEASE_PROCESS.md`
+
 ### 代码修改后的标准流程
 
 **前端修改：**
+
 ```bash
 # 1. 修改代码
 # 2. 部署
@@ -149,17 +219,25 @@ cd /root/zhitoujianli
 ```
 
 **后端修改：**
+
 ```bash
 # 1. 修改代码
-# 2. 构建
-cd /root/zhitoujianli/backend/get_jobs
-mvn clean package -DskipTests
+# 2. 部署（使用自动化脚本）
+cd /root/zhitoujianli
+./scripts/deploy-backend.sh
+```
 
-# 3. 部署（使用自动化脚本）
-# TODO: 创建后端部署脚本
+**完整发布（前端+后端）：**
+
+```bash
+cd /root/zhitoujianli
+git pull origin main
+./deploy-frontend.sh
+./scripts/deploy-backend.sh
 ```
 
 **博客修改：**
+
 ```bash
 # 1. 修改博客代码（在 blog/zhitoujianli-blog/src/ 目录）
 # 2. 部署（使用自动化脚本，会自动构建）
@@ -182,12 +260,14 @@ cd /root/zhitoujianli
 ## ✅ 必须执行的检查
 
 ### 每次部署前：
+
 - [ ] 确认使用自动化脚本
 - [ ] 检查目标路径正确
 - [ ] 验证服务运行状态
 - [ ] 备份已完成（脚本自动）
 
 ### 每次部署后：
+
 - [ ] 验证文件存在于正确路径
 - [ ] 测试API响应
 - [ ] 检查服务日志无错误
@@ -203,23 +283,27 @@ cd /root/zhitoujianli
 ## 🎯 AI行为准则
 
 **当用户说"部署前端"时，我必须：**
+
 1. 执行 `./deploy-frontend.sh`
 2. **不是**手动复制文件
 3. **不是**询问用户路径
 4. 自动化脚本会处理一切
 
 **当用户报告"二维码不显示"时，我必须：**
+
 1. 首先检查前端部署路径是否正确
 2. 验证 `/var/www/zhitoujianli/build/` 是否有最新文件
 3. 提醒用户清除浏览器缓存
 
 **当后端服务崩溃时，我必须：**
+
 1. 检查 `systemctl status zhitoujianli-backend.service`
 2. 查看日志 `journalctl -u zhitoujianli-backend.service -n 50`
 3. 检查端口占用 `lsof -i:8080`
 4. 验证环境变量文件存在
 
 **当用户说"部署博客"时，我必须：**
+
 1. 执行 `./scripts/deploy-blog.sh`
 2. **不是**手动复制文件
 3. **不是**使用 `frontend/public/blog/` 中的文件
@@ -227,6 +311,7 @@ cd /root/zhitoujianli
 5. 自动化脚本会处理一切（构建、验证、部署）
 
 **当用户报告"博客页面显示错误"时，我必须：**
+
 1. 首先检查部署的文件大小：`ls -lh /var/www/zhitoujianli/blog/index.html`
 2. 如果文件 < 20KB，说明部署了错误的静态HTML，需要重新部署
 3. 验证部署源是否正确：`ls -lh /root/zhitoujianli/blog/zhitoujianli-blog/dist/index.html`
@@ -241,10 +326,12 @@ cd /root/zhitoujianli
 ## 🔄 版本管理
 
 **当前版本：**
+
 - 前端：v3.0.0（main.66e9065f.js，152.71 kB gzip）
 - 后端：v2.1.1（包含用户隔离修复）
 
 **部署记录：**
+
 - 所有部署自动记录到 `/opt/zhitoujianli/logs/deploy-frontend.log`
 
 ---
@@ -254,6 +341,7 @@ cd /root/zhitoujianli
 ### ❌ 绝对禁止的前端操作
 
 **禁止创建任何其他前端目录：**
+
 ```bash
 ❌ 禁止：mkdir frontend2
 ❌ 禁止：mkdir frontend_new
@@ -263,12 +351,14 @@ cd /root/zhitoujianli
 ```
 
 **禁止创建DEPRECATED标记文件：**
+
 ```bash
 ❌ 禁止：创建任何DEPRECATED.md文件
 ❌ 如果看到DEPRECATED.md → 立即质疑并验证
 ```
 
 **禁止修改部署脚本指向其他目录：**
+
 ```bash
 ❌ deploy-frontend.sh 必须永远指向：frontend/build
 ❌ 不允许指向：website/、frontend_FINAL/、或任何其他目录
@@ -277,6 +367,7 @@ cd /root/zhitoujianli
 ### ✅ 唯一正确的前端规则（v3.0.0后）
 
 **唯一源代码位置：**
+
 ```bash
 ✅ 唯一正确：/root/zhitoujianli/frontend/
 ✅ 没有例外
@@ -284,11 +375,13 @@ cd /root/zhitoujianli
 ```
 
 **唯一构建命令：**
+
 ```bash
 cd /root/zhitoujianli/frontend && npm run build
 ```
 
 **唯一部署命令：**
+
 ```bash
 /opt/zhitoujianli/scripts/deploy-frontend.sh
 ```
@@ -316,6 +409,7 @@ cd /root/zhitoujianli/frontend && npm run build
    - 开发者和AI都困惑
 
 **v3.0.0解决方案：**
+
 - ✅ 彻底删除website/、frontend_FINAL/、build/
 - ✅ 删除所有DEPRECATED.md文件
 - ✅ 锁定部署脚本指向frontend/build
@@ -343,6 +437,7 @@ cd /root/zhitoujianli/frontend && npm run build
    - 任何创建新前端目录的请求都应该被质疑
 
 **验证命令（AI应定期执行）：**
+
 ```bash
 # 验证只有2个前端目录
 ls -ld /root/zhitoujianli/frontend* /root/zhitoujianli/PRODUCTION_FRONTEND 2>/dev/null | wc -l
@@ -399,6 +494,7 @@ echo "请按 Ctrl + Shift + R 清除缓存"
 **Bug历史**：2025-11-17，管理后台所有API调用失败，返回302重定向和CORS错误
 
 **根本原因**：
+
 1. **配置遗漏**（60%）：新增API路径未在安全配置中明确声明
 2. **未授权处理逻辑缺陷**（25%）：依赖请求头判断，不够可靠
 3. **前后端不一致**（10%）：前端缺少标准请求头
@@ -407,6 +503,7 @@ echo "请按 Ctrl + Shift + R 清除缓存"
 ### ❌ 绝对禁止的操作
 
 **禁止新增API而不更新安全配置：**
+
 ```java
 // ❌ 禁止：新增API控制器后，忘记更新 SimpleSecurityConfig.java
 @RestController
@@ -418,12 +515,14 @@ public class NewFeatureController {
 ```
 
 **禁止依赖 `anyRequest()` 的隐式匹配：**
+
 ```java
 // ❌ 禁止：认为 anyRequest().authenticated() 会自动覆盖所有路径
 // 必须明确声明每个API路径
 ```
 
 **禁止前端直接使用 `fetch` 而不设置标准请求头：**
+
 ```typescript
 // ❌ 禁止：缺少标准请求头
 const response = await fetch(`${apiBaseUrl}/api/endpoint`, {
@@ -440,6 +539,7 @@ const response = await fetch(`${apiBaseUrl}/api/endpoint`, {
 #### 新增API时的强制检查清单
 
 **后端检查（必须）：**
+
 - [ ] ✅ 在 `SimpleSecurityConfig.java` 中明确声明新API路径
 - [ ] ✅ 如果是公开API，添加到 `permitAll()` 列表
 - [ ] ✅ 如果需要认证，添加到 `authenticated()` 列表
@@ -447,6 +547,7 @@ const response = await fetch(`${apiBaseUrl}/api/endpoint`, {
 - [ ] ✅ 验证API路径不会与现有路径冲突
 
 **前端检查（必须）：**
+
 - [ ] ✅ 使用统一的API客户端（`apiClient`），禁止直接使用 `fetch`
 - [ ] ✅ 如果必须使用 `fetch`，必须包含以下请求头：
   - `'Accept': 'application/json'`
@@ -457,6 +558,7 @@ const response = await fetch(`${apiBaseUrl}/api/endpoint`, {
 - [ ] ✅ 避免在错误处理中使用 `window.location.href` 重定向（使用React Router）
 
 **测试检查（必须）：**
+
 - [ ] ✅ 添加单元测试，覆盖未授权场景
 - [ ] ✅ 添加集成测试，验证安全配置
 - [ ] ✅ 添加端到端测试（E2E），覆盖完整流程
@@ -465,6 +567,7 @@ const response = await fetch(`${apiBaseUrl}/api/endpoint`, {
 ### 📋 新增API的标准流程
 
 #### Step 1: 创建API控制器
+
 ```java
 @RestController
 @RequestMapping("/api/new-feature")
@@ -474,6 +577,7 @@ public class NewFeatureController {
 ```
 
 #### Step 2: 更新安全配置（立即执行！）
+
 ```java
 // 在 SimpleSecurityConfig.java 中
 .requestMatchers(
@@ -483,6 +587,7 @@ public class NewFeatureController {
 ```
 
 #### Step 3: 前端API调用（使用统一客户端）
+
 ```typescript
 // ✅ 正确：使用统一的API客户端
 import apiClient from '../services/apiService';
@@ -492,20 +597,22 @@ const response = await apiClient.get('/new-feature/data');
 ```
 
 #### Step 4: 如果必须使用 fetch
+
 ```typescript
 // ✅ 正确：包含所有标准请求头
 const response = await fetch(`${config.apiBaseUrl}/new-feature/data`, {
   method: 'GET',
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',  // ✅ 必须
-    'X-Requested-With': 'XMLHttpRequest',  // ✅ 必须
-    Authorization: `Bearer ${token}`,  // ✅ 如果需要认证
+    Accept: 'application/json', // ✅ 必须
+    'X-Requested-With': 'XMLHttpRequest', // ✅ 必须
+    Authorization: `Bearer ${token}`, // ✅ 如果需要认证
   },
 });
 ```
 
 #### Step 5: 添加测试
+
 ```typescript
 // ✅ 测试未授权场景
 it('should return 401 when not authenticated', async () => {
@@ -573,3 +680,148 @@ grep -r "fetch.*api" frontend/src --include="*.tsx" --include="*.ts" | \
 
 **🚨 铁律：新增API = 更新安全配置 + 使用标准请求头 + 添加测试！**
 
+---
+
+## 🗺️ Sitemap管理规则（2025-12-15 - SEO最佳实践）
+
+### 🚨 核心原则（永久记住！）
+
+**✅ 唯一正确的sitemap结构：**
+
+```
+sitemap.xml (包含所有URL，符合SEO最佳实践)
+├── 主站页面 (14个URL)
+└── 博客页面 (99个URL，由Astro自动生成)
+```
+
+**❌ 绝对禁止的操作：**
+
+1. **禁止使用sitemap index结构**
+   - ❌ 禁止创建 `sitemap-index.xml` 作为主入口
+   - ❌ 禁止将URL分散到多个sitemap文件中
+   - ❌ 禁止使用 `sitemap-main.xml` 作为生产环境的sitemap
+
+2. **禁止手动编辑sitemap.xml**
+   - ❌ 禁止直接编辑 `frontend/public/sitemap.xml`
+   - ❌ 禁止手动添加或删除URL
+   - ✅ 必须使用自动合并脚本
+
+3. **禁止跳过sitemap合并步骤**
+   - ❌ 禁止在部署时跳过sitemap合并
+   - ❌ 禁止使用过期的sitemap文件
+
+### ✅ 正确的sitemap管理流程
+
+#### 1. Sitemap文件结构
+
+```yaml
+源文件（用于生成）:
+  - frontend/public/sitemap-main.xml  # 主站URL源文件（保留作为源）
+  - blog/zhitoujianli-blog/dist/sitemap-0.xml  # 博客URL（Astro自动生成）
+
+最终文件（生产环境）:
+  - frontend/public/sitemap.xml  # 合并后的完整sitemap（包含所有URL）
+  - frontend/public/robots.txt  # 引用 sitemap.xml
+```
+
+#### 2. 自动合并机制
+
+**合并脚本：** `scripts/merge-sitemap.sh`
+
+**自动触发时机：**
+1. ✅ 博客部署时自动合并（`scripts/deploy-blog.sh`）
+2. ✅ 前端部署时自动合并（`build-and-deploy-frontend.sh`）
+3. ✅ 手动执行：`bash scripts/merge-sitemap.sh`
+
+#### 3. 部署流程中的sitemap处理
+
+**前端部署流程：**
+
+```bash
+# 步骤0：合并 Sitemap（在构建之前）
+bash /root/zhitoujianli/scripts/merge-sitemap.sh
+
+# 步骤1：构建前端（sitemap.xml会被打包进build/）
+cd /root/zhitoujianli/frontend && npm run build
+
+# 步骤2：部署（sitemap.xml会被部署到生产环境）
+/opt/zhitoujianli/scripts/deploy-frontend.sh
+```
+
+**博客部署流程：**
+
+```bash
+# 步骤1：构建博客（Astro自动生成博客sitemap）
+cd blog/zhitoujianli-blog && npm run build
+
+# 步骤2：部署博客
+./scripts/deploy-blog.sh
+# 脚本会自动执行：bash scripts/merge-sitemap.sh
+```
+
+### 📋 Sitemap验证检查清单
+
+**每次部署后必须验证：**
+
+- [ ] ✅ `frontend/public/sitemap.xml` 存在且包含所有URL
+- [ ] ✅ 主站URL数量正确（当前：14个）
+- [ ] ✅ 博客URL数量正确（当前：99个，会随博客更新变化）
+- [ ] ✅ `robots.txt` 引用 `sitemap.xml`（不是sitemap-index.xml）
+- [ ] ✅ 所有关键URL都在sitemap中：
+  - 首页：`https://zhitoujianli.com/`
+  - 博客首页：`https://zhitoujianli.com/blog/`
+  - 定价页：`https://zhitoujianli.com/pricing`
+  - 注册页：`https://zhitoujianli.com/register`
+
+### 🛡️ 防护措施（永不再犯）
+
+**AI必须遵守的铁律：**
+
+1. **看到sitemap-index.xml → 立即警告**
+   - 这是错误的sitemap结构
+   - 必须使用单一的 `sitemap.xml` 文件
+   - 所有URL必须在同一个文件中
+
+2. **看到手动编辑sitemap → 立即拒绝**
+   - 禁止手动编辑 `sitemap.xml`
+   - 必须使用 `merge-sitemap.sh` 脚本
+   - 脚本会自动从源文件合并
+
+3. **部署时忘记合并sitemap → 必须提醒**
+   - 检查部署脚本是否包含sitemap合并步骤
+   - 如果缺少，必须添加
+
+4. **博客更新后 → 必须重新合并sitemap**
+   - 博客sitemap由Astro自动生成
+   - 每次博客部署后必须重新合并
+   - 确保最新的博客URL包含在sitemap中
+
+### 🔍 验证命令（AI应定期执行）
+
+```bash
+# 验证sitemap.xml存在且包含所有URL
+grep -c '<url>' /root/zhitoujianli/frontend/public/sitemap.xml
+# 应该输出：113（主站14 + 博客99）
+
+# 验证robots.txt引用正确的sitemap
+grep "Sitemap:" /root/zhitoujianli/frontend/public/robots.txt
+# 应该输出：Sitemap: https://zhitoujianli.com/sitemap.xml
+
+# 验证关键URL在sitemap中
+grep -q "https://zhitoujianli.com/" /root/zhitoujianli/frontend/public/sitemap.xml && echo "✅ 首页在sitemap中"
+grep -q "https://zhitoujianli.com/blog/" /root/zhitoujianli/frontend/public/sitemap.xml && echo "✅ 博客首页在sitemap中"
+```
+
+### 📚 相关文件
+
+- 合并脚本: `/root/zhitoujianli/scripts/merge-sitemap.sh`
+- 主站sitemap源: `/root/zhitoujianli/frontend/public/sitemap-main.xml`
+- 博客sitemap源: `/root/zhitoujianli/blog/zhitoujianli-blog/dist/sitemap-0.xml`
+- 最终sitemap: `/root/zhitoujianli/frontend/public/sitemap.xml`
+- robots.txt: `/root/zhitoujianli/frontend/public/robots.txt`
+
+---
+
+**🤖 AI提醒：每次涉及sitemap操作时，必须遵守上述规则！**
+
+**🚨 铁律：所有URL必须在单一的sitemap.xml文件中，禁止使用sitemap index结构！**

@@ -1,19 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import BossServerLogin from '../components/BossServerLogin';
+import Navigation from '../components/Navigation';
+import WorkflowTimeline, { WorkflowStep } from '../components/WorkflowTimeline';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
 import Container from '../components/common/Container';
-import Navigation from '../components/Navigation';
-import SEOHead from '../components/seo/SEOHead';
-import WorkflowTimeline, { WorkflowStep } from '../components/WorkflowTimeline';
-import QuotaDisplay from '../components/plan/QuotaDisplay';
-import QuickActionPanel from '../components/dashboard/QuickActionPanel';
 import CollapsibleQuota from '../components/dashboard/CollapsibleQuota';
-import BossServerLogin from '../components/BossServerLogin';
+import QuickActionPanel from '../components/dashboard/QuickActionPanel';
+import SEOHead from '../components/seo/SEOHead';
 import { useAuth } from '../contexts/AuthContext';
 import { useBossDelivery } from '../hooks/useBossDelivery';
 import { useBossLoginStatus } from '../hooks/useBossLoginStatus';
-import { bossService, DeliveryDetail } from '../services/bossService';
+import { DeliveryDetail, bossService } from '../services/bossService';
 import { list as listHistory, type HistoryItem } from '../services/resumes';
 import logger from '../utils/logger';
 
@@ -181,11 +180,7 @@ const Dashboard: React.FC = () => {
         label: '启动自动投递',
         icon: '▶️',
         description: '开始智能投递简历',
-        status: isRunning
-          ? 'completed'
-          : isBossLoggedIn
-            ? 'active'
-            : 'pending',
+        status: isRunning ? 'completed' : isBossLoggedIn ? 'active' : 'pending',
         disabled: !isBossLoggedIn || isRunning,
         action: handleStart,
       },
@@ -270,13 +265,7 @@ const Dashboard: React.FC = () => {
             <Card padding='lg'>
               <WorkflowTimeline
                 steps={getWorkflowSteps()}
-                currentStep={
-                  bossStatus.isRunning
-                    ? 3
-                    : isBossLoggedIn
-                      ? 2
-                      : 1
-                }
+                currentStep={bossStatus.isRunning ? 3 : isBossLoggedIn ? 2 : 1}
               />
             </Card>
           </div>
@@ -302,13 +291,27 @@ const Dashboard: React.FC = () => {
             <div className='flex items-center justify-between mb-4'>
               <div className='flex items-center gap-3'>
                 <div className='w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center'>
-                  <svg className='w-6 h-6 text-blue-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' />
+                  <svg
+                    className='w-6 h-6 text-blue-600'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
+                    />
                   </svg>
                 </div>
                 <div>
-                  <h3 className='text-lg font-semibold text-gray-900'>简历历史记录</h3>
-                  <p className='text-sm text-gray-600'>查看和管理您的简历优化历史</p>
+                  <h3 className='text-lg font-semibold text-gray-900'>
+                    简历历史记录
+                  </h3>
+                  <p className='text-sm text-gray-600'>
+                    查看和管理您的简历优化历史
+                  </p>
                 </div>
               </div>
               <button
@@ -326,22 +329,36 @@ const Dashboard: React.FC = () => {
               <table className='w-full text-left'>
                 <thead className='bg-gray-50'>
                   <tr>
-                    <th className='px-4 py-3 text-sm font-medium text-gray-700'>时间</th>
-                    <th className='px-4 py-3 text-sm font-medium text-gray-700'>类型</th>
-                    <th className='px-4 py-3 text-sm font-medium text-gray-700'>分数</th>
-                    <th className='px-4 py-3 text-sm font-medium text-gray-700'>操作</th>
+                    <th className='px-4 py-3 text-sm font-medium text-gray-700'>
+                      时间
+                    </th>
+                    <th className='px-4 py-3 text-sm font-medium text-gray-700'>
+                      类型
+                    </th>
+                    <th className='px-4 py-3 text-sm font-medium text-gray-700'>
+                      分数
+                    </th>
+                    <th className='px-4 py-3 text-sm font-medium text-gray-700'>
+                      操作
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {historyLoading ? (
                     <tr>
-                      <td className='px-4 py-3 text-sm text-gray-500' colSpan={4}>
+                      <td
+                        className='px-4 py-3 text-sm text-gray-500'
+                        colSpan={4}
+                      >
                         加载中...
                       </td>
                     </tr>
                   ) : historyItems.length === 0 ? (
                     <tr>
-                      <td className='px-4 py-3 text-sm text-gray-500' colSpan={4}>
+                      <td
+                        className='px-4 py-3 text-sm text-gray-500'
+                        colSpan={4}
+                      >
                         暂无记录
                       </td>
                     </tr>
@@ -352,7 +369,9 @@ const Dashboard: React.FC = () => {
                         className='border-t hover:bg-gray-50 cursor-pointer'
                         onClick={() => {
                           if (it.type === '优化') {
-                            navigate(`/resume/optimize?hid=${encodeURIComponent(it.id)}`);
+                            navigate(
+                              `/resume/optimize?hid=${encodeURIComponent(it.id)}`
+                            );
                           }
                         }}
                       >
@@ -365,9 +384,11 @@ const Dashboard: React.FC = () => {
                           {it.type === '优化' && (
                             <button
                               className='text-blue-600 hover:text-blue-700'
-                              onClick={(e) => {
+                              onClick={e => {
                                 e.stopPropagation();
-                                navigate(`/resume/optimize?hid=${encodeURIComponent(it.id)}`);
+                                navigate(
+                                  `/resume/optimize?hid=${encodeURIComponent(it.id)}`
+                                );
                               }}
                             >
                               查看

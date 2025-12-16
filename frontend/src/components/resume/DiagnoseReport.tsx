@@ -14,7 +14,7 @@ const tabs: Array<DiagnoseResponse['sections'][number]['name']> = [
   'ATS技术分析',
   '可提升点',
   '重写关键段落',
-  '最终得分'
+  '最终得分',
 ];
 
 const DiagnoseReport: React.FC<Props> = ({ data }) => {
@@ -24,9 +24,13 @@ const DiagnoseReport: React.FC<Props> = ({ data }) => {
   useEffect(() => {
     if (data?.sections && data.sections.length > 0) {
       // 查找第一个有内容的section（items或content）
-      const withContent = data.sections.find(s =>
-        (s.items?.length || 0) > 0 ||
-        (s.content && (typeof s.content === 'string' ? s.content.trim().length > 0 : Object.keys(s.content).length > 0))
+      const withContent = data.sections.find(
+        s =>
+          (s.items?.length || 0) > 0 ||
+          (s.content &&
+            (typeof s.content === 'string'
+              ? s.content.trim().length > 0
+              : Object.keys(s.content).length > 0))
       );
       if (withContent && withContent.name !== active) {
         setActive(withContent.name);
@@ -77,7 +81,13 @@ const DiagnoseReport: React.FC<Props> = ({ data }) => {
         ))}
       </div>
       {active === '重写关键段落' ? (
-        <div className='prose max-w-none' dangerouslySetInnerHTML={{ __html: sanitized || '<p class="text-gray-500 text-sm">暂无重写内容</p>' }} />
+        <div
+          className='prose max-w-none'
+          dangerouslySetInnerHTML={{
+            __html:
+              sanitized || '<p class="text-gray-500 text-sm">暂无重写内容</p>',
+          }}
+        />
       ) : active === '最终得分' ? (
         <div className='space-y-4'>
           {section?.content && typeof section.content === 'object' ? (
@@ -85,7 +95,9 @@ const DiagnoseReport: React.FC<Props> = ({ data }) => {
               {Object.entries(section.content).map(([key, value]) => (
                 <div key={key} className='border rounded-xl p-4'>
                   <div className='font-medium mb-2'>{key}</div>
-                  <div className='text-2xl font-bold text-blue-600'>{String(value)}</div>
+                  <div className='text-2xl font-bold text-blue-600'>
+                    {String(value)}
+                  </div>
                 </div>
               ))}
             </div>
@@ -98,7 +110,9 @@ const DiagnoseReport: React.FC<Props> = ({ data }) => {
       ) : (
         <div className='space-y-3'>
           {section?.content && typeof section.content === 'string' ? (
-            <div className='text-gray-700 whitespace-pre-wrap'>{section.content}</div>
+            <div className='text-gray-700 whitespace-pre-wrap'>
+              {section.content}
+            </div>
           ) : section?.content && typeof section.content === 'object' ? (
             <div className='space-y-2'>
               {Object.entries(section.content).map(([key, value]) => (
@@ -114,7 +128,9 @@ const DiagnoseReport: React.FC<Props> = ({ data }) => {
             section.items.map((it, idx) => (
               <div key={idx} className='border rounded-xl p-4'>
                 <div className='font-medium mb-1'>{it.issue}</div>
-                {it.fix ? <div className='text-sm text-gray-700 mt-1'>{it.fix}</div> : null}
+                {it.fix ? (
+                  <div className='text-sm text-gray-700 mt-1'>{it.fix}</div>
+                ) : null}
               </div>
             ))
           )}
@@ -125,5 +141,3 @@ const DiagnoseReport: React.FC<Props> = ({ data }) => {
 };
 
 export default DiagnoseReport;
-
-

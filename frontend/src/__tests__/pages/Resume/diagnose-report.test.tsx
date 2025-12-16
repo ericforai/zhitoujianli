@@ -8,12 +8,12 @@ const mock = {
     { name: '内容分析', items: [] },
     { name: '专业度与可信度', items: [] },
     { name: 'ATS技术分析', items: [] },
-    { name: '可提升点', items: [] }
+    { name: '可提升点', items: [] },
   ],
   rewritten: {},
   score: 70,
   keywords: [],
-  html: ''
+  html: '',
 } as any;
 
 describe('DiagnoseReport', () => {
@@ -29,5 +29,3 @@ describe('DiagnoseReport', () => {
     expect(screen.getByText('内容质量良好')).toBeInTheDocument();
   });
 });
-
-

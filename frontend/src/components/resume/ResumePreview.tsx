@@ -13,36 +13,40 @@ const ResumePreview: React.FC<Props> = ({ templateType, data }) => {
   // 过滤空数据
   const filteredData: ResumeTemplateData = {
     ...data,
-    education: (data.education || []).filter((edu) => edu.school?.trim()),
+    education: (data.education || []).filter(edu => edu.school?.trim()),
     skills: (data.skills || [])
-      .map((skill) => ({
+      .map(skill => ({
         ...skill,
-        items: (skill.items || []).filter((item) => item?.trim()),
+        items: (skill.items || []).filter(item => item?.trim()),
       }))
-      .filter((skill) => skill.category?.trim() && skill.items.length > 0),
+      .filter(skill => skill.category?.trim() && skill.items.length > 0),
     experiences: (data.experiences || [])
-      .map((exp) => ({
+      .map(exp => ({
         ...exp,
-        bullets: (exp.bullets || []).filter((bullet) => bullet?.trim()),
+        bullets: (exp.bullets || []).filter(bullet => bullet?.trim()),
       }))
-      .filter((exp) => exp.company?.trim() && exp.role?.trim()),
+      .filter(exp => exp.company?.trim() && exp.role?.trim()),
     projects: (data.projects || [])
-      .map((proj) => ({
+      .map(proj => ({
         ...proj,
-        bullets: (proj.bullets || []).filter((bullet) => bullet?.trim()),
+        bullets: (proj.bullets || []).filter(bullet => bullet?.trim()),
       }))
-      .filter((proj) => proj.name?.trim()),
-    certifications: (data.certifications || []).filter((cert) => cert.name?.trim()),
+      .filter(proj => proj.name?.trim()),
+    certifications: (data.certifications || []).filter(cert =>
+      cert.name?.trim()
+    ),
   };
 
   const html = renderResumeHtml(templateType, filteredData);
 
   return (
     <div className='resume-preview-container'>
-      <div className='resume-preview-content' dangerouslySetInnerHTML={{ __html: html }} />
+      <div
+        className='resume-preview-content'
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
     </div>
   );
 };
 
 export default ResumePreview;
-

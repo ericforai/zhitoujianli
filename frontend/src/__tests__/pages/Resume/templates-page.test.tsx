@@ -6,15 +6,15 @@ import TemplatesPage from '../../../pages/Resume/Templates/TemplatesPage';
 
 jest.mock('../../../components/Navigation', () => ({
   __esModule: true,
-  default: () => <div>nav</div>
+  default: () => <div>nav</div>,
 }));
 jest.mock('../../../components/Footer', () => ({
   __esModule: true,
-  default: () => <div>footer</div>
+  default: () => <div>footer</div>,
 }));
 jest.mock('../../../components/resume/PersonaCards', () => ({
   __esModule: true,
-  default: () => <div>persona</div>
+  default: () => <div>persona</div>,
 }));
 jest.mock('../../../components/resume/DynamicForm', () => ({
   __esModule: true,
@@ -30,17 +30,17 @@ jest.mock('../../../components/resume/DynamicForm', () => ({
           skills: [],
           experiences: [],
           projects: [],
-          education: []
+          education: [],
         })
       }
     >
       form
     </button>
-  )
+  ),
 }));
 jest.mock('../../../components/resume/PreviewPane', () => ({
   __esModule: true,
-  default: () => <div>preview</div>
+  default: () => <div>preview</div>,
 }));
 
 describe.skip('TemplatesPage', () => {
@@ -55,5 +55,3 @@ describe.skip('TemplatesPage', () => {
     expect(screen.getByText('填写核心信息')).toBeInTheDocument();
   });
 });
-
-

@@ -2,7 +2,13 @@
  * 简历模板类型定义
  */
 
-export type TemplateType = 'general' | 'hr' | 'marketing' | 'operations' | 'finance' | 'sales';
+export type TemplateType =
+  | 'general'
+  | 'hr'
+  | 'marketing'
+  | 'operations'
+  | 'finance'
+  | 'sales';
 
 export interface ResumeTemplateData {
   // 基本信息
@@ -64,4 +70,3 @@ export interface TemplateConfig {
     optional: string[];
   };
 }
-

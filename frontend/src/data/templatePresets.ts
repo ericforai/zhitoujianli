@@ -29,22 +29,49 @@ export const TEMPLATE_PRESETS: Record<TemplateType, TemplatePreset> = {
       {
         category: '数据分析框架',
         placeholder: '如：Pandas、NumPy、Scikit-Learn',
-        examples: ['Pandas', 'NumPy', 'Scikit-Learn', 'Matplotlib', 'Seaborn', 'TensorFlow'],
+        examples: [
+          'Pandas',
+          'NumPy',
+          'Scikit-Learn',
+          'Matplotlib',
+          'Seaborn',
+          'TensorFlow',
+        ],
       },
       {
         category: '工具软件',
         placeholder: '如：Power BI、Excel、Tableau',
-        examples: ['Power BI', 'Excel', 'Tableau', 'MySQL', 'SQLite', 'PostgreSQL'],
+        examples: [
+          'Power BI',
+          'Excel',
+          'Tableau',
+          'MySQL',
+          'SQLite',
+          'PostgreSQL',
+        ],
       },
       {
         category: '开发平台',
         placeholder: '如：PyCharm、Jupyter Notebook、VS Code',
-        examples: ['PyCharm', 'Jupyter Notebook', 'VS Code', 'IntelliJ IDEA', 'Git'],
+        examples: [
+          'PyCharm',
+          'Jupyter Notebook',
+          'VS Code',
+          'IntelliJ IDEA',
+          'Git',
+        ],
       },
       {
         category: '通用能力',
         placeholder: '如：沟通表达、跨团队协作、需求理解',
-        examples: ['沟通表达', '跨团队协作', '需求理解', '项目管理', '分析思维', '问题解决'],
+        examples: [
+          '沟通表达',
+          '跨团队协作',
+          '需求理解',
+          '项目管理',
+          '分析思维',
+          '问题解决',
+        ],
       },
     ],
     experiencePlaceholders: [
@@ -78,7 +105,15 @@ export const TEMPLATE_PRESETS: Record<TemplateType, TemplatePreset> = {
       {
         category: 'HR 技能',
         placeholder: '如：招聘、面试、培训',
-        examples: ['招聘', '面试', '培训', '入离职管理', '绩效考核', '员工关系', '组织发展'],
+        examples: [
+          '招聘',
+          '面试',
+          '培训',
+          '入离职管理',
+          '绩效考核',
+          '员工关系',
+          '组织发展',
+        ],
       },
       {
         category: '工具',
@@ -88,7 +123,13 @@ export const TEMPLATE_PRESETS: Record<TemplateType, TemplatePreset> = {
       {
         category: '通用能力',
         placeholder: '如：沟通共情、冲突处理',
-        examples: ['沟通共情', '冲突处理', '跨部门协作', '组织协调', '复盘分析'],
+        examples: [
+          '沟通共情',
+          '冲突处理',
+          '跨部门协作',
+          '组织协调',
+          '复盘分析',
+        ],
       },
     ],
     experiencePlaceholders: [
@@ -113,12 +154,27 @@ export const TEMPLATE_PRESETS: Record<TemplateType, TemplatePreset> = {
       {
         category: '营销技能',
         placeholder: '如：市场调研、用户洞察、品牌定位',
-        examples: ['市场调研', '用户洞察', '品牌定位', '活动策划', '内容营销', 'SEM', 'SEO'],
+        examples: [
+          '市场调研',
+          '用户洞察',
+          '品牌定位',
+          '活动策划',
+          '内容营销',
+          'SEM',
+          'SEO',
+        ],
       },
       {
         category: '工具软件',
         placeholder: '如：Google Analytics、巨量引擎',
-        examples: ['Google Analytics', '巨量引擎', '朋友圈广告', 'Hotjar', 'Xmind', 'Notion'],
+        examples: [
+          'Google Analytics',
+          '巨量引擎',
+          '朋友圈广告',
+          'Hotjar',
+          'Xmind',
+          'Notion',
+        ],
       },
       {
         category: '数据技能',
@@ -156,7 +212,15 @@ export const TEMPLATE_PRESETS: Record<TemplateType, TemplatePreset> = {
       {
         category: '运营技能',
         placeholder: '如：流程优化、SOP制定',
-        examples: ['流程优化', 'SOP制定', '用户增长', '留存分析', '活动运营', '业务策略', '需求拆解'],
+        examples: [
+          '流程优化',
+          'SOP制定',
+          '用户增长',
+          '留存分析',
+          '活动运营',
+          '业务策略',
+          '需求拆解',
+        ],
       },
       {
         category: '数据技能',
@@ -166,12 +230,26 @@ export const TEMPLATE_PRESETS: Record<TemplateType, TemplatePreset> = {
       {
         category: '工具软件',
         placeholder: '如：飞书、钉钉、Notion',
-        examples: ['飞书', '钉钉', 'Notion', 'Jira', 'Xmind', 'Power BI', 'Data Studio'],
+        examples: [
+          '飞书',
+          '钉钉',
+          'Notion',
+          'Jira',
+          'Xmind',
+          'Power BI',
+          'Data Studio',
+        ],
       },
       {
         category: '通用能力',
         placeholder: '如：跨团队协作、项目管理',
-        examples: ['跨团队协作', '项目管理', '沟通协调', '问题拆解', '复盘总结'],
+        examples: [
+          '跨团队协作',
+          '项目管理',
+          '沟通协调',
+          '问题拆解',
+          '复盘总结',
+        ],
       },
     ],
     experiencePlaceholders: [
@@ -198,7 +276,15 @@ export const TEMPLATE_PRESETS: Record<TemplateType, TemplatePreset> = {
       {
         category: '财务技能',
         placeholder: '如：成本核算、预算管理',
-        examples: ['成本核算', '预算管理', '财务分析', '利润测算', '报表编制', '发票管理', '稽核'],
+        examples: [
+          '成本核算',
+          '预算管理',
+          '财务分析',
+          '利润测算',
+          '报表编制',
+          '发票管理',
+          '稽核',
+        ],
       },
       {
         category: '会计技能',
@@ -208,7 +294,13 @@ export const TEMPLATE_PRESETS: Record<TemplateType, TemplatePreset> = {
       {
         category: '工具',
         placeholder: '如：Excel、SAP、用友',
-        examples: ['Excel（Vlookup / Pivot / 函数）', 'SAP', '用友', '金蝶', 'Power BI'],
+        examples: [
+          'Excel（Vlookup / Pivot / 函数）',
+          'SAP',
+          '用友',
+          '金蝶',
+          'Power BI',
+        ],
       },
       {
         category: '能力',
@@ -238,7 +330,15 @@ export const TEMPLATE_PRESETS: Record<TemplateType, TemplatePreset> = {
       {
         category: '销售技能',
         placeholder: '如：客户开拓、行业调研',
-        examples: ['客户开拓', '行业调研', '需求分析', '方案呈现', '商务谈判', '商机管理', 'CRM'],
+        examples: [
+          '客户开拓',
+          '行业调研',
+          '需求分析',
+          '方案呈现',
+          '商务谈判',
+          '商机管理',
+          'CRM',
+        ],
       },
       {
         category: '工具',
@@ -248,7 +348,13 @@ export const TEMPLATE_PRESETS: Record<TemplateType, TemplatePreset> = {
       {
         category: '能力',
         placeholder: '如：沟通表达、抗压能力',
-        examples: ['沟通表达', '抗压能力', '目标推进', '客户关系管理', '跨部门协作'],
+        examples: [
+          '沟通表达',
+          '抗压能力',
+          '目标推进',
+          '客户关系管理',
+          '跨部门协作',
+        ],
       },
     ],
     experiencePlaceholders: [
@@ -268,5 +374,3 @@ export const TEMPLATE_PRESETS: Record<TemplateType, TemplatePreset> = {
     ],
   },
 };
-
-

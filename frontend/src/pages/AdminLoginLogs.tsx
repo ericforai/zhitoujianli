@@ -58,7 +58,7 @@ const AdminLoginLogs: React.FC = () => {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'X-Requested-With': 'XMLHttpRequest',
           Authorization: `Bearer ${token}`,
         },

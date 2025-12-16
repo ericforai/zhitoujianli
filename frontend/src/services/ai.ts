@@ -3,16 +3,21 @@
  * - /api/ai/generate
  * - /api/ai/diagnose
  */
-import type { DiagnoseResponse, GenerateResponse, ResumeInput } from '../types/resume';
+import type {
+  DiagnoseResponse,
+  GenerateResponse,
+  ResumeInput,
+} from '../types/resume';
 import config from '../config/environment';
 
-const DEV_MOCK = String(process.env.REACT_APP_RESUME_DEV_MOCK || '').toLowerCase() === 'true';
+const DEV_MOCK =
+  String(process.env.REACT_APP_RESUME_DEV_MOCK || '').toLowerCase() === 'true';
 
 async function fetchJSON<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, {
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    ...init
+    ...init,
   });
   if (!res.ok) {
     throw new Error(`API Error ${res.status}`);
@@ -26,10 +31,13 @@ export async function generate(input: ResumeInput): Promise<GenerateResponse> {
     return data.default as unknown as GenerateResponse;
   }
   try {
-    return await fetchJSON<GenerateResponse>(`${config.apiBaseUrl}/ai/generate`, {
-      method: 'POST',
-      body: JSON.stringify({ input })
-    });
+    return await fetchJSON<GenerateResponse>(
+      `${config.apiBaseUrl}/ai/generate`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ input }),
+      }
+    );
   } catch {
     // 后端未就绪时降级到本地mock，避免“暂无预览”
     const data = await import('../assets/resume/demo-generate.json');
@@ -48,7 +56,12 @@ export async function diagnose(params: {
     // 获取认证Token
     const getAuthToken = (): string | null => {
       try {
-        return localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('AUTH_TOKEN');
+        return (
+          localStorage.getItem('authToken') ||
+          localStorage.getItem('token') ||
+          localStorage.getItem('auth_token') ||
+          localStorage.getItem('AUTH_TOKEN')
+        );
       } catch {
         return null;
       }
@@ -58,7 +71,7 @@ export async function diagnose(params: {
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       Accept: 'application/json',
-      'X-Requested-With': 'XMLHttpRequest'
+      'X-Requested-With': 'XMLHttpRequest',
     };
 
     // 如果有token，添加到请求头
@@ -74,8 +87,8 @@ export async function diagnose(params: {
         text: params.text,
         locale: 'zh-CN',
         persona: '',
-        maxPages: 1
-      })
+        maxPages: 1,
+      }),
     });
     if (res.ok) {
       const apiJson: any = await res.json();
@@ -92,11 +105,15 @@ export async function diagnose(params: {
         hasAtsCompatibility: !!j.atsCompatibility,
         hasImprovements: !!j.improvements,
         hasRewrite: !!j.rewrite,
-        hasScorecard: !!j.scorecard
+        hasScorecard: !!j.scorecard,
       });
-      const tookMs = typeof payload.tookMs === 'number' ? payload.tookMs : undefined;
-      const requestId = typeof payload.requestId === 'string' ? payload.requestId : undefined;
-      const keywords: string[] = Array.isArray(j?.detections?.missingEvidenceForSkills)
+      const tookMs =
+        typeof payload.tookMs === 'number' ? payload.tookMs : undefined;
+      const requestId =
+        typeof payload.requestId === 'string' ? payload.requestId : undefined;
+      const keywords: string[] = Array.isArray(
+        j?.detections?.missingEvidenceForSkills
+      )
         ? (j.detections.missingEvidenceForSkills as string[]).slice(0, 20)
         : [];
       const score = j.overallScore ?? 0;
@@ -117,82 +134,129 @@ export async function diagnose(params: {
       // 如果没有新的rewrite字段，尝试从旧的rewritePack生成（向后兼容）
       if (!html) {
         const rewrite = j.rewritePack || {};
-        if (rewrite && (rewrite.summary || rewrite.skills || rewrite.experienceBullets || rewrite.projectsBullets || rewrite.educationNote)) {
-        const safe = (s: any) => {
-          if (!s) return '';
-          // 如果是对象，尝试提取文本内容
-          if (typeof s === 'object' && s !== null) {
-            if (s.text) return String(s.text).replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            if (s.description) return String(s.description).replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            if (Array.isArray(s.list)) return s.list.join('、').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            // 如果是空对象，返回空字符串
-            if (Object.keys(s).length === 0) return '';
-            // 尝试序列化对象（调试用）
-            return JSON.stringify(s).replace(/</g, '&lt;').replace(/>/g, '&gt;');
-          }
-          return String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        };
-        const formatSkills = (skills: any): string => {
-          if (!skills) return '';
-          if (typeof skills === 'string') return skills;
-          if (typeof skills === 'object') {
+        if (
+          rewrite &&
+          (rewrite.summary ||
+            rewrite.skills ||
+            rewrite.experienceBullets ||
+            rewrite.projectsBullets ||
+            rewrite.educationNote)
+        ) {
+          const safe = (s: any) => {
+            if (!s) return '';
             // 如果是对象，尝试提取文本内容
-            if (skills.text) return String(skills.text);
-            if (skills.description) return String(skills.description);
-            if (Array.isArray(skills.list)) return skills.list.join('、');
-            // 如果是空对象，返回空字符串
-            if (Object.keys(skills).length === 0) return '';
-            // 尝试序列化对象
-            return JSON.stringify(skills);
-          }
-          return '';
-        };
-        // 处理summary：可能是字符串或对象
-        const summaryText = safe(rewrite.summary);
-        const skillsText = formatSkills(rewrite.skills);
-        const exp = Array.isArray(rewrite.experienceBullets) ? rewrite.experienceBullets : [];
-        const proj = Array.isArray(rewrite.projectsBullets) ? rewrite.projectsBullets : [];
-        const educationNote = String(rewrite.educationNote || '').trim();
-        html = `
+            if (typeof s === 'object' && s !== null) {
+              if (s.text)
+                return String(s.text)
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;');
+              if (s.description)
+                return String(s.description)
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;');
+              if (Array.isArray(s.list))
+                return s.list
+                  .join('、')
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;');
+              // 如果是空对象，返回空字符串
+              if (Object.keys(s).length === 0) return '';
+              // 尝试序列化对象（调试用）
+              return JSON.stringify(s)
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+            }
+            return String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          };
+          const formatSkills = (skills: any): string => {
+            if (!skills) return '';
+            if (typeof skills === 'string') return skills;
+            if (typeof skills === 'object') {
+              // 如果是对象，尝试提取文本内容
+              if (skills.text) return String(skills.text);
+              if (skills.description) return String(skills.description);
+              if (Array.isArray(skills.list)) return skills.list.join('、');
+              // 如果是空对象，返回空字符串
+              if (Object.keys(skills).length === 0) return '';
+              // 尝试序列化对象
+              return JSON.stringify(skills);
+            }
+            return '';
+          };
+          // 处理summary：可能是字符串或对象
+          const summaryText = safe(rewrite.summary);
+          const skillsText = formatSkills(rewrite.skills);
+          const exp = Array.isArray(rewrite.experienceBullets)
+            ? rewrite.experienceBullets
+            : [];
+          const proj = Array.isArray(rewrite.projectsBullets)
+            ? rewrite.projectsBullets
+            : [];
+          const educationNote = String(rewrite.educationNote || '').trim();
+          html = `
 <section class="page">
-  ${summaryText ? `<h1 style="font-size:22px;margin:0 0 12px 0;">修订版概要</h1>
-  <div style="font-size:16px;line-height:1.6;margin-bottom:20px;">${summaryText}</div>` : ''}
-  ${skillsText ? `<h2 style="margin-top:20px;font-size:18px;margin-bottom:8px;">技能</h2>
-  <div style="font-size:15px;line-height:1.6;margin-bottom:20px;">${safe(skillsText)}</div>` : ''}
-  ${exp.length ? `<h2 style="margin-top:20px;font-size:18px;margin-bottom:8px;">经历</h2>
-  <ul style="margin-bottom:20px;">${exp.map((b: any) => {
-    let bulletText = '';
-    if (typeof b === 'string') {
-      bulletText = b;
-    } else if (b && typeof b === 'object') {
-      if (Array.isArray(b.bullets)) {
-        bulletText = b.bullets.join('；');
-      } else if (b.text) {
-        bulletText = b.text;
-      } else {
-        bulletText = JSON.stringify(b);
+  ${
+    summaryText
+      ? `<h1 style="font-size:22px;margin:0 0 12px 0;">修订版概要</h1>
+  <div style="font-size:16px;line-height:1.6;margin-bottom:20px;">${summaryText}</div>`
+      : ''
+  }
+  ${
+    skillsText
+      ? `<h2 style="margin-top:20px;font-size:18px;margin-bottom:8px;">技能</h2>
+  <div style="font-size:15px;line-height:1.6;margin-bottom:20px;">${safe(skillsText)}</div>`
+      : ''
+  }
+  ${
+    exp.length
+      ? `<h2 style="margin-top:20px;font-size:18px;margin-bottom:8px;">经历</h2>
+  <ul style="margin-bottom:20px;">${exp
+    .map((b: any) => {
+      let bulletText = '';
+      if (typeof b === 'string') {
+        bulletText = b;
+      } else if (b && typeof b === 'object') {
+        if (Array.isArray(b.bullets)) {
+          bulletText = b.bullets.join('；');
+        } else if (b.text) {
+          bulletText = b.text;
+        } else {
+          bulletText = JSON.stringify(b);
+        }
       }
-    }
-    return `<li style="margin-bottom:8px;line-height:1.6;">${safe(bulletText)}</li>`;
-  }).join('')}</ul>` : ''}
-  ${proj.length ? `<h2 style="margin-top:20px;font-size:18px;margin-bottom:8px;">项目</h2>
-  <ul style="margin-bottom:20px;">${proj.map((b: any) => {
-    let bulletText = '';
-    if (typeof b === 'string') {
-      bulletText = b;
-    } else if (b && typeof b === 'object') {
-      if (Array.isArray(b.bullets)) {
-        bulletText = b.bullets.join('；');
-      } else if (b.text) {
-        bulletText = b.text;
-      } else {
-        bulletText = JSON.stringify(b);
+      return `<li style="margin-bottom:8px;line-height:1.6;">${safe(bulletText)}</li>`;
+    })
+    .join('')}</ul>`
+      : ''
+  }
+  ${
+    proj.length
+      ? `<h2 style="margin-top:20px;font-size:18px;margin-bottom:8px;">项目</h2>
+  <ul style="margin-bottom:20px;">${proj
+    .map((b: any) => {
+      let bulletText = '';
+      if (typeof b === 'string') {
+        bulletText = b;
+      } else if (b && typeof b === 'object') {
+        if (Array.isArray(b.bullets)) {
+          bulletText = b.bullets.join('；');
+        } else if (b.text) {
+          bulletText = b.text;
+        } else {
+          bulletText = JSON.stringify(b);
+        }
       }
-    }
-    return `<li style="margin-bottom:8px;line-height:1.6;">${safe(bulletText)}</li>`;
-  }).join('')}</ul>` : ''}
-  ${educationNote ? `<h2 style="margin-top:20px;font-size:18px;margin-bottom:8px;">教育背景</h2>
-  <div style="font-size:15px;line-height:1.6;">${safe(educationNote)}</div>` : ''}
+      return `<li style="margin-bottom:8px;line-height:1.6;">${safe(bulletText)}</li>`;
+    })
+    .join('')}</ul>`
+      : ''
+  }
+  ${
+    educationNote
+      ? `<h2 style="margin-top:20px;font-size:18px;margin-bottom:8px;">教育背景</h2>
+  <div style="font-size:15px;line-height:1.6;">${safe(educationNote)}</div>`
+      : ''
+  }
 </section>
         `;
         }
@@ -200,18 +264,23 @@ export async function diagnose(params: {
 
       // 如果还是没有内容，使用Markdown作为fallback
       if (!html) {
-        html = md ? `<pre>${md.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>` : '';
+        html = md
+          ? `<pre>${md.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>`
+          : '';
       }
       // 映射新的8个分析部分
       const sections: DiagnoseResponse['sections'] = [];
 
       // 1. 总体评价（overview）
       if (j.overview) {
-        const overviewContent = typeof j.overview === 'string' ? j.overview : JSON.stringify(j.overview);
+        const overviewContent =
+          typeof j.overview === 'string'
+            ? j.overview
+            : JSON.stringify(j.overview);
         sections.push({
           name: '总体评价',
           items: [],
-          content: overviewContent
+          content: overviewContent,
         });
       } else {
         sections.push({ name: '总体评价', items: [] });
@@ -219,11 +288,14 @@ export async function diagnose(params: {
 
       // 2. 结构分析（structure）
       if (j.structure) {
-        const structureContent = typeof j.structure === 'string' ? j.structure : JSON.stringify(j.structure);
+        const structureContent =
+          typeof j.structure === 'string'
+            ? j.structure
+            : JSON.stringify(j.structure);
         sections.push({
           name: '结构分析',
           items: [],
-          content: structureContent
+          content: structureContent,
         });
       } else {
         sections.push({ name: '结构分析', items: [] });
@@ -231,11 +303,14 @@ export async function diagnose(params: {
 
       // 3. 内容分析（contentQuality）
       if (j.contentQuality) {
-        const contentQualityContent = typeof j.contentQuality === 'string' ? j.contentQuality : JSON.stringify(j.contentQuality);
+        const contentQualityContent =
+          typeof j.contentQuality === 'string'
+            ? j.contentQuality
+            : JSON.stringify(j.contentQuality);
         sections.push({
           name: '内容分析',
           items: [],
-          content: contentQualityContent
+          content: contentQualityContent,
         });
       } else {
         sections.push({ name: '内容分析', items: [] });
@@ -243,11 +318,14 @@ export async function diagnose(params: {
 
       // 4. 专业度与可信度（credibility）
       if (j.credibility) {
-        const credibilityContent = typeof j.credibility === 'string' ? j.credibility : JSON.stringify(j.credibility);
+        const credibilityContent =
+          typeof j.credibility === 'string'
+            ? j.credibility
+            : JSON.stringify(j.credibility);
         sections.push({
           name: '专业度与可信度',
           items: [],
-          content: credibilityContent
+          content: credibilityContent,
         });
       } else {
         sections.push({ name: '专业度与可信度', items: [] });
@@ -255,11 +333,14 @@ export async function diagnose(params: {
 
       // 5. ATS技术分析（atsCompatibility）
       if (j.atsCompatibility) {
-        const atsContent = typeof j.atsCompatibility === 'string' ? j.atsCompatibility : JSON.stringify(j.atsCompatibility);
+        const atsContent =
+          typeof j.atsCompatibility === 'string'
+            ? j.atsCompatibility
+            : JSON.stringify(j.atsCompatibility);
         sections.push({
           name: 'ATS技术分析',
           items: [],
-          content: atsContent
+          content: atsContent,
         });
       } else {
         sections.push({ name: 'ATS技术分析', items: [] });
@@ -268,18 +349,24 @@ export async function diagnose(params: {
       // 6. 可提升点（improvements）
       if (Array.isArray(j.improvements) && j.improvements.length > 0) {
         const improvementItems = j.improvements.map((imp: any) => ({
-          issue: typeof imp === 'string' ? imp : (imp?.issue || imp?.suggestion || JSON.stringify(imp)),
-          fix: typeof imp === 'string' ? '' : (imp?.fix || imp?.rewriteExample || '')
+          issue:
+            typeof imp === 'string'
+              ? imp
+              : imp?.issue || imp?.suggestion || JSON.stringify(imp),
+          fix:
+            typeof imp === 'string'
+              ? ''
+              : imp?.fix || imp?.rewriteExample || '',
         }));
         sections.push({
           name: '可提升点',
-          items: improvementItems
+          items: improvementItems,
         });
       } else if (j.improvements && typeof j.improvements === 'object') {
         sections.push({
           name: '可提升点',
           items: [],
-          content: JSON.stringify(j.improvements)
+          content: JSON.stringify(j.improvements),
         });
       } else {
         sections.push({ name: '可提升点', items: [] });
@@ -288,11 +375,12 @@ export async function diagnose(params: {
       // 7. 重写关键段落（rewrite）- 这个会显示在修订版预览区域
       // 这里只添加一个占位section，实际内容在html字段中
       if (j.rewrite) {
-        const rewriteContent = typeof j.rewrite === 'string' ? j.rewrite : JSON.stringify(j.rewrite);
+        const rewriteContent =
+          typeof j.rewrite === 'string' ? j.rewrite : JSON.stringify(j.rewrite);
         sections.push({
           name: '重写关键段落',
           items: [],
-          content: rewriteContent
+          content: rewriteContent,
         });
       } else {
         sections.push({ name: '重写关键段落', items: [] });
@@ -303,7 +391,7 @@ export async function diagnose(params: {
         sections.push({
           name: '最终得分',
           items: [],
-          content: j.scorecard
+          content: j.scorecard,
         });
       } else {
         sections.push({ name: '最终得分', items: [] });
@@ -322,7 +410,7 @@ export async function diagnose(params: {
             scorecard['专业可信度'],
             scorecard['HR友好度'],
             scorecard['ATS友好度'],
-            scorecard['面试通过概率']
+            scorecard['面试通过概率'],
           ].filter((s): s is number => typeof s === 'number');
           if (scores.length > 0) {
             const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
@@ -338,7 +426,7 @@ export async function diagnose(params: {
         keywords,
         html: html || '', // 重写关键段落内容
         tookMs,
-        requestId
+        requestId,
       } as DiagnoseResponse;
     }
     // 如果是401错误，提示用户登录
@@ -348,7 +436,9 @@ export async function diagnose(params: {
 
     // 如果是504 Gateway Timeout，提示超时
     if (res.status === 504) {
-      throw new Error('请求超时，AI诊断可能需要较长时间，请稍后重试或尝试上传较小的文件');
+      throw new Error(
+        '请求超时，AI诊断可能需要较长时间，请稍后重试或尝试上传较小的文件'
+      );
     }
 
     // 如果是502/503错误，提示服务不可用
@@ -362,14 +452,18 @@ export async function diagnose(params: {
     try {
       // 检查是否是HTML错误页面（如504 Gateway Timeout页面）
       if (errorText.includes('Gateway Time-out') || errorText.includes('504')) {
-        throw new Error('请求超时，AI诊断可能需要较长时间，请稍后重试或尝试上传较小的文件');
+        throw new Error(
+          '请求超时，AI诊断可能需要较长时间，请稍后重试或尝试上传较小的文件'
+        );
       }
       const errorJson = JSON.parse(errorText);
       errorMessage = errorJson.message || errorJson.error || errorMessage;
     } catch (parseError) {
       // 如果无法解析JSON，检查是否是HTML错误页面
       if (errorText.includes('Gateway Time-out') || errorText.includes('504')) {
-        throw new Error('请求超时，AI诊断可能需要较长时间，请稍后重试或尝试上传较小的文件');
+        throw new Error(
+          '请求超时，AI诊断可能需要较长时间，请稍后重试或尝试上传较小的文件'
+        );
       }
       // 使用原始文本或状态码
       errorMessage = errorText || errorMessage;
@@ -382,11 +476,12 @@ export async function diagnose(params: {
     }
     // 网络错误（Failed to fetch）或其他未预期的错误
     const networkError = err instanceof Error ? err : new Error('网络连接失败');
-    if (networkError.message === 'Failed to fetch' || networkError.message.includes('fetch')) {
+    if (
+      networkError.message === 'Failed to fetch' ||
+      networkError.message.includes('fetch')
+    ) {
       throw new Error('无法连接到服务器，请检查网络连接或稍后重试');
     }
     throw networkError;
   }
 }
-
-

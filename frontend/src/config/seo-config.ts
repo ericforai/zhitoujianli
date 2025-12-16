@@ -19,7 +19,8 @@ export interface SEOConfig {
 }
 
 // 基础配置
-const BASE_URL = 'https://zhitoujianli.com';
+// 使用www作为规范域名（与Nginx配置一致，所有不带www的请求会301重定向到www）
+const BASE_URL = 'https://www.zhitoujianli.com';
 const DEFAULT_OG_IMAGE = `${BASE_URL}/og-image.jpg`;
 export const SITE_NAME = '智投简历';
 

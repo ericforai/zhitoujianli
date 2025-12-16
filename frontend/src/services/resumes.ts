@@ -71,12 +71,13 @@ async function listRemote(): Promise<HistoryItem[] | null> {
       // 转换后端数据格式到前端格式
       return items.map((item: any) => ({
         id: item.id?.toString() || `h_${Date.now()}`,
-        createdAt: item.createdAt || item.created_at || new Date().toISOString(),
+        createdAt:
+          item.createdAt || item.created_at || new Date().toISOString(),
         type: item.type || '优化',
         score: item.score,
         exportCount: item.exportCount || item.export_count || 0,
         downloadUrl: item.downloadUrl || item.download_url,
-        meta: typeof item.meta === 'string' ? JSON.parse(item.meta) : item.meta
+        meta: typeof item.meta === 'string' ? JSON.parse(item.meta) : item.meta,
       })) as HistoryItem[];
     }
     return null;
@@ -111,12 +112,13 @@ export async function createVersion(params: {
       const item = response.data.data;
       return {
         id: item.id?.toString() || `h_${Date.now()}`,
-        createdAt: item.createdAt || item.created_at || new Date().toISOString(),
+        createdAt:
+          item.createdAt || item.created_at || new Date().toISOString(),
         type: item.type || params.type,
         score: item.score,
         exportCount: item.exportCount || item.export_count || 0,
         downloadUrl: item.downloadUrl || item.download_url,
-        meta: typeof item.meta === 'string' ? JSON.parse(item.meta) : item.meta
+        meta: typeof item.meta === 'string' ? JSON.parse(item.meta) : item.meta,
       } as HistoryItem;
     }
   } catch (error) {
@@ -130,7 +132,7 @@ export async function createVersion(params: {
     score: params.score,
     exportCount: 0,
     downloadUrl: params.downloadUrl,
-    meta: params.meta
+    meta: params.meta,
   };
   const listData = load();
   listData.unshift(item);
@@ -141,12 +143,19 @@ export async function createVersion(params: {
 export async function incrementExport(id: string, downloadUrl?: string) {
   // 尝试后端优先
   try {
-    const res = await fetch(`${config.apiBaseUrl}/resume/history/${encodeURIComponent(id)}/export`, {
-      method: 'PATCH',
-      credentials: 'include',
-      headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
-      body: JSON.stringify({ downloadUrl })
-    });
+    const res = await fetch(
+      `${config.apiBaseUrl}/resume/history/${encodeURIComponent(id)}/export`,
+      {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          Accept: 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ downloadUrl }),
+      }
+    );
     if (res.ok) return;
   } catch {
     // ignore
@@ -166,7 +175,10 @@ export async function get(id: string): Promise<HistoryItem | null> {
   return listData.find(i => i.id === id) || null;
 }
 
-export async function replaceMeta(id: string, metaPatch: Record<string, unknown>): Promise<void> {
+export async function replaceMeta(
+  id: string,
+  metaPatch: Record<string, unknown>
+): Promise<void> {
   const listData = load();
   const idx = listData.findIndex(i => i.id === id);
   if (idx >= 0) {
@@ -176,12 +188,19 @@ export async function replaceMeta(id: string, metaPatch: Record<string, unknown>
   }
   // 后端存在时可同时 PATCH /api/resume/history/{id}
   try {
-    await fetch(`${config.apiBaseUrl}/resume/history/${encodeURIComponent(id)}`, {
-      method: 'PATCH',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-      body: JSON.stringify({ meta: metaPatch })
-    });
+    await fetch(
+      `${config.apiBaseUrl}/resume/history/${encodeURIComponent(id)}`,
+      {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: JSON.stringify({ meta: metaPatch }),
+      }
+    );
   } catch {
     // ignore
   }
@@ -212,7 +231,11 @@ export function cleanupAllOldStorage(): void {
     const keysToRemove: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && key.startsWith('resume_history_records') && !key.includes('_')) {
+      if (
+        key &&
+        key.startsWith('resume_history_records') &&
+        !key.includes('_')
+      ) {
         keysToRemove.push(key);
       }
     }
@@ -224,5 +247,3 @@ export function cleanupAllOldStorage(): void {
     console.error('清理旧存储失败:', error);
   }
 }
-
-

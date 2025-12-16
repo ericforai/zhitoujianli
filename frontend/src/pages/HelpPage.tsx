@@ -160,9 +160,7 @@ const HelpPage: React.FC = () => {
                 <h3 className='text-xl font-bold text-gray-900 mb-3'>
                   账户问题
                 </h3>
-                <p className='text-gray-600 text-sm'>
-                  注册、登录、密码重置等
-                </p>
+                <p className='text-gray-600 text-sm'>注册、登录、密码重置等</p>
               </a>
               <a
                 href='/help?category=resume'
@@ -171,20 +169,14 @@ const HelpPage: React.FC = () => {
                 <h3 className='text-xl font-bold text-gray-900 mb-3'>
                   简历功能
                 </h3>
-                <p className='text-gray-600 text-sm'>
-                  上传、解析、优化等
-                </p>
+                <p className='text-gray-600 text-sm'>上传、解析、优化等</p>
               </a>
               <a
                 href='/help?category=ai'
                 className='bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-blue-500 hover:shadow-lg transition-all duration-300 block'
               >
-                <h3 className='text-xl font-bold text-gray-900 mb-3'>
-                  AI匹配
-                </h3>
-                <p className='text-gray-600 text-sm'>
-                  智能匹配、评分等
-                </p>
+                <h3 className='text-xl font-bold text-gray-900 mb-3'>AI匹配</h3>
+                <p className='text-gray-600 text-sm'>智能匹配、评分等</p>
               </a>
             </div>
           </div>

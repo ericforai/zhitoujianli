@@ -117,9 +117,7 @@ export const planService = {
   /**
    * 升级套餐
    */
-  upgradePlan: async (
-    targetPlan: PlanType
-  ): Promise<UpgradePlanResponse> => {
+  upgradePlan: async (targetPlan: PlanType): Promise<UpgradePlanResponse> => {
     try {
       const response = await apiClient.post('/user/plan/upgrade', {
         targetPlan,
@@ -134,7 +132,10 @@ export const planService = {
   /**
    * 检查配额是否足够
    */
-  checkQuota: async (quotaKey: string, amount: number = 1): Promise<boolean> => {
+  checkQuota: async (
+    quotaKey: string,
+    amount: number = 1
+  ): Promise<boolean> => {
     try {
       const quotaUsage = await planService.getQuotaUsage();
       const quota = quotaUsage.quickAccess[quotaKey];
@@ -188,4 +189,3 @@ export const planService = {
 };
 
 export default planService;
-

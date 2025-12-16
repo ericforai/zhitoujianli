@@ -76,19 +76,28 @@ const HistoryPage: React.FC = () => {
                     className='border-t hover:bg-gray-50 cursor-pointer'
                     onClick={() => {
                       if (it.type === '优化') {
-                        navigate(`/resume/optimize?hid=${encodeURIComponent(it.id)}`);
+                        navigate(
+                          `/resume/optimize?hid=${encodeURIComponent(it.id)}`
+                        );
                       } else {
                         navigate(`/resume/templates`); // 模板类可扩展重放
                       }
                     }}
                   >
-                    <td className='px-4 py-3 text-sm text-gray-700'>{new Date(it.createdAt).toLocaleString()}</td>
+                    <td className='px-4 py-3 text-sm text-gray-700'>
+                      {new Date(it.createdAt).toLocaleString()}
+                    </td>
                     <td className='px-4 py-3 text-sm'>{it.type}</td>
                     <td className='px-4 py-3 text-sm'>{it.score ?? '-'}</td>
                     <td className='px-4 py-3 text-sm'>{it.exportCount ?? 0}</td>
                     <td className='px-4 py-3 text-sm'>
                       {it.downloadUrl ? (
-                        <a href={it.downloadUrl} target='_blank' rel='noreferrer' className='text-blue-600'>
+                        <a
+                          href={it.downloadUrl}
+                          target='_blank'
+                          rel='noreferrer'
+                          className='text-blue-600'
+                        >
                           下载
                         </a>
                       ) : (
@@ -108,5 +117,3 @@ const HistoryPage: React.FC = () => {
 };
 
 export default HistoryPage;
-
-

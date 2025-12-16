@@ -42,10 +42,7 @@ export const PlanGuard: React.FC<PlanGuardProps> = ({
   fallback,
   children,
 }) => {
-  const {
-    isAtLeastPlanType,
-    hasPermission,
-  } = usePlanPermission();
+  const { isAtLeastPlanType, hasPermission } = usePlanPermission();
 
   // 检查套餐类型
   if (requiredPlan && !isAtLeastPlanType(requiredPlan)) {
@@ -61,4 +58,3 @@ export const PlanGuard: React.FC<PlanGuardProps> = ({
 };
 
 export default PlanGuard;
-

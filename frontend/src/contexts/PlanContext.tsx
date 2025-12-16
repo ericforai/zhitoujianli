@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
 import {
   planService,
   PlanType,
@@ -38,7 +44,9 @@ const PlanContext = createContext<PlanContextType | null>(null);
 /**
  * 套餐Provider组件
  */
-export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { isAuthenticated } = useAuth();
   const [userPlan, setUserPlan] = useState<UserPlan | null>(null);
   const [quotaUsage, setQuotaUsage] = useState<QuotaUsageResponse | null>(null);
@@ -323,4 +331,3 @@ export const usePlan = (): PlanContextType => {
 };
 
 export default PlanContext;
-

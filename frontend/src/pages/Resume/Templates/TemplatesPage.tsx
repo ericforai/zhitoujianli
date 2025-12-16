@@ -44,14 +44,18 @@ const TemplatesPage: React.FC = () => {
       <main className='flex-1 max-w-7xl mx-auto px-4 py-8 pt-20 w-full'>
         <div className='mb-6'>
           <h1 className='text-3xl font-bold text-gray-900 mb-2'>简历模板</h1>
-          <p className='text-gray-600'>选择模板类型，填写信息，实时预览并导出</p>
+          <p className='text-gray-600'>
+            选择模板类型，填写信息，实时预览并导出
+          </p>
         </div>
 
         {/* 模板选择器 */}
         <div className='mb-6'>
-          <label className='block text-sm font-medium text-gray-700 mb-3'>选择模板类型</label>
+          <label className='block text-sm font-medium text-gray-700 mb-3'>
+            选择模板类型
+          </label>
           <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3'>
-            {Object.values(TEMPLATE_CONFIGS).map((config) => (
+            {Object.values(TEMPLATE_CONFIGS).map(config => (
               <button
                 key={config.type}
                 type='button'
@@ -63,7 +67,9 @@ const TemplatesPage: React.FC = () => {
                 }`}
               >
                 <div className='font-semibold mb-1'>{config.name}</div>
-                <div className='text-xs text-gray-500'>{config.description}</div>
+                <div className='text-xs text-gray-500'>
+                  {config.description}
+                </div>
               </button>
             ))}
           </div>
@@ -74,7 +80,10 @@ const TemplatesPage: React.FC = () => {
           <div className='space-y-6'>
             <div className='bg-white rounded-lg shadow-sm p-6'>
               <h2 className='text-xl font-semibold mb-4'>填写信息</h2>
-              <SimpleResumeForm templateType={templateType} onChange={handleFormChange} />
+              <SimpleResumeForm
+                templateType={templateType}
+                onChange={handleFormChange}
+              />
             </div>
           </div>
 

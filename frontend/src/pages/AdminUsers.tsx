@@ -118,7 +118,7 @@ const AdminUsers: React.FC = () => {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
+            Accept: 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
             Authorization: `Bearer ${token}`,
           },
@@ -181,7 +181,11 @@ const AdminUsers: React.FC = () => {
       return;
     }
 
-    if (!confirm(`确定要将用户 ${user.email} 的套餐从 ${planNames[currentPlan as PlanType]} 改为 ${planNames[targetPlan as PlanType]} 吗？`)) {
+    if (
+      !confirm(
+        `确定要将用户 ${user.email} 的套餐从 ${planNames[currentPlan as PlanType]} 改为 ${planNames[targetPlan as PlanType]} 吗？`
+      )
+    ) {
       return;
     }
 
@@ -195,7 +199,7 @@ const AdminUsers: React.FC = () => {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
+            Accept: 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
             Authorization: `Bearer ${token}`,
           },
@@ -210,7 +214,9 @@ const AdminUsers: React.FC = () => {
       const result = await response.json();
 
       if (result.success) {
-        alert(`套餐升级成功！\n用户：${user.email}\n新套餐：${planNames[targetPlan as PlanType]}`);
+        alert(
+          `套餐升级成功！\n用户：${user.email}\n新套餐：${planNames[targetPlan as PlanType]}`
+        );
         await fetchUsers(); // 重新加载用户列表
       } else {
         alert('升级失败: ' + result.message);
@@ -251,7 +257,7 @@ const AdminUsers: React.FC = () => {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
+            Accept: 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
             Authorization: `Bearer ${token}`,
           },
@@ -338,7 +344,7 @@ const AdminUsers: React.FC = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
+            Accept: 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
             Authorization: `Bearer ${token}`,
           },
@@ -353,7 +359,9 @@ const AdminUsers: React.FC = () => {
       console.log('📥 批量删除响应:', result);
 
       if (result.success) {
-        alert(`批量删除成功！\n成功: ${result.successCount} 个\n失败: ${result.failCount} 个`);
+        alert(
+          `批量删除成功！\n成功: ${result.successCount} 个\n失败: ${result.failCount} 个`
+        );
         setSelectedUsers(new Set()); // 清空选择
         await fetchUsers(); // 重新加载用户列表
         // 🔧 修复：触发仪表盘数据刷新事件
@@ -361,9 +369,11 @@ const AdminUsers: React.FC = () => {
       } else {
         let errorMsg = result.message || '批量删除失败';
         if (result.failedUsers && result.failedUsers.length > 0) {
-          errorMsg += '\n\n失败详情：\n' + result.failedUsers
-            .map((f: any) => `用户ID ${f.userId}: ${f.error}`)
-            .join('\n');
+          errorMsg +=
+            '\n\n失败详情：\n' +
+            result.failedUsers
+              .map((f: any) => `用户ID ${f.userId}: ${f.error}`)
+              .join('\n');
         }
         alert(errorMsg);
       }
@@ -406,7 +416,7 @@ const AdminUsers: React.FC = () => {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
+            Accept: 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
             Authorization: `Bearer ${token}`,
           },
@@ -471,7 +481,9 @@ const AdminUsers: React.FC = () => {
                 disabled={batchDeleting}
                 className='px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed'
               >
-                {batchDeleting ? '删除中...' : `批量删除 (${selectedUsers.size})`}
+                {batchDeleting
+                  ? '删除中...'
+                  : `批量删除 (${selectedUsers.size})`}
               </button>
             </div>
           </div>
@@ -486,134 +498,136 @@ const AdminUsers: React.FC = () => {
             style={{ scrollbarWidth: 'thin' }}
           >
             <table className='min-w-full divide-y divide-gray-200'>
-            <thead className='bg-gray-50'>
-              <tr>
-                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12'>
-                  <input
-                    type='checkbox'
-                    checked={selectedUsers.size === users.length && users.length > 0}
-                    onChange={handleSelectAll}
-                    className='rounded border-gray-300 text-blue-600 focus:ring-blue-500'
-                  />
-                </th>
-                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  ID
-                </th>
-                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  邮箱
-                </th>
-                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  昵称
-                </th>
-                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  套餐
-                </th>
-                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  状态
-                </th>
-                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  注册时间
-                </th>
-                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  操作
-                </th>
-              </tr>
-            </thead>
-            <tbody className='bg-white divide-y divide-gray-200'>
-              {users.map(user => {
-                const userId = String(user.userId || user.id);
-                const isSelected = selectedUsers.has(userId);
-                return (
-                  <tr
-                    key={user.id}
-                    className={`hover:bg-gray-50 ${isSelected ? 'bg-blue-50' : ''}`}
-                  >
-                    <td className='px-6 py-4 whitespace-nowrap'>
-                      <input
-                        type='checkbox'
-                        checked={isSelected}
-                        onChange={() => handleToggleUserSelection(userId)}
-                        className='rounded border-gray-300 text-blue-600 focus:ring-blue-500'
-                      />
-                    </td>
-                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
-                      {user.id}
-                    </td>
-                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
-                      {user.email}
-                    </td>
-                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                      {user.nickname || '-'}
-                    </td>
-                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                      {user.planType || 'FREE'}
-                    </td>
-                    <td className='px-6 py-4 whitespace-nowrap'>
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          user.active || user.status === 'enabled'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}
-                      >
-                        {user.active || user.status === 'enabled'
-                          ? '启用'
-                          : '禁用'}
-                      </span>
-                    </td>
-                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                      {new Date(user.createdAt).toLocaleDateString('zh-CN')}
-                    </td>
-                    <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
-                      <div className='flex items-center gap-2'>
-                        <button
-                          onClick={() => handleUpgradePlan(user)}
-                          disabled={
-                            updatingUserId === String(user.userId || user.id)
-                          }
-                          className='px-3 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-md text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
-                          title='升级/更改用户套餐'
-                        >
-                          升级套餐
-                        </button>
-                        <button
-                          onClick={() =>
-                            handleToggleUserStatus(
-                              user,
-                              user.active || user.status === 'enabled'
-                            )
-                          }
-                          disabled={
-                            updatingUserId === String(user.userId || user.id)
-                          }
-                          className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+              <thead className='bg-gray-50'>
+                <tr>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12'>
+                    <input
+                      type='checkbox'
+                      checked={
+                        selectedUsers.size === users.length && users.length > 0
+                      }
+                      onChange={handleSelectAll}
+                      className='rounded border-gray-300 text-blue-600 focus:ring-blue-500'
+                    />
+                  </th>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                    ID
+                  </th>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                    邮箱
+                  </th>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                    昵称
+                  </th>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                    套餐
+                  </th>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                    状态
+                  </th>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                    注册时间
+                  </th>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                    操作
+                  </th>
+                </tr>
+              </thead>
+              <tbody className='bg-white divide-y divide-gray-200'>
+                {users.map(user => {
+                  const userId = String(user.userId || user.id);
+                  const isSelected = selectedUsers.has(userId);
+                  return (
+                    <tr
+                      key={user.id}
+                      className={`hover:bg-gray-50 ${isSelected ? 'bg-blue-50' : ''}`}
+                    >
+                      <td className='px-6 py-4 whitespace-nowrap'>
+                        <input
+                          type='checkbox'
+                          checked={isSelected}
+                          onChange={() => handleToggleUserSelection(userId)}
+                          className='rounded border-gray-300 text-blue-600 focus:ring-blue-500'
+                        />
+                      </td>
+                      <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
+                        {user.id}
+                      </td>
+                      <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
+                        {user.email}
+                      </td>
+                      <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                        {user.nickname || '-'}
+                      </td>
+                      <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                        {user.planType || 'FREE'}
+                      </td>
+                      <td className='px-6 py-4 whitespace-nowrap'>
+                        <span
+                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                             user.active || user.status === 'enabled'
-                              ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
-                              : 'bg-green-100 text-green-700 hover:bg-green-200'
-                          } disabled:opacity-50 disabled:cursor-not-allowed`}
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}
                         >
-                          {updatingUserId === String(user.userId || user.id)
-                            ? '处理中...'
-                            : user.active || user.status === 'enabled'
-                              ? '禁用'
-                              : '启用'}
-                        </button>
-                        <button
-                          onClick={() => handleDeleteUser(user)}
-                          disabled={
-                            updatingUserId === String(user.userId || user.id)
-                          }
-                          className='px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded-md text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
-                        >
-                          删除
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                          {user.active || user.status === 'enabled'
+                            ? '启用'
+                            : '禁用'}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                        {new Date(user.createdAt).toLocaleDateString('zh-CN')}
+                      </td>
+                      <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
+                        <div className='flex items-center gap-2'>
+                          <button
+                            onClick={() => handleUpgradePlan(user)}
+                            disabled={
+                              updatingUserId === String(user.userId || user.id)
+                            }
+                            className='px-3 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-md text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                            title='升级/更改用户套餐'
+                          >
+                            升级套餐
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleToggleUserStatus(
+                                user,
+                                user.active || user.status === 'enabled'
+                              )
+                            }
+                            disabled={
+                              updatingUserId === String(user.userId || user.id)
+                            }
+                            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                              user.active || user.status === 'enabled'
+                                ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                                : 'bg-green-100 text-green-700 hover:bg-green-200'
+                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                          >
+                            {updatingUserId === String(user.userId || user.id)
+                              ? '处理中...'
+                              : user.active || user.status === 'enabled'
+                                ? '禁用'
+                                : '启用'}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUser(user)}
+                            disabled={
+                              updatingUserId === String(user.userId || user.id)
+                            }
+                            className='px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded-md text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                          >
+                            删除
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
 
           {/* 分页 */}

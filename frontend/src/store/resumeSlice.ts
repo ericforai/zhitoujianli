@@ -44,16 +44,26 @@ export function getFormData(): ResumeInput | undefined {
   return read().formData;
 }
 
-export function setLatestResult(params: { html?: string; score?: number; keywords?: string[] }) {
+export function setLatestResult(params: {
+  html?: string;
+  score?: number;
+  keywords?: string[];
+}) {
   const s = read();
   s.latestHtml = params.html;
   s.latestScore = params.score;
   s.latestKeywords = params.keywords;
   write(s);
 }
-export function getLatestResult(): { html?: string; score?: number; keywords?: string[] } {
+export function getLatestResult(): {
+  html?: string;
+  score?: number;
+  keywords?: string[];
+} {
   const s = read();
-  return { html: s.latestHtml, score: s.latestScore, keywords: s.latestKeywords };
+  return {
+    html: s.latestHtml,
+    score: s.latestScore,
+    keywords: s.latestKeywords,
+  };
 }
-
-

@@ -224,14 +224,18 @@ const handleLoginResponse = (response: LoginResponse): LoginResponse => {
       .then(({ cleanupAllOldStorage }) => {
         cleanupAllOldStorage();
       })
-      .catch((error) => {
+      .catch(error => {
         console.warn('清理旧存储失败:', error);
       });
 
     // 🔧 修复：检查响应中是否包含管理员信息，自动设置userType
     // 如果响应中包含adminType或isAdmin字段，说明是管理员登录
     const userData = response.user as any;
-    if (userData?.adminType || userData?.isAdmin || (response as any).adminType) {
+    if (
+      userData?.adminType ||
+      userData?.isAdmin ||
+      (response as any).adminType
+    ) {
       localStorage.setItem('userType', 'admin');
       console.log('✅ 检测到管理员登录，已设置userType=admin');
       // 触发自定义事件，通知Navigation组件更新

@@ -61,9 +61,7 @@ export const CollapsibleStats: React.FC<CollapsibleStatsProps> = ({
         <div className='flex items-center space-x-2'>
           <span className='text-xl'>📊</span>
           <h3 className='text-lg font-semibold text-gray-900'>详细统计</h3>
-          <span className='text-sm text-gray-500'>
-            ({stats.length}项指标)
-          </span>
+          <span className='text-sm text-gray-500'>({stats.length}项指标)</span>
         </div>
         <div className='flex items-center space-x-2'>
           {!isExpanded && (
@@ -124,4 +122,3 @@ export const CollapsibleStats: React.FC<CollapsibleStatsProps> = ({
 };
 
 export default CollapsibleStats;
-

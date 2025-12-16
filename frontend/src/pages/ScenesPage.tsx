@@ -11,7 +11,9 @@ import Container from '../components/common/Container';
  */
 const ScenesPage: React.FC = () => {
   const navigate = useNavigate();
-  const [activeScene, setActiveScene] = useState<'graduate' | 'job-seeker' | 'urgent'>('graduate');
+  const [activeScene, setActiveScene] = useState<
+    'graduate' | 'job-seeker' | 'urgent'
+  >('graduate');
 
   const scenes = [
     {
@@ -29,11 +31,7 @@ const ScenesPage: React.FC = () => {
       recommendedPlan: {
         name: '求职入门版（免费）',
         price: '免费永久使用',
-        features: [
-          '简历基础优化 1次',
-          '每日投递 5次',
-          '基础岗位匹配',
-        ],
+        features: ['简历基础优化 1次', '每日投递 5次', '基础岗位匹配'],
         upgradeOption: '需要更多机会？可升级到高效求职版（每日30次投递）',
       },
       cta: () => navigate('/register'),
@@ -93,7 +91,7 @@ const ScenesPage: React.FC = () => {
     },
   ];
 
-  const currentScene = scenes.find((s) => s.id === activeScene) || scenes[0];
+  const currentScene = scenes.find(s => s.id === activeScene) || scenes[0];
 
   return (
     <div className='min-h-screen bg-white'>
@@ -121,7 +119,7 @@ const ScenesPage: React.FC = () => {
           {/* 场景选择标签 */}
           <div className='flex justify-center mb-12'>
             <div className='inline-flex bg-gray-100 rounded-lg p-1'>
-              {scenes.map((scene) => (
+              {scenes.map(scene => (
                 <button
                   key={scene.id}
                   onClick={() => setActiveScene(scene.id)}
@@ -193,22 +191,26 @@ const ScenesPage: React.FC = () => {
 
                 {/* 功能列表 */}
                 <ul className='space-y-3 mb-8'>
-                  {currentScene.recommendedPlan.features.map((feature, index) => (
-                    <li key={index} className='flex items-center'>
-                      <svg
-                        className='w-5 h-5 text-green-500 mr-3'
-                        fill='currentColor'
-                        viewBox='0 0 20 20'
-                      >
-                        <path
-                          fillRule='evenodd'
-                          d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                          clipRule='evenodd'
-                        />
-                      </svg>
-                      <span className='text-gray-700 font-medium'>{feature}</span>
-                    </li>
-                  ))}
+                  {currentScene.recommendedPlan.features.map(
+                    (feature, index) => (
+                      <li key={index} className='flex items-center'>
+                        <svg
+                          className='w-5 h-5 text-green-500 mr-3'
+                          fill='currentColor'
+                          viewBox='0 0 20 20'
+                        >
+                          <path
+                            fillRule='evenodd'
+                            d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+                            clipRule='evenodd'
+                          />
+                        </svg>
+                        <span className='text-gray-700 font-medium'>
+                          {feature}
+                        </span>
+                      </li>
+                    )
+                  )}
                 </ul>
 
                 {/* 升级选项 */}
@@ -256,8 +258,12 @@ const ScenesPage: React.FC = () => {
                 </thead>
                 <tbody className='divide-y divide-gray-200'>
                   <tr>
-                    <td className='px-6 py-4 text-sm text-gray-900'>简历基础优化</td>
-                    <td className='px-6 py-4 text-center text-sm text-gray-600'>1次</td>
+                    <td className='px-6 py-4 text-sm text-gray-900'>
+                      简历基础优化
+                    </td>
+                    <td className='px-6 py-4 text-center text-sm text-gray-600'>
+                      1次
+                    </td>
                     <td className='px-6 py-4 text-center text-sm text-blue-600 bg-blue-50 font-semibold'>
                       不限次
                     </td>
@@ -266,8 +272,12 @@ const ScenesPage: React.FC = () => {
                     </td>
                   </tr>
                   <tr>
-                    <td className='px-6 py-4 text-sm text-gray-900'>简历高级优化</td>
-                    <td className='px-6 py-4 text-center text-sm text-gray-400'>-</td>
+                    <td className='px-6 py-4 text-sm text-gray-900'>
+                      简历高级优化
+                    </td>
+                    <td className='px-6 py-4 text-center text-sm text-gray-400'>
+                      -
+                    </td>
                     <td className='px-6 py-4 text-center text-sm text-blue-600 bg-blue-50 font-semibold'>
                       1次
                     </td>
@@ -276,8 +286,12 @@ const ScenesPage: React.FC = () => {
                     </td>
                   </tr>
                   <tr>
-                    <td className='px-6 py-4 text-sm text-gray-900'>每日投递次数</td>
-                    <td className='px-6 py-4 text-center text-sm text-gray-600'>5次</td>
+                    <td className='px-6 py-4 text-sm text-gray-900'>
+                      每日投递次数
+                    </td>
+                    <td className='px-6 py-4 text-center text-sm text-gray-600'>
+                      5次
+                    </td>
                     <td className='px-6 py-4 text-center text-sm text-blue-600 bg-blue-50 font-semibold'>
                       30次
                     </td>
@@ -286,28 +300,60 @@ const ScenesPage: React.FC = () => {
                     </td>
                   </tr>
                   <tr>
-                    <td className='px-6 py-4 text-sm text-gray-900'>岗位匹配</td>
-                    <td className='px-6 py-4 text-center text-sm text-gray-600'>✓</td>
-                    <td className='px-6 py-4 text-center text-sm text-blue-600 bg-blue-50'>✓</td>
-                    <td className='px-6 py-4 text-center text-sm text-green-600'>✓</td>
+                    <td className='px-6 py-4 text-sm text-gray-900'>
+                      岗位匹配
+                    </td>
+                    <td className='px-6 py-4 text-center text-sm text-gray-600'>
+                      ✓
+                    </td>
+                    <td className='px-6 py-4 text-center text-sm text-blue-600 bg-blue-50'>
+                      ✓
+                    </td>
+                    <td className='px-6 py-4 text-center text-sm text-green-600'>
+                      ✓
+                    </td>
                   </tr>
                   <tr>
-                    <td className='px-6 py-4 text-sm text-gray-900'>打招呼语生成</td>
-                    <td className='px-6 py-4 text-center text-sm text-gray-600'>✓</td>
-                    <td className='px-6 py-4 text-center text-sm text-blue-600 bg-blue-50'>✓</td>
-                    <td className='px-6 py-4 text-center text-sm text-green-600'>✓</td>
+                    <td className='px-6 py-4 text-sm text-gray-900'>
+                      打招呼语生成
+                    </td>
+                    <td className='px-6 py-4 text-center text-sm text-gray-600'>
+                      ✓
+                    </td>
+                    <td className='px-6 py-4 text-center text-sm text-blue-600 bg-blue-50'>
+                      ✓
+                    </td>
+                    <td className='px-6 py-4 text-center text-sm text-green-600'>
+                      ✓
+                    </td>
                   </tr>
                   <tr>
-                    <td className='px-6 py-4 text-sm text-gray-900'>数据分析</td>
-                    <td className='px-6 py-4 text-center text-sm text-gray-600'>基础</td>
-                    <td className='px-6 py-4 text-center text-sm text-blue-600 bg-blue-50'>详细</td>
-                    <td className='px-6 py-4 text-center text-sm text-green-600'>深度</td>
+                    <td className='px-6 py-4 text-sm text-gray-900'>
+                      数据分析
+                    </td>
+                    <td className='px-6 py-4 text-center text-sm text-gray-600'>
+                      基础
+                    </td>
+                    <td className='px-6 py-4 text-center text-sm text-blue-600 bg-blue-50'>
+                      详细
+                    </td>
+                    <td className='px-6 py-4 text-center text-sm text-green-600'>
+                      深度
+                    </td>
                   </tr>
                   <tr>
-                    <td className='px-6 py-4 text-sm text-gray-900'>客服支持</td>
-                    <td className='px-6 py-4 text-center text-sm text-gray-600'>社区</td>
-                    <td className='px-6 py-4 text-center text-sm text-blue-600 bg-blue-50'>邮件</td>
-                    <td className='px-6 py-4 text-center text-sm text-green-600'>优先</td>
+                    <td className='px-6 py-4 text-sm text-gray-900'>
+                      客服支持
+                    </td>
+                    <td className='px-6 py-4 text-center text-sm text-gray-600'>
+                      社区
+                    </td>
+                    <td className='px-6 py-4 text-center text-sm text-blue-600 bg-blue-50'>
+                      邮件
+                    </td>
+                    <td className='px-6 py-4 text-center text-sm text-green-600'>
+                      优先
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -346,4 +392,3 @@ const ScenesPage: React.FC = () => {
 };
 
 export default ScenesPage;
-

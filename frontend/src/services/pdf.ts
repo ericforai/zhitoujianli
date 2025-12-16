@@ -6,8 +6,7 @@
  */
 
 import { renderResumeHtml } from '../data/resumeTemplates';
-import type { TemplateType } from '../types/resumeTemplate';
-import type { ResumeTemplateData } from '../types/resumeTemplate';
+import type { ResumeTemplateData, TemplateType } from '../types/resumeTemplate';
 
 // 动态导入docx和file-saver（如果可用）
 let docxModule: any = null;
@@ -41,7 +40,10 @@ async function loadFileSaver() {
  * @param filename 文件名（可选）
  * @returns 包含URL的对象（兼容旧代码）
  */
-export async function exportPdf(html: string, filename?: string): Promise<{ url: string }>;
+export async function exportPdf(
+  html: string,
+  filename?: string
+): Promise<{ url: string }>;
 /**
  * 导出PDF（从模板数据）
  * @param templateType 模板类型
@@ -231,11 +233,13 @@ export async function exportWord(
   const fileSaver = await loadFileSaver();
 
   if (!docx || !fileSaver) {
-    alert('Word导出功能需要安装docx和file-saver库，请先安装：npm install docx file-saver');
+    alert(
+      'Word导出功能需要安装docx和file-saver库，请先安装：npm install docx file-saver'
+    );
     return;
   }
 
-  const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = docx;
+  const { Document, Packer, Paragraph, HeadingLevel, AlignmentType } = docx;
 
   // 创建文档段落
   const children: any[] = [];
@@ -277,7 +281,7 @@ export async function exportWord(
       })
     );
 
-    data.education.forEach((edu) => {
+    data.education.forEach(edu => {
       if (edu.school) {
         let eduText = edu.school;
         if (edu.location) eduText += `，${edu.location}`;
@@ -309,9 +313,13 @@ export async function exportWord(
       })
     );
 
-    data.skills.forEach((skillGroup) => {
-      if (skillGroup.category && skillGroup.items && skillGroup.items.length > 0) {
-        const skillText = `${skillGroup.category}：${skillGroup.items.filter((s) => s.trim()).join('、')}`;
+    data.skills.forEach(skillGroup => {
+      if (
+        skillGroup.category &&
+        skillGroup.items &&
+        skillGroup.items.length > 0
+      ) {
+        const skillText = `${skillGroup.category}：${skillGroup.items.filter(s => s.trim()).join('、')}`;
         children.push(
           new Paragraph({
             text: skillText,
@@ -332,9 +340,11 @@ export async function exportWord(
       })
     );
 
-    data.experiences.forEach((exp) => {
+    data.experiences.forEach(exp => {
       if (exp.company && exp.role) {
-        const timeRange = exp.endDate ? `${exp.startDate} – ${exp.endDate}` : exp.startDate;
+        const timeRange = exp.endDate
+          ? `${exp.startDate} – ${exp.endDate}`
+          : exp.startDate;
         children.push(
           new Paragraph({
             text: `${exp.role} | ${exp.company} | 起止时间：${timeRange}`,
@@ -343,7 +353,7 @@ export async function exportWord(
         );
 
         if (exp.bullets && exp.bullets.length > 0) {
-          exp.bullets.forEach((bullet) => {
+          exp.bullets.forEach(bullet => {
             if (bullet.trim()) {
               children.push(
                 new Paragraph({
@@ -369,9 +379,12 @@ export async function exportWord(
       })
     );
 
-    data.projects.forEach((proj) => {
+    data.projects.forEach(proj => {
       if (proj.name) {
-        const timeRange = proj.startDate || proj.endDate ? `起止时间：${proj.startDate || ''} – ${proj.endDate || ''}` : '';
+        const timeRange =
+          proj.startDate || proj.endDate
+            ? `起止时间：${proj.startDate || ''} – ${proj.endDate || ''}`
+            : '';
         children.push(
           new Paragraph({
             text: `${proj.name}${timeRange ? ` | ${timeRange}` : ''}`,
@@ -380,7 +393,7 @@ export async function exportWord(
         );
 
         if (proj.bullets && proj.bullets.length > 0) {
-          proj.bullets.forEach((bullet) => {
+          proj.bullets.forEach(bullet => {
             if (bullet.trim()) {
               children.push(
                 new Paragraph({
@@ -406,7 +419,7 @@ export async function exportWord(
       })
     );
 
-    data.certifications.forEach((cert) => {
+    data.certifications.forEach(cert => {
       if (cert.name) {
         let certText = cert.name;
         if (cert.issuer) certText += ` — ${cert.issuer}`;

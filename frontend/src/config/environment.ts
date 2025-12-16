@@ -112,7 +112,10 @@ const getApiBaseUrl = (env: Environment): string => {
   // 如果是localhost，默认走前端代理 /api（代理目标 8080）
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
-    if ((hostname === 'localhost' || hostname === '127.0.0.1') && env === Environment.Development) {
+    if (
+      (hostname === 'localhost' || hostname === '127.0.0.1') &&
+      env === Environment.Development
+    ) {
       // localhost开发环境：使用代理路径，必要时可通过环境变量覆盖
       return process.env.REACT_APP_DEV_API_URL || '/api';
     }

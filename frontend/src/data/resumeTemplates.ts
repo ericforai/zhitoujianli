@@ -12,7 +12,16 @@ export const TEMPLATE_CONFIGS: Record<TemplateType, TemplateConfig> = {
     description: '适合大多数岗位的通用简历模板',
     fields: {
       required: ['name', 'email'],
-      optional: ['phone', 'linkedin', 'github', 'education', 'skills', 'experiences', 'projects', 'certifications'],
+      optional: [
+        'phone',
+        'linkedin',
+        'github',
+        'education',
+        'skills',
+        'experiences',
+        'projects',
+        'certifications',
+      ],
     },
   },
   hr: {
@@ -21,7 +30,15 @@ export const TEMPLATE_CONFIGS: Record<TemplateType, TemplateConfig> = {
     description: '适合人力资源、招聘、培训等岗位',
     fields: {
       required: ['name', 'email'],
-      optional: ['phone', 'linkedin', 'education', 'skills', 'experiences', 'projects', 'certifications'],
+      optional: [
+        'phone',
+        'linkedin',
+        'education',
+        'skills',
+        'experiences',
+        'projects',
+        'certifications',
+      ],
     },
   },
   marketing: {
@@ -30,7 +47,16 @@ export const TEMPLATE_CONFIGS: Record<TemplateType, TemplateConfig> = {
     description: '适合市场营销、品牌、推广等岗位',
     fields: {
       required: ['name', 'email'],
-      optional: ['phone', 'linkedin', 'portfolio', 'education', 'skills', 'experiences', 'projects', 'certifications'],
+      optional: [
+        'phone',
+        'linkedin',
+        'portfolio',
+        'education',
+        'skills',
+        'experiences',
+        'projects',
+        'certifications',
+      ],
     },
   },
   operations: {
@@ -39,7 +65,14 @@ export const TEMPLATE_CONFIGS: Record<TemplateType, TemplateConfig> = {
     description: '适合运营、产品运营、用户运营等岗位',
     fields: {
       required: ['name', 'email'],
-      optional: ['phone', 'education', 'skills', 'experiences', 'projects', 'certifications'],
+      optional: [
+        'phone',
+        'education',
+        'skills',
+        'experiences',
+        'projects',
+        'certifications',
+      ],
     },
   },
   finance: {
@@ -48,7 +81,15 @@ export const TEMPLATE_CONFIGS: Record<TemplateType, TemplateConfig> = {
     description: '适合财务、会计、审计等岗位',
     fields: {
       required: ['name', 'email'],
-      optional: ['phone', 'linkedin', 'education', 'skills', 'experiences', 'projects', 'certifications'],
+      optional: [
+        'phone',
+        'linkedin',
+        'education',
+        'skills',
+        'experiences',
+        'projects',
+        'certifications',
+      ],
     },
   },
   sales: {
@@ -57,7 +98,15 @@ export const TEMPLATE_CONFIGS: Record<TemplateType, TemplateConfig> = {
     description: '适合销售、商务、客户经理等岗位',
     fields: {
       required: ['name', 'email'],
-      optional: ['phone', 'linkedin', 'education', 'skills', 'experiences', 'projects', 'certifications'],
+      optional: [
+        'phone',
+        'linkedin',
+        'education',
+        'skills',
+        'experiences',
+        'projects',
+        'certifications',
+      ],
     },
   },
 };
@@ -108,7 +157,19 @@ export function renderResumeHtml(
     }>;
   }
 ): string {
-  const { name, email, phone, linkedin, github, portfolio, education, skills, experiences, projects, certifications } = data;
+  const {
+    name,
+    email,
+    phone,
+    linkedin,
+    github,
+    portfolio,
+    education,
+    skills,
+    experiences,
+    projects,
+    certifications,
+  } = data;
 
   let html = '<div class="resume-container">';
 
@@ -128,7 +189,7 @@ export function renderResumeHtml(
   if (education && education.length > 0) {
     html += '<div class="resume-section">';
     html += '<h2 class="section-title">教育背景</h2>';
-    education.forEach((edu) => {
+    education.forEach(edu => {
       html += '<div class="education-item">';
       let eduText = escapeHtml(edu.school);
       if (edu.location) eduText += `，${escapeHtml(edu.location)}`;
@@ -149,9 +210,9 @@ export function renderResumeHtml(
     html += '<div class="resume-section">';
     html += '<h2 class="section-title">技能概览</h2>';
     html += '<ul class="skills-list">';
-    skills.forEach((skillGroup) => {
+    skills.forEach(skillGroup => {
       if (skillGroup.items && skillGroup.items.length > 0) {
-        html += `<li>${escapeHtml(skillGroup.category)}：${skillGroup.items.map((s) => escapeHtml(s)).join('、')}</li>`;
+        html += `<li>${escapeHtml(skillGroup.category)}：${skillGroup.items.map(s => escapeHtml(s)).join('、')}</li>`;
       }
     });
     html += '</ul>';
@@ -162,13 +223,15 @@ export function renderResumeHtml(
   if (experiences && experiences.length > 0) {
     html += '<div class="resume-section">';
     html += '<h2 class="section-title">工作经历</h2>';
-    experiences.forEach((exp) => {
+    experiences.forEach(exp => {
       html += '<div class="experience-item">';
-      const timeRange = exp.endDate ? `${exp.startDate} – ${exp.endDate}` : exp.startDate;
+      const timeRange = exp.endDate
+        ? `${exp.startDate} – ${exp.endDate}`
+        : exp.startDate;
       html += `<div class="experience-header"><strong>${escapeHtml(exp.role)}</strong> | ${escapeHtml(exp.company)} | 起止时间：${escapeHtml(timeRange)}</div>`;
       if (exp.bullets && exp.bullets.length > 0) {
         html += '<ul class="experience-bullets">';
-        exp.bullets.forEach((bullet) => {
+        exp.bullets.forEach(bullet => {
           if (bullet.trim()) {
             html += `<li>${escapeHtml(bullet)}</li>`;
           }
@@ -184,13 +247,16 @@ export function renderResumeHtml(
   if (projects && projects.length > 0) {
     html += '<div class="resume-section">';
     html += '<h2 class="section-title">项目经验</h2>';
-    projects.forEach((proj) => {
+    projects.forEach(proj => {
       html += '<div class="project-item">';
-      const timeRange = proj.startDate || proj.endDate ? `起止时间：${proj.startDate || ''} – ${proj.endDate || ''}` : '';
+      const timeRange =
+        proj.startDate || proj.endDate
+          ? `起止时间：${proj.startDate || ''} – ${proj.endDate || ''}`
+          : '';
       html += `<div class="project-header"><strong>${escapeHtml(proj.name)}</strong>${timeRange ? ` | ${escapeHtml(timeRange)}` : ''}</div>`;
       if (proj.bullets && proj.bullets.length > 0) {
         html += '<ul class="project-bullets">';
-        proj.bullets.forEach((bullet) => {
+        proj.bullets.forEach(bullet => {
           if (bullet.trim()) {
             html += `<li>${escapeHtml(bullet)}</li>`;
           }
@@ -207,7 +273,7 @@ export function renderResumeHtml(
     html += '<div class="resume-section">';
     html += '<h2 class="section-title">证书</h2>';
     html += '<ul class="certifications-list">';
-    certifications.forEach((cert) => {
+    certifications.forEach(cert => {
       let certText = escapeHtml(cert.name);
       if (cert.issuer) certText += ` — ${escapeHtml(cert.issuer)}`;
       if (cert.date) certText += ` | 日期：${escapeHtml(cert.date)}`;
@@ -238,4 +304,3 @@ function escapeHtml(text: string): string {
   div.textContent = text;
   return div.innerHTML;
 }
-

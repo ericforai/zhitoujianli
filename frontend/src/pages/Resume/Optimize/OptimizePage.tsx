@@ -1,28 +1,38 @@
+import DOMPurify from 'dompurify';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Navigation from '../../../components/Navigation';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Footer from '../../../components/Footer';
-import UploadBox from '../../../components/resume/UploadBox';
+import Navigation from '../../../components/Navigation';
 import DiagnoseReport from '../../../components/resume/DiagnoseReport';
+import ScoreBadge from '../../../components/resume/ScoreBadge';
+import UploadBox from '../../../components/resume/UploadBox';
 import { diagnose } from '../../../services/ai';
 import { exportPdf } from '../../../services/pdf';
-import { createVersion, incrementExport, get as getHistory, replaceMeta } from '../../../services/resumes';
-import DOMPurify from 'dompurify';
-import ScoreBadge from '../../../components/resume/ScoreBadge';
-import { useSearchParams } from 'react-router-dom';
+import {
+  createVersion,
+  get as getHistory,
+  incrementExport,
+  replaceMeta,
+} from '../../../services/resumes';
 
 const OptimizePage: React.FC = () => {
   const navigate = useNavigate();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [text, setText] = useState<string>('');
   const [loading, setLoading] = useState(false);
-  const [report, setReport] = useState<Awaited<ReturnType<typeof diagnose>> | null>(null);
+  const [report, setReport] = useState<Awaited<
+    ReturnType<typeof diagnose>
+  > | null>(null);
   const [revisionHtml, setRevisionHtml] = useState<string>('');
   const [historyId, setHistoryId] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
   const [savedHint, setSavedHint] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const sanitized = useMemo(() => DOMPurify.sanitize(revisionHtml || ''), [revisionHtml]);
+  const sanitized = useMemo(
+    () => DOMPurify.sanitize(revisionHtml || ''),
+    [revisionHtml]
+  );
 
   // 支持从历史记录重放：/resume/optimize?hid=xxx
   useEffect(() => {
@@ -74,8 +84,8 @@ const OptimizePage: React.FC = () => {
             report: r,
             html: r.html,
             requestId: r.requestId,
-            tookMs: r.tookMs
-          }
+            tookMs: r.tookMs,
+          },
         });
         setHistoryId(created.id);
         setSavedHint(true);
@@ -85,7 +95,8 @@ const OptimizePage: React.FC = () => {
       }
     } catch (err: unknown) {
       // 显示友好的错误信息
-      const errorMessage = err instanceof Error ? err.message : '诊断失败，请稍后重试';
+      const errorMessage =
+        err instanceof Error ? err.message : '诊断失败，请稍后重试';
       setError(errorMessage);
       console.error('简历诊断失败:', err);
     } finally {
@@ -106,7 +117,11 @@ const OptimizePage: React.FC = () => {
     if (!sanitized) return;
     const res = await exportPdf(sanitized);
     if (!historyId) {
-      const created = await createVersion({ type: '优化', score: report?.score, downloadUrl: res.url });
+      const created = await createVersion({
+        type: '优化',
+        score: report?.score,
+        downloadUrl: res.url,
+      });
       setHistoryId(created.id);
     } else {
       await incrementExport(historyId, res.url);
@@ -123,7 +138,9 @@ const OptimizePage: React.FC = () => {
         <div className='space-y-6'>
           {/* 标题和上传区域 */}
           <div>
-            <div className='text-xl font-semibold mb-3'>上传简历 → 解析 → 诊断报告</div>
+            <div className='text-xl font-semibold mb-3'>
+              上传简历 → 解析 → 诊断报告
+            </div>
             <UploadBox onParsed={onParsed} />
           </div>
 
@@ -138,8 +155,18 @@ const OptimizePage: React.FC = () => {
           ) : null}
           {error ? (
             <div className='inline-flex items-center space-x-2 px-4 py-2 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm'>
-              <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' />
+              <svg
+                className='w-5 h-5'
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+                />
               </svg>
               <span>{error}</span>
               <button
@@ -147,8 +174,18 @@ const OptimizePage: React.FC = () => {
                 className='ml-2 text-red-400 hover:text-red-600'
                 aria-label='关闭错误提示'
               >
-                <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+                <svg
+                  className='w-4 h-4'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M6 18L18 6M6 6l12 12'
+                  />
                 </svg>
               </button>
             </div>
@@ -162,10 +199,14 @@ const OptimizePage: React.FC = () => {
                 <div className='flex items-center gap-3'>
                   <ScoreBadge score={report.score} />
                   {typeof report.tookMs === 'number' ? (
-                    <span className='text-xs text-gray-500'>耗时：{report.tookMs}ms</span>
+                    <span className='text-xs text-gray-500'>
+                      耗时：{report.tookMs}ms
+                    </span>
                   ) : null}
                   {report.requestId ? (
-                    <span className='text-xs text-gray-400'>请求ID：{report.requestId}</span>
+                    <span className='text-xs text-gray-400'>
+                      请求ID：{report.requestId}
+                    </span>
                   ) : null}
                 </div>
               </div>
@@ -173,33 +214,61 @@ const OptimizePage: React.FC = () => {
 
               {/* 操作按钮 */}
               <div className='flex gap-3 items-center flex-wrap'>
-                <button className='px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors' onClick={onGenerateRevision}>
+                <button
+                  className='px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors'
+                  onClick={onGenerateRevision}
+                >
                   生成修订版
                 </button>
-                <button className='px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors' onClick={onExport} disabled={!sanitized}>
+                <button
+                  className='px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors'
+                  onClick={onExport}
+                  disabled={!sanitized}
+                >
                   导出 PDF
                 </button>
                 <button
                   className='px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors flex items-center gap-2'
                   onClick={() => navigate('/dashboard')}
                 >
-                  <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' />
+                  <svg
+                    className='w-4 h-4'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
+                    />
                   </svg>
                   查看历史记录
                 </button>
-                {savedHint ? <span className='text-xs text-emerald-600 self-center'>已保存到历史</span> : null}
+                {savedHint ? (
+                  <span className='text-xs text-emerald-600 self-center'>
+                    已保存到历史
+                  </span>
+                ) : null}
               </div>
 
               {/* 修订版预览 */}
               {sanitized ? (
                 <div className='border rounded-2xl shadow-lg p-6'>
-                  <div className='text-lg font-semibold text-gray-900 mb-4'>修订版预览</div>
-                  <div className='prose max-w-none' dangerouslySetInnerHTML={{ __html: sanitized }} />
+                  <div className='text-lg font-semibold text-gray-900 mb-4'>
+                    修订版预览
+                  </div>
+                  <div
+                    className='prose max-w-none'
+                    dangerouslySetInnerHTML={{ __html: sanitized }}
+                  />
                 </div>
               ) : (
                 <div className='border rounded-2xl shadow-lg p-6 bg-gray-50'>
-                  <div className='text-lg font-semibold text-gray-900 mb-2'>修订版预览</div>
+                  <div className='text-lg font-semibold text-gray-900 mb-2'>
+                    修订版预览
+                  </div>
                   <div className='text-sm text-gray-500'>
                     点击&ldquo;生成修订版&rdquo;按钮查看优化后的简历内容
                   </div>
@@ -232,7 +301,9 @@ const OptimizePage: React.FC = () => {
                 </div>
                 <div className='bg-white rounded-lg p-4 shadow-sm border border-gray-100'>
                   <div className='text-2xl mb-2'>✨</div>
-                  <h4 className='font-semibold text-gray-900 mb-1'>个性化优化</h4>
+                  <h4 className='font-semibold text-gray-900 mb-1'>
+                    个性化优化
+                  </h4>
                   <p className='text-sm text-gray-600'>
                     基于目标岗位自动生成个性化打招呼语
                   </p>
@@ -259,7 +330,9 @@ const OptimizePage: React.FC = () => {
                     <span className='text-blue-600 font-bold text-sm'>1</span>
                   </div>
                   <div>
-                    <h5 className='font-medium text-gray-900 mb-1'>关键词智能提取</h5>
+                    <h5 className='font-medium text-gray-900 mb-1'>
+                      关键词智能提取
+                    </h5>
                     <p className='text-sm text-gray-600'>
                       自动识别简历中的核心技能、工作经验和项目亮点，确保关键信息不遗漏
                     </p>
@@ -270,7 +343,9 @@ const OptimizePage: React.FC = () => {
                     <span className='text-green-600 font-bold text-sm'>2</span>
                   </div>
                   <div>
-                    <h5 className='font-medium text-gray-900 mb-1'>匹配度精准计算</h5>
+                    <h5 className='font-medium text-gray-900 mb-1'>
+                      匹配度精准计算
+                    </h5>
                     <p className='text-sm text-gray-600'>
                       多维度分析技能、经验、背景匹配度，只推荐真正适合你的岗位
                     </p>
@@ -281,7 +356,9 @@ const OptimizePage: React.FC = () => {
                     <span className='text-purple-600 font-bold text-sm'>3</span>
                   </div>
                   <div>
-                    <h5 className='font-medium text-gray-900 mb-1'>个性化打招呼语</h5>
+                    <h5 className='font-medium text-gray-900 mb-1'>
+                      个性化打招呼语
+                    </h5>
                     <p className='text-sm text-gray-600'>
                       基于简历亮点和岗位要求，生成自然、专业、有吸引力的开场白
                     </p>
@@ -292,7 +369,9 @@ const OptimizePage: React.FC = () => {
                     <span className='text-orange-600 font-bold text-sm'>4</span>
                   </div>
                   <div>
-                    <h5 className='font-medium text-gray-900 mb-1'>持续学习优化</h5>
+                    <h5 className='font-medium text-gray-900 mb-1'>
+                      持续学习优化
+                    </h5>
                     <p className='text-sm text-gray-600'>
                       AI不断学习HR反馈模式，持续优化匹配算法和打招呼语质量
                     </p>
@@ -311,7 +390,8 @@ const OptimizePage: React.FC = () => {
                 <div className='flex items-center space-x-3 bg-white rounded-lg p-3 shadow-sm'>
                   <div className='text-green-600 text-xl'>✓</div>
                   <span className='text-sm text-gray-700'>
-                    <strong>HR回复率提升2-3倍</strong> - 个性化打招呼语更吸引HR注意
+                    <strong>HR回复率提升2-3倍</strong> -
+                    个性化打招呼语更吸引HR注意
                   </span>
                 </div>
                 <div className='flex items-center space-x-3 bg-white rounded-lg p-3 shadow-sm'>
@@ -323,7 +403,8 @@ const OptimizePage: React.FC = () => {
                 <div className='flex items-center space-x-3 bg-white rounded-lg p-3 shadow-sm'>
                   <div className='text-green-600 text-xl'>✓</div>
                   <span className='text-sm text-gray-700'>
-                    <strong>面试机会增加50%+</strong> - 精准匹配，只投递适合的岗位
+                    <strong>面试机会增加50%+</strong> -
+                    精准匹配，只投递适合的岗位
                   </span>
                 </div>
                 <div className='flex items-center space-x-3 bg-white rounded-lg p-3 shadow-sm'>
@@ -343,5 +424,3 @@ const OptimizePage: React.FC = () => {
 };
 
 export default OptimizePage;
-
-

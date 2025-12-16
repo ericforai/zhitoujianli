@@ -69,12 +69,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
         // 🔧 修复：刷新时自动恢复管理员状态
         // 如果正在访问/admin/*路径且有token，自动设置userType='admin'
-        const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+        const token =
+          localStorage.getItem('authToken') || localStorage.getItem('token');
         const currentPath = window.location.pathname;
         if (token && currentPath.startsWith('/admin')) {
           const userType = localStorage.getItem('userType');
           if (userType !== 'admin') {
-            authLogger.debug('🔄 刷新检测：在admin路径且有token，自动恢复管理员状态');
+            authLogger.debug(
+              '🔄 刷新检测：在admin路径且有token，自动恢复管理员状态'
+            );
             localStorage.setItem('userType', 'admin');
           }
         }
