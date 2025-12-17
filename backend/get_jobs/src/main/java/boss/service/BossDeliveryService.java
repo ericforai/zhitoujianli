@@ -196,10 +196,57 @@ public class BossDeliveryService {
         log.info("等待聊天对话框加载...");
         log.info("当前页面URL: {}", detailPage.url());
         boolean dialogReady = false;
+
+        // ✅ 修复：先检查当前页面是否还是岗位详情页（可能点击被登录弹窗拦截）
+        String initialUrl = detailPage.url();
+        boolean stillOnJobDetailPage = initialUrl.contains("/job_detail/");
+        if (stillOnJobDetailPage) {
+            log.info("当前仍在岗位详情页，检查是否需要重新点击\"立即沟通\"按钮...");
+
+            // 检查是否存在登录弹窗
+            if (loginService.checkAndCloseLoginDialog(detailPage)) {
+                log.warn("检测到登录弹窗，已关闭，尝试重新点击\"立即沟通\"按钮");
+                PlaywrightUtil.randomSleepMillis(2000, 4000);
+
+                // 重新查找并点击"立即沟通"按钮
+                Locator chatBtnRetry = detailPage.locator("a.btn-startchat, a.op-btn-chat");
+                if (chatBtnRetry.count() > 0 && chatBtnRetry.first().textContent().contains("立即沟通")) {
+                    PlaywrightUtil.simulateMouseMove();
+                    chatBtnRetry.first().click();
+                    log.info("重新点击\"立即沟通\"按钮成功");
+                    PlaywrightUtil.randomSleepMillis(4000, 8000);
+                }
+            }
+        }
+
         for (int i = 0; i < 12; i++) {  // ✅ 风控优化：从30次减少到12次，每次延迟更长
             // ✅ 新增：每3次循环输出一次进度日志
             if (i % 3 == 0 && i > 0) {
                 log.info("等待聊天对话框加载中... (第{}/12次检查)", i);
+            }
+
+            // ✅ 修复：每次循环都检查是否有登录弹窗（可能在等待过程中弹出）
+            if (loginService.checkAndCloseLoginDialog(detailPage)) {
+                log.warn("等待聊天对话框时检测到登录弹窗，已关闭");
+                PlaywrightUtil.randomSleepMillis(2000, 4000);
+
+                // 如果仍在岗位详情页，尝试重新点击
+                String currentUrlCheck = detailPage.url();
+                if (currentUrlCheck.contains("/job_detail/")) {
+                    Locator chatBtnRetry = detailPage.locator("a.btn-startchat, a.op-btn-chat");
+                    if (chatBtnRetry.count() > 0) {
+                        try {
+                            if (chatBtnRetry.first().textContent().contains("立即沟通")) {
+                                PlaywrightUtil.simulateMouseMove();
+                                chatBtnRetry.first().click();
+                                log.info("重新点击\"立即沟通\"按钮");
+                                PlaywrightUtil.randomSleepMillis(4000, 8000);
+                            }
+                        } catch (Exception e) {
+                            log.debug("重新点击按钮时发生异常: {}", e.getMessage());
+                        }
+                    }
+                }
             }
 
             // ✅ 风控优化：精简选择器列表，只保留最常用的，减少DOM操作次数
@@ -1469,6 +1516,7 @@ public class BossDeliveryService {
 
     /**
      * 安全的点击操作，会自动处理登录弹窗
+     * ✅ 修复：如果点击后出现登录弹窗，关闭后需要重新点击
      *
      * @param page 页面对象
      * @param locator 要点击的元素定位器
@@ -1480,16 +1528,50 @@ public class BossDeliveryService {
             // 点击前检查并处理登录弹窗
             if (loginService.checkAndCloseLoginDialog(page)) {
                 log.info("{}前检测到登录弹窗，已关闭", description);
-                PlaywrightUtil.sleep(1);
+                PlaywrightUtil.randomSleepMillis(1500, 3000);
             }
 
             // 执行点击
             locator.click();
             log.info("{}成功", description);
 
-            // 点击后再次检查登录弹窗
+            // ✅ 修复：点击后检查登录弹窗，如果有则关闭并重新点击
+            PlaywrightUtil.randomSleepMillis(1000, 2000);
             if (loginService.checkAndCloseLoginDialog(page)) {
-                log.info("{}后检测到登录弹窗，已关闭", description);
+                log.warn("{}后检测到登录弹窗，已关闭，需要重新点击", description);
+                PlaywrightUtil.randomSleepMillis(2000, 4000);
+
+                // ✅ 重新点击（最多重试2次）
+                for (int retry = 0; retry < 2; retry++) {
+                    try {
+                        // 检查元素是否仍然存在且可见
+                        if (locator.count() > 0 && locator.first().isVisible()) {
+                            log.info("重新{}（第{}次重试）", description, retry + 1);
+                            locator.click();
+                            PlaywrightUtil.randomSleepMillis(2000, 4000);
+
+                            // 再次检查是否有登录弹窗
+                            if (!loginService.checkAndCloseLoginDialog(page)) {
+                                log.info("重新{}成功", description);
+                                return true;
+                            } else {
+                                log.warn("重新{}后仍然出现登录弹窗，继续重试", description);
+                                PlaywrightUtil.randomSleepMillis(2000, 4000);
+                            }
+                        } else {
+                            log.warn("重新{}失败：元素不存在或不可见", description);
+                            break;
+                        }
+                    } catch (Exception e) {
+                        log.warn("重新{}时发生异常: {}", description, e.getMessage());
+                    }
+                }
+
+                // 检查最终是否还有登录弹窗
+                if (loginService.checkLoginDialogPresent(page)) {
+                    log.error("多次重试后仍然出现登录弹窗，可能Cookie已完全失效");
+                    return false;
+                }
             }
 
             return true;
