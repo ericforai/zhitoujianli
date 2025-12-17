@@ -126,16 +126,17 @@ public class DeliveryController {
 
     /**
      * 获取建议的等待时间（毫秒）
+     * ✅ 风控优化：增加默认间隔和随机波动范围
      */
     public long getRecommendedWaitTime() {
         // 基于投递间隔计算
         Integer interval = strategy.getDeliveryInterval();
         if (interval == null || interval <= 0) {
-            interval = 300; // 默认5分钟
+            interval = 480; // ✅ 风控优化：默认从5分钟增加到8分钟
         }
 
-        // 添加随机波动（±20%）避免被检测为机器人
-        double randomFactor = 0.8 + (Math.random() * 0.4); // 0.8 ~ 1.2
+        // ✅ 风控优化：增加随机波动范围（±40%）避免被检测为机器人
+        double randomFactor = 0.6 + (Math.random() * 0.8); // 0.6 ~ 1.4
         long waitTime = (long) (interval * 1000 * randomFactor);
 
         log.debug("⏱️ 建议等待时间: {}秒 (原始={}秒, 随机因子={})",
@@ -234,6 +235,7 @@ public class DeliveryController {
 
     /**
      * 检查投递频率（每小时）
+     * ✅ 风控优化：降低默认每小时频率
      */
     private boolean checkHourlyFrequency() {
         // 检查是否需要重置计数器（每小时）
@@ -247,7 +249,7 @@ public class DeliveryController {
         int currentCount = hourlyDeliveryCount.get();
         Integer frequency = strategy.getDeliveryFrequency();
         if (frequency == null) {
-            frequency = 10; // 默认每小时10次
+            frequency = 6; // ✅ 风控优化：默认从每小时10次降低到6次（平均10分钟/次）
         }
 
         if (currentCount >= frequency) {
@@ -261,6 +263,7 @@ public class DeliveryController {
 
     /**
      * 检查投递间隔
+     * ✅ 风控优化：增加默认投递间隔
      */
     private boolean checkDeliveryInterval() {
         long lastTime = lastDeliveryTime.get();
@@ -274,7 +277,7 @@ public class DeliveryController {
 
         Integer interval = strategy.getDeliveryInterval();
         if (interval == null) {
-            interval = 300; // 默认5分钟
+            interval = 480; // ✅ 风控优化：默认从5分钟增加到8分钟
         }
 
         if (elapsedSeconds < interval) {

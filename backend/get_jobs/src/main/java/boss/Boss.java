@@ -1089,30 +1089,27 @@ public class Boss {
         }
 
         // 5. 等待聊天对话框出现
+        // ✅ 风控优化：减少循环次数，增加延迟时间，避免高频轮询被检测
         log.info("等待聊天对话框加载...");
         log.info("当前页面URL: {}", detailPage.url());
         boolean dialogReady = false;
-        for (int i = 0; i < 30; i++) {  // 增加等待次数到30次
-            // 检查多种可能的聊天对话框选择器
+        for (int i = 0; i < 12; i++) {  // ✅ 风控优化：从30次减少到12次，每次延迟更长
+            // ✅ 新增：每3次循环输出一次进度日志
+            if (i % 3 == 0 && i > 0) {
+                log.info("等待聊天对话框加载中... (第{}/12次检查)", i);
+            }
+
+            // ✅ 风控优化：精简选择器列表，只保留最常用的，减少DOM操作次数
             String[] dialogSelectors = {
                 ".dialog-container",
                 ".chat-dialog",
-                ".im-dialog",
                 ".chat-container",
-                ".message-container",
-                ".conversation-container",
-                "[class*='dialog']",
-                "[class*='chat']",
-                "[class*='message']",
-                "[class*='conversation']",
-                // Boss直聘特定的选择器
                 ".dialog-wrap",
                 ".chat-wrap",
-                ".im-wrap",
                 "#chat-input",
                 ".chat-input-area",
-                ".dialog-content",
-                ".chat-content"
+                "div[contenteditable='true']",
+                "textarea.input-area"
             };
 
             for (String selector : dialogSelectors) {
@@ -1139,8 +1136,11 @@ public class Boss {
                 break;
             }
 
-            // 随机延迟等待对话框出现
-            PlaywrightUtil.randomSleepMillis(1000, 2000);
+            // ✅ 风控优化：增加延迟时间范围，从1-2秒增加到3-6秒，模拟人类等待行为
+            PlaywrightUtil.randomSleepMillis(3000, 6000);
+
+            // ✅ 风控优化：每次循环都执行一些人类行为模拟
+            PlaywrightUtil.simulateHumanBehavior();
         }
 
         if (!dialogReady) {
@@ -1166,76 +1166,40 @@ public class Boss {
         }
 
         // 6. 等待聊天输入框（更新选择器）
+        // ✅ 风控优化：减少循环次数和选择器数量
         log.info("等待聊天输入框加载...");
 
-        // 优先策略: 在已找到的对话框容器内查找输入框
+        // ✅ 风控优化：精简选择器列表，只保留最常用的
         String[] dialogInputSelectors = {
             ".dialog-container [contenteditable='true']",
-            ".dialog-container [contenteditable]",
             ".dialog-container .editor",
-            ".dialog-container .editor-content",
             ".dialog-container .input-area",
-            ".dialog-container .message-input",
             ".dialog-container .chat-input",
             ".dialog-container textarea",
-            ".dialog-container input[type='text']",
-            ".dialog-container div[role='textbox']",
-            ".dialog-container .dialog-input",
-            ".dialog-container .chat-textarea",
-            ".dialog-container .im-input",
-            ".dialog-container .msg-input"
+            ".dialog-container .dialog-input"
         };
 
-        // 全局选择器（备用策略）- 更新为最新的Boss直聘选择器
+        // ✅ 风控优化：精简全局选择器列表
         String[] inputSelectors = {
-            // Boss直聘最新选择器（优先级最高）- 2024年10月更新
+            // Boss直聘最新选择器（优先级最高）
             "div.dialog-input[contenteditable='true']",
             "div[contenteditable='true'][role='textbox']",
             "div.dialog-input",
-            "div[data-testid='chat-input']",
             "div[class*='dialog-input']",
-            "div[class*='chat-input']",
-
-            // 通用选择器
-            "div#chat-input[contenteditable='true']",
+            "div#chat-input.chat-input[contenteditable='true']",
             "textarea.input-area",
             "div[contenteditable='true']",
-            "[class*='input'][contenteditable='true']",
-            "textarea[placeholder*='输入']",
-            "input[placeholder*='输入']",
             ".chat-input",
             ".input-area",
-            ".message-input",
-            ".conversation-input",
-            "[class*='chat-input']",
-            "[class*='input-area']",
-            "[class*='message-input']",
-            "[class*='conversation-input']",
-
-            // Boss直聘特定的选择器
             ".dialog-input",
-            ".chat-textarea",
-            ".im-input",
-            ".msg-input",
-            "#message-input",
-            "#chat-textarea",
-
-            // 更宽松的选择器
-            "input[type='text']",
-            "input[type='textarea']",
-            "textarea",
-            "[contenteditable='true']",
-            "[contenteditable]",
-            "[class*='input']",
-            "[class*='chat']",
-            "[class*='message']",
-            "[class*='text']"
+            "textarea"
         };
 
         Locator inputLocator = null;
         boolean inputReady = false;
 
-        for (int i = 0; i < 20; i++) {  // 优化：减少到20次，总时长约30秒
+        // ✅ 风控优化：从20次减少到10次，增加延迟时间
+        for (int i = 0; i < 10; i++) {
             // 🔍 验证码检测：在每次循环开始时检查是否存在验证码
             try {
                 // 检测验证码输入框
@@ -1608,37 +1572,68 @@ public class Boss {
         }
 
         // 7. 输入打招呼语
+        // ✅ 风控优化：使用更真实的输入方式
         Locator input = inputLocator.first();
 
-        // 模拟人类行为：先点击获得焦点
+        // ✅ 风控优化：模拟人类行为：先移动鼠标到输入框附近
         PlaywrightUtil.simulateMouseMove();
+        PlaywrightUtil.randomSleepMillis(500, 1200);
+
+        // 点击获得焦点
         input.click();
 
-        // 随机延迟，模拟人类思考时间
-        PlaywrightUtil.randomSleepMillis(1000, 3000);
+        // ✅ 风控优化：增加思考时间，模拟人类阅读和思考
+        PlaywrightUtil.randomSleepMillis(2000, 5000);
 
         // 使用已经找到的input元素进行输入，而不是重新查找
         try {
             // 先聚焦到元素
             input.focus();
-            PlaywrightUtil.randomSleepMillis(500, 1000);
+            PlaywrightUtil.randomSleepMillis(800, 1500);
 
             // 清空现有内容
             input.clear();
-            PlaywrightUtil.randomSleepMillis(200, 500);
+            PlaywrightUtil.randomSleepMillis(400, 800);
 
-            // 直接输入文本
-            input.fill(message);
-            log.info("已成功输入打招呼语: {}", message);
-        } catch (Exception e) {
-            log.error("输入打招呼语失败: {}", e.getMessage());
-            // 备用方案：使用人类化输入
-            try {
-                if (input.evaluate("el => el.tagName.toLowerCase()") instanceof String tag && tag.equals("textarea")) {
-                    PlaywrightUtil.typeHumanLike("textarea.input-area", message, 100, 300);
-                } else {
-                    PlaywrightUtil.typeHumanLike("div#chat-input.chat-input", message, 100, 300);
+            // ✅ 风控优化：使用逐字符输入，模拟真实打字
+            java.util.Random random = new java.util.Random();
+            int charCount = 0;
+            for (char c : message.toCharArray()) {
+                // 基础延迟：80-200ms
+                int baseDelay = 80 + random.nextInt(120);
+
+                // 标点符号打字稍慢
+                if (!Character.isLetterOrDigit(c)) {
+                    baseDelay = (int) (baseDelay * 1.4);
                 }
+
+                // 空格后有时会稍微停顿
+                if (c == ' ' && random.nextInt(3) == 0) {
+                    PlaywrightUtil.randomSleepMillis(100, 400);
+                }
+
+                // 输入单个字符
+                input.pressSequentially(String.valueOf(c),
+                    new com.microsoft.playwright.Locator.PressSequentiallyOptions().setDelay(baseDelay));
+
+                charCount++;
+
+                // 每输入15-25个字符，随机停顿一下（模拟思考或检查）
+                if (charCount % (random.nextInt(11) + 15) == 0) {
+                    PlaywrightUtil.randomSleepMillis(400, 1200);
+                }
+            }
+
+            // 输入完成后的检查停顿
+            PlaywrightUtil.randomSleepMillis(800, 2000);
+
+            log.info("已成功输入打招呼语（逐字输入）: {}", message);
+        } catch (Exception e) {
+            log.error("逐字输入打招呼语失败，尝试备用方法: {}", e.getMessage());
+            // 备用方案：使用fill（不推荐，但作为fallback）
+            try {
+                input.fill(message);
+                log.info("使用fill方法输入打招呼语: {}", message);
             } catch (Exception e2) {
                 log.error("备用输入方法也失败: {}", e2.getMessage());
                 // 如果输入失败，关闭页面并返回
@@ -1671,15 +1666,22 @@ public class Boss {
         }
 
         // 8. 点击发送按钮（div.send-message 或 button.btn-send）
+        // ✅ 风控优化：点击发送按钮前增加更多人类行为
         Locator sendBtn = detailPage.locator("div.send-message, button[type='send'].btn-send, button.btn-send");
         boolean sendSuccess = false;
         if (sendBtn.count() > 0) {
-            // 模拟人类行为后发送
+            // ✅ 风控优化：发送前模拟检查消息内容（真实用户会检查一下）
+            PlaywrightUtil.randomSleepMillis(1500, 3500);
+
+            // 模拟人类行为：移动鼠标到发送按钮
             PlaywrightUtil.simulateMouseMove();
+            PlaywrightUtil.randomSleepMillis(500, 1200);
+
+            // 点击发送
             sendBtn.first().click();
 
-            // 发送后随机延迟，等待消息发送完成
-            PlaywrightUtil.randomSleepMillis(2000, 4000);
+            // ✅ 风控优化：发送后增加等待时间，从2-4秒增加到4-8秒
+            PlaywrightUtil.randomSleepMillis(4000, 8000);
 
             // ✅ 修复：验证消息是否真正发送成功（在关闭页面之前验证）
             log.info("🔍 开始验证消息是否真正发送成功: {}", job.getJobName());
@@ -1707,8 +1709,12 @@ public class Boss {
         try {
             detailPage.close();
 
-            // 关闭后随机延迟，模拟人类操作间隔
-            PlaywrightUtil.randomSleepMillis(3000, 6000);
+            // ✅ 风控优化：关闭后增加更长的随机延迟，从3-6秒增加到5-12秒
+            // 模拟真实用户在投递后会稍作休息或浏览其他内容
+            PlaywrightUtil.randomSleepMillis(5000, 12000);
+
+            // ✅ 风控优化：投递后执行一些随机人类行为
+            PlaywrightUtil.simulateHumanBehavior();
 
             // 10. 成功投递加入结果
             // ✅ 修复：只有在真正验证成功时才添加到结果列表和消费配额

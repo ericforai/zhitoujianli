@@ -72,6 +72,10 @@ public class SimpleSecurityConfig {
         } else {
             // 生产模式：启用JWT认证
             http.authorizeHttpRequests(authz -> authz
+                // 🔧 重要：行为记录API必须在/api/admin/**之前配置，否则会被覆盖
+                // 这是后台Boss进程调用的接口，需要无认证访问
+                .requestMatchers("/api/admin/behavior/log").permitAll()
+
                 // 公开访问的端点（⚠️ 多租户模式 - 最小化公开端点）
                 .requestMatchers(
                     "/api/auth/**",          // 认证接口
@@ -95,7 +99,6 @@ public class SimpleSecurityConfig {
                     "/status",
                     "/simple-status",
                     "/logs",
-                    "/api/admin/behavior/log",  // 🔧 行为记录API（允许后台任务调用，无需认证）
                     "/api/test/email/**"        // 🧪 测试邮件接口（仅用于测试，生产环境应移除）
                 ).permitAll()
 
@@ -109,7 +112,7 @@ public class SimpleSecurityConfig {
                     "/api/resume",                          // 简历
                     "/api/resume/history",                  // ✅ 简历历史记录（需要认证）
                     "/api/resume/history/**",                // ✅ 简历历史记录详情（需要认证）
-                    "/api/admin/**",                        // 🔧 管理后台API（需要认证，排除/auth/**和/behavior/log）
+                    "/api/admin/**",                        // 🔧 管理后台API（需要认证，/api/admin/behavior/log已在上面单独配置）
                     "/save-config",
                     "/start-program",
                     "/stop-program",

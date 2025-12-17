@@ -117,7 +117,8 @@ public class PlaywrightUtil {
         // 根据头模式设置不同的浏览器参数
         if (HEADLESS_MODE) {
             // 无头模式：优化性能参数
-            options.setSlowMo(100) // 增加操作延迟，模拟人类行为
+            // ✅ 风控优化：将SlowMo从100ms增加到300ms，模拟更真实的人类操作速度
+            options.setSlowMo(300)
                 .setArgs(Arrays.asList(
                     "--disable-blink-features=AutomationControlled",
                     "--disable-dev-shm-usage",
@@ -136,7 +137,8 @@ public class PlaywrightUtil {
                 ));
         } else {
             // 有头模式：完整功能参数（用于登录和调试）
-            options.setSlowMo(50) // 有头模式稍快一点
+            // ✅ 风控优化：将SlowMo从50ms增加到200ms
+            options.setSlowMo(200)
                 .setArgs(Arrays.asList(
                     "--disable-blink-features=AutomationControlled",
                     "--no-sandbox",
@@ -702,6 +704,7 @@ public class PlaywrightUtil {
 
     /**
      * 模拟人类输入文本（逐字输入）
+     * ✅ 风控优化：增加更真实的输入行为（打字错误、停顿等）
      *
      * @param selector   元素选择器
      * @param text       要输入的文本
@@ -718,20 +721,42 @@ public class PlaywrightUtil {
 
             // 先聚焦到元素
             locator.focus();
-            PlaywrightUtil.randomSleepMillis(500, 1000);
+            PlaywrightUtil.randomSleepMillis(800, 1500);
 
             // 清空现有内容
             locator.clear();
-            PlaywrightUtil.randomSleepMillis(200, 500);
+            PlaywrightUtil.randomSleepMillis(300, 700);
 
+            // ✅ 风控优化：模拟更真实的打字行为
+            int charCount = 0;
             for (char c : text.toCharArray()) {
-                // 计算本次字符输入的延迟时间
+                // 基础延迟
                 int delay = RANDOM.nextInt(maxDelay - minDelay + 1) + minDelay;
+
+                // ✅ 风控优化：根据字符类型调整延迟
+                // 标点符号和特殊字符打字通常更慢
+                if (!Character.isLetterOrDigit(c)) {
+                    delay = (int) (delay * 1.3);
+                }
+                // 空格后通常会有短暂停顿（思考下一个词）
+                if (c == ' ') {
+                    delay = (int) (delay * 1.2);
+                }
+
+                // ✅ 风控优化：每输入10-20个字符，模拟一次短暂停顿（思考或检查）
+                charCount++;
+                if (charCount > 0 && charCount % (RANDOM.nextInt(11) + 10) == 0) {
+                    PlaywrightUtil.randomSleepMillis(300, 800);
+                }
 
                 // 输入单个字符
                 locator.pressSequentially(String.valueOf(c),
                         new Locator.PressSequentiallyOptions().setDelay(delay));
             }
+
+            // ✅ 风控优化：输入完成后的检查停顿
+            PlaywrightUtil.randomSleepMillis(500, 1200);
+
             log.info("已模拟人类在元素{}中输入文本 (设备类型: {})", selector, deviceType);
         } catch (PlaywrightException e) {
             log.error("模拟人类输入失败: {} (设备类型: {})", selector, deviceType, e);
@@ -1494,6 +1519,7 @@ public class PlaywrightUtil {
 
     /**
      * 模拟鼠标移动（随机移动）
+     * ✅ 风控优化：模拟真实的鼠标轨迹，而不是瞬间移动
      *
      * @param deviceType 设备类型
      */
@@ -1501,14 +1527,42 @@ public class PlaywrightUtil {
         try {
             Page page = getPage(deviceType);
 
-            // 随机移动鼠标到页面不同位置
-            int x = RANDOM.nextInt(800) + 100; // 100-900
-            int y = RANDOM.nextInt(600) + 100; // 100-700
+            // 获取当前鼠标位置（假设从中心开始）
+            int currentX = 500;
+            int currentY = 400;
 
-            page.mouse().move(x, y);
+            // 随机目标位置
+            int targetX = RANDOM.nextInt(800) + 100; // 100-900
+            int targetY = RANDOM.nextInt(600) + 100; // 100-700
 
-            // 随机延迟
-            randomSleepMillis(100, 300);
+            // ✅ 风控优化：模拟贝塞尔曲线轨迹，分多步移动
+            int steps = RANDOM.nextInt(8) + 5; // 5-12步
+            for (int i = 1; i <= steps; i++) {
+                // 添加随机偏移，模拟人手的抖动
+                double progress = (double) i / steps;
+                // 使用缓动函数，模拟人类手部加速-减速
+                double easeProgress = progress < 0.5
+                    ? 2 * progress * progress
+                    : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+                int nextX = (int) (currentX + (targetX - currentX) * easeProgress);
+                int nextY = (int) (currentY + (targetY - currentY) * easeProgress);
+
+                // 添加随机抖动
+                nextX += RANDOM.nextInt(5) - 2;
+                nextY += RANDOM.nextInt(5) - 2;
+
+                page.mouse().move(nextX, nextY);
+
+                // 每步之间的微小延迟（模拟真实移动速度）
+                randomSleepMillis(10, 30);
+            }
+
+            // 最终精确到目标位置
+            page.mouse().move(targetX, targetY);
+
+            // 移动后随机延迟
+            randomSleepMillis(100, 400);
         } catch (Exception e) {
             log.debug("鼠标移动模拟失败: {}", e.getMessage());
         }
@@ -1523,6 +1577,7 @@ public class PlaywrightUtil {
 
     /**
      * 模拟人类滚动行为
+     * ✅ 风控优化：分段滚动，模拟真实的滚动行为
      *
      * @param deviceType 设备类型
      */
@@ -1530,18 +1585,38 @@ public class PlaywrightUtil {
         try {
             Page page = getPage(deviceType);
 
-            // 随机滚动距离
-            int scrollDistance = RANDOM.nextInt(300) + 100; // 100-400像素
+            // 随机滚动总距离
+            int totalDistance = RANDOM.nextInt(400) + 150; // 150-550像素
 
-            // 随机滚动方向
-            if (RANDOM.nextBoolean()) {
-                page.mouse().wheel(0, scrollDistance); // 向下滚动
-            } else {
-                page.mouse().wheel(0, -scrollDistance); // 向上滚动
+            // 随机滚动方向（偏向向下滚动，更符合阅读习惯）
+            boolean scrollDown = RANDOM.nextInt(10) < 7; // 70%向下滚动
+
+            // ✅ 风控优化：分段滚动，每段距离和速度随机
+            int segments = RANDOM.nextInt(4) + 2; // 2-5段
+            int remainingDistance = totalDistance;
+
+            for (int i = 0; i < segments && remainingDistance > 0; i++) {
+                // 每段滚动的距离随机
+                int segmentDistance = i == segments - 1
+                    ? remainingDistance
+                    : RANDOM.nextInt(remainingDistance / 2) + 30;
+
+                if (scrollDown) {
+                    page.mouse().wheel(0, segmentDistance);
+                } else {
+                    page.mouse().wheel(0, -segmentDistance);
+                }
+
+                remainingDistance -= segmentDistance;
+
+                // 段间随机延迟（模拟人类阅读或思考）
+                if (i < segments - 1) {
+                    randomSleepMillis(50, 200);
+                }
             }
 
-            // 滚动后随机延迟
-            randomSleepMillis(200, 800);
+            // 滚动后随机延迟（模拟阅读内容）
+            randomSleepMillis(300, 1200);
         } catch (Exception e) {
             log.debug("滚动模拟失败: {}", e.getMessage());
         }
@@ -1585,31 +1660,49 @@ public class PlaywrightUtil {
 
     /**
      * 综合人类行为模拟（鼠标移动 + 滚动 + 键盘活动）
+     * ✅ 风控优化：增加更多随机性和真实的行为组合
      *
      * @param deviceType 设备类型
      */
     public static void simulateHumanBehavior(DeviceType deviceType) {
-        // 随机选择要执行的行为
-        int behaviorCount = RANDOM.nextInt(3) + 1; // 1-3个行为
+        // ✅ 风控优化：随机选择1-4个行为，而不是固定的1-3个
+        int behaviorCount = RANDOM.nextInt(4) + 1; // 1-4个行为
+
+        // ✅ 风控优化：随机决定是否跳过本次行为模拟（10%概率）
+        // 真实用户有时候会直接操作，不会有任何额外动作
+        if (RANDOM.nextInt(10) == 0) {
+            log.debug("跳过本次人类行为模拟（模拟真实用户直接操作）");
+            randomSleepMillis(200, 600);
+            return;
+        }
 
         for (int i = 0; i < behaviorCount; i++) {
-            int behavior = RANDOM.nextInt(3);
+            // ✅ 风控优化：使用加权随机，鼠标移动更常见
+            int behavior = RANDOM.nextInt(10);
 
-            switch (behavior) {
-                case 0:
-                    simulateMouseMove(deviceType);
-                    break;
-                case 1:
-                    simulateScroll(deviceType);
-                    break;
-                case 2:
-                    simulateKeyboardActivity(deviceType);
-                    break;
+            if (behavior < 5) {
+                // 50% 鼠标移动
+                simulateMouseMove(deviceType);
+            } else if (behavior < 8) {
+                // 30% 滚动
+                simulateScroll(deviceType);
+            } else {
+                // 20% 键盘活动（较少见）
+                simulateKeyboardActivity(deviceType);
             }
 
-            // 行为间随机延迟
-            randomSleepMillis(300, 1000);
+            // ✅ 风控优化：行为间延迟更随机，范围更大
+            randomSleepMillis(400, 1500);
+
+            // ✅ 风控优化：随机中断行为序列（模拟用户中途停止）
+            if (RANDOM.nextInt(5) == 0) {
+                log.debug("随机中断行为序列");
+                break;
+            }
         }
+
+        // ✅ 风控优化：行为结束后的随机停顿
+        randomSleepMillis(300, 900);
     }
 
     /**
