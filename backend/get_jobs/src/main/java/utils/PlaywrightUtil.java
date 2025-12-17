@@ -162,10 +162,29 @@ public class PlaywrightUtil {
         BROWSER = PLAYWRIGHT.chromium().launch(options);
 
         // 创建桌面浏览器上下文 - 增强反检测配置
+        // ✅ 修复：根据操作系统动态设置User-Agent和HTTP头
+        String osName = System.getProperty("os.name").toLowerCase();
+        String userAgent;
+        String secChUaPlatform;
+
+        if (osName.contains("mac")) {
+            userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+            secChUaPlatform = "\"macOS\"";
+        } else if (osName.contains("win")) {
+            userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+            secChUaPlatform = "\"Windows\"";
+        } else {
+            // Linux服务器 - 使用Windows UA伪装（Linux UA更容易被检测为服务器）
+            userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+            secChUaPlatform = "\"Windows\"";
+            log.info("检测到Linux系统，使用Windows UA伪装以避免被识别为服务器");
+        }
+
+        log.info("操作系统: {}, 使用User-Agent平台: {}", osName, secChUaPlatform);
+
         DESKTOP_CONTEXT = BROWSER.newContext(new Browser.NewContextOptions()
                 .setViewportSize(1920, 1080)
-                .setUserAgent(
-                        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36")
+                .setUserAgent(userAgent)
                 .setDeviceScaleFactor(1.0)
                 .setHasTouch(false)
                 .setIsMobile(false)
@@ -173,11 +192,11 @@ public class PlaywrightUtil {
                 .setTimezoneId("Asia/Shanghai")
                 .setGeolocation(39.9042, 116.4074) // 北京坐标
                 .setPermissions(Arrays.asList("geolocation"))
-                // ✅ 新增：设置关键HTTP头，防止被识别为自动化
+                // ✅ 修复：动态设置HTTP头，与User-Agent保持一致
                 .setExtraHTTPHeaders(Map.of(
                     "sec-ch-ua", "\"Google Chrome\";v=\"131\", \"Chromium\";v=\"131\", \"Not_A Brand\";v=\"24\"",
                     "sec-ch-ua-mobile", "?0",
-                    "sec-ch-ua-platform", "\"macOS\"",
+                    "sec-ch-ua-platform", secChUaPlatform,
                     "accept-language", "zh-CN,zh;q=0.9,en;q=0.8",
                     "accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
                     "accept-encoding", "gzip, deflate, br"
