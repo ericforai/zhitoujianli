@@ -197,6 +197,10 @@ public class BossDeliveryService {
         log.info("当前页面URL: {}", detailPage.url());
         boolean dialogReady = false;
 
+        // ✅ 修复3：跟踪登录弹窗出现次数，如果超过阈值则认定Cookie完全失效
+        int loginDialogCountInWait = 0;
+        final int MAX_LOGIN_DIALOG_COUNT = 3; // 最多允许出现3次登录弹窗
+
         // ✅ 修复：先检查当前页面是否还是岗位详情页（可能点击被登录弹窗拦截）
         String initialUrl = detailPage.url();
         boolean stillOnJobDetailPage = initialUrl.contains("/job_detail/");
@@ -205,7 +209,8 @@ public class BossDeliveryService {
 
             // 检查是否存在登录弹窗
             if (loginService.checkAndCloseLoginDialog(detailPage)) {
-                log.warn("检测到登录弹窗，已关闭，尝试重新点击\"立即沟通\"按钮");
+                loginDialogCountInWait++;
+                log.warn("检测到登录弹窗（第{}次），已关闭，尝试重新点击\"立即沟通\"按钮", loginDialogCountInWait);
                 PlaywrightUtil.randomSleepMillis(2000, 4000);
 
                 // 重新查找并点击"立即沟通"按钮
@@ -225,10 +230,42 @@ public class BossDeliveryService {
                 log.info("等待聊天对话框加载中... (第{}/12次检查)", i);
             }
 
+            // ✅ 修复3：如果登录弹窗出现次数超过阈值，认定Cookie完全失效，立即返回
+            if (loginDialogCountInWait >= MAX_LOGIN_DIALOG_COUNT) {
+                log.error("❌ 登录弹窗已出现{}次，Cookie已完全失效，停止投递！", loginDialogCountInWait);
+                log.error("❌ 请重新扫码登录Boss直聘后再启动投递任务");
+                // 记录用户行为：Cookie失效
+                Map<String, Object> extraData = new HashMap<>();
+                extraData.put("jobName", job.getJobName());
+                extraData.put("companyName", job.getCompanyName());
+                extraData.put("reason", "Cookie已完全失效，登录弹窗出现" + loginDialogCountInWait + "次");
+                behaviorLogger.logBehavior("COOKIE_EXPIRED", "FAILED",
+                    String.format("Cookie失效: %s - 登录弹窗出现%d次", job.getJobName(), loginDialogCountInWait),
+                    extraData);
+                detailPage.close();
+                return false;
+            }
+
             // ✅ 修复：每次循环都检查是否有登录弹窗（可能在等待过程中弹出）
             if (loginService.checkAndCloseLoginDialog(detailPage)) {
-                log.warn("等待聊天对话框时检测到登录弹窗，已关闭");
+                loginDialogCountInWait++;
+                log.warn("等待聊天对话框时检测到登录弹窗（第{}次），已关闭", loginDialogCountInWait);
                 PlaywrightUtil.randomSleepMillis(2000, 4000);
+
+                // ✅ 修复3：立即检查是否超过阈值
+                if (loginDialogCountInWait >= MAX_LOGIN_DIALOG_COUNT) {
+                    log.error("❌ 登录弹窗已出现{}次，Cookie已完全失效，停止投递！", loginDialogCountInWait);
+                    log.error("❌ 请重新扫码登录Boss直聘后再启动投递任务");
+                    Map<String, Object> extraData = new HashMap<>();
+                    extraData.put("jobName", job.getJobName());
+                    extraData.put("companyName", job.getCompanyName());
+                    extraData.put("reason", "Cookie已完全失效，登录弹窗出现" + loginDialogCountInWait + "次");
+                    behaviorLogger.logBehavior("COOKIE_EXPIRED", "FAILED",
+                        String.format("Cookie失效: %s - 登录弹窗出现%d次", job.getJobName(), loginDialogCountInWait),
+                        extraData);
+                    detailPage.close();
+                    return false;
+                }
 
                 // 如果仍在岗位详情页，尝试重新点击
                 String currentUrlCheck = detailPage.url();
@@ -1546,6 +1583,7 @@ public class BossDeliveryService {
     /**
      * 安全的点击操作，会自动处理登录弹窗
      * ✅ 修复：如果点击后出现登录弹窗，关闭后需要重新点击
+     * ✅ 修复2：如果多次重试后仍出现登录弹窗，返回false表示Cookie完全失效
      *
      * @param page 页面对象
      * @param locator 要点击的元素定位器
@@ -1571,6 +1609,7 @@ public class BossDeliveryService {
                 PlaywrightUtil.randomSleepMillis(2000, 4000);
 
                 // ✅ 重新点击（最多重试2次）
+                int loginDialogCount = 1; // 已经出现过1次
                 for (int retry = 0; retry < 2; retry++) {
                     try {
                         // 检查元素是否仍然存在且可见
@@ -1584,7 +1623,8 @@ public class BossDeliveryService {
                                 log.info("重新{}成功", description);
                                 return true;
                             } else {
-                                log.warn("重新{}后仍然出现登录弹窗，继续重试", description);
+                                loginDialogCount++;
+                                log.warn("重新{}后仍然出现登录弹窗（第{}次），继续重试", description, loginDialogCount);
                                 PlaywrightUtil.randomSleepMillis(2000, 4000);
                             }
                         } else {
@@ -1596,9 +1636,16 @@ public class BossDeliveryService {
                     }
                 }
 
+                // ✅ 修复2：如果登录弹窗出现3次或以上，说明Cookie完全失效，必须返回false
+                if (loginDialogCount >= 3) {
+                    log.error("❌ 登录弹窗已出现{}次，Cookie已完全失效，无法继续投递！", loginDialogCount);
+                    log.error("❌ 请重新扫码登录Boss直聘后再启动投递任务");
+                    return false;
+                }
+
                 // 检查最终是否还有登录弹窗
                 if (loginService.checkLoginDialogPresent(page)) {
-                    log.error("多次重试后仍然出现登录弹窗，可能Cookie已完全失效");
+                    log.error("❌ 多次重试后仍然出现登录弹窗，Cookie已完全失效");
                     return false;
                 }
             }
