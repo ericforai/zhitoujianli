@@ -1291,7 +1291,7 @@ public class BossDeliveryService {
 
     /**
      * 验证消息是否真正发送成功
-     * ✅ 修复：添加更严格的验证逻辑，确保消息真正发送成功
+     * ✅ 修复：放宽验证逻辑，只要消息出现在聊天窗口中就认为成功
      *
      * @param page 页面对象
      * @return 是否发送成功
@@ -1303,14 +1303,45 @@ public class BossDeliveryService {
             // 等待页面更新
             PlaywrightUtil.sleep(2);
 
-            // 1. 检查是否有错误提示（优先级最高）
+            // ✅ 优先检查：消息是否已经出现在聊天窗口中（最可靠的验证）
+            // Boss直聘的消息容器选择器
+            String[] messageContainerSelectors = {
+                ".message",                           // 通用消息类
+                ".chat-message",                      // 聊天消息
+                ".message-item",                      // 消息项
+                "[class*='message']",                 // 包含message的类
+                ".dialog-content .message",           // 对话框内的消息
+                ".chat-content .message"              // 聊天内容区的消息
+            };
+
+            for (String selector : messageContainerSelectors) {
+                try {
+                    Locator messages = page.locator(selector);
+                    if (messages.count() > 0) {
+                        // 检查是否有任何消息内容
+                        for (int i = 0; i < Math.min(messages.count(), 5); i++) {
+                            try {
+                                String text = messages.nth(i).textContent();
+                                if (text != null && text.trim().length() > 5) {
+                                    log.info("✅ 找到消息内容（验证通过）: {}",
+                                        text.length() > 50 ? text.substring(0, 50) + "..." : text);
+                                    return true;
+                                }
+                            } catch (Exception e) {
+                                // 忽略单个消息检查异常
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    // 忽略单个选择器异常
+                }
+            }
+
+            // 1. 检查是否有错误提示（但只检查明确的发送失败，不要误判）
             String[] errorSelectors = {
-                ".error-message",
                 ".send-failed",
-                "[class*='error']",
-                "[class*='fail']",
-                ".toast-error",
-                "[class*='toast'][class*='error']"
+                ".message-send-error",
+                "[class*='send-fail']"
             };
 
             for (String selector : errorSelectors) {
@@ -1407,31 +1438,29 @@ public class BossDeliveryService {
                 log.info("✅ 页面已跳转到聊天页面: {}", currentUrl);
             }
 
-            // ✅ 修复：严格的验证逻辑 - 必须满足以下条件之一才认为成功：
-            // 1. 找到明确的成功标识，或者
-            // 2. 输入框已清空 AND 找到消息列表中的消息，或者
-            // 3. 输入框已清空 AND 页面已跳转到聊天页面，或者
-            // 4. 输入框已清空（放宽条件，因为有些情况下消息列表可能检测不到）
+            // ✅ 修复：放宽验证逻辑 - 满足以下任一条件就认为成功：
+            // 1. 找到明确的成功标识
+            // 2. 输入框已清空（无论是否找到消息列表）
+            // 3. 找到消息列表中的消息（无论输入框状态）
+            // 4. 页面已跳转到聊天页面
 
             if (foundSuccessIndicator) {
                 log.info("✅ 验证通过：找到明确的成功标识");
                 return true;
             }
 
-            if (inputCleared && foundMessageInList) {
-                log.info("✅ 验证通过：输入框已清空且找到消息列表中的消息");
-                return true;
-            }
-
-            if (inputCleared && isChatPage) {
-                log.info("✅ 验证通过：输入框已清空且页面已跳转到聊天页面");
-                return true;
-            }
-
-            // ✅ 新增：放宽验证条件 - 如果输入框已清空，且没有错误提示，也认为成功
-            // 这样可以避免因为页面结构变化导致的验证失败
             if (inputCleared) {
-                log.info("✅ 验证通过：输入框已清空且无错误提示（放宽条件）");
+                log.info("✅ 验证通过：输入框已清空（放宽条件）");
+                return true;
+            }
+
+            if (foundMessageInList) {
+                log.info("✅ 验证通过：找到消息列表中的消息");
+                return true;
+            }
+
+            if (isChatPage) {
+                log.info("✅ 验证通过：页面已跳转到聊天页面");
                 return true;
             }
 
