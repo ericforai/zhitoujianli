@@ -5,7 +5,7 @@
  * @since 2025-01-03
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useDelivery } from '../../hooks/useDelivery';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import {
@@ -39,19 +39,51 @@ const DeliveryStatus: React.FC = () => {
 
   /**
    * 订阅WebSocket消息
+   * ✅ 修复：使用函数式更新和状态比较，避免不必要的重新渲染
    */
   useEffect(() => {
+    // ✅ 修复：使用ref保存上一次的值，避免JSON.stringify的性能问题
+    const prevStatusRef = useRef<string | null>(null);
+    const prevProgressRef = useRef<string | null>(null);
+    
     const handleStatusUpdate = (data: DeliveryStatusMessage) => {
-      setRealTimeStatus(data);
+      // ✅ 修复：使用简单的ID或时间戳比较，避免深度JSON比较
+      const dataKey = `${data.isRunning}-${data.totalDelivered}-${data.failedDelivered}`;
+      if (prevStatusRef.current !== dataKey) {
+        prevStatusRef.current = dataKey;
+        setRealTimeStatus(data);
+      }
     };
 
     const handleProgressUpdate = (data: DeliveryProgressMessage) => {
-      setRealTimeProgress(data);
+      // ✅ 修复：使用简单的进度值比较
+      const progressKey = `${data.processedJobs}-${data.totalJobs}-${data.progressPercentage}`;
+      if (prevProgressRef.current !== progressKey) {
+        prevProgressRef.current = progressKey;
+        setRealTimeProgress(data);
+      }
     };
 
+    // ✅ 修复：使用ref保存定时器，避免重复创建
+    const errorTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+    
     const handleError = (data: any) => {
-      setErrorMessage(data.message);
-      setTimeout(() => setErrorMessage(null), 5000);
+      // ✅ 修复：只有错误消息真正变化时才更新
+      setErrorMessage(prev => {
+        if (prev !== data.message) {
+          // 清除之前的定时器
+          if (errorTimerRef.current) {
+            clearTimeout(errorTimerRef.current);
+          }
+          // 创建新的定时器
+          errorTimerRef.current = setTimeout(() => {
+            setErrorMessage(null);
+            errorTimerRef.current = null;
+          }, 5000);
+          return data.message;
+        }
+        return prev;
+      });
     };
 
     // 处理验证码请求
@@ -72,10 +104,17 @@ const DeliveryStatus: React.FC = () => {
     webSocketService.subscribeVerificationCode(handleVerificationCode);
 
     return () => {
+      // ✅ 修复：清理定时器
+      if (errorTimerRef.current) {
+        clearTimeout(errorTimerRef.current);
+        errorTimerRef.current = null;
+      }
       // 清理订阅
       webSocketService.unsubscribeVerificationCode(handleVerificationCode);
     };
-  }, [subscribeDeliveryStatus, subscribeDeliveryProgress, subscribeError]);
+    // ✅ 修复：移除函数依赖，避免无限循环
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /**
    * 格式化百分比

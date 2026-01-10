@@ -54,7 +54,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         .getBody();
 
                 // 3. 提取用户信息
-                String userId = claims.getSubject();
+                // ✅ 修复: 优先从userId字段获取，并转换为user_xxx格式（与WebSocket一致）
+                Object userIdObj = claims.get("userId");
+                String userId;
+                if (userIdObj instanceof Number) {
+                    userId = "user_" + userIdObj;
+                } else if (userIdObj != null) {
+                    String userIdStr = String.valueOf(userIdObj);
+                    userId = userIdStr.startsWith("user_") ? userIdStr : "user_" + userIdStr;
+                } else {
+                    // fallback to subject (邮箱)
+                    userId = claims.getSubject();
+                }
                 String email = claims.get("email", String.class);
                 String username = claims.get("username", String.class);
 

@@ -47,6 +47,9 @@ import util.RequestUtil;
     "https://zhitoujianli.com",
     "https://www.zhitoujianli.com",
     "http://localhost:3000",
+    "http://localhost:3002",  // ✅ 添加：前端开发服务器端口3002
+    "http://localhost:8081",  // ✅ 添加：前端开发服务器端口8081
+    "http://127.0.0.1:8081",  // ✅ 添加：前端开发服务器端口8081（IP形式）
     "http://115.190.182.95:3000",
     "http://115.190.182.95"
 })

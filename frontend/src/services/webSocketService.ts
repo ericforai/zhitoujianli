@@ -5,9 +5,12 @@
  * @since 2025-01-03
  * @updated 2025-10-11 - 改进内存管理，删除重复Hook实现
  * @updated 2025-11-07 - 添加JWT Token验证，防止未认证连接
+ * @updated 2025-12-19 - 修复：后端使用SockJS，前端需要使用SockJS客户端
  */
 
 import config from '../config/environment';
+// ✅ 修复：使用标准ES6导入SockJS
+import SockJS from 'sockjs-client';
 import {
   DeliveryProgressMessage,
   DeliveryRecordMessage,
@@ -34,12 +37,13 @@ type WebSocketEventHandler = (data: any) => void;
  * WebSocket连接管理类
  */
 class WebSocketManager {
-  private ws: WebSocket | null = null;
+  private ws: WebSocket | InstanceType<typeof SockJS> | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectInterval = 3000;
   private isConnecting = false;
   private eventHandlers: Map<string, WebSocketEventHandler[]> = new Map();
+  private stateChangeListeners: Set<() => void> = new Set();
 
   /**
    * 连接WebSocket
@@ -48,7 +52,8 @@ class WebSocketManager {
    */
   connect(): Promise<void> {
     return new Promise((resolve, reject) => {
-      if (this.ws?.readyState === WebSocket.OPEN) {
+      // ✅ 修复：SockJS的readyState为1表示OPEN
+      if (this.ws && (this.ws as any).readyState === 1) {
         resolve();
         return;
       }
@@ -76,20 +81,66 @@ class WebSocketManager {
 
         // 2. 构建带Token的WebSocket URL
         const baseUrl = config.wsBaseUrl;
-        const wsUrl = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}token=${encodeURIComponent(token)}`;
+        
+        // ✅ 修复：立即验证baseUrl，在转换前就检查
+        console.log('🔍 检查WebSocket配置:', {
+          baseUrl,
+          'config.wsBaseUrl': config.wsBaseUrl,
+          'typeof baseUrl': typeof baseUrl,
+        });
+        
+        // ✅ 修复：严格验证URL格式，确保使用正确的端口和路径（在转换前检查）
+        if (baseUrl.includes(':8081')) {
+          console.error('❌ 错误的WebSocket URL检测到！', baseUrl);
+          console.error('✅ 应该使用: ws://localhost:8080/ws/boss-delivery');
+          console.error('🔧 当前配置:', { baseUrl, config: config.wsBaseUrl });
+          this.isConnecting = false;
+          reject(new Error('WebSocket URL配置错误：不能使用8081端口，必须使用8080端口'));
+          return;
+        }
+        
+        if (!baseUrl.includes('/ws/boss-delivery')) {
+          console.error('❌ 错误的WebSocket路径检测到！', baseUrl);
+          console.error('✅ 应该使用: ws://localhost:8080/ws/boss-delivery');
+          this.isConnecting = false;
+          reject(new Error('WebSocket URL配置错误：路径必须是 /ws/boss-delivery'));
+          return;
+        }
 
-        console.log('🔐 正在建立WebSocket连接（已携带Token）...');
+        // ✅ 修复：后端使用SockJS，前端必须使用SockJS客户端
+        // SockJS URL需要将 ws:// 或 wss:// 转换为 http:// 或 https://
+        const sockjsUrl = baseUrl.replace(/^ws:/, 'http:').replace(/^wss:/, 'https:');
+        const fullSockjsUrl = `${sockjsUrl}${sockjsUrl.includes('?') ? '&' : '?'}token=${encodeURIComponent(token)}`;
+        
+        console.log('🔐 正在建立SockJS WebSocket连接（已携带Token）...', {
+          baseUrl,
+          sockjsUrl,
+          fullSockjsUrl,
+          'config.wsBaseUrl': config.wsBaseUrl,
+        });
 
-        this.ws = new WebSocket(wsUrl);
+        // ✅ 修复：使用SockJS客户端而不是原生WebSocket
+        try {
+          this.ws = new SockJS(fullSockjsUrl);
+          console.log('✅ SockJS客户端已创建，等待连接...');
+        } catch (error) {
+          console.error('❌ 创建SockJS客户端失败:', error);
+          this.isConnecting = false;
+          reject(error);
+          return;
+        }
 
-        this.ws.onopen = () => {
-          console.log('WebSocket连接已建立');
+        // ✅ 修复：SockJS使用相同的事件接口，但类型需要兼容
+        (this.ws as any).onopen = () => {
+          console.log('✅ SockJS WebSocket连接已建立');
           this.isConnecting = false;
           this.reconnectAttempts = 0;
+          // ✅ 修复：触发状态变化事件，通知所有监听者
+          this.notifyStateChange();
           resolve();
         };
 
-        this.ws.onmessage = event => {
+        (this.ws as any).onmessage = (event: any) => {
           try {
             const message: WebSocketMessage = JSON.parse(event.data);
             this.handleMessage(message);
@@ -98,10 +149,12 @@ class WebSocketManager {
           }
         };
 
-        this.ws.onclose = event => {
+        (this.ws as any).onclose = (event: any) => {
           console.log('WebSocket连接已关闭:', event.code, event.reason);
           this.isConnecting = false;
           this.ws = null;
+          // ✅ 修复：通知状态变化
+          this.notifyStateChange();
 
           // 自动重连（仅在未手动断开的情况下）
           if (
@@ -118,7 +171,7 @@ class WebSocketManager {
           }
         };
 
-        this.ws.onerror = error => {
+        (this.ws as any).onerror = (error: any) => {
           console.error('WebSocket连接错误:', error);
           this.isConnecting = false;
           reject(error);
@@ -141,7 +194,18 @@ class WebSocketManager {
     this.eventHandlers.clear();
 
     if (this.ws) {
-      this.ws.close(1000, 'Client disconnect'); // 正常关闭
+      // ✅ 修复：SockJS使用close方法，但参数可能不同
+      try {
+        (this.ws as any).close(1000, 'Client disconnect'); // 正常关闭
+      } catch (error) {
+        // SockJS可能不支持第二个参数，只传状态码
+        try {
+          (this.ws as any).close(1000);
+        } catch (e) {
+          // 如果都失败，直接关闭
+          (this.ws as any).close();
+        }
+      }
       this.ws = null;
     }
 
@@ -152,8 +216,9 @@ class WebSocketManager {
    * 发送消息
    */
   send(message: any): void {
-    if (this.ws?.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify(message));
+    // ✅ 修复：SockJS的readyState为1表示OPEN
+    if (this.ws && (this.ws as any).readyState === 1) {
+      (this.ws as any).send(JSON.stringify(message));
     } else {
       console.warn('WebSocket未连接，无法发送消息');
     }
@@ -242,18 +307,43 @@ class WebSocketManager {
   }
 
   /**
+   * 通知状态变化
+   */
+  private notifyStateChange(): void {
+    this.stateChangeListeners.forEach(listener => {
+      try {
+        listener();
+      } catch (error) {
+        console.error('状态变化监听器执行失败:', error);
+      }
+    });
+  }
+
+  /**
+   * 订阅状态变化
+   */
+  onStateChange(listener: () => void): () => void {
+    this.stateChangeListeners.add(listener);
+    return () => {
+      this.stateChangeListeners.delete(listener);
+    };
+  }
+
+  /**
    * 获取连接状态
    */
   getConnectionState(): 'connecting' | 'open' | 'closing' | 'closed' {
     if (!this.ws) return 'closed';
-    switch (this.ws.readyState) {
-      case WebSocket.CONNECTING:
+    // ✅ 修复：SockJS也使用readyState，但需要类型转换
+    const readyState = (this.ws as any).readyState;
+    switch (readyState) {
+      case 0: // CONNECTING
         return 'connecting';
-      case WebSocket.OPEN:
+      case 1: // OPEN
         return 'open';
-      case WebSocket.CLOSING:
+      case 2: // CLOSING
         return 'closing';
-      case WebSocket.CLOSED:
+      case 3: // CLOSED
         return 'closed';
       default:
         return 'closed';
@@ -420,6 +510,13 @@ export const webSocketService = {
    */
   isConnected: (): boolean => {
     return wsManager.getConnectionState() === 'open';
+  },
+
+  /**
+   * 订阅状态变化
+   */
+  onStateChange: (listener: () => void): (() => void) => {
+    return wsManager.onStateChange(listener);
   },
 
   /**

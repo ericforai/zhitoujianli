@@ -61,11 +61,19 @@ public class IsolatedBossRunner {
         // 禁用Spring Boot自动配置
         System.setProperty("spring.autoconfigure.exclude", "*");
 
-        // 设置独立的工作目录
-        System.setProperty("user.dir", "/opt/zhitoujianli/backend");
+        // 设置独立的工作目录（使用环境变量，兼容本地开发和生产环境）
+        String workDir = System.getenv("BOSS_WORK_DIR");
+        if (workDir == null || workDir.isEmpty()) {
+            workDir = System.getProperty("user.dir");
+        }
+        System.setProperty("user.dir", workDir);
 
-        // Playwright浏览器路径
-        System.setProperty("PLAYWRIGHT_BROWSERS_PATH", "/root/.cache/ms-playwright");
+        // Playwright浏览器路径（使用环境变量）
+        String playwrightPath = System.getenv("PLAYWRIGHT_BROWSERS_PATH");
+        if (playwrightPath == null || playwrightPath.isEmpty()) {
+            playwrightPath = System.getProperty("user.home") + "/.cache/ms-playwright";
+        }
+        System.setProperty("PLAYWRIGHT_BROWSERS_PATH", playwrightPath);
 
         log.info("隔离环境配置完成");
     }

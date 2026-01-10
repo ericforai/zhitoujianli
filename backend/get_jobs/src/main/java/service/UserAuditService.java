@@ -178,8 +178,23 @@ public class UserAuditService {
 
     /**
      * 检查是否存在可疑活动（频繁失败登录）
+     * 🔧 开发环境：自动禁用登录限制（localhost 或环境变量 DISABLE_LOGIN_LIMIT=true）
      */
     public boolean checkSuspiciousActivity(String email, String ipAddress) {
+        // 🔧 开发环境：检查环境变量，如果设置了 DISABLE_LOGIN_LIMIT=true，则禁用限制
+        String disableLimit = System.getenv("DISABLE_LOGIN_LIMIT");
+        if ("true".equalsIgnoreCase(disableLimit)) {
+            log.debug("🔓 开发环境：登录限制已禁用（环境变量）");
+            return false;
+        }
+
+        // 🔧 开发环境：如果是 localhost 或 127.0.0.1，自动禁用限制
+        if (ipAddress != null && (ipAddress.equals("127.0.0.1") || ipAddress.equals("localhost") || 
+            ipAddress.startsWith("192.168.") || ipAddress.startsWith("10.") || ipAddress.startsWith("172."))) {
+            log.debug("🔓 开发环境：登录限制已禁用（本地IP: {}）", ipAddress);
+            return false;
+        }
+
         LocalDateTime fifteenMinutesAgo = LocalDateTime.now().minusMinutes(15);
 
         // 检查邮箱的失败次数

@@ -148,23 +148,37 @@ const getApiBaseUrl = (env: Environment): string => {
 const getWsBaseUrl = (env: Environment): string => {
   // 优先使用环境变量
   if (process.env.REACT_APP_WS_URL) {
-    return process.env.REACT_APP_WS_URL;
+    const envUrl = process.env.REACT_APP_WS_URL;
+    // ✅ 修复：验证环境变量URL，确保不是错误的8081端口
+    if (envUrl.includes(':8081/ws') && !envUrl.includes('/ws/boss-delivery')) {
+      console.error('❌ 环境变量 REACT_APP_WS_URL 配置错误:', envUrl);
+      console.error('✅ 应该使用: ws://localhost:8080/ws/boss-delivery');
+      // 强制使用正确的URL
+      return 'ws://localhost:8080/ws/boss-delivery';
+    }
+    return envUrl;
   }
-
-  const protocol = isSecureContext() ? 'wss:' : 'ws:';
-  const host =
-    typeof window !== 'undefined' ? window.location.host : 'localhost';
 
   // 根据环境返回默认值
   switch (env) {
-    case Environment.Development:
-      return `${protocol}//${host}/ws`;
+    case Environment.Development: {
+      // ✅ 前端运行在8081，WebSocket直接连接到后端8080端口
+      // 🔧 修复：后端WebSocket端点是 /ws/boss-delivery，不是 /ws
+      const devUrl = 'ws://localhost:8080/ws/boss-delivery';
+      console.log('🔧 WebSocket开发环境URL:', devUrl);
+      return devUrl;
+    }
     case Environment.Staging:
-      return 'wss://staging.zhitoujianli.com/ws';
-    case Environment.Production:
-      return `wss://${host}/ws`;
+      return 'wss://staging.zhitoujianli.com/ws/boss-delivery';
+    case Environment.Production: {
+      // 生产环境：根据当前协议决定ws/wss
+      const protocol = isSecureContext() ? 'wss:' : 'ws:';
+      const host =
+        typeof window !== 'undefined' ? window.location.host : 'localhost';
+      return `${protocol}//${host}/ws/boss-delivery`;
+    }
     default:
-      return `${protocol}//${host}/ws`;
+      return 'ws://localhost:8080/ws/boss-delivery';
   }
 };
 

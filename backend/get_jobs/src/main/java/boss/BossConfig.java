@@ -258,9 +258,9 @@ public class BossConfig {
             // 🔧 修复：使用环境变量USER_DATA_DIR构建绝对路径
             String userDataBaseDir = System.getenv("USER_DATA_DIR");
             if (userDataBaseDir == null || userDataBaseDir.isEmpty()) {
-                // 备用方案：使用默认路径
-                userDataBaseDir = "/opt/zhitoujianli/backend/user_data";
-                log.info("📂 未设置USER_DATA_DIR环境变量，使用默认路径: {}", userDataBaseDir);
+                // 备用方案：使用工作目录下的user_data
+                userDataBaseDir = System.getProperty("user.dir") + "/user_data";
+                log.info("📂 未设置USER_DATA_DIR环境变量，使用工作目录: {}", userDataBaseDir);
             } else {
                 log.info("📂 从环境变量读取USER_DATA_DIR: {}", userDataBaseDir);
             }

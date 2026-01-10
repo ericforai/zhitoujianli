@@ -36,10 +36,16 @@ public class CorsConfig {
             "https://www.zhitoujianli.com:443",
             // 开发环境 - HTTP
             "http://localhost:3000",
+            "http://localhost:3001",  // ✅ 添加：前端开发服务器端口3001
+            "http://localhost:3002",  // ✅ 添加：前端开发服务器端口3002
+            "http://localhost:8081",  // ✅ 添加：前端开发服务器端口8081
             "http://localhost:5174",
             "http://localhost:5175",
             "http://localhost:8080",
             "http://127.0.0.1:3000",
+            "http://127.0.0.1:3001",  // ✅ 添加：前端开发服务器端口3001
+            "http://127.0.0.1:3002",  // ✅ 添加：前端开发服务器端口3002
+            "http://127.0.0.1:8081",  // ✅ 添加：前端开发服务器端口8081
             "http://127.0.0.1:5174",
             "http://127.0.0.1:5175",
             "http://127.0.0.1:8080",

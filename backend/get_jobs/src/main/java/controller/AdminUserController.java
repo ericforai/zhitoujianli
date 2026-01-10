@@ -1,11 +1,13 @@
 package controller;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -105,10 +107,13 @@ public class AdminUserController {
             java.util.List<Map<String, Object>> usersList = usersPage.getContent().stream().map(user -> {
                 Map<String, Object> userData = convertUserToResponse(user);
 
-                // 查询用户套餐（UserId 是 Long，UserPlan.userId 是 String）
+                // 查询用户套餐（使用email生成userStringId，与数据库格式一致）
                 try {
-                    String userStringId = "user_" + user.getUserId();
-                    Optional<UserPlan> userPlan = userPlanRepository.findByUserId(userStringId);
+                    // 🔧 修复：使用email生成userStringId（格式：1@1.com -> 1_1_com）
+                    String userStringId = user.getEmail().replace("@", "_").replace(".", "_");
+                    // 🔧 修复：处理多条套餐记录的情况
+                    List<UserPlan> userPlans = userPlanRepository.findByUserIdOrderByCreatedAtDesc(userStringId);
+                    Optional<UserPlan> userPlan = userPlans.isEmpty() ? Optional.empty() : Optional.of(userPlans.get(0));
                     if (userPlan.isPresent()) {
                         userData.put("planType", userPlan.get().getPlanType().name());
                     }
@@ -163,8 +168,9 @@ public class AdminUserController {
 
             User user = userService.getUserById(userId);
 
-            // 获取用户套餐信息
-            Optional<UserPlan> userPlan = userPlanRepository.findByUserId("user_" + userId);
+            // 🔧 修复：处理多条套餐记录的情况
+            List<UserPlan> userPlans = userPlanRepository.findByUserIdOrderByCreatedAtDesc("user_" + userId);
+            Optional<UserPlan> userPlan = userPlans.isEmpty() ? Optional.empty() : Optional.of(userPlans.get(0));
 
             Map<String, Object> userData = convertUserToResponse(user);
             if (userPlan.isPresent()) {
@@ -213,29 +219,48 @@ public class AdminUserController {
                 ));
             }
 
-            String userStringId = "user_" + userId;
-
-            // 查找或创建用户套餐
-            Optional<UserPlan> existingPlan = userPlanRepository.findByUserId(userStringId);
-            UserPlan userPlan;
-
-            if (existingPlan.isPresent()) {
-                userPlan = existingPlan.get();
-                userPlan.setPlanType(PlanType.valueOf(request.getPlanType()));
-                userPlan.setStatus(UserPlan.PlanStatus.ACTIVE);
-                userPlan.setStartDate(LocalDate.now());
-                // endDate可以设置为null表示永不过期
-                userPlan.setEndDate(request.getEndDate());
-            } else {
-                userPlan = UserPlan.builder()
-                    .userId(userStringId)
-                    .planType(PlanType.valueOf(request.getPlanType()))
-                    .status(UserPlan.PlanStatus.ACTIVE)
-                    .startDate(LocalDate.now())
-                    .endDate(request.getEndDate())
-                    .autoRenewal(false)
-                    .build();
+            // 🔧 修复：根据用户ID查找用户，使用email生成正确的userStringId
+            User user = userService.getUserById(userId);
+            if (user == null) {
+                return ResponseEntity.status(404).body(Map.of(
+                    "success", false,
+                    "message", "用户不存在"
+                ));
             }
+            
+            // 使用email生成userStringId（与系统其他部分保持一致）
+            // 格式：1@1.com -> 1_1_com
+            String userStringId = user.getEmail().replace("@", "_").replace(".", "_");
+            log.info("🔍 升级套餐: userId={}, email={}, userStringId={}", userId, user.getEmail(), userStringId);
+
+            // 🔧 修复：处理多条套餐记录的情况
+            // 先取消所有ACTIVE状态的套餐，然后创建新套餐
+            List<UserPlan> activePlans = userPlanRepository.findByUserIdOrderByCreatedAtDesc(userStringId)
+                .stream()
+                .filter(plan -> plan.getStatus() == UserPlan.PlanStatus.ACTIVE)
+                .collect(Collectors.toList());
+
+            // 取消所有ACTIVE状态的套餐
+            for (UserPlan plan : activePlans) {
+                plan.setStatus(UserPlan.PlanStatus.CANCELLED);
+                plan.setUpdatedAt(LocalDateTime.now());
+                userPlanRepository.save(plan);
+                log.info("✅ 已取消用户旧套餐: userId={}, planId={}, planType={}", 
+                    userStringId, plan.getId(), plan.getPlanType());
+            }
+
+            // 创建新套餐
+            UserPlan userPlan = UserPlan.builder()
+                .userId(userStringId)
+                .planType(PlanType.valueOf(request.getPlanType()))
+                .status(UserPlan.PlanStatus.ACTIVE)
+                .startDate(LocalDate.now())
+                .endDate(request.getEndDate())
+                .autoRenewal(false)
+                .purchasePrice(PlanType.valueOf(request.getPlanType()).getMonthlyPrice())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
 
             userPlanRepository.save(userPlan);
 
@@ -577,7 +602,10 @@ public class AdminUserController {
         public String getPlanType() { return planType; }
         public void setPlanType(String planType) { this.planType = planType; }
         public LocalDate getEndDate() { return endDate; }
-        public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
+        public void setEndDate(LocalDate endDate) { 
+            // 🔧 修复：允许 null 值（表示永不过期）
+            this.endDate = endDate; 
+        }
     }
 
     public static class UpdateStatusRequest {
@@ -655,7 +683,7 @@ public class AdminUserController {
 
             List<Map<String, Object>> usersList = inactiveUsers.stream()
                 .map(this::convertUserToResponse)
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
 
             return ResponseEntity.ok(Map.of(
                 "success", true,

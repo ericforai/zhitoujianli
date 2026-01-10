@@ -8,9 +8,11 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <React.StrictMode>
+  // ✅ 临时禁用StrictMode以排查闪烁问题
+  // StrictMode在开发环境下会双重渲染组件，可能导致闪烁
+  // <React.StrictMode>
     <App />
-  </React.StrictMode>
+  // </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

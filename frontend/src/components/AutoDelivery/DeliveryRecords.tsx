@@ -5,7 +5,7 @@
  * @since 2025-01-03
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useDelivery } from '../../hooks/useDelivery';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import {
@@ -37,26 +37,37 @@ const DeliveryRecords: React.FC = () => {
 
   /**
    * 订阅WebSocket消息
+   * ✅ 修复：使用ref保存最新的query，避免闭包问题
    */
+  const queryRef = React.useRef(query);
+  React.useEffect(() => {
+    queryRef.current = query;
+  }, [query]);
+
   useEffect(() => {
     const handleRecordUpdate = () => {
-      // 刷新记录列表
-      refreshRecords(query);
+      // 刷新记录列表（使用最新的query，通过ref获取）
+      refreshRecords(queryRef.current);
     };
 
     subscribeDeliveryRecord(handleRecordUpdate);
 
     return () => {
-      // 清理订阅
+      // 清理订阅（在组件卸载时）
     };
-  }, [subscribeDeliveryRecord, refreshRecords, query]);
+    // ✅ 修复：移除函数依赖，避免无限循环
+    // query变化时通过ref自动更新，不需要重新订阅
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /**
    * 加载记录
    */
   useEffect(() => {
     refreshRecords(query);
-  }, [query, refreshRecords]);
+    // ✅ 修复：refreshRecords是稳定的useCallback，但为了安全，只在query变化时执行
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
 
   /**
    * 处理查询参数变化

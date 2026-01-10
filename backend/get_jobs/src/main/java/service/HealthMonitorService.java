@@ -28,9 +28,26 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HealthMonitorService {
 
-    private static final String HEALTH_LOG_FILE = "/opt/zhitoujianli/logs/health-monitor.log";
-    private static final String ALERT_LOG_FILE = "/opt/zhitoujianli/logs/health-alerts.log";
-    private static final String PRE_START_LOG_FILE = "/opt/zhitoujianli/logs/pre-start-cleanup.log";
+    // 日志目录：优先使用环境变量，否则使用工作目录下的logs
+    private static String getLogsDir() {
+        String logsDir = System.getenv("LOGS_DIR");
+        if (logsDir == null || logsDir.isEmpty()) {
+            logsDir = System.getProperty("user.dir") + "/logs";
+        }
+        return logsDir;
+    }
+
+    private static String getHealthLogFile() {
+        return getLogsDir() + "/health-monitor.log";
+    }
+
+    private static String getAlertLogFile() {
+        return getLogsDir() + "/health-alerts.log";
+    }
+
+    private static String getPreStartLogFile() {
+        return getLogsDir() + "/pre-start-cleanup.log";
+    }
 
     private static final DateTimeFormatter LOG_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -96,7 +113,7 @@ public class HealthMonitorService {
         List<Map<String, String>> logs = new ArrayList<>();
 
         try {
-            File logFile = new File(HEALTH_LOG_FILE);
+            File logFile = new File(getHealthLogFile());
             if (!logFile.exists()) {
                 return logs;
             }
@@ -132,7 +149,7 @@ public class HealthMonitorService {
         List<Map<String, String>> alerts = new ArrayList<>();
 
         try {
-            File alertFile = new File(ALERT_LOG_FILE);
+            File alertFile = new File(getAlertLogFile());
             if (!alertFile.exists()) {
                 return alerts;
             }
@@ -229,7 +246,7 @@ public class HealthMonitorService {
      */
     private String getLastHealthCheckResult() {
         try {
-            File logFile = new File(HEALTH_LOG_FILE);
+            File logFile = new File(getHealthLogFile());
             if (!logFile.exists()) {
                 return null;
             }
@@ -255,7 +272,7 @@ public class HealthMonitorService {
      */
     private int getRecentAlertCount(int hours) {
         try {
-            File alertFile = new File(ALERT_LOG_FILE);
+            File alertFile = new File(getAlertLogFile());
             if (!alertFile.exists()) {
                 return 0;
             }

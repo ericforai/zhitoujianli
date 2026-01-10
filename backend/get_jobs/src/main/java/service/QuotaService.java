@@ -263,15 +263,20 @@ public class QuotaService {
             return cachedPlan;
         }
 
-        // ✅ 修复：从数据库查询用户套餐
+        // ✅ 修复：从数据库查询用户套餐（处理多条记录的情况）
         try {
-            Optional<UserPlan> planOpt = userPlanRepository.findByUserIdAndStatus(
-                userId, UserPlan.PlanStatus.ACTIVE);
-
-            if (planOpt.isPresent() && planOpt.get().isValid()) {
-                UserPlan plan = planOpt.get();
-                userPlanCache.put(userId, plan);
-                return plan;
+            // 🔧 修复：处理多条ACTIVE套餐记录的情况
+            List<UserPlan> activePlans = userPlanRepository.findByUserIdOrderByCreatedAtDesc(userId)
+                .stream()
+                .filter(plan -> plan.getStatus() == UserPlan.PlanStatus.ACTIVE)
+                .collect(java.util.stream.Collectors.toList());
+            
+            if (!activePlans.isEmpty()) {
+                UserPlan plan = activePlans.get(0); // 取最新的
+                if (plan.isValid()) {
+                    userPlanCache.put(userId, plan);
+                    return plan;
+                }
             }
         } catch (Exception e) {
             log.warn("查询用户套餐失败，使用默认套餐: userId={}", userId, e);

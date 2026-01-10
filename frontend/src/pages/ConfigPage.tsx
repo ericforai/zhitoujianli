@@ -4,6 +4,7 @@
  * @author ZhiTouJianLi Team
  * @since 2025-01-03
  * @updated 2025-11-04 - 集成完整的DeliveryConfig组件（包含黑名单管理）
+ * @updated 2025-12-18 - 添加本地Agent配置Tab
  */
 
 import React, { useEffect, useState } from 'react';
@@ -11,20 +12,21 @@ import DeliveryConfig from '../components/DeliveryConfig';
 import Navigation from '../components/Navigation';
 import SEOHead from '../components/seo/SEOHead';
 import CompleteResumeManager from '../components/ResumeManagement/CompleteResumeManager';
+import LocalAgentConfig from '../components/LocalAgentConfig';
 import { useAuth } from '../contexts/AuthContext';
 import logger from '../utils/logger';
 
+// ✅ 修复：将authLogger移到组件外部，避免每次渲染创建新对象导致useEffect无限循环
+const authLogger = logger.createChild('ConfigPage:Auth');
+
 const ConfigPage: React.FC = () => {
   const { user, isAuthenticated, isLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState<'delivery' | 'resume'>('delivery');
-
-  // 创建认证日志记录器
-  const authLogger = logger.createChild('ConfigPage:Auth');
+  const [activeTab, setActiveTab] = useState<'delivery' | 'resume' | 'local-agent'>('delivery');
 
   // 所有 useEffect 必须在这里，在任何 return 之前
   useEffect(() => {
     authLogger.debug('ConfigPage组件开始渲染', { isLoading, isAuthenticated });
-  }, [isLoading, isAuthenticated, authLogger]);
+  }, [isLoading, isAuthenticated]); // ✅ 修复：移除authLogger依赖，因为它是模块级常量
 
   // 现在可以安全地使用条件 return
   if (isLoading) {
@@ -89,6 +91,16 @@ const ConfigPage: React.FC = () => {
               >
                 📄 简历内容管理
               </button>
+              <button
+                onClick={() => setActiveTab('local-agent')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'local-agent'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                🖥️ 本地投递
+              </button>
             </nav>
           </div>
         </div>
@@ -101,6 +113,7 @@ const ConfigPage: React.FC = () => {
               <CompleteResumeManager />
             </div>
           )}
+          {activeTab === 'local-agent' && <LocalAgentConfig />}
         </div>
 
         {/* 帮助信息 */}
@@ -120,6 +133,10 @@ const ConfigPage: React.FC = () => {
             <li>
               • <strong>简历内容管理</strong>
               ：上传和编辑简历，AI将基于简历内容生成个性化打招呼语
+            </li>
+            <li>
+              • <strong>本地投递</strong>
+              ：使用本地电脑运行Agent，通过家庭/办公IP投递，有效避免风控
             </li>
             <li>• 配置修改后会自动保存，立即生效</li>
             <li>• 建议定期更新简历内容和黑名单以获得更好的投递效果</li>

@@ -53,11 +53,12 @@ public class Bot {
             } else {
                 // 回退到文件系统路径（按优先级尝试多个路径）
                 File configFile = null;
+                String workDir = System.getProperty("user.dir");
                 String[] possiblePaths = {
                     "src/main/resources/config.yaml",
                     "target/classes/config.yaml",
-                    "/opt/zhitoujianli/backend/get_jobs/src/main/resources/config.yaml",
-                    "/opt/zhitoujianli/backend/get_jobs/target/classes/config.yaml"
+                    workDir + "/src/main/resources/config.yaml",
+                    workDir + "/target/classes/config.yaml"
                 };
                 for (String path : possiblePaths) {
                     File file = new File(path);

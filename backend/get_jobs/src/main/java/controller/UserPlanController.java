@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -108,10 +109,13 @@ public class UserPlanController {
                 }
             }
 
-            // 查询用户套餐
-            UserPlan userPlan = userPlanRepository.findByUserIdAndStatus(
-                userId, UserPlan.PlanStatus.ACTIVE
-            ).orElse(null);
+            // 🔧 修复：处理多条ACTIVE套餐记录的情况
+            // 查询用户所有ACTIVE状态的套餐，取最新的
+            List<UserPlan> activePlans = userPlanRepository.findByUserIdOrderByCreatedAtDesc(userId)
+                .stream()
+                .filter(plan -> plan.getStatus() == UserPlan.PlanStatus.ACTIVE)
+                .collect(Collectors.toList());
+            UserPlan userPlan = activePlans.isEmpty() ? null : activePlans.get(0);
 
             // 如果没有套餐，创建默认免费套餐
             if (userPlan == null) {
@@ -336,21 +340,29 @@ public class UserPlanController {
 
             log.info("⬆️ 用户升级套餐: userId={}, targetPlan={}", userId, targetPlan);
 
-            // 查询当前套餐
-            UserPlan currentPlan = userPlanRepository.findByUserIdAndStatus(
-                userId, UserPlan.PlanStatus.ACTIVE
-            ).orElse(null);
+            // 🔧 修复：处理多条ACTIVE套餐记录的情况
+            // 查询用户所有ACTIVE状态的套餐
+            List<UserPlan> activePlans = userPlanRepository.findByUserIdOrderByCreatedAtDesc(userId)
+                .stream()
+                .filter(plan -> plan.getStatus() == UserPlan.PlanStatus.ACTIVE)
+                .collect(Collectors.toList());
+
+            // 获取当前套餐（取最新的）
+            UserPlan currentPlan = activePlans.isEmpty() ? null : activePlans.get(0);
 
             // 检查是否可以升级
             if (currentPlan != null && !currentPlan.getPlanType().canUpgradeTo(targetPlan)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "无法升级到目标套餐");
             }
 
-            // 取消当前套餐
-            if (currentPlan != null) {
-                currentPlan.setStatus(UserPlan.PlanStatus.CANCELLED);
-                currentPlan.setUpdatedAt(LocalDateTime.now());
-                userPlanRepository.save(currentPlan);
+            // 取消所有ACTIVE状态的套餐
+            for (UserPlan plan : activePlans) {
+                plan.setStatus(UserPlan.PlanStatus.CANCELLED);
+                plan.setUpdatedAt(LocalDateTime.now());
+                userPlanRepository.save(plan);
+            }
+            if (!activePlans.isEmpty()) {
+                log.info("✅ 已取消用户{}条旧套餐: userId={}", activePlans.size(), userId);
             }
 
             // 创建新套餐

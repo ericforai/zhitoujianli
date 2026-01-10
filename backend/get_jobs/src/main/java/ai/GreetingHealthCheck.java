@@ -82,7 +82,7 @@ public class GreetingHealthCheck {
             if (workDir != null && new File(workDir + "/user_data").exists()) {
                 userDataBaseDir = workDir + "/user_data";
             } else {
-                userDataBaseDir = "/opt/zhitoujianli/backend/user_data";
+                userDataBaseDir = workDir + "/user_data";
             }
         }
 

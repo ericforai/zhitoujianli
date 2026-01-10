@@ -205,8 +205,7 @@ const AdminUsers: React.FC = () => {
           },
           body: JSON.stringify({
             planType: targetPlan,
-            // endDate 设置为 null 表示永不过期
-            endDate: null,
+            // 不发送 endDate 字段，后端会将其设置为 null（永不过期）
           }),
         }
       );

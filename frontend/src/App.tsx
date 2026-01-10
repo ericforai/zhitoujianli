@@ -7,6 +7,8 @@ import {
 } from 'react-router-dom';
 import ApiTestPage from './components/ApiTestPage';
 import AutoDelivery from './components/AutoDelivery';
+import AgentIntro from './components/AgentIntro';
+import AgentSetupSteps from './components/AgentSetupSteps';
 import BlogSection from './components/BlogSection';
 import Contact from './components/Contact';
 import Demo from './components/Demo';
@@ -42,6 +44,7 @@ import ContactPage from './pages/ContactPage';
 import Dashboard from './pages/Dashboard';
 import GuidePage from './pages/GuidePage';
 import HelpPage from './pages/HelpPage';
+import LocalAgentGuidePage from './pages/LocalAgentGuidePage';
 import PricingPage from './pages/PricingPage';
 import ScenesPage from './pages/ScenesPage';
 
@@ -68,6 +71,8 @@ const HomePage: React.FC = () => {
       </header>
       <main>
         <HeroSection />
+        <AgentIntro />
+        <AgentSetupSteps />
         <Features />
         <Demo />
         <AutoDelivery />
@@ -123,6 +128,7 @@ function App() {
               {/* 帮助和指南页面 */}
               <Route path='/help' element={<HelpPage />} />
               <Route path='/guide' element={<GuidePage />} />
+              <Route path='/guide/local-agent' element={<LocalAgentGuidePage />} />
 
               {/* 受保护的路由 - 需要登录 */}
               <Route

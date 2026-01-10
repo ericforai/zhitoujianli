@@ -1,7 +1,9 @@
 package config;
 
 import controller.BossWebSocketController;
+import controller.LocalAgentWebSocketController;
 import interceptor.JwtHandshakeInterceptor;
+import interceptor.LocalAgentHandshakeInterceptor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
  * @author ZhiTouJianLi Team
  * @since 2025-10-01
  * @updated 2025-11-07 - 添加JWT验证拦截器
+ * @updated 2025-12-18 - 添加本地Agent WebSocket端点
  */
 @Slf4j
 @Configuration
@@ -33,11 +36,17 @@ public class WebSocketConfig implements WebSocketConfigurer {
     private BossWebSocketController bossWebSocketController;
 
     @Autowired
+    private LocalAgentWebSocketController localAgentWebSocketController;
+
+    @Autowired
     private JwtHandshakeInterceptor jwtHandshakeInterceptor;
+
+    @Autowired
+    private LocalAgentHandshakeInterceptor localAgentHandshakeInterceptor;
 
     @Override
     public void registerWebSocketHandlers(@NonNull WebSocketHandlerRegistry registry) {
-        log.info("🔧 注册WebSocket处理器: /ws/boss-delivery");
+        log.info("🔧 注册WebSocket处理器: /ws/boss-delivery, /ws/local-agent");
 
         // 注册Boss投递WebSocket处理器
         registry.addHandler(bossWebSocketController, "/ws/boss-delivery")
@@ -48,14 +57,23 @@ public class WebSocketConfig implements WebSocketConfigurer {
                     "https://zhitoujianli.com",      // 生产域名
                     "https://www.zhitoujianli.com",  // 带www的生产域名
                     "http://localhost:3000",         // 本地开发前端
+                    "http://localhost:8081",         // ✅ 添加：前端开发服务器端口8081
                     "http://localhost:5173",         // Vite开发服务器
-                    "http://127.0.0.1:3000",         // 本地IP
+                    "http://127.0.0.1:3000",
+                    "http://127.0.0.1:8081",         // ✅ 添加：前端开发服务器端口8081         // 本地IP
                     "*"                              // 临时：允许所有来源（TODO: 生产环境移除）
                 )
                 // 支持SockJS降级（兼容不支持WebSocket的浏览器）
                 .withSockJS();
 
-        log.info("✅ WebSocket处理器注册完成（已启用JWT验证）");
+        // ✅ 新增：注册本地Agent WebSocket处理器
+        registry.addHandler(localAgentWebSocketController, "/ws/local-agent")
+                // 本地Agent使用Token认证，不需要JWT
+                .addInterceptors(localAgentHandshakeInterceptor)
+                // 允许所有来源（本地Agent可能从任何地方连接）
+                .setAllowedOrigins("*");
+
+        log.info("✅ WebSocket处理器注册完成（已启用JWT验证 + 本地Agent端点）");
     }
 }
 

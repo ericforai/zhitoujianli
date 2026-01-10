@@ -88,8 +88,12 @@ public class BossBlacklistService {
                 return false;
             }
 
-            // ✅ 使用绝对路径，统一配置目录到 /opt/zhitoujianli/backend/user_data
-            String configPath = "/opt/zhitoujianli/backend/user_data/" + userId + "/config.json";
+            // ✅ 使用环境变量USER_DATA_DIR，兼容本地开发和生产环境
+            String userDataBaseDir = System.getenv("USER_DATA_DIR");
+            if (userDataBaseDir == null || userDataBaseDir.isEmpty()) {
+                userDataBaseDir = System.getProperty("user.dir") + "/user_data";
+            }
+            String configPath = userDataBaseDir + "/" + userId + "/config.json";
             File configFile = new File(configPath);
             log.info("🔍 尝试加载黑名单配置文件: {}", configFile.getAbsolutePath());
             if (!configFile.exists()) {

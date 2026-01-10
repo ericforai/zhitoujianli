@@ -19,9 +19,10 @@
 
   if (isProductionDomain || isIPAddress) {
     // 生产环境或IP访问：使用相对路径
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     window.__PRODUCTION_CONFIG__ = {
       API_BASE_URL: '/api',
-      WS_BASE_URL: 'ws://' + hostname + '/ws',
+      WS_BASE_URL: wsProtocol + '//' + hostname + '/ws/boss-delivery',  // ✅ 修复：WebSocket路径必须是 /ws/boss-delivery
       IS_SECURE: window.location.protocol === 'https:',
       ENVIRONMENT: isProductionDomain ? 'production' : 'development',
     };
@@ -29,11 +30,10 @@
     console.log('🔧 配置已加载:', window.__PRODUCTION_CONFIG__);
   } else {
     // 开发环境（localhost）
-    // 本地开发时，指向后端 9091 端口（当前本地后端运行端口）
-    const localPort = 9091;
+    // ✅ 前端运行在8081，后端在8080，使用代理路径
     window.__PRODUCTION_CONFIG__ = {
-      API_BASE_URL: `http://localhost:${localPort}/api`,
-      WS_BASE_URL: `ws://localhost:${localPort}/ws`,
+      API_BASE_URL: '/api',  // 使用代理路径，代理到后端8080
+      WS_BASE_URL: 'ws://localhost:8080/ws/boss-delivery',  // ✅ 修复：WebSocket路径必须是 /ws/boss-delivery
       IS_SECURE: false,
       ENVIRONMENT: 'development',
     };

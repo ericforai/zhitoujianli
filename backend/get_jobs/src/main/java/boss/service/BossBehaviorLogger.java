@@ -47,7 +47,11 @@ public class BossBehaviorLogger {
             if (userId != null && userId.contains("_") && !userId.contains("@")) {
                 try {
                     // 尝试从config.json读取原始userId
-                    String configPath = "/opt/zhitoujianli/backend/user_data/" + userId + "/config.json";
+                    String userDataBaseDir = System.getenv("USER_DATA_DIR");
+                    if (userDataBaseDir == null || userDataBaseDir.isEmpty()) {
+                        userDataBaseDir = System.getProperty("user.dir") + "/user_data";
+                    }
+                    String configPath = userDataBaseDir + "/" + userId + "/config.json";
                     File configFile = new File(configPath);
                     if (configFile.exists()) {
                         ObjectMapper mapper = new ObjectMapper();

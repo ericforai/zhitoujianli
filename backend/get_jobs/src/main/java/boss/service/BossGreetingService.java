@@ -103,8 +103,8 @@ public class BossGreetingService {
             if (workDir != null && new File(workDir + "/user_data").exists()) {
                 userDataBaseDir = workDir + "/user_data";
             } else {
-                // 最终备用方案：使用生产环境绝对路径
-                userDataBaseDir = "/opt/zhitoujianli/backend/user_data";
+                // 最终备用方案：使用工作目录
+                userDataBaseDir = workDir + "/user_data";
             }
         }
 

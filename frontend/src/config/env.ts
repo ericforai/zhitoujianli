@@ -60,7 +60,8 @@ function getApiConfig(): ApiConfig {
   // 开发环境配置
   if (ENV === 'development') {
     return {
-      baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8080',
+      // ✅ 使用代理路径，前端运行在8081，代理到后端8080
+      baseURL: process.env.REACT_APP_API_URL || '/api',
       domain: 'localhost',
       isProduction: false,
       isSecure: false,

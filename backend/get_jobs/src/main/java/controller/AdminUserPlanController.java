@@ -118,17 +118,24 @@ public class AdminUserPlanController {
             log.info("⬆️ 管理员升级用户套餐: adminId={}, userId={}, targetPlan={}, reason={}",
                      currentUserId, userId, targetPlan, reason);
 
-            // 查询用户当前套餐
-            UserPlan currentPlan = userPlanRepository.findByUserIdAndStatus(
-                userId, UserPlan.PlanStatus.ACTIVE
-            ).orElse(null);
+            // 🔧 修复：处理多条ACTIVE套餐记录的情况
+            // 查询用户所有ACTIVE状态的套餐
+            List<UserPlan> activePlans = userPlanRepository.findByUserIdOrderByCreatedAtDesc(userId)
+                .stream()
+                .filter(plan -> plan.getStatus() == UserPlan.PlanStatus.ACTIVE)
+                .collect(Collectors.toList());
 
-            // 取消当前套餐
-            if (currentPlan != null) {
-                currentPlan.setStatus(UserPlan.PlanStatus.CANCELLED);
-                currentPlan.setUpdatedAt(LocalDateTime.now());
-                userPlanRepository.save(currentPlan);
-                log.info("✅ 已取消用户原套餐: userId={}, oldPlan={}", userId, currentPlan.getPlanType());
+            // 取消所有ACTIVE状态的套餐（保留最新的作为参考）
+            UserPlan currentPlan = null;
+            if (!activePlans.isEmpty()) {
+                currentPlan = activePlans.get(0); // 取最新的作为当前套餐
+                for (UserPlan plan : activePlans) {
+                    plan.setStatus(UserPlan.PlanStatus.CANCELLED);
+                    plan.setUpdatedAt(LocalDateTime.now());
+                    userPlanRepository.save(plan);
+                }
+                log.info("✅ 已取消用户{}条旧套餐: userId={}, oldPlan={}", 
+                    activePlans.size(), userId, currentPlan.getPlanType());
             }
 
             // 创建新套餐
@@ -182,10 +189,13 @@ public class AdminUserPlanController {
 
             log.info("📋 管理员查询用户套餐: adminId={}, userId={}", currentUserId, userId);
 
-            // 查询用户套餐
-            UserPlan userPlan = userPlanRepository.findByUserIdAndStatus(
-                userId, UserPlan.PlanStatus.ACTIVE
-            ).orElse(null);
+            // 🔧 修复：处理多条ACTIVE套餐记录的情况
+            // 查询用户所有ACTIVE状态的套餐，取最新的
+            List<UserPlan> activePlans = userPlanRepository.findByUserIdOrderByCreatedAtDesc(userId)
+                .stream()
+                .filter(plan -> plan.getStatus() == UserPlan.PlanStatus.ACTIVE)
+                .collect(Collectors.toList());
+            UserPlan userPlan = activePlans.isEmpty() ? null : activePlans.get(0);
 
             // 如果没有套餐，返回默认免费套餐信息
             Map<String, Object> response = new HashMap<>();

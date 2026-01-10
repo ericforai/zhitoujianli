@@ -87,6 +87,27 @@ const HelpPage: React.FC = () => {
       ],
     },
     {
+      category: '本地Agent相关',
+      questions: [
+        {
+          q: '什么是本地Agent？',
+          a: '本地Agent是运行在您电脑上的投递程序，使用您本地的IP和浏览器进行投递，有效避免服务器端风控问题。',
+        },
+        {
+          q: '为什么需要使用本地Agent？',
+          a: '服务器投递容易被风控，因为多个用户共享云服务器IP。本地Agent使用您自己的IP，从Boss直聘角度看就像正常用户操作。',
+        },
+        {
+          q: '本地Agent如何安装？',
+          a: '需要安装Python 3.8+，然后运行pip install websockets playwright安装依赖。详细步骤请查看本地Agent使用指南。',
+        },
+        {
+          q: '电脑需要一直开着吗？',
+          a: '只有在投递时需要开着。投递完成后可以关闭Agent，下次投递时再启动即可。',
+        },
+      ],
+    },
+    {
       category: '费用相关',
       questions: [
         {
@@ -113,6 +134,7 @@ const HelpPage: React.FC = () => {
       account: '账号相关',
       resume: '简历相关',
       ai: 'AI功能相关',
+      agent: '本地Agent相关',
     };
 
     const targetCategory = categoryMap[category];
@@ -152,7 +174,7 @@ const HelpPage: React.FC = () => {
       <section className='py-16 bg-white'>
         <Container size='xl'>
           <div className='max-w-6xl mx-auto'>
-            <div className='grid gap-6 md:grid-cols-3 mb-16'>
+            <div className='grid gap-6 md:grid-cols-4 mb-16'>
               <a
                 href='/help?category=account'
                 className='bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-blue-500 hover:shadow-lg transition-all duration-300 block'
@@ -177,6 +199,16 @@ const HelpPage: React.FC = () => {
               >
                 <h3 className='text-xl font-bold text-gray-900 mb-3'>AI匹配</h3>
                 <p className='text-gray-600 text-sm'>智能匹配、评分等</p>
+              </a>
+              <a
+                href='/help?category=agent'
+                className='bg-white border-2 border-green-500 rounded-xl p-6 hover:border-green-600 hover:shadow-lg transition-all duration-300 block'
+              >
+                <div className='flex items-center gap-2 mb-3'>
+                  <h3 className='text-xl font-bold text-gray-900'>本地Agent</h3>
+                  <span className='bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full'>新</span>
+                </div>
+                <p className='text-gray-600 text-sm'>本地投递、安装使用等</p>
               </a>
             </div>
           </div>
@@ -230,7 +262,7 @@ const HelpPage: React.FC = () => {
             <p className='text-xl text-gray-600 mb-8'>
               我们的客服团队随时为您服务
             </p>
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+            <div className='grid grid-cols-1 md:grid-cols-4 gap-6'>
               <div className='bg-gray-50 p-6 rounded-lg'>
                 <div className='w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4'>
                   <svg
@@ -312,6 +344,34 @@ const HelpPage: React.FC = () => {
                   className='text-blue-600 hover:text-blue-700 font-medium'
                 >
                   查看指南 →
+                </Link>
+              </div>
+
+              <div className='bg-green-50 p-6 rounded-lg'>
+                <div className='w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4'>
+                  <svg
+                    className='w-6 h-6 text-green-600'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'
+                    />
+                  </svg>
+                </div>
+                <h3 className='text-lg font-semibold text-gray-900 mb-2'>
+                  本地Agent指南
+                </h3>
+                <p className='text-gray-600 text-sm mb-3'>全新投递方式</p>
+                <Link
+                  to='/guide/local-agent'
+                  className='text-green-600 hover:text-green-700 font-medium'
+                >
+                  立即查看 →
                 </Link>
               </div>
             </div>

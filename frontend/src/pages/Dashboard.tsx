@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import BossServerLogin from '../components/BossServerLogin';
 import Navigation from '../components/Navigation';
-import WorkflowTimeline, { WorkflowStep } from '../components/WorkflowTimeline';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
 import Container from '../components/common/Container';
 import CollapsibleQuota from '../components/dashboard/CollapsibleQuota';
-import QuickActionPanel from '../components/dashboard/QuickActionPanel';
+import DeliveryControl from '../components/dashboard/DeliveryControl';
 import SEOHead from '../components/seo/SEOHead';
 import { useAuth } from '../contexts/AuthContext';
 import { useBossDelivery } from '../hooks/useBossDelivery';
 import { useBossLoginStatus } from '../hooks/useBossLoginStatus';
 import { DeliveryDetail, bossService } from '../services/bossService';
 import { list as listHistory, type HistoryItem } from '../services/resumes';
+import { localAgentService } from '../services/localAgentService';
 import logger from '../utils/logger';
+
+// ✅ 修复：将authLogger移到组件外部，避免每次渲染创建新对象导致useEffect无限循环
+const authLogger = logger.createChild('Dashboard:Auth');
 
 /**
  * Dashboard页面 - 后台管理主页
@@ -22,10 +25,8 @@ import logger from '../utils/logger';
  */
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, isAuthenticated, isLoading } = useAuth();
-
-  // 创建认证日志记录器
-  const authLogger = logger.createChild('Dashboard:Auth');
 
   // Boss登录弹窗状态
   const [showBossLoginModal, setShowBossLoginModal] = useState(false);
@@ -36,8 +37,6 @@ const Dashboard: React.FC = () => {
     message: bossMessage,
     logs,
     fetchLogs,
-    handleStart,
-    handleStop,
   } = useBossDelivery();
 
   // Boss登录状态检查
@@ -62,6 +61,31 @@ const Dashboard: React.FC = () => {
 
   // 认证状态检查和日志记录
   authLogger.debug('Dashboard组件开始渲染', { isLoading, isAuthenticated });
+
+  // 处理Agent回调 - 自动生成Token并回调给本地Agent
+  useEffect(() => {
+    const agentCallback = searchParams.get('agent_callback');
+    if (agentCallback && isAuthenticated) {
+      (async () => {
+        try {
+          authLogger.info('检测到Agent回调请求，正在生成Token...');
+          const result = await localAgentService.generateToken();
+
+          // 构建回调URL
+          const callbackUrl = new URL(agentCallback);
+          callbackUrl.searchParams.set('token', result.token);
+          callbackUrl.searchParams.set('server', result.serverUrl);
+
+          // 跳转到回调URL
+          window.location.href = callbackUrl.toString();
+        } catch (error) {
+          console.error('生成Agent Token失败:', error);
+          // 清除URL参数
+          navigate('/dashboard', { replace: true });
+        }
+      })();
+    }
+  }, [searchParams, isAuthenticated, navigate]); // ✅ 修复：移除authLogger依赖，因为它是模块级常量
 
   // 打开Boss登录弹窗
   const handleBossLogin = () => {
@@ -93,10 +117,10 @@ const Dashboard: React.FC = () => {
   // 🔒 安全修复：监听认证状态变化，如果未认证立即跳转
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      authLogger.warn('检测到未认证状态，立即跳转到登录页');
+      logger.createChild('Dashboard:Auth').warn('检测到未认证状态，立即跳转到登录页');
       navigate('/login', { replace: true });
     }
-  }, [isAuthenticated, isLoading, navigate, authLogger]);
+  }, [isAuthenticated, isLoading, navigate]); // ✅ 修复：移除authLogger依赖，避免无限循环
 
   // 在认证完成前显示加载界面
   if (isLoading) {
@@ -149,64 +173,6 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // 定义工作流程步骤
-  const getWorkflowSteps = (): WorkflowStep[] => {
-    const isRunning = bossStatus.isRunning;
-
-    // 根据Boss登录状态动态显示
-    const bossLoginStep: WorkflowStep = {
-      id: 'login',
-      label: isBossLoggedIn ? '已登录Boss' : '登录Boss直聘',
-      icon: isBossLoggedIn ? '✅' : '📱',
-      description: isBossLoggedIn
-        ? 'Boss账号已登录，可直接启动投递'
-        : '点击登录您的Boss直聘账号',
-      status: isBossLoggedIn ? 'completed' : 'active',
-      action: isBossLoggedIn ? undefined : handleBossLogin,
-    };
-
-    return [
-      {
-        id: 'config',
-        label: '配置管理',
-        icon: '⚙️',
-        description: '设置投递参数和简历内容',
-        status: 'completed',
-        action: () => navigate('/config'),
-      },
-      bossLoginStep,
-      {
-        id: 'start',
-        label: '启动自动投递',
-        icon: '▶️',
-        description: '开始智能投递简历',
-        status: isRunning ? 'completed' : isBossLoggedIn ? 'active' : 'pending',
-        disabled: !isBossLoggedIn || isRunning,
-        action: handleStart,
-      },
-      {
-        id: 'logs',
-        label: '查看日志',
-        icon: '📋',
-        description: '如遇问题，复制这里面的内容发给客服',
-        status: isRunning ? 'active' : 'pending',
-        action: async () => {
-          await fetchLogs();
-          setShowLogs(true);
-        },
-      },
-      {
-        id: 'stop',
-        label: '停止投递',
-        icon: '⏹️',
-        description: '停止自动投递任务',
-        status: isRunning ? 'active' : 'pending',
-        disabled: !isRunning,
-        action: handleStop,
-      },
-    ];
-  };
-
   return (
     <div className='min-h-screen bg-gray-50'>
       <SEOHead path='/dashboard' />
@@ -234,57 +200,41 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* 智能投递流程 - 核心焦点区域 */}
+          {/* 智能投递控制面板 - 核心焦点区域 */}
           <div className='mb-6'>
-            <div className='mb-4'>
-              <div className='flex items-center gap-3 mb-2 flex-wrap'>
-                <h2 className='text-2xl font-bold text-gray-900'>
-                  智能投递流程
-                </h2>
-                {/* 运行状态 */}
-                <div
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors ${
-                    bossStatus.isRunning
-                      ? 'bg-green-50 text-green-700 border border-green-300'
-                      : 'bg-gray-50 text-gray-600 border border-gray-300'
-                  }`}
-                >
-                  <div
-                    className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                      bossStatus.isRunning
-                        ? 'bg-green-500 animate-pulse'
-                        : 'bg-gray-400'
-                    }`}
-                  />
-                  <span>{bossStatus.isRunning ? '运行中' : '已停止'}</span>
-                </div>
-              </div>
-              <p className='text-gray-600'>按照以下步骤完成简历投递设置</p>
-            </div>
-
-            <Card padding='lg'>
-              <WorkflowTimeline
-                steps={getWorkflowSteps()}
-                currentStep={bossStatus.isRunning ? 3 : isBossLoggedIn ? 2 : 1}
-              />
-            </Card>
+            <DeliveryControl
+              isBossLoggedIn={isBossLoggedIn}
+              onBossLogin={handleBossLogin}
+            />
           </div>
 
-          {/* 快捷状态栏 */}
-          <QuickActionPanel
-            isRunning={bossStatus.isRunning}
-            isBossLoggedIn={isBossLoggedIn}
-            todayDeliveryCount={bossStatus.deliveryCount || 0}
-            onStart={handleStart}
-            onStop={handleStop}
-            onBossLogin={handleBossLogin}
-            loading={bossLoading}
-            message={bossMessage}
-            onRefreshBossStatus={refreshBossStatus}
-            bossStatusError={bossStatusError}
-            isBossStatusLoading={isBossStatusLoading}
-            onShowDeliveryDetails={handleShowDeliveryDetails}
-          />
+          {/* 快捷操作：查看日志、投递详情 */}
+          <div className='mb-6 flex gap-4'>
+            <button
+              type='button'
+              onClick={async () => {
+                await fetchLogs();
+                setShowLogs(true);
+              }}
+              className='px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm'
+            >
+              📋 查看投递日志
+            </button>
+            <button
+              type='button'
+              onClick={handleShowDeliveryDetails}
+              className='px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm'
+            >
+              📊 今日投递详情 ({bossStatus.deliveryCount || 0})
+            </button>
+            <button
+              type='button'
+              onClick={() => navigate('/config')}
+              className='px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm'
+            >
+              ⚙️ 配置管理
+            </button>
+          </div>
 
           {/* 历史记录卡片 */}
           <Card className='mb-8'>

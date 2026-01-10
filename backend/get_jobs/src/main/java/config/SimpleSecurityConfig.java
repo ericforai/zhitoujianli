@@ -81,6 +81,8 @@ public class SimpleSecurityConfig {
                     "/api/auth/**",          // 认证接口
                     "/api/admin/auth/**",    // 🔧 管理员认证接口（必须公开访问）
                     "/api/boss/**",          // Boss投递接口（登录、二维码等）
+                    "/api/local-agent/download",  // ✅ 本地Agent下载（公开访问，用户需要下载程序）
+                    "/ws/**",                // ✅ WebSocket端点（本地Agent连接）
                     // ❌ 移除："/api/delivery/**" - 多租户模式必须认证！
                     // ❌ 移除："/api/config" - 多租户模式必须认证！
                     // ❌ 移除："/api/candidate-resume/**" - 多租户模式必须认证！
@@ -91,7 +93,8 @@ public class SimpleSecurityConfig {
                     "/static/**",
                     "/css/**",
                     "/js/**",
-                    "/images/**"
+                    "/images/**",
+                    "/downloads/**"          // ✅ 本地Agent下载（公开访问）
                 ).permitAll()
 
                 // 管理后台状态接口（允许无认证访问，用于监控）
@@ -112,6 +115,7 @@ public class SimpleSecurityConfig {
                     "/api/resume",                          // 简历
                     "/api/resume/history",                  // ✅ 简历历史记录（需要认证）
                     "/api/resume/history/**",                // ✅ 简历历史记录详情（需要认证）
+                    "/api/local-agent/**",                  // ✅ 本地Agent API（需要认证）
                     "/api/admin/**",                        // 🔧 管理后台API（需要认证，/api/admin/behavior/log已在上面单独配置）
                     "/save-config",
                     "/start-program",

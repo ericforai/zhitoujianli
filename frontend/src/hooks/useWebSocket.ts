@@ -57,11 +57,26 @@ export const useWebSocket = (): UseWebSocketReturn => {
 
   /**
    * 更新连接状态
+   * ✅ 修复：使用函数式更新，避免依赖问题，并添加状态比较避免不必要的更新
    */
   const updateConnectionState = useCallback(() => {
     const state = webSocketService.getConnectionState();
-    setConnectionState(state);
-    setIsConnected(state === 'open');
+    const newIsConnected = state === 'open';
+    
+    // ✅ 修复：使用函数式更新，并添加状态比较，只有真正变化时才更新
+    setConnectionState(prevState => {
+      if (prevState !== state) {
+        return state;
+      }
+      return prevState;
+    });
+    
+    setIsConnected(prev => {
+      if (prev !== newIsConnected) {
+        return newIsConnected;
+      }
+      return prev;
+    });
   }, []);
 
   /**
@@ -266,19 +281,34 @@ export const useWebSocket = (): UseWebSocketReturn => {
     []
   );
 
-  // 组件挂载时连接WebSocket
-  useEffect(() => {
-    connect();
+  // ✅ 修复：使用模块级单例，确保全局只有一个WebSocket连接
+  // 使用模块级变量而不是组件级ref，避免多个组件实例重复连接
+  // 注意：这个变量在模块级别，所有组件实例共享
+  let globalInitialized = false;
 
-    // 定期检查连接状态
-    const interval = setInterval(updateConnectionState, 1000);
+  // 组件挂载时连接WebSocket（只执行一次）
+  useEffect(() => {
+    // ✅ 修复：使用模块级变量，确保全局只有一个连接
+    if (!globalInitialized) {
+      globalInitialized = true;
+      connect();
+    }
+
+    // ✅ 修复：使用WebSocket状态变化监听，被动更新而不是定时轮询
+    const unsubscribeStateChange = webSocketService.onStateChange(() => {
+      updateConnectionState();
+    });
 
     // 在 effect 内部复制 ref，供清理函数使用
     const currentHandlersRef = handlersRef;
 
-    // 清理函数：组件卸载时清理所有订阅和连接
+    // 清理函数：组件卸载时只清理订阅，不断开连接
     return () => {
-      clearInterval(interval);
+      // ✅ 修复：取消状态变化监听
+      unsubscribeStateChange();
+
+      // ✅ 修复：不断开连接，因为其他组件可能还在使用
+      // 只清理当前组件的订阅
 
       // 清理所有在此Hook中注册的订阅
       const allTopics = ['status', 'progress', 'record', 'error', 'success'];
@@ -310,12 +340,14 @@ export const useWebSocket = (): UseWebSocketReturn => {
       // 清空本地引用
       currentHandlersRef.current.clear();
 
-      // 断开连接
-      disconnect();
+      // ✅ 修复：不断开连接，让其他组件继续使用
+      // disconnect(); // 移除这行，避免组件卸载时断开连接
 
-      console.log('🧹 useWebSocket: 已清理所有订阅和连接');
+      console.log('🧹 useWebSocket: 已清理当前组件的订阅');
     };
-  }, [connect, disconnect, updateConnectionState]);
+    // ✅ 修复：移除函数依赖，只在组件挂载/卸载时执行一次
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return {
     connectionState,

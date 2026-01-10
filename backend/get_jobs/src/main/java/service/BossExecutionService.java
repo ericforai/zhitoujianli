@@ -396,10 +396,8 @@ public class BossExecutionService {
         pb.environment().put("NODE_OPTIONS", "--max-old-space-size=512");
 
         // ✅ 修复：防止Playwright临时目录package.json丢失导致崩溃
-        // 根据操作系统设置不同的工作目录
-        String playwrightWorkDir = isMac
-            ? System.getProperty("user.home") + "/.playwright-cache"
-            : "/opt/zhitoujianli/backend/.playwright-cache";
+        // 使用用户目录下的.playwright-cache
+        String playwrightWorkDir = System.getProperty("user.home") + "/.playwright-cache";
         new File(playwrightWorkDir).mkdirs();
 
         // 【重要】显式传递AI服务的环境变量（.env文件中的变量不会自动传递）
@@ -471,14 +469,18 @@ public class BossExecutionService {
                 log.warn(".env文件不存在: {}", envFile.getAbsolutePath());
             }
 
-            // ✅ 如果环境变量未设置，使用默认值
+            // ✅ 如果环境变量未设置，使用当前工作目录下的user_data（兼容本地开发和生产环境）
             if (!pb.environment().containsKey("USER_DATA_DIR")) {
-                pb.environment().put("USER_DATA_DIR", "/opt/zhitoujianli/backend/user_data");
-                log.info("设置默认USER_DATA_DIR: /opt/zhitoujianli/backend/user_data");
+                // 使用工作目录下的user_data，确保与DeliveryConfigController保存路径一致
+                String workDir = pb.directory() != null ? pb.directory().getAbsolutePath() : System.getProperty("user.dir");
+                String userDataDir = workDir + "/user_data";
+                pb.environment().put("USER_DATA_DIR", userDataDir);
+                log.info("设置默认USER_DATA_DIR: {}", userDataDir);
             }
             if (!pb.environment().containsKey("BOSS_WORK_DIR")) {
-                pb.environment().put("BOSS_WORK_DIR", "/opt/zhitoujianli/backend");
-                log.info("设置默认BOSS_WORK_DIR: /opt/zhitoujianli/backend");
+                String workDir = pb.directory() != null ? pb.directory().getAbsolutePath() : System.getProperty("user.dir");
+                pb.environment().put("BOSS_WORK_DIR", workDir);
+                log.info("设置默认BOSS_WORK_DIR: {}", workDir);
             }
 
         } catch (Exception e) {
@@ -692,9 +694,13 @@ public class BossExecutionService {
 
         try {
             // 读取用户配置文件
-            // ✅ 修复：在异步线程中，使用userId直接构建路径，避免依赖SecurityContext
+            // ✅ 修复：使用环境变量USER_DATA_DIR，兼容本地开发和生产环境
             String sanitizedUserId = util.UserContextUtil.sanitizeUserId(userId);
-            String configPath = "/opt/zhitoujianli/backend/user_data/" + sanitizedUserId + "/config.json";
+            String userDataBaseDir = System.getenv("USER_DATA_DIR");
+            if (userDataBaseDir == null || userDataBaseDir.isEmpty()) {
+                userDataBaseDir = System.getProperty("user.dir") + "/user_data";
+            }
+            String configPath = userDataBaseDir + "/" + sanitizedUserId + "/config.json";
             File configFile = new File(configPath);
 
             if (!configFile.exists()) {

@@ -1,61 +1,37 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { authService, type User } from '../services/authService';
+import { authService } from '../services/authService';
+import { useAuth } from '../contexts/AuthContext';
 import Button from './common/Button';
 
 const Navigation = () => {
   const location = useLocation();
+  const { user, isAuthenticated } = useAuth(); // ✅ 修复：直接使用AuthContext，避免重复状态管理
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
   const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null);
   const [scrolled, setScrolled] = useState(false);
 
+  // ✅ 修复：移除定时检查，完全依赖AuthContext管理认证状态
+  // 只在存储事件变化时同步（用于多标签页场景）
   useEffect(() => {
-    // 检查登录状态
-    const checkAuthStatus = () => {
-      const loggedIn = authService.isAuthenticated();
-      setIsLoggedIn(loggedIn);
-      if (loggedIn) {
-        const userData = authService.getCachedUser();
-        setUser(userData);
-      }
-    };
-
-    checkAuthStatus();
-
-    // 监听存储变化（包括同源页面的变化）
+    // 监听存储变化（用于多标签页同步，但不需要更新本地状态，因为AuthContext会处理）
     const handleStorageChange = (e: StorageEvent) => {
-      // 如果userType或authToken发生变化，重新检查状态
-      if (e.key === 'userType' || e.key === 'authToken' || e.key === 'token') {
-        checkAuthStatus();
-      }
-    };
-
-    // 监听自定义事件（用于同页面内的变化）
-    const handleCustomStorageChange = () => {
-      checkAuthStatus();
+      // 存储事件变化时，AuthContext会自动检测并更新
+      // 这里不需要做任何操作，避免重复更新
     };
 
     window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('userTypeChanged', handleCustomStorageChange);
-
-    // 🔧 修复：定期检查userType变化（用于检测登录后的状态更新）
-    const intervalId = setInterval(() => {
-      checkAuthStatus();
-    }, 1000); // 每秒检查一次
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('userTypeChanged', handleCustomStorageChange);
-      clearInterval(intervalId);
       // 清理定时器，防止内存泄漏
       if (closeTimeout) {
         clearTimeout(closeTimeout);
       }
     };
-  }, [closeTimeout]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // 🎨 UX优化：滚动时添加背景模糊效果（参考Apple.com）
   useEffect(() => {
@@ -99,20 +75,15 @@ const Navigation = () => {
    */
   const handleLogout = async () => {
     try {
-      // 先清除本地状态
-      setIsLoggedIn(false);
-      setUser(null);
-
       // 调用退出登录API（清除token等）
+      // ✅ 修复：不需要手动清除状态，authService.logout()会自动清除
       await authService.logout();
 
       // 🔒 安全修复：立即强制跳转到登录页
       window.location.href = '/login';
     } catch (error) {
       console.error('退出登录失败:', error);
-      // 🔒 安全修复：即使出错，也清除状态并强制跳转
-      setIsLoggedIn(false);
-      setUser(null);
+      // 🔒 安全修复：即使出错，也强制跳转（authService.logout()已清除状态）
       window.location.href = '/login';
     }
   };
@@ -141,8 +112,8 @@ const Navigation = () => {
         <div className='flex justify-between h-16'>
           {/* Logo - 简约风格 */}
           <div className='flex items-center md:flex-none'>
-            <a
-              href='/'
+            <Link
+              to='/'
               className='flex items-center space-x-3 group transition-opacity duration-200 hover:opacity-70 md:justify-start justify-center w-full md:w-auto'
               aria-label='智投简历 - 返回首页'
             >
@@ -153,13 +124,13 @@ const Navigation = () => {
                 loading='eager'
               />
               <span className='text-xl font-bold text-gray-900'>智投简历</span>
-            </a>
+            </Link>
           </div>
 
           {/* Desktop Navigation - 简约风格，5个核心导航 */}
           <div className='hidden md:flex items-center space-x-1'>
-            <a
-              href='/'
+            <Link
+              to='/'
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
                 isActive('/')
                   ? 'text-blue-600 bg-blue-50'
@@ -167,9 +138,9 @@ const Navigation = () => {
               }`}
             >
               首页
-            </a>
-            <a
-              href='/pricing'
+            </Link>
+            <Link
+              to='/pricing'
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
                 isActive('/pricing')
                   ? 'text-blue-600 bg-blue-50'
@@ -177,9 +148,9 @@ const Navigation = () => {
               }`}
             >
               定价
-            </a>
-            <a
-              href='/scenes'
+            </Link>
+            <Link
+              to='/scenes'
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
                 isActive('/scenes')
                   ? 'text-blue-600 bg-blue-50'
@@ -187,9 +158,9 @@ const Navigation = () => {
               }`}
             >
               场景
-            </a>
-            <a
-              href='/resume'
+            </Link>
+            <Link
+              to='/resume'
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
                 location.pathname.startsWith('/resume')
                   ? 'text-blue-600 bg-blue-50'
@@ -197,7 +168,7 @@ const Navigation = () => {
               }`}
             >
               简历
-            </a>
+            </Link>
 
             {/* 分类下拉菜单 - 优化交互体验：点击跳转博客首页，悬停显示分类 */}
             <div
@@ -297,7 +268,7 @@ const Navigation = () => {
 
           {/* Desktop Auth Section - 简约风格 */}
           <div className='hidden md:flex items-center space-x-3'>
-            {isLoggedIn ? (
+            {isAuthenticated ? (
               <div className='flex items-center space-x-3'>
                 {/* 根据用户类型显示不同的按钮 */}
                 {localStorage.getItem('userType') === 'admin' ? (
@@ -347,7 +318,7 @@ const Navigation = () => {
           {/* Mobile menu button - 简约风格 */}
           <div className='md:hidden flex items-center space-x-2'>
             {/* 未登录时显示登录/注册按钮 */}
-            {!isLoggedIn && (
+            {!isAuthenticated && (
               <>
                 <Button as='a' href='/login' variant='ghost' size='sm'>
                   登录
@@ -359,7 +330,7 @@ const Navigation = () => {
             )}
 
             {/* 已登录时显示用户头像快捷入口 */}
-            {isLoggedIn && (
+            {isAuthenticated && (
               <a
                 href={
                   localStorage.getItem('userType') === 'admin'
@@ -411,8 +382,8 @@ const Navigation = () => {
       {isMenuOpen && (
         <div className='md:hidden fixed top-16 left-0 right-0 bg-white border-t border-gray-200 shadow-lg max-h-[calc(100vh-4rem)] overflow-y-auto z-50'>
           <div className='px-4 pt-2 pb-3 space-y-1'>
-            <a
-              href='/'
+            <Link
+              to='/'
               className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 ${
                 isActive('/')
                   ? 'text-blue-600 bg-blue-50'
@@ -421,9 +392,9 @@ const Navigation = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               首页
-            </a>
-            <a
-              href='/pricing'
+            </Link>
+            <Link
+              to='/pricing'
               className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 ${
                 isActive('/pricing')
                   ? 'text-blue-600 bg-blue-50'
@@ -432,9 +403,9 @@ const Navigation = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               定价
-            </a>
-            <a
-              href='/scenes'
+            </Link>
+            <Link
+              to='/scenes'
               className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 ${
                 isActive('/scenes')
                   ? 'text-blue-600 bg-blue-50'
@@ -443,9 +414,9 @@ const Navigation = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               场景
-            </a>
-            <a
-              href='/resume'
+            </Link>
+            <Link
+              to='/resume'
               className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 ${
                 location.pathname.startsWith('/resume')
                   ? 'text-blue-600 bg-blue-50'
@@ -454,7 +425,7 @@ const Navigation = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               简历
-            </a>
+            </Link>
 
             {/* 移动端博客链接 - 添加博客首页入口 */}
             <div className='space-y-1'>
@@ -508,7 +479,7 @@ const Navigation = () => {
 
             {/* Mobile Auth Section */}
             <div className='pt-4 pb-3 border-t border-gray-200 space-y-3'>
-              {isLoggedIn ? (
+              {isAuthenticated ? (
                 <>
                   {/* 根据用户类型显示不同的按钮 */}
                   {localStorage.getItem('userType') === 'admin' ? (
