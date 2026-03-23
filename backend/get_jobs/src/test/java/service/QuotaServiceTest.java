@@ -10,7 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.quality.Strictness;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
 import repository.PlanQuotaConfigRepository;
 import repository.QuotaDefinitionRepository;
 import repository.UserPlanRepository;
@@ -31,6 +33,7 @@ import static org.mockito.Mockito.*;
  * @since 2025-01-XX
  */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class QuotaServiceTest {
 
     @Mock

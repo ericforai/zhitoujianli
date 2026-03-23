@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +57,7 @@ public class LocalAgentController {
      * @return Token和使用说明
      */
     @PostMapping("/token")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> generateToken() {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> generateToken(HttpServletRequest request) {
         try {
             String userId = UserContextUtil.getCurrentUserId();
             log.info("📝 生成Agent Token: userId={}", userId);
@@ -68,12 +70,15 @@ public class LocalAgentController {
             }
 
             String token = localAgentService.generateAgentToken(userId);
+            String serverUrl = buildLocalAgentWebSocketUrl(request);
 
             Map<String, Object> data = new HashMap<>();
             data.put("token", token);
             data.put("expiresIn", 2592000); // 30天
-            data.put("serverUrl", "wss://zhitoujianli.com/ws/local-agent");
-            data.put("usage", "./start.sh " + token);
+            data.put("serverUrl", serverUrl);
+            String safeUrl = serverUrl.replace("\"", "'");
+            data.put("usage", String.format(
+                    "python3 boss_local_agent.py --token %s --server \"%s\"", token, safeUrl));
 
             return ResponseEntity.ok(ApiResponse.success(data));
         } catch (SecurityException e) {
@@ -346,5 +351,39 @@ public class LocalAgentController {
                     "message", "系统错误: " + e.getMessage()
                 ));
         }
+    }
+
+    /**
+     * 根据当前 HTTP 请求构造本地 Agent WebSocket URL，使 Token 与 WS 始终指向同一后端实例。
+     */
+    private static String buildLocalAgentWebSocketUrl(HttpServletRequest request) {
+        String scheme = firstCsvHeaderValue(request.getHeader("X-Forwarded-Proto"));
+        if (scheme == null || scheme.isEmpty()) {
+            scheme = request.getScheme();
+        }
+        String host = firstCsvHeaderValue(request.getHeader("X-Forwarded-Host"));
+        if (host == null || host.isEmpty()) {
+            host = firstCsvHeaderValue(request.getHeader("Host"));
+        }
+        if (host == null || host.isEmpty()) {
+            int port = request.getServerPort();
+            String portPart = (port == 80 || port == 443) ? "" : (":" + port);
+            host = request.getServerName() + portPart;
+        }
+        String wsScheme = "https".equalsIgnoreCase(scheme) ? "wss" : "ws";
+        return wsScheme + "://" + host + "/ws/local-agent";
+    }
+
+    /**
+     * 取转发头中的第一个值（部分代理会传 {@code https, http} 等多值串）。
+     */
+    private static String firstCsvHeaderValue(String raw) {
+        if (raw == null || raw.isEmpty()) {
+            return null;
+        }
+        int comma = raw.indexOf(',');
+        String first = comma < 0 ? raw : raw.substring(0, comma);
+        first = first.trim();
+        return first.isEmpty() ? null : first;
     }
 }
