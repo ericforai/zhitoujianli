@@ -31,8 +31,12 @@ jobs:
       run: |
         cd blog/zhitoujianli-blog
         npm ci
-        # CI 环境下偶发缺少 html-escaper（被 @astrolib/seo 以动态方式导入），此处临时兜底确保构建能产出 sitemap
-        npm install html-escaper@3.0.3 --no-save
+        # CI 环境下偶发缺少 html-escaper（被 @astrolib/seo 以动态方式导入）
+        # 注意：Vite 解析器的 importer 在 repo 根目录的 node_modules 下，因此需要在 repo 根目录也确保安装。
+        npm install html-escaper@3.0.3 --no-save --no-audit
+        cd ../..
+        npm install html-escaper@3.0.3 --no-save --no-audit
+        cd blog/zhitoujianli-blog
         npm run build
       continue-on-error: false
 
