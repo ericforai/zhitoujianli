@@ -31,6 +31,8 @@ jobs:
       run: |
         cd blog/zhitoujianli-blog
         npm ci
+        # CI 环境下偶发缺少 html-escaper（被 @astrolib/seo 以动态方式导入），此处临时兜底确保构建能产出 sitemap
+        npm install html-escaper@3.0.3 --no-save
         npm run build
       continue-on-error: false
 

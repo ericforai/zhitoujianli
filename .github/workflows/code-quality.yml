@@ -182,6 +182,8 @@ jobs:
       run: |
         cd blog/zhitoujianli-blog
         npm ci
+        # CI 环境下偶发缺少 html-escaper（被 @astrolib/seo 动态依赖），临时兜底以保证构建通过
+        npm install html-escaper@3.0.3 --no-save
         npm run build
 
     - name: 生成和合并Sitemap
