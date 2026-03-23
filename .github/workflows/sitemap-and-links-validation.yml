@@ -120,16 +120,24 @@ jobs:
                     path = path[1:]
                 if not path:
                     path = 'index.html'
-                elif not path.endswith('.html') and '.' not in path.split('/')[-1]:
-                    # 可能是路由，检查是否有对应的HTML文件
-                    if not path.endswith('/'):
-                        path += '.html'
+                # 本仓库的站点是 React SPA，路由如 /login /contact /pricing 通常没有对应的
+                # frontend/public/<route>.html 文件；仅需保证 index.html 存在即可。
+                # 同时，/blog/* 页面由 Astro 构建输出（不在本目录的 frontend/public/blog 下），这里直接跳过校验。
+                if path.startswith('blog/'):
+                    return None, None
 
                 full_path = f"{base_path}/{path}"
                 import os
                 if os.path.exists(full_path):
                     return True, None
                 else:
+                    last_seg = path.split('/')[-1]
+                    # 如果是 SPA 路由（不以 .html 结尾），回落到 index.html 作为存在性证明
+                    if path.endswith('/') or (not path.endswith('.html') and '.' not in last_seg):
+                        index_path = f"{base_path}/index.html"
+                        if os.path.exists(index_path):
+                            return True, None
+                        return False, f"文件不存在: {index_path}"
                     return False, f"文件不存在: {full_path}"
             return None, None
 
