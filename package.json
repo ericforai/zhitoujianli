@@ -32,7 +32,7 @@
     "docker:up": "docker-compose -f volcano-deployment.yml up -d",
     "docker:down": "docker-compose -f volcano-deployment.yml down",
     "docker:logs": "docker-compose -f volcano-deployment.yml logs -f",
-    "prepare": "husky"
+    "prepare": "if command -v husky >/dev/null 2>&1; then husky; fi"
   },
   "engines": {
     "node": ">=18.0.0",

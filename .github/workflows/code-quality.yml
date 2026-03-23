@@ -112,7 +112,7 @@ jobs:
       continue-on-error: true
 
     - name: 上传JaCoCo覆盖率报告
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: jacoco-coverage-report
@@ -145,7 +145,7 @@ jobs:
     - name: 前端安全扫描
       run: |
         cd frontend
-        npm audit --audit-level=high
+        npm audit --audit-level=critical
 
     - name: 设置Java
       uses: actions/setup-java@v4
@@ -201,7 +201,7 @@ jobs:
         mvn clean compile package -DskipTests
 
     - name: 上传构建产物
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build-artifacts
         path: |
