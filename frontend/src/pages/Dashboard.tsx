@@ -31,21 +31,11 @@ const Dashboard: React.FC = () => {
   // Boss登录弹窗状态
   const [showBossLoginModal, setShowBossLoginModal] = useState(false);
 
-  const {
-    status: bossStatus,
-    loading: bossLoading,
-    message: bossMessage,
-    logs,
-    fetchLogs,
-  } = useBossDelivery();
+  const { status: bossStatus, logs, fetchLogs } = useBossDelivery();
 
   // Boss登录状态检查
-  const {
-    isLoggedIn: isBossLoggedIn,
-    isLoading: isBossStatusLoading,
-    error: bossStatusError,
-    refreshStatus: refreshBossStatus,
-  } = useBossLoginStatus();
+  const { isLoggedIn: isBossLoggedIn, refreshStatus: refreshBossStatus } =
+    useBossLoginStatus();
 
   // 日志弹窗状态
   const [showLogs, setShowLogs] = useState(false);
@@ -117,7 +107,9 @@ const Dashboard: React.FC = () => {
   // 🔒 安全修复：监听认证状态变化，如果未认证立即跳转
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      logger.createChild('Dashboard:Auth').warn('检测到未认证状态，立即跳转到登录页');
+      logger
+        .createChild('Dashboard:Auth')
+        .warn('检测到未认证状态，立即跳转到登录页');
       navigate('/login', { replace: true });
     }
   }, [isAuthenticated, isLoading, navigate]); // ✅ 修复：移除authLogger依赖，避免无限循环

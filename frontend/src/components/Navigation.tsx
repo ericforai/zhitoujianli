@@ -16,7 +16,7 @@ const Navigation = () => {
   // 只在存储事件变化时同步（用于多标签页场景）
   useEffect(() => {
     // 监听存储变化（用于多标签页同步，但不需要更新本地状态，因为AuthContext会处理）
-    const handleStorageChange = (e: StorageEvent) => {
+    const handleStorageChange = () => {
       // 存储事件变化时，AuthContext会自动检测并更新
       // 这里不需要做任何操作，避免重复更新
     };
