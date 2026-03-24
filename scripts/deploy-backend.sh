@@ -16,6 +16,8 @@ HEALTH_CHECK_URL="http://localhost:8080/api/version/health"
 HEALTH_CHECK_TIMEOUT=60  # 健康检查超时时间（秒）
 LOG_DIR="/opt/zhitoujianli/logs"
 LOG_FILE="$LOG_DIR/deploy-backend.log"
+PROJECT_ROOT="/root/zhitoujianli"
+VERIFY_SCRIPT="$PROJECT_ROOT/scripts/verify-local-agent-package.sh"
 
 # 颜色输出
 RED='\033[0;31m'
@@ -227,6 +229,26 @@ show_summary() {
     curl -s "$HEALTH_CHECK_URL" | jq '.' 2>/dev/null || echo "无法获取版本信息"
 }
 
+# ==================== 发布前校验（本地Agent下载包） ====================
+verify_local_agent_package() {
+    log_info "执行发布前校验：本地Agent下载包..."
+    if [ ! -x "$VERIFY_SCRIPT" ]; then
+        if [ -f "$VERIFY_SCRIPT" ]; then
+            chmod +x "$VERIFY_SCRIPT"
+        else
+            log_error "未找到校验脚本: $VERIFY_SCRIPT"
+            return 1
+        fi
+    fi
+
+    if "$VERIFY_SCRIPT"; then
+        log_success "本地Agent下载包校验通过"
+    else
+        log_error "本地Agent下载包校验失败，阻断部署"
+        return 1
+    fi
+}
+
 # ==================== 主流程 ====================
 main() {
     log_info "=========================================="
@@ -235,6 +257,9 @@ main() {
 
     # 创建日志目录
     mkdir -p "$LOG_DIR"
+
+    # 发布前校验
+    verify_local_agent_package
 
     # 执行部署流程
     find_latest_jar
