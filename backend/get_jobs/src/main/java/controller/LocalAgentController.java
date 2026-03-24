@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -279,7 +280,24 @@ public class LocalAgentController {
     @GetMapping("/download")
     public ResponseEntity<?> downloadLocalAgent() {
         try {
-            // 查找local-agent.zip文件
+            // 优先从classpath读取，兼容java -jar生产运行
+            Resource classpathResource = new ClassPathResource("static/downloads/local-agent.zip");
+            if (classpathResource.exists() && classpathResource.isReadable()) {
+                long contentLength = classpathResource.contentLength();
+                HttpHeaders headers = new HttpHeaders();
+                headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"local-agent.zip\"");
+                headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+                if (contentLength > 0) {
+                    headers.setContentLength(contentLength);
+                }
+
+                log.info("✅ 从classpath下载local-agent.zip: {} bytes", contentLength);
+                return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(classpathResource);
+            }
+
+            // 回退到文件系统路径（本地开发）
             String[] possiblePaths = {
                 "src/main/resources/static/downloads/local-agent.zip",
                 "target/classes/static/downloads/local-agent.zip",
