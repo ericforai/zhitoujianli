@@ -56,6 +56,9 @@ public class BossLoginController {
     private BossExecutionService bossExecutionService;
 
     @Autowired
+    private BossLocalLoginController bossLocalLoginController;
+
+    @Autowired
     private Environment environment;
 
     /**
@@ -134,154 +137,8 @@ public class BossLoginController {
     @PostMapping("/start")
     @Deprecated
     public ResponseEntity<Map<String, Object>> startLogin() {
-        // ✅ 修复：生产环境直接返回410 Gone状态码
-        if (isProductionEnvironment()) {
-            log.warn("⚠️ 生产环境拒绝访问已废弃的接口 /api/boss/login/start");
-            return createDeprecatedResponse();
-        }
-
-        // 获取当前用户ID（多用户支持）
-        String userId = util.UserContextUtil.getCurrentUserId();
-        log.warn("⚠️ 用户{}调用了已废弃的接口 /api/boss/login/start", userId);
-        log.warn("⚠️ 推荐使用本地登录方案: /api/boss/local-login/guide");
-        log.info("收到启动登录请求，用户: {}", userId);
-
-        Map<String, Object> response = new HashMap<>();
-
-        // ✅ 进程检查：检查是否有该用户的Boss进程在运行
-        if (util.BossProcessManager.isUserBossProcessRunning(userId)) {
-            List<Long> existingPids = util.BossProcessManager.findUserBossProcesses(userId);
-            response.put("success", false);
-            response.put("message", String.format(
-                "您已有Boss进程在运行（PID: %s），请等待当前任务完成或先终止现有进程",
-                existingPids
-            ));
-            response.put("status", "process_running");
-            response.put("existingPids", existingPids);
-            response.put("userId", userId);
-            log.warn("用户{}已有Boss进程在运行，拒绝重复启动登录流程", userId);
-            return ResponseEntity.ok(response);
-        }
-
-        // 【多用户支持】用户级别的锁检查，支持超时自动释放
-        Boolean inProgress = userLoginStatus.getOrDefault(userId, false);
-        if (inProgress) {
-            Long startTime = userLoginStartTime.get(userId);
-            long elapsed = System.currentTimeMillis() - (startTime != null ? startTime : 0);
-
-            if (elapsed < LOGIN_TIMEOUT_MS) {
-                response.put("success", false);
-                response.put("message", "登录流程正在进行中，请稍候...");
-                response.put("status", "in_progress");
-                response.put("elapsedSeconds", elapsed / 1000);
-                response.put("userId", userId);
-                log.warn("用户{}登录流程已在进行中，拒绝重复启动（已进行{}秒）", userId, elapsed / 1000);
-                return ResponseEntity.ok(response);
-            } else {
-                // 超过10分钟，认为上次登录已失效
-                log.warn("用户{}上次登录流程超时（{}秒），强制释放锁并重置状态", userId, elapsed / 1000);
-                userLoginStatus.put(userId, false);
-                cleanupLoginFiles(userId);
-            }
-        }
-
-        // 标记该用户登录开始
-        userLoginStatus.put(userId, true);
-        userLoginStartTime.put(userId, System.currentTimeMillis());
-        log.info("用户{}登录流程开始，已设置锁", userId);
-
-        try {
-            // 清理旧的登录状态
-            cleanupLoginFiles();
-
-            // 创建登录状态文件，标记为"等待登录"
-            Files.write(Paths.get(LOGIN_STATUS_FILE), "waiting".getBytes(StandardCharsets.UTF_8));
-
-            // ✅ 修复：在异步任务之前获取SecurityContext，避免在异步线程中丢失
-            final org.springframework.security.core.context.SecurityContext securityContext =
-                org.springframework.security.core.context.SecurityContextHolder.getContext();
-            final String finalUserId = userId; // 保存userId的最终引用
-
-            // 异步启动Boss程序（有头模式，用于生成二维码）
-            CompletableFuture.runAsync(() -> {
-                // ✅ 修复：在异步线程中恢复SecurityContext
-                org.springframework.security.core.context.SecurityContextHolder.setContext(securityContext);
-
-                try {
-                    log.info("🚀 异步启动Boss程序以生成登录二维码... (用户: {})", finalUserId);
-
-                    // ✅ 启动Boss程序（只登录模式，不执行投递）
-                    bossExecutionService.executeBossProgram(
-                        System.getProperty("java.io.tmpdir") + File.separator + "boss_login.log",
-                        false,  // headless=false（有头模式，用于生成二维码）
-                        true    // loginOnly=true（只登录，不投递）
-                    );
-
-                    // 等待二维码生成（最多等待30秒）
-                    int maxWaitTime = 30; // 30秒
-                    int waitInterval = 2; // 每2秒检查一次
-
-                    for (int i = 0; i < maxWaitTime; i += waitInterval) {
-                        Thread.sleep(waitInterval * 1000L);
-
-                        // ✅ 修复：使用用户ID相关的二维码文件路径
-                        String qrcodePath = System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode_" +
-                            finalUserId.replaceAll("[^a-zA-Z0-9_-]", "_") + ".png";
-                        File qrcodeFile = new File(qrcodePath);
-                        if (qrcodeFile.exists() && qrcodeFile.length() > 0) {
-                            log.info("✅ 二维码文件已生成: {} ({}KB)", qrcodePath, qrcodeFile.length() / 1024);
-                            break;
-                        }
-
-                        log.debug("⏳ 等待二维码生成... ({}/{}秒)", i + waitInterval, maxWaitTime);
-                    }
-
-                    // ✅ 修复：检查最终状态，使用用户ID相关的二维码文件路径
-                    String qrcodePath = System.getProperty("java.io.tmpdir") + File.separator + "boss_qrcode_" +
-                        finalUserId.replaceAll("[^a-zA-Z0-9_-]", "_") + ".png";
-                    File qrcodeFile = new File(qrcodePath);
-                    if (!qrcodeFile.exists() || qrcodeFile.length() == 0) {
-                        log.warn("⚠️ 二维码文件未在预期时间内生成");
-                        Files.write(Paths.get(LOGIN_STATUS_FILE), "failed".getBytes(StandardCharsets.UTF_8));
-                    }
-
-                } catch (Exception e) {
-                    log.error("Boss程序启动失败", e);
-                    try {
-                        Files.write(Paths.get(LOGIN_STATUS_FILE), "failed".getBytes(StandardCharsets.UTF_8));
-                    } catch (IOException ioException) {
-                        log.error("更新失败状态文件失败", ioException);
-                    }
-                } finally {
-                    // 【多用户支持】登录流程结束，释放用户锁
-                    userLoginStatus.put(finalUserId, false);
-                    log.info("用户{}登录流程结束，已释放锁", finalUserId);
-
-                    // 【向后兼容】同时释放全局锁
-                    synchronized (LOGIN_LOCK) {
-                        isLoginInProgress = false;
-                        log.debug("全局锁已释放（向后兼容）");
-                    }
-                }
-            });
-
-            response.put("success", true);
-            response.put("message", "登录流程已启动，请稍候...");
-            response.put("status", "started");
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            log.error("启动登录失败", e);
-            // 【新增】异常时释放锁
-            synchronized (LOGIN_LOCK) {
-                isLoginInProgress = false;
-                log.info("启动登录异常，已释放全局锁");
-            }
-            response.put("success", false);
-            response.put("message", "启动登录失败：" + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
+        log.warn("⚠️ 兼容旧接口 /api/boss/login/start，已转发到 /api/boss/local-login/start-server-login");
+        return bossLocalLoginController.startServerLogin();
     }
 
     /**
@@ -294,64 +151,8 @@ public class BossLoginController {
     @GetMapping("/qrcode")
     @Deprecated
     public ResponseEntity<?> getQRCode(@RequestParam(value = "format", required = false) String format) {
-        // ✅ 修复：生产环境直接返回410 Gone状态码
-        if (isProductionEnvironment()) {
-            log.warn("⚠️ 生产环境拒绝访问已废弃的接口 /api/boss/login/qrcode");
-            return createDeprecatedResponse();
-        }
-
-        log.warn("⚠️ 调用了已废弃的接口 /api/boss/login/qrcode");
-        log.warn("⚠️ 服务器无图形界面，无法生成二维码，请使用本地登录方案");
-        // 为链路追踪生成traceId并写入响应头
-        String traceId = java.util.UUID.randomUUID().toString();
-        MDC.put("traceId", traceId);
-        try {
-            // ✅ 修复：使用用户ID相关的二维码文件路径
-            String qrcodePath = getQRCodePath();
-            File qrcodeFile = new File(qrcodePath);
-
-            if (!qrcodeFile.exists()) {
-                log.warn("[{}] 二维码文件不存在: {}", traceId, qrcodePath);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .header("X-Request-Id", traceId)
-                        .body(Map.of("success", false, "message", "二维码尚未生成", "traceId", traceId));
-            }
-
-            byte[] imageBytes = Files.readAllBytes(qrcodeFile.toPath());
-
-            // 当 format=base64 时，返回JSON，避免跨层代理对图片流的协议细节敏感
-            if ("base64".equalsIgnoreCase(format)) {
-                String base64 = java.util.Base64.getEncoder().encodeToString(imageBytes);
-                Map<String, Object> resp = new HashMap<>();
-                resp.put("success", true);
-                resp.put("data", Map.of("qrcodeBase64", base64, "contentType", "image/png"));
-                resp.put("traceId", traceId);
-                return ResponseEntity.ok()
-                        .cacheControl(org.springframework.http.CacheControl.noStore())
-                        .header("X-Request-Id", traceId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(resp);
-            }
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.IMAGE_PNG);
-            headers.setCacheControl("no-cache, no-store, must-revalidate");
-            headers.setPragma("no-cache");
-            headers.setExpires(0);
-            headers.add("X-Request-Id", traceId);
-
-            return ResponseEntity.ok()
-                .headers(headers)
-                .body(imageBytes);
-
-        } catch (IOException e) {
-            log.error("[{}] 读取二维码失败", traceId, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .header("X-Request-Id", traceId)
-                    .body(Map.of("success", false, "message", "读取二维码失败", "traceId", traceId));
-        } finally {
-            MDC.remove("traceId");
-        }
+        log.warn("⚠️ 兼容旧接口 /api/boss/login/qrcode，已转发到 /api/boss/local-login/qrcode");
+        return bossLocalLoginController.getQRCode();
     }
 
     /**
@@ -393,77 +194,8 @@ public class BossLoginController {
      */
     @GetMapping("/status")
     public ResponseEntity<Map<String, Object>> checkLoginStatus() {
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            // ✅ 修复：使用用户隔离的状态文件路径
-            String userId = util.UserContextUtil.sanitizeUserId(util.UserContextUtil.getCurrentUserId());
-            String safeUserId = userId.replaceAll("[^a-zA-Z0-9_-]", "_");
-            String userStatusFile = System.getProperty("java.io.tmpdir") + File.separator + "boss_login_status_" + safeUserId + ".txt";
-
-            // 【新增】检查是否有登录流程正在进行
-            if (isLoginInProgress) {
-                long elapsed = System.currentTimeMillis() - loginStartTime;
-                response.put("isInProgress", true);
-                response.put("elapsedSeconds", elapsed / 1000);
-            } else {
-                response.put("isInProgress", false);
-            }
-
-            // ✅ 修复：优先使用用户隔离的状态文件，如果不存在则使用全局状态文件（向后兼容）
-            File statusFile = new File(userStatusFile);
-            if (!statusFile.exists()) {
-                // 向后兼容：检查全局状态文件
-                statusFile = new File(LOGIN_STATUS_FILE);
-            }
-
-            if (!statusFile.exists()) {
-                response.put("status", "not_started");
-                response.put("message", "登录流程未启动");
-                return ResponseEntity.ok(response);
-            }
-
-            String status = new String(Files.readAllBytes(statusFile.toPath())).trim();
-
-            switch (status) {
-                case "waiting":
-                    response.put("status", "waiting");
-                    response.put("message", "等待扫码中...");
-                    // ✅ 修复：使用用户ID相关的二维码文件路径
-                    String qrcodePath = getQRCodePath();
-                    response.put("hasQRCode", new File(qrcodePath).exists());
-                    break;
-                case "success":
-                    response.put("status", "success");
-                    response.put("message", "登录成功！");
-                    // 【新增】登录成功后重置进行中状态
-                    synchronized (LOGIN_LOCK) {
-                        isLoginInProgress = false;
-                        log.info("检测到登录成功，已释放全局锁");
-                    }
-                    break;
-                case "failed":
-                    response.put("status", "failed");
-                    response.put("message", "登录失败，请重试");
-                    // 【新增】登录失败后重置进行中状态
-                    synchronized (LOGIN_LOCK) {
-                        isLoginInProgress = false;
-                        log.info("检测到登录失败，已释放全局锁");
-                    }
-                    break;
-                default:
-                    response.put("status", "unknown");
-                    response.put("message", "未知状态");
-            }
-
-            return ResponseEntity.ok(response);
-
-        } catch (IOException e) {
-            log.error("检查登录状态失败", e);
-            response.put("status", "error");
-            response.put("message", "检查状态失败：" + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
+        log.warn("⚠️ 兼容旧接口 /api/boss/login/status，已转发到 /api/boss/local-login/login-status");
+        return bossLocalLoginController.getLoginStatus();
     }
 
     /**

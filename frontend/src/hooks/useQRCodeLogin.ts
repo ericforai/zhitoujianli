@@ -51,7 +51,7 @@ export const useQRCodeLogin = () => {
     try {
       const timestamp = new Date().getTime();
       // 🔧 修复：使用config中的apiBaseUrl
-      const url = `${config.apiBaseUrl}/boss/login/qrcode?format=base64&t=${timestamp}`;
+      const url = `${config.apiBaseUrl}/boss/local-login/qrcode?format=base64&t=${timestamp}`;
       const exec = async (): Promise<string | null> => {
         const response = await fetch(url, {
           headers: {
@@ -68,6 +68,8 @@ export const useQRCodeLogin = () => {
         const json = (await response.json()) as
           | {
               success?: boolean;
+              hasQRCode?: boolean;
+              imageData?: string;
               data?: { qrcodeBase64?: string; image?: string };
               qrcodeBase64?: string;
               image?: string;
@@ -80,6 +82,7 @@ export const useQRCodeLogin = () => {
         }
 
         const base64 =
+          json?.imageData ||
           json?.data?.qrcodeBase64 ||
           json?.data?.image ||
           json?.qrcodeBase64 ||
@@ -118,7 +121,7 @@ export const useQRCodeLogin = () => {
   const checkLoginStatus = async () => {
     try {
       // 🔧 修复：使用config中的apiBaseUrl
-      const response = await fetch(`${config.apiBaseUrl}/boss/login/status`);
+      const response = await fetch(`${config.apiBaseUrl}/boss/local-login/login-status`);
       const result = await response.json();
 
       // 显示运行进度
@@ -192,7 +195,7 @@ export const useQRCodeLogin = () => {
 
       // 调用后端启动登录
       // 🔧 修复：使用config中的apiBaseUrl
-      const response = await fetch(`${config.apiBaseUrl}/boss/login/start`, {
+      const response = await fetch(`${config.apiBaseUrl}/boss/local-login/start-server-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
