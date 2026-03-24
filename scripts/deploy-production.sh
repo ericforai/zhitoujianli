@@ -20,6 +20,7 @@ NC='\033[0m' # No Color
 
 # 项目根目录
 PROJECT_ROOT="/root/zhitoujianli"
+VERIFY_SCRIPT="$PROJECT_ROOT/scripts/verify-local-agent-package.sh"
 
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}智投简历 - 生产环境标准发布${NC}"
@@ -48,6 +49,29 @@ if git pull origin main; then
 else
     echo -e "${RED}❌ 代码拉取失败${NC}"
     echo -e "${YELLOW}   请检查网络连接和GitHub访问权限${NC}"
+    exit 1
+fi
+
+echo ""
+
+# 步骤1.5: 发布前校验（本地Agent下载包）
+echo -e "${BLUE}========================================${NC}"
+echo -e "${BLUE}步骤 1.5/3: 发布前校验（本地Agent下载包）${NC}"
+echo -e "${BLUE}========================================${NC}"
+echo ""
+
+if [ -f "$VERIFY_SCRIPT" ]; then
+    chmod +x "$VERIFY_SCRIPT"
+    echo -e "${YELLOW}🔍 校验本地Agent下载包（关键文件/权限/文案一致性）...${NC}"
+    if "$VERIFY_SCRIPT" --check-url https://www.zhitoujianli.com/api/local-agent/download; then
+        echo -e "${GREEN}✅ 本地Agent下载包校验通过${NC}"
+    else
+        echo -e "${RED}❌ 本地Agent下载包校验失败，阻断发布${NC}"
+        exit 1
+    fi
+else
+    echo -e "${RED}❌ 错误: 未找到校验脚本${NC}"
+    echo -e "${YELLOW}   预期位置: $VERIFY_SCRIPT${NC}"
     exit 1
 fi
 
