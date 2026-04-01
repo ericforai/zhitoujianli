@@ -12,7 +12,8 @@ set -e  # 遇到错误立即退出
 DEPLOY_DIR="/opt/zhitoujianli/backend"
 BACKUP_DIR="$DEPLOY_DIR/backups"
 SERVICE_NAME="zhitoujianli-backend"
-HEALTH_CHECK_URL="http://localhost:8080/api/version/health"
+# 使用无需 JWT 的认证健康检查（/api/version/health 在 Security 下需登录，curl -f 会得到 401）
+HEALTH_CHECK_URL="http://localhost:8080/api/auth/health"
 HEALTH_CHECK_TIMEOUT=60  # 健康检查超时时间（秒）
 LOG_DIR="/opt/zhitoujianli/logs"
 LOG_FILE="$LOG_DIR/deploy-backend.log"
@@ -152,7 +153,7 @@ health_check() {
                 log_success "健康检查通过！"
 
                 # 获取并显示版本信息
-                VERSION_INFO=$(curl -s "$HEALTH_CHECK_URL" | jq -r '.version + "-" + .gitSha' 2>/dev/null || echo "unknown")
+                VERSION_INFO=$(curl -s "$HEALTH_CHECK_URL" | jq -r 'if .success then (.message // "ok") else "unhealthy" end' 2>/dev/null || echo "unknown")
                 log_info "当前运行版本: $VERSION_INFO"
 
                 return 0
