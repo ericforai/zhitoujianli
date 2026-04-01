@@ -1,0 +1,6 @@
+.venv/
+chrome-data/
+*.log
+agent_config.json
+__pycache__/
+*.pyc
