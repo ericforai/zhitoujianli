@@ -65,13 +65,14 @@
 
 ### 第一步：下载并解压Agent程序
 
-从网站下载 `local-agent.zip`，解压到任意目录。
+从网站下载 `local-agent.zip`，解压到任意目录（得到同一文件夹内的下列文件）。
 
-解压后的文件：
+解压后的文件（**3步开始投递**：见下文第二～四步）：
 ```
-local-agent/
+./
 ├── boss_local_agent.py    # 主程序
 ├── requirements.txt       # Python依赖
+├── start.bat / start.command / start_one_click.py  # 一键启动
 └── README.md              # 本文档
 ```
 
