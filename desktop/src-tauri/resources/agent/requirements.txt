@@ -1,0 +1,7 @@
+# Boss直聘本地Agent 依赖
+# 安装: pip install -r requirements.txt
+
+playwright>=1.40.0
+websockets>=12.0
+aiohttp>=3.9.0
+certifi>=2024.2.2

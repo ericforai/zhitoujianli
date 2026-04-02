@@ -15,7 +15,8 @@
     "copy:build": "node scripts/copy-build.js",
     "deploy:blog": "node scripts/deploy-blog.js",
     "build:blog": "cd blog/zhitoujianli-blog && npm install && npm run build",
-    "build:backend": "cd backend/get_jobs && mvn clean package -DskipTests",
+    "build:backend": "bash scripts/mvn-java21.sh clean package -DskipTests",
+    "test:backend": "bash scripts/mvn-java21.sh test",
     "build:all": "npm run build:blog && npm run build:frontend && npm run sitemap:generate && npm run sitemap:merge",
     "sitemap:generate": "python3 scripts/generate-sitemap-main.py",
     "sitemap:merge": "python3 scripts/merge-sitemaps.py",
@@ -32,7 +33,7 @@
     "docker:up": "docker-compose -f volcano-deployment.yml up -d",
     "docker:down": "docker-compose -f volcano-deployment.yml down",
     "docker:logs": "docker-compose -f volcano-deployment.yml logs -f",
-    "prepare": "husky"
+    "prepare": "if command -v husky >/dev/null 2>&1; then husky; fi"
   },
   "engines": {
     "node": ">=18.0.0",

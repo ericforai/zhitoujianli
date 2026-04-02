@@ -144,6 +144,8 @@ mvn jacoco:check           # Test coverage (≥60%)
 mvn verify                 # Run all checks
 ```
 
+**JDK 版本**：本地与 CI 请使用 **JDK 21**。若本机默认是 Java 23+，Mockito 内联 mock 可能失败；可在仓库根目录执行 `npm run test:backend` 或 `bash scripts/mvn-java21.sh <mvn-args>`，脚本会自动选用 JDK 21。
+
 ### Deployment Scripts (from project root)
 
 ```bash

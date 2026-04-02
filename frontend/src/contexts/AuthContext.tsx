@@ -361,6 +361,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
    * 监听认证状态变化
    * 如果用户被清除（如Token过期），自动跳转到登录页
    */
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     // 跳过管理员用户的检查（管理员登录后有独立的跳转逻辑）
     const userType = localStorage.getItem('userType');
