@@ -17,14 +17,6 @@ interface TokenInfo {
   generatedAt: number;
 }
 
-// 检测操作系统
-const getOS = (): 'windows' | 'mac' | 'linux' => {
-  const platform = navigator.platform.toLowerCase();
-  if (platform.includes('win')) return 'windows';
-  if (platform.includes('mac')) return 'mac';
-  return 'linux';
-};
-
 const LocalAgentConfig: React.FC = () => {
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
   const [agentStatus, setAgentStatus] = useState<AgentStatus | null>(null);
@@ -33,8 +25,6 @@ const LocalAgentConfig: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [copiedCommand, setCopiedCommand] = useState(false);
   const [showToken, setShowToken] = useState(false);
-
-  const os = getOS();
 
   // 生成一键复制的完整启动命令
   const getFullCommand = (token: string) => {

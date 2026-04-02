@@ -7,7 +7,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { localAgentService, AgentStatus, TokenResult } from '../services/localAgentService';
+import { localAgentService, AgentStatus } from '../services/localAgentService';
 
 export interface LocalAgentState {
   // Agent状态
