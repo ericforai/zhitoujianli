@@ -1,0 +1,10 @@
+node_modules
+dist
+src-tauri/target
+.DS_Store
+*.log
+.env
+.env.local
+
+# 临时裁切用图标源（可用 npx tauri icon 重新生成）
+icon-source.png
