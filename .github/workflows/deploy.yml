@@ -46,6 +46,9 @@ jobs:
       # 3. 安装依赖
       # ============================================================
       - name: 📦 安装依赖
+        # npm ci 在 NODE_ENV=production 时会省略 devDependencies，导致 workspace 前端构建缺少 eslint-config-prettier
+        env:
+          NODE_ENV: development
         run: |
           echo "开始安装依赖..."
           npm ci
