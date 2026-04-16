@@ -2,9 +2,14 @@
  * ESLint配置文件 - 简化版本
  * 基于React + TypeScript项目
  *
+ * 使用 require.resolve：根仓库 npm ci 时依赖可挂在根 node_modules，
+ * 避免 extends: 'prettier' 在 CI 中解析失败（Failed to load config "prettier"）。
+ *
  * @author ZhiTouJianLi Team
  * @since 2025-01-27
  */
+
+const eslintConfigPrettier = require.resolve('eslint-config-prettier');
 
 module.exports = {
   root: true,
@@ -18,7 +23,7 @@ module.exports = {
     'plugin:react/recommended',
     'plugin:react-hooks/recommended',
     'plugin:@typescript-eslint/recommended',
-    'prettier',
+    eslintConfigPrettier,
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {

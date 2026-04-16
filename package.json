@@ -55,5 +55,8 @@
   "bugs": {
     "url": "https://github.com/ericforai/zhitoujianli/issues"
   },
-  "homepage": "https://www.zhitoujianli.com"
+  "homepage": "https://www.zhitoujianli.com",
+  "devDependencies": {
+    "eslint-config-prettier": "^9.1.2"
+  }
 }
